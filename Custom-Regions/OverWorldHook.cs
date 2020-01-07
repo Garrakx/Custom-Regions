@@ -23,42 +23,9 @@ namespace CustomRegions
 
         }
 
-        private static void OverWorld_LoadWorld(On.OverWorld.orig_LoadWorld orig, OverWorld self, string worldName, int playerCharacterNumber, bool singleRoomWorld)
-        {
-            if (worldName.Length > 2)
-            {
-                Debug.Log($"Custom World: ERROR! splitting worldName {worldName}");
-                string text2 = Regex.Split(worldName, "_")[0];
-
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
-                {
-                    Debug.Log($"Custom Regions: Searching room in {keyValues.Value}");
-                    string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                    bool flag2 = false;
-                    if (Directory.Exists(string.Concat(new object[]
-                    {
-                        Custom.RootFolderDirectory(),
-                        path.Replace('/', Path.DirectorySeparatorChar),
-                        Path.DirectorySeparatorChar,
-                        "World",
-                        Path.DirectorySeparatorChar,
-                        "Regions",
-                        Path.DirectorySeparatorChar,
-                        text2
-                    })))
-                    {
-                        Debug.Log($"Custom Regions: Loading world [{text2}] from {keyValues.Value}");
-                        flag2 = true;
-                        break;
-                    }
-                }
-                worldName = text2;
-            }
-
-            Debug.Log($"Custom Regions: Loading world - Worldname [{worldName}]");
-            orig(self, worldName, playerCharacterNumber, singleRoomWorld);
-        }
-
+        /// <summary>
+        /// Adds the new regions found in region.txt files to the OverWorld.regions[]
+        /// </summary>
         private static void OverWorld_LoadFirstWorld(On.OverWorld.orig_LoadFirstWorld orig, OverWorld self)
         {
             int num = self.regions[self.regions.Length - 1].firstRoomIndex;
@@ -74,13 +41,13 @@ namespace CustomRegions
                 {
                     string regionToAdd = Path.GetFileNameWithoutExtension(regionEach);
                     bool shouldAdd = true;
+
                     for (int i = 0; i < self.regions.Length; i++)
                     {
                         if (regionToAdd.Equals(self.regions[i].name))
                         {
                             shouldAdd = false;
                         }
-
                     }
                     if (shouldAdd)
                     {
@@ -97,6 +64,9 @@ namespace CustomRegions
             orig(self);
         }
 
+        /// <summary>
+        /// Used for debugging purposes
+        /// </summary>
         private static Region OverWorld_GetRegion_1(On.OverWorld.orig_GetRegion_1 orig, OverWorld self, string rName)
         {
             Debug.Log($"Custom Region: Getting region. AbstractRoom [{rName}]).");
@@ -115,6 +85,9 @@ namespace CustomRegions
             return orig(self, rName);
         }
 
+        /// <summary>
+        /// Used for debugging purposes
+        /// </summary>
         private static Region OverWorld_GetRegion(On.OverWorld.orig_GetRegion orig, OverWorld self, AbstractRoom room)
         {
             string[] array = Regex.Split(room.name, "_");
@@ -137,5 +110,45 @@ namespace CustomRegions
             return orig(self, room);
         }
 
+
+
+
+
+        // UNUSED
+        /* private static void OverWorld_LoadWorld(On.OverWorld.orig_LoadWorld orig, OverWorld self, string worldName, int playerCharacterNumber, bool singleRoomWorld)
+         {
+             if (worldName.Length > 2)
+             {
+                 Debug.Log($"Custom World: ERROR! splitting worldName {worldName}");
+                 string text2 = Regex.Split(worldName, "_")[0];
+
+                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                 {
+                     Debug.Log($"Custom Regions: Searching room in {keyValues.Value}");
+                     string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                     bool flag2 = false;
+                     if (Directory.Exists(string.Concat(new object[]
+                     {
+                         Custom.RootFolderDirectory(),
+                         path.Replace('/', Path.DirectorySeparatorChar),
+                         Path.DirectorySeparatorChar,
+                         "World",
+                         Path.DirectorySeparatorChar,
+                         "Regions",
+                         Path.DirectorySeparatorChar,
+                         text2
+                     })))
+                     {
+                         Debug.Log($"Custom Regions: Loading world [{text2}] from {keyValues.Value}");
+                         flag2 = true;
+                         break;
+                     }
+                 }
+                 worldName = text2;
+             }
+
+             Debug.Log($"Custom Regions: Loading world - Worldname [{worldName}]");
+             orig(self, worldName, playerCharacterNumber, singleRoomWorld);
+         }*/
     }
 }

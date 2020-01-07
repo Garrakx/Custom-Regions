@@ -58,6 +58,15 @@ namespace CustomRegions.Mod
 
         }
 
+
+        public enum MergeStatus
+        {
+            ROOMS,
+            CREATURES,
+            BATS
+        }
+
+
         /// <summary>
         /// Fills the region array with the custom regions. UNUSED
         /// </summary>
