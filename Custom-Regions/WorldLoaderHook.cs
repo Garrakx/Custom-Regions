@@ -20,9 +20,82 @@ namespace CustomRegions
         {
             On.WorldLoader.FindRoomFileDirectory += WorldLoader_FindRoomFileDirectory;
             On.WorldLoader.NextActivity += WorldLoader_NextActivity;
+            On.WorldLoader.ctor += WorldLoader_ctor;
 
             // DEBUG
-            On.WorldLoader.ctor += WorldLoader_ctor;
+            On.WorldLoader.MappingRooms += WorldLoader_MappingRooms;
+
+        }
+
+        /// <summary>
+        /// All the lists are not getting initialized, so we have to initialize here.
+        /// </summary>
+        public static void InitializeWorldLoaderList(WorldLoader self)
+        {
+            if (self.roomAdder == null)
+            {
+                self.roomAdder = new List<string[]>();
+            }
+            if (self.roomTags == null)
+            {
+                self.roomTags = new List<List<string>>();
+            }
+            if (self.swarmRoomsList == null)
+            {
+                self.swarmRoomsList = new List<int>();
+            }
+            if (self.sheltersList == null)
+            {
+                self.sheltersList = new List<int>();
+            }
+            if (self.gatesList == null)
+            {
+                self.gatesList = new List<int>();
+            }
+            if (self.faultyExits == null)
+            {
+                self.faultyExits = new List<WorldCoordinate>();
+            }
+            if (self.abstractRooms == null)
+            {
+                self.abstractRooms = new List<AbstractRoom>();
+            }
+            if (self.spawners == null)
+            {
+                self.spawners = new List<World.CreatureSpawner>();
+            }
+            if (self.tempBatBlocks == null)
+            {
+                self.tempBatBlocks = new List<WorldLoader.BatMigrationBlockage>();
+            }
+        }
+
+        /// <summary>
+        /// Debuggin purposes
+        /// </summary>
+        private static void WorldLoader_MappingRooms(On.WorldLoader.orig_MappingRooms orig, WorldLoader self)
+        {
+            try
+            {
+                string[] array = Regex.Split(self.lines[self.cntr], " : ");
+                if (array.Length < 2)
+                {
+                    return;
+                }
+                string[] array2 = Regex.Split(array[1], ", ");
+                string debug = $"Custom Regions: Mapping rooms: ";
+                foreach (string lines in array)
+                {
+                    debug += $" {lines},";
+                }
+                Debug.Log(debug);
+
+            } catch(Exception e)
+            {
+                Debug.Log($"Custom Regions: Mapping rooms failed, reason: {e}");
+            }
+
+            orig(self);
         }
 
         /// <summary>
@@ -59,6 +132,11 @@ namespace CustomRegions
             {
                 // LOADING A CUSTOM REGION
                 // THIS WILL REPLACE THE CTOR REDUCING COMPABILITY
+
+                //INITIALIZING LISTS
+                Debug.Log("Custom Worlds: Using custom WorldLoader ctor");
+                InitializeWorldLoaderList(self);
+
                 string path = CustomWorldMod.resourcePath + region + Path.DirectorySeparatorChar;
 
                 self.game = game;
@@ -267,7 +345,7 @@ namespace CustomRegions
 
             if (result != "")
             {
-                //Debug.Log("Using Custom Worldfile: " + result);
+                Debug.Log("Using Custom Worldfile: " + result);
                 return result;
             }
             else
@@ -379,7 +457,7 @@ namespace CustomRegions
                                     }
                                 }
                                 lines.Add(array[i]);
-                                CustomWorldMod.CustomWorldLog(array[i]);
+                                //CustomWorldMod.CustomWorldLog(array[i]);
                             }
                         }
                     }
@@ -389,6 +467,10 @@ namespace CustomRegions
             if (lines.Count < 2)
             {
                 return self.lines;
+            }
+            foreach(string s in lines)
+            {
+                CustomWorldMod.CustomWorldLog(s);
             }
             return lines;
         }
@@ -420,6 +502,12 @@ namespace CustomRegions
             else
             {
                 Debug.Log($"Custom Worlds: Next Activity was not init, was {self.activity}");
+            }
+
+            if (self.faultyExits == null)
+            {
+                Debug.Log($"Custom Regions: NextActivity failed, faultyExits is null");
+                self.faultyExits = new List<WorldCoordinate>();
             }
             orig(self);
         }

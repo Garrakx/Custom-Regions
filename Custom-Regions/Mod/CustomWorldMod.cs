@@ -68,6 +68,14 @@ namespace CustomRegions.Mod
 
 
         /// <summary>
+        /// Returns the vanilla regions ID. UNUSED
+        /// </summary>
+        public static string[] VanillaRegions()
+        {
+            return new string[] { "CC", "DS", "HI", "GW", "SI", "SU", "SH", "SL", "LF", "UW", "SB", "SS" };
+        }
+
+        /// <summary>
         /// Fills the region array with the custom regions. UNUSED
         /// </summary>
         public static void FillCustomRegions(OverWorld self, RainWorldGame game)

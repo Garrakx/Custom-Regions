@@ -34,7 +34,6 @@ namespace CustomRegions
                 {
                     foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                     {
-                        Debug.Log($"Custom Regions: Loading map texture {keyValues.Value} in {self.RegionName}");
                         string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                         string test = string.Concat(new object[]
@@ -53,6 +52,7 @@ namespace CustomRegions
                         });
                         if (File.Exists(test))
                         {
+                            Debug.Log($"Custom Regions: Loading map texture {keyValues.Value} in {self.RegionName}");
                             self.www = new WWW("file:///" + test);
                         }
                     }
@@ -72,7 +72,7 @@ namespace CustomRegions
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                Debug.Log($"Custom Regions: Counting total rooms for {keyValues.Key} in {self.RegionName}");
+               // Debug.Log($"Custom Regions: Counting total rooms for {keyValues.Key} in {self.RegionName}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
                 string test = string.Concat(new object[]
                 {

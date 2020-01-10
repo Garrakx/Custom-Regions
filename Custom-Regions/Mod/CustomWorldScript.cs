@@ -22,6 +22,7 @@ namespace CustomRegions.Mod
             WorldHook.ApplyHook();
             WorldLoaderHook.ApplyHooks();
             OverWorldHook.ApplyHooks();
+            PlayerProgressionHook.ApplyHooks();
         }
 
         public RainWorld rw;

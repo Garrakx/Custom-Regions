@@ -24,7 +24,7 @@ namespace CustomRegions
         }
 
         /// <summary>
-        /// Adds the new regions found in region.txt files to the OverWorld.regions[]
+        /// Adds the new regions found in all region.txt files to the OverWorld.regions[]
         /// </summary>
         private static void OverWorld_LoadFirstWorld(On.OverWorld.orig_LoadFirstWorld orig, OverWorld self)
         {
