@@ -46,6 +46,7 @@ namespace CustomRegions
                 Array.Resize(ref self.mapDiscoveryTextures, self.regionNames.Length);
                 Debug.Log($"Custom Regions: Resizing mapDiscovery in PlayerProgression.");
             }
+            self.miscProgressionData = new PlayerProgression.MiscProgressionData(self);
         }
     }
 }

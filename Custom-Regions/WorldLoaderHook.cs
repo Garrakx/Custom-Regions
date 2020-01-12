@@ -135,7 +135,13 @@ namespace CustomRegions
 
                 //INITIALIZING LISTS
                 Debug.Log("Custom Worlds: Using custom WorldLoader ctor");
-                InitializeWorldLoaderList(self);
+                try
+                {
+                    InitializeWorldLoaderList(self);
+                } catch(Exception e)
+                {
+                    Debug.Log("Custom Worlds, something failed ERROR!!!");
+                }
 
                 string path = CustomWorldMod.resourcePath + region + Path.DirectorySeparatorChar;
 
@@ -154,6 +160,7 @@ namespace CustomRegions
                 if (!singleRoomWorld)
                 {
                     self.simulateUpdateTicks = 100;
+                    self.lines = getWorldLines(self);
                 }
                 self.NextActivity();
             }
@@ -466,8 +473,10 @@ namespace CustomRegions
             }
             if (lines.Count < 2)
             {
+                Debug.Log("Custom Regions: ERROR! Lines.Count < 2");
                 return self.lines;
             }
+
             foreach(string s in lines)
             {
                 CustomWorldMod.CustomWorldLog(s);

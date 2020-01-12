@@ -40,14 +40,7 @@ namespace CustomRegions.Mod
 
             config = default(CustomWorldConfig);
 
-            loadedRegions = CustomWorldMod.BuildModRegionsDictionary();
-            string dictionaryString = "Custom Regions: Loading \n{";
-            foreach (KeyValuePair<string, string> keyValues in loadedRegions)
-            {
-                dictionaryString += keyValues.Key + " : " + keyValues.Value + ", ";
-            }
-            Debug.Log(dictionaryString.TrimEnd(',', ' ') + "}");
-
+            
 
             script.Initialize();
 
@@ -65,6 +58,12 @@ namespace CustomRegions.Mod
             CREATURES,
             BATS
         }
+
+
+        /// <summary>
+        /// Holds the value of the sceneID in use.
+        /// </summary>
+        public static string sceneCustomID = string.Empty;
 
 
         /// <summary>
@@ -149,7 +148,7 @@ namespace CustomRegions.Mod
         /// Builds a dictionary where the Key is the region ID and the value is the name.
         /// </summary>
         /// <returns>returns a Dictionary(string, string)</returns>
-        private static Dictionary<string, string> BuildModRegionsDictionary()
+        public static Dictionary<string, string> BuildModRegionsDictionary()
         {
             Dictionary<string, string> dictionary = new Dictionary<string, string>();
 

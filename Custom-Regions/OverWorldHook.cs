@@ -18,13 +18,11 @@ namespace CustomRegions
             On.OverWorld.GetRegion += OverWorld_GetRegion;
             On.OverWorld.GetRegion_1 += OverWorld_GetRegion_1;
 
-            // Debugging
-           // On.OverWorld.LoadWorld += OverWorld_LoadWorld;
-
         }
 
         /// <summary>
         /// Adds the new regions found in all region.txt files to the OverWorld.regions[]
+        /// Will replace this method, reducing compability
         /// </summary>
         private static void OverWorld_LoadFirstWorld(On.OverWorld.orig_LoadFirstWorld orig, OverWorld self)
         {
@@ -61,7 +59,93 @@ namespace CustomRegions
 
             }
 
-            orig(self);
+            bool flag;
+            string text;
+            if (self.game.IsArenaSession)
+            {
+                flag = true;
+                text = self.game.GetArenaGameSession.arenaSitting.GetCurrentLevel;
+            }
+            else if (self.game.manager.menuSetup.startGameCondition == ProcessManager.MenuSetup.StoryGameInitCondition.Dev)
+            {
+                string[] array = File.ReadAllLines(Custom.RootFolderDirectory() + "setup.txt");
+                text = Regex.Split(array[0], ": ")[1];
+                flag = !self.game.setupValues.world;
+            }
+            else if (self.game.manager.menuSetup.startGameCondition == ProcessManager.MenuSetup.StoryGameInitCondition.RegionSelect || self.game.manager.menuSetup.FastTravelInitCondition)
+            {
+                text = self.game.manager.menuSetup.regionSelectRoom;
+                flag = false;
+            }
+            else
+            {
+                text = (self.game.session as StoryGameSession).saveState.denPosition;
+                flag = false;
+            }
+            if (self.game.startingRoom != string.Empty)
+            {
+                text = self.game.startingRoom;
+            }
+            string text2 = Regex.Split(text, "_")[0];
+
+            if (!flag)
+            {
+                bool flag2 = false;
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                {
+                    string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+
+                    if (Directory.Exists(string.Concat(new object[]
+                    {
+                        Custom.RootFolderDirectory(),
+                        path.Replace('/', Path.DirectorySeparatorChar),
+                        Path.DirectorySeparatorChar,
+                        "World",
+                        Path.DirectorySeparatorChar,
+                        "Regions",
+                        Path.DirectorySeparatorChar,
+                        text2
+                    })))
+                    {
+                        flag2 = true;
+                        break;
+                    }
+                    else if (Regex.Split(text, "_").Length > 2 && Directory.Exists(string.Concat(new object[]
+                    {
+                        Custom.RootFolderDirectory(),
+                        path.Replace('/', Path.DirectorySeparatorChar),
+                        Path.DirectorySeparatorChar,
+                        "World",
+                        Path.DirectorySeparatorChar,
+                        "Regions",
+                        Path.DirectorySeparatorChar,
+                        Regex.Split(text, "_")[1]
+                    })))
+                    {
+                        text2 = Regex.Split(text, "_")[1];
+                        flag2 = true;
+                        break;
+                    }
+                }
+                if (!flag2)
+                {
+                    flag = true;
+                }
+            }
+
+            if (flag)
+            {
+                Debug.Log("Custom Regions: Using default LoadFirstWorld");
+                orig(self);
+                return;
+                //self.LoadWorld(text, self.PlayerCharacterNumber, true);
+            }
+            else
+            {
+                self.LoadWorld(text2, self.PlayerCharacterNumber, false);
+            }
+
+            self.FIRSTROOM = text;
         }
 
         /// <summary>

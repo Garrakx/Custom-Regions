@@ -15,6 +15,15 @@ namespace CustomRegions.Mod
 
             CustomWorldMod.CreateCustomWorldLog();
 
+            CustomWorldMod.loadedRegions = CustomWorldMod.BuildModRegionsDictionary();
+            string dictionaryString = "Custom Regions: Loading \n{";
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            {
+                dictionaryString += keyValues.Key + " : " + keyValues.Value + ", ";
+            }
+            Debug.Log(dictionaryString.TrimEnd(',', ' ') + "}");
+            CustomWorldMod.CustomWorldLog(dictionaryString.TrimEnd(',', ' ') + "}");
+
             MapHook.ApplyHook();
             RegionGateHook.ApplyHooks();
             RegionHook.ApplyHook();
@@ -23,6 +32,12 @@ namespace CustomRegions.Mod
             WorldLoaderHook.ApplyHooks();
             OverWorldHook.ApplyHooks();
             PlayerProgressionHook.ApplyHooks();
+
+            // Scene
+            FastTravelScreenHook.ApplyHooks();
+            MainMenuHook.ApplyHooks();
+            MenuSceneHook.ApplyHook();
+            SlugcatSelectMenuHook.ApplyHooks();
         }
 
         public RainWorld rw;
