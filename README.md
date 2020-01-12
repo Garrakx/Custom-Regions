@@ -16,5 +16,3 @@ Instead of merging the new region folder into the game files, you place them in 
 * *What's missing*
 1) An algorithm that merges all the world_XX.txt files or
 2) Funcionality to choose which world_XX.txt gets loaded on top.
-3) Custom New Regions won't load connections
-4) Custom New Regions won't load from region gates (you must spawn with DevTools).
