@@ -23,7 +23,7 @@ namespace CustomRegions
             On.WorldLoader.ctor += WorldLoader_ctor;
 
             // DEBUG
-            On.WorldLoader.MappingRooms += WorldLoader_MappingRooms;
+           // On.WorldLoader.MappingRooms += WorldLoader_MappingRooms;
 
         }
 
@@ -71,7 +71,7 @@ namespace CustomRegions
         }
 
         /// <summary>
-        /// Debuggin purposes
+        /// Debugging purposes
         /// </summary>
         private static void WorldLoader_MappingRooms(On.WorldLoader.orig_MappingRooms orig, WorldLoader self)
         {
@@ -256,7 +256,7 @@ namespace CustomRegions
                             roomName
                             });
                         }
-                        Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
+                       // Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
                     }
                 }
                 // room is a GATE
@@ -298,7 +298,7 @@ namespace CustomRegions
                         roomName
                         });
                     }
-                    Debug.Log($"Custom Regions: Found gate {roomName} in {keyValues.Key}. Path: {result}");
+                    // Debug.Log($"Custom Regions: Found gate {roomName} in {keyValues.Key}. Path: {result}");
                 }
                 // Gate shelter
                 else if (File.Exists(string.Concat(new object[]
@@ -346,13 +346,13 @@ namespace CustomRegions
                     roomName
                         });
                     }
-                    Debug.Log($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
+                  //  Debug.Log($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
                 }
             }
 
             if (result != "")
             {
-                Debug.Log("Using Custom Worldfile: " + result);
+               // Debug.Log("Using Custom Worldfile: " + result);
                 return result;
             }
             else
@@ -510,7 +510,7 @@ namespace CustomRegions
             }
             else
             {
-                Debug.Log($"Custom Worlds: Next Activity was not init, was {self.activity}");
+               // Debug.Log($"Custom Worlds: Next Activity was not init, was {self.activity}");
             }
 
             if (self.faultyExits == null)

@@ -34,8 +34,27 @@ namespace CustomRegions
 
             orig(self, manager, ID);
 
-            Debug.Log($"Custom Regions: Accesible region number {self.accessibleRegions.Count}");
+            Debug.Log($"Custom Regions: Accesible region count {self.accessibleRegions.Count}");
 
+            string debug2 = "Custom Regions: Player Shelters {";
+            for (int j = 0; j < self.playerShelters.Length; j++)
+            {
+                if (self.playerShelters[j] != null)
+                {
+                    debug2 += self.playerShelters[j] + ", ";
+                }
+            }
+            debug2 += " }";
+            Debug.Log(debug2);
+            Debug.Log($"Custom Regions: Current Shelter {self.currentShelter}");
+
+            string debug3 = "Custom Regions: region Names {";
+            for (int l = 0; l < manager.rainWorld.progression.regionNames.Length; l++)
+            {
+                debug3 += manager.rainWorld.progression.regionNames[l] + ", "; 
+            }
+            debug3 += " }";
+            Debug.Log(debug3);
         }
 
         private static List<string> FastTravelScreen_GetRegionOrder(On.Menu.FastTravelScreen.orig_GetRegionOrder orig)
