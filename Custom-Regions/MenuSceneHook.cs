@@ -62,7 +62,7 @@ namespace CustomRegions
         private static void MenuScene_BuildScene(On.Menu.MenuScene.orig_BuildScene orig, Menu.MenuScene self)
         {
             orig(self);
-            if (self.sceneID == Menu.MenuScene.SceneID.Empty && CustomWorldMod.sceneCustomID != string.Empty)
+            if (self.sceneID == MenuScene.SceneID.Empty && CustomWorldMod.sceneCustomID != string.Empty)
             {
                 Debug.Log($"Custom Regions: Building custom scene [{CustomWorldMod.sceneCustomID}]");
                 Vector2 vector = new Vector2(0f, 0f);

@@ -3,7 +3,6 @@ using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -40,7 +39,7 @@ namespace CustomRegions.Mod
 
             config = default(CustomWorldConfig);
 
-            
+
 
             script.Initialize();
 
@@ -59,6 +58,171 @@ namespace CustomRegions.Mod
             BATS
         }
 
+        /// <summary>
+        /// Compares and merges a room-connection in the existing room list
+        /// This method should be heavily optimized and cleaned up.
+        /// </summary>
+        public static List<string> AddNewRoom(string newRoom, List<string> oldList)
+        {
+            bool sameConnections = false;
+            string conflictingRoom = string.Empty;
+            foreach (string oldRoom in oldList)
+            {
+                if (oldRoom.Equals(newRoom))
+                {
+                    // The room is exactly the same, skipped
+                    sameConnections = true;
+                    break;
+                }
+                else
+                {
+                    try
+                    {
+                        string oldBaseRoom = oldRoom.Substring(0, oldRoom.IndexOf(" "));
+                        string newBaseRoom = newRoom.Substring(0, newRoom.IndexOf(" "));
+                        if (oldBaseRoom.Equals(newBaseRoom))
+                        {
+                            // The room is the same but different connections
+                            conflictingRoom = oldRoom;
+                            break;
+                        }
+                    }
+                    catch (Exception e) { }
+
+                }
+            }
+
+            if (conflictingRoom == string.Empty && !sameConnections)
+            {
+                //Debug.Log($"Custom Regions: Added new room [{newRoom}]");
+                oldList.Add(newRoom);
+            }
+            else
+            {
+                //Debug.Log($"Custom Regions: Found conflict [{newRoom}]");
+                if (conflictingRoom != string.Empty)
+                {
+                    //Debug.Log($"Custom Regions: Trying to merge {conflictingRoom}");
+
+                    // Check if containts GATE/SHELTER/SWARMROOM at the end
+                    string endingSetting = string.Empty;
+                    string temp = conflictingRoom.Substring(conflictingRoom.IndexOf(": ") + 2);
+                    if (temp.IndexOf(": ") > 0)
+                    {
+                        endingSetting = temp.Substring(temp.IndexOf(": ") + 2);
+                    }
+
+                    List<string> oldConnections = FromConnectionsToList(conflictingRoom);
+                    List<string> newConnections = FromConnectionsToList(newRoom);
+
+                    // Build new connections
+                    for (int i = 0; i < oldConnections.Count; i++)
+                    {
+                        for (int j = 0; j < newConnections.Count; j++)
+                        {
+                            if (!oldConnections[i].Equals(newConnections[j]))
+                            {
+                                if (oldConnections[i].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECTED"))
+                                {
+                                    oldConnections[i] = newConnections[j];
+                                    //Debug.Log($"Custom Regions: Added [{newConnections[j]}] to [{conflictingRoom}]");
+                                }
+                                /*
+                                else if(!oldConnections[i].Equals("DISCONNECTED") && newConnections[j].Equals("DISCONNECTED"))
+                                {
+                                    newConnections[j] = oldConnections[i];
+                                    Debug.Log($"Custom Regions: Added [{oldConnections[i]}] to [{conflictingRoom}]");
+                                }
+                                else if(!oldConnections[i].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECTED"))
+                                {
+                                    Debug.Log("Custom Regions: ERROR!!! Regions incompatible!!!");
+                                    break;
+                                }
+                                */
+                            }
+                        }
+                    }
+
+                    endingSetting = endingSetting != string.Empty ? ": " + endingSetting : "";
+
+                    // Convert from list to connections
+                    string updatedConnections = FromListToConnections(conflictingRoom.Substring(0, conflictingRoom.IndexOf(" ")), oldConnections);
+                    int index = oldList.IndexOf(conflictingRoom);
+                    if (index != -1)
+                    {
+                        Debug.Log($"Custom Regions: Replaced [{oldList[index]}] with [{updatedConnections + endingSetting}]");
+                        oldList[index] = updatedConnections + endingSetting;
+                    }
+                }
+            }
+            return oldList;
+        }
+
+        /// <summary>
+        /// Returns a string from a connectionList
+        /// </summary>
+        public static string FromListToConnections(string oldRoom, List<string> connections)
+        {
+            oldRoom += " : ";
+            int a = 0;
+            foreach (string room in connections)
+            {
+                if (a == 0)
+                {
+                    oldRoom += room;
+                }
+                else
+                {
+                    oldRoom += ", " + room;
+                }
+                a++;
+            }
+            //Debug.Log($"Custom Regions: FromListToConnection: [{oldRoom}]");
+            return oldRoom;
+        }
+
+        /// <summary>
+        /// Returns a List from a room-connection string
+        /// This method should be heavily optimized and cleaned up.
+        /// </summary>
+        public static List<string> FromConnectionsToList(string oldConnections)
+        {
+            // Removing the base room
+            string splittingOldRoom = oldConnections.Substring(oldConnections.IndexOf(": ") + 2);
+
+            // Remove GATE/SHELTER/SWARMROOM at the end
+            if (splittingOldRoom.IndexOf(": ") > 0)
+            {
+                splittingOldRoom = splittingOldRoom.Substring(0, splittingOldRoom.IndexOf(": "));
+            }
+            string debug = "Custom Regions: FromConnectionToList: [";
+
+            // Contains each connection
+            List<string> connections = new List<string>();
+
+            // I am sure this can be optimized
+            int position = splittingOldRoom.IndexOf(", ");
+            if (position < 0)
+            {
+                // Only one connection
+                connections.Add(splittingOldRoom);
+                debug += splittingOldRoom + "; ";
+            }
+            while (position > 0)
+            {
+                connections.Add(splittingOldRoom.Substring(0, position));
+                debug += splittingOldRoom.Substring(0, position) + "; ";
+                splittingOldRoom = splittingOldRoom.Substring(position + 2);
+                position = splittingOldRoom.IndexOf(", ");
+            }
+            if (splittingOldRoom != string.Empty)
+            {
+                connections.Add(splittingOldRoom);
+                debug += splittingOldRoom + "; ";
+            }
+            //Debug.Log(debug + "]");
+            return connections;
+        }
 
         /// <summary>
         /// Holds the value of the sceneID in use.
@@ -83,10 +247,10 @@ namespace CustomRegions.Mod
             {
                 string.Empty
             };
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in loadedRegions)
             {
                 //Debug.Log($"Custom Regions: Loading custom properties for {keyValues.Key}");
-                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                string path = resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                 if (File.Exists(string.Concat(new object[]
                     {
@@ -347,5 +511,45 @@ namespace CustomRegions.Mod
             }
         }
 
+        internal static List<string> BuildWorldText(List<string> ROOMS, List<string> CREATURES, List<string> BATS)
+        {
+            List<string> list = new List<string>();
+
+            string startRooms = "ROOMS";
+            string endRooms = "END " + startRooms;
+
+            string startCreatures = "CREATURES";
+            string endCreatures = "END " + startCreatures;
+
+            string startBats = "BAT MIGRATION BLOCKAGES";
+            string endBats = "END " + startBats;
+
+            // ROOMS
+            list.Add(startRooms);
+            foreach (string room in ROOMS)
+            {
+                list.Add(room);
+            }
+            list.Add(endRooms);
+
+            // CREATURES
+            list.Add(startCreatures);
+            foreach (string creature in CREATURES)
+            {
+                list.Add(creature);
+            }
+            list.Add(endCreatures);
+
+            // BATS
+            list.Add(startBats);
+            foreach (string bats in BATS)
+            {
+                list.Add(bats);
+            }
+            list.Add(endBats);
+
+            return list;
+
+        }
     }
 }

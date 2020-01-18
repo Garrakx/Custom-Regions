@@ -34,6 +34,7 @@ namespace CustomRegions
                 Debug.Log($"Custom Regions: Loading new regions");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions";
 
+                // IF FILE EXIST
                 string[] regions = Directory.GetDirectories(path);
                 foreach (string regionEach in regions)
                 {
@@ -68,6 +69,7 @@ namespace CustomRegions
             }
             else if (self.game.manager.menuSetup.startGameCondition == ProcessManager.MenuSetup.StoryGameInitCondition.Dev)
             {
+                //IF FILE EXIST!
                 string[] array = File.ReadAllLines(Custom.RootFolderDirectory() + "setup.txt");
                 text = Regex.Split(array[0], ": ")[1];
                 flag = !self.game.setupValues.world;

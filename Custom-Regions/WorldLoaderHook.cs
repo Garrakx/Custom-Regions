@@ -23,7 +23,7 @@ namespace CustomRegions
             On.WorldLoader.ctor += WorldLoader_ctor;
 
             // DEBUG
-           // On.WorldLoader.MappingRooms += WorldLoader_MappingRooms;
+            //On.WorldLoader.MappingRooms += WorldLoader_MappingRooms;
 
         }
 
@@ -90,7 +90,8 @@ namespace CustomRegions
                 }
                 Debug.Log(debug);
 
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Debug.Log($"Custom Regions: Mapping rooms failed, reason: {e}");
             }
@@ -133,12 +134,13 @@ namespace CustomRegions
                 // LOADING A CUSTOM REGION
                 // THIS WILL REPLACE THE CTOR REDUCING COMPABILITY
 
-                //INITIALIZING LISTS
+                // INITIALIZING LISTS
                 Debug.Log("Custom Worlds: Using custom WorldLoader ctor");
                 try
                 {
                     InitializeWorldLoaderList(self);
-                } catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     Debug.Log("Custom Worlds, something failed ERROR!!!");
                 }
@@ -256,7 +258,7 @@ namespace CustomRegions
                             roomName
                             });
                         }
-                       // Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
+                        // Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
                     }
                 }
                 // room is a GATE
@@ -346,13 +348,13 @@ namespace CustomRegions
                     roomName
                         });
                     }
-                  //  Debug.Log($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
+                    //  Debug.Log($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
                 }
             }
 
             if (result != "")
             {
-               // Debug.Log("Using Custom Worldfile: " + result);
+                // Debug.Log("Using Custom Worldfile: " + result);
                 return result;
             }
             else
@@ -376,6 +378,60 @@ namespace CustomRegions
             List<string> ROOMS = new List<string>();
             List<string> CREATURES = new List<string>();
             List<string> BATS = new List<string>();
+
+            if (self.lines.Count > 0)
+            {
+                // Fill ROOMS with vanilla rooms
+                Debug.Log("Custom Regions: Found vanilla rooms");
+                bool startRooms = false;
+                bool startCreatures = false;
+                bool startBats = false;
+
+                foreach (string s in self.lines)
+                {
+                    // ROOMS
+                    if (s.Equals("END ROOMS"))
+                    {
+                        startRooms = false;
+                    }
+                    if (startRooms)
+                    {
+                        ROOMS.Add(s);
+                    }
+                    if (s.Equals("ROOMS"))
+                    {
+                        startRooms = true;
+                    }
+
+                    // CREATURES
+                    if (s.Equals("END CREATURES"))
+                    {
+                        startCreatures = false;
+                    }
+                    if (startCreatures)
+                    {
+                        CREATURES.Add(s);
+                    }
+                    if (s.Equals("CREATURES"))
+                    {
+                        startCreatures = true;
+                    }
+
+                    // BAT MIGRATIONS
+                    if (s.Equals("END BAT MIGRATION BLOCKAGES"))
+                    {
+                        startBats = false;
+                    }
+                    if (startBats)
+                    {
+                        BATS.Add(s);
+                    }
+                    if (s.Equals("BAT MIGRATION BLOCKAGES"))
+                    {
+                        startBats = true;
+                    }
+                }
+            }
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
@@ -453,17 +509,19 @@ namespace CustomRegions
                                     switch (status)
                                     {
                                         case CustomWorldMod.MergeStatus.ROOMS:
-                                            ROOMS.Add(array[i]);
+                                            ROOMS = CustomWorldMod.AddNewRoom(array[i], ROOMS);
                                             break;
                                         case CustomWorldMod.MergeStatus.CREATURES:
-                                            CREATURES.Add(array[i]);
+                                            // MERGE CREATURES
+                                            //CREATURES.Add(array[i]);
                                             break;
                                         case CustomWorldMod.MergeStatus.BATS:
-                                            BATS.Add(array[i]);
+                                            // MERGE BATS
+                                            // BATS.Add(array[i]);
                                             break;
                                     }
                                 }
-                                lines.Add(array[i]);
+                                //lines.Add(array[i]);
                                 //CustomWorldMod.CustomWorldLog(array[i]);
                             }
                         }
@@ -471,13 +529,15 @@ namespace CustomRegions
                 }
 
             }
+            lines = CustomWorldMod.BuildWorldText(ROOMS, CREATURES, BATS);
+
             if (lines.Count < 2)
             {
                 Debug.Log("Custom Regions: ERROR! Lines.Count < 2");
                 return self.lines;
             }
 
-            foreach(string s in lines)
+            foreach (string s in lines)
             {
                 CustomWorldMod.CustomWorldLog(s);
             }
@@ -510,7 +570,7 @@ namespace CustomRegions
             }
             else
             {
-               // Debug.Log($"Custom Worlds: Next Activity was not init, was {self.activity}");
+                //Debug.Log($"Custom Worlds: Next Activity was not init, was {self.activity}");
             }
 
             if (self.faultyExits == null)

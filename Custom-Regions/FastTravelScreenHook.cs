@@ -23,7 +23,7 @@ namespace CustomRegions
 
         private static void FastTravelScreen_ctor(On.Menu.FastTravelScreen.orig_ctor orig, Menu.FastTravelScreen self, ProcessManager manager, ProcessManager.ProcessID ID)
         {
-            List<string> regionOrder = FastTravelScreen_GetRegionOrder(Menu.FastTravelScreen.GetRegionOrder);
+            List<string> regionOrder = FastTravelScreen_GetRegionOrder(FastTravelScreen.GetRegionOrder);
             string debug = "Custom Regions: {";
             foreach(string region in regionOrder)
             {
