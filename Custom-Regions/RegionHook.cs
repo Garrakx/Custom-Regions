@@ -193,7 +193,7 @@ namespace CustomRegions
                             flag = true;
                         }
                     }
-                    Debug.Log($"Custom Regions: {keyValues.Value} had {num} rooms in region [{name}].");
+                    Debug.Log($"Custom Regions: {keyValues.Value} had {num} rooms-connections in region [{name}].");
                     totalRooms += num;
                 }
             }

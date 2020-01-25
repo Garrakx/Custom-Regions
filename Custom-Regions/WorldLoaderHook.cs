@@ -196,7 +196,7 @@ namespace CustomRegions
                 Regex.Split(roomName, "_")[0]
                 });
                 if (Directory.Exists(test))
-                {
+                { 
                     bool file = false;
                     if (File.Exists(string.Concat(new object[]
                     {
@@ -517,7 +517,7 @@ namespace CustomRegions
                                             break;
                                         case CustomWorldMod.MergeStatus.BATS:
                                             // MERGE BATS
-                                            // BATS.Add(array[i]);
+                                            //BATS.Add(array[i]);
                                             break;
                                     }
                                 }

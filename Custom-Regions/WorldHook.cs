@@ -19,6 +19,38 @@ namespace CustomRegions
         public static void ApplyHook()
         {
             On.World.LoadMapConfig += World_LoadMapConfig;
+
+            // Debug
+            On.World.GetNode += World_GetNode;
+        }
+         
+        private static AbstractRoomNode World_GetNode(On.World.orig_GetNode orig, World self, WorldCoordinate c)
+        {
+            // this.GetAbstractRoom(c.room).nodes[c.abstractNode];
+
+            if(self.GetAbstractRoom(c.room).nodes == null)
+            {
+                Debug.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is null"); 
+            }
+            if(self.GetAbstractRoom(c.room).nodes.Length < 1)
+            {
+                Debug.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is empty");
+            }
+
+            /*
+            string debug = $"Custom Regions: Nodes in [{self.GetAbstractRoom(c.room).name}]"+" {";
+            for (int i = 0; i < self.GetAbstractRoom(c.room).nodes.Length; i++)
+            {
+                try
+                {
+                    debug += self.GetAbstractRoom(c.room).nodes[i] + "/";
+                }
+                catch (Exception e) { }
+            }
+            Debug.Log(debug + "}");
+            */
+
+            return orig(self, c);
         }
 
         /// <summary>

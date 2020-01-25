@@ -331,10 +331,14 @@ namespace CustomRegions.Mod
                 if (File.Exists(regionIDpath))
                 {
                     regionID = File.ReadAllText(regionIDpath);
-                }
 
                 regionID = regionID.ToUpper();
                 dictionary.Add(regionID, Path.GetFileNameWithoutExtension(region));
+                }
+                else
+                {
+                    Debug.Log($"Custom Regions: Error! regionID.txt for {temp} does not exist");
+                }
             }
 
             return dictionary;
