@@ -6,7 +6,7 @@
 
 * *How does it work?*
 
-Instead of merging the new region folder into the game files, you place them in a separate folder so you can load multiple regions at the same time. This will keep your Rain World installation clean, and adds the posibility of playing with multiple regions at the same time.
+Instead of merging the new region folder into the game files, you place them in a separate folder. This will keep your Rain World installation clean, and adds the posibility of playing with multiple regions at the same time.
 
 * *How does it handle conflicts*
 ![Mergin visualized](https://cdn.discordapp.com/attachments/473881110695378964/670463211060985866/unknown.png)
