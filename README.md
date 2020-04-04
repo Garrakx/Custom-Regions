@@ -33,7 +33,7 @@ D: A
 * *How to use it*
 1) Create a new folder inside Rain World\Mods called "CustomResources"
 2) Create a new folder inside Rain World\Mods\CustomResources with the name of your region (i.e. Rain World\Mods\CustomResources\The Root)
-3) Inside this folder you must place your "World" folder containing any changes made, as well as a text file called "regionID.txt" with just the initials of your region (i.e TR). **If you don't include this file, the region won't be loaded**.
+3) Inside this folder you must place your "World" and "Assets" folders containing any changes made, as well as a text file called "regionID.txt" with just the initials of your region (i.e TR). **If you don't include this file, the region won't be loaded**.
 
 * *Known issues*
 1) Map does not work.
