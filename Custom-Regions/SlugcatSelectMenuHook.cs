@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace CustomRegions
 {
-    class SlugcatSelectMenuHook
+    static class SlugcatSelectMenuHook
     {
         public static void ApplyHooks() 
         {

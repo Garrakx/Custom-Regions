@@ -7,22 +7,205 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using HUD;
+using Menu;
 
 namespace CustomRegions
 {
-    class FastTravelScreenHook
+    static class FastTravelScreenHook
     {
         public static void ApplyHooks()
         {
+            //On.Menu.FastTravelScreen.GetRegionOrder += FastTravelScreen_GetRegionOrder;
             On.Menu.FastTravelScreen.TitleSceneID += FastTravelScreen_TitleSceneID;
-            On.Menu.FastTravelScreen.GetRegionOrder += FastTravelScreen_GetRegionOrder;
 
             // Debug
             On.Menu.FastTravelScreen.ctor += FastTravelScreen_ctor;
             On.Menu.FastTravelScreen.GetAccessibleShelterNamesOfRegion += FastTravelScreen_GetAccessibleShelterNamesOfRegion;
         }
 
-        private static List<string> FastTravelScreen_GetAccessibleShelterNamesOfRegion(On.Menu.FastTravelScreen.orig_GetAccessibleShelterNamesOfRegion orig, FastTravelScreen self, string regionAcronym)
+        private static void FastTravelScreen_ctor(On.Menu.FastTravelScreen.orig_ctor orig, Menu.FastTravelScreen self, ProcessManager manager, ProcessManager.ProcessID ID)
+        {
+            orig(self, manager, ID);
+
+			//self.pages.Clear();
+			
+            self.pages = new List<Page>();
+			self.blackFade = 1f;
+			self.lastBlackFade = 1f;
+			self.accessibleRegions = new List<int>();
+			self.discoveredSheltersInRegion = new List<int>();
+			self.pages.Add(new Page(self, null, "main", 0));
+			self.playerShelters = new string[3];
+			for (int i = 0; i < self.playerShelters.Length; i++)
+			{
+				if (manager.rainWorld.progression.IsThereASavedGame(i))
+				{
+					self.playerShelters[i] = manager.rainWorld.progression.ShelterOfSaveGame(i);
+				}
+			}
+			self.currentShelter = "SU_S01";
+			if (manager.rainWorld.progression.PlayingAsSlugcat >= 0 && manager.rainWorld.progression.PlayingAsSlugcat < self.playerShelters.Length && self.playerShelters[manager.rainWorld.progression.PlayingAsSlugcat] != null)
+			{
+				self.currentShelter = self.playerShelters[manager.rainWorld.progression.PlayingAsSlugcat];
+			}
+			else
+			{
+				for (int j = 0; j < self.playerShelters.Length; j++)
+				{
+					if (self.playerShelters[j] != null)
+					{
+						self.currentShelter = self.playerShelters[j];
+						break;
+					}
+				}
+			}
+			List<string> regionOrder = FastTravelScreen_GetRegionOrder(FastTravelScreen.GetRegionOrder); //FastTravelScreen.GetRegionOrder();
+			Debug.Log($"Custom Regions: FastTravelScreen. Manager.regionNames.Length [{manager.rainWorld.progression.regionNames.Length}]. RegionOrder.Count [{regionOrder.Count}]");
+			for (int k = 0; k < regionOrder.Count; k++)
+			{
+				for (int l = 0; l < manager.rainWorld.progression.regionNames.Length; l++)
+				{
+					if (regionOrder[k] == manager.rainWorld.progression.regionNames[l] && self.GetAccessibleShelterNamesOfRegion(manager.rainWorld.progression.regionNames[l]) != null)
+					{
+						self.accessibleRegions.Add(l);
+					}
+				}
+			}
+			if (self.accessibleRegions.Count == 0)
+			{
+				Debug.Log("NO ACCESSIBLE REGIONS!");
+				self.pages[0].subObjects.Add(new SimpleButton(self, self.pages[0], self.Translate("BACK"), "BACK", new Vector2(200f, 100f), new Vector2(100f, 30f)));
+				self.noRegions = true;
+			}
+			else
+			{
+				self.currentRegion = 0;
+				self.upcomingRegion = -1;
+				self.preloadedScenes = new InteractiveMenuScene[self.accessibleRegions.Count];
+				for (int m = 0; m < self.accessibleRegions.Count; m++)
+				{
+					self.pages.Add(new Page(self, null, manager.rainWorld.progression.regionNames[self.accessibleRegions[m]], m + 1));
+					self.pages[m + 1].Container = new FContainer();
+					self.container.AddChild(self.pages[m + 1].Container);
+					self.preloadedScenes[m] = new InteractiveMenuScene(self, self.pages[m + 1], self.TitleSceneID(manager.rainWorld.progression.regionNames[self.accessibleRegions[m]]));
+					self.pages[m + 1].subObjects.Add(self.preloadedScenes[m]);
+					if (m == 0)
+					{
+						self.scene = self.preloadedScenes[m];
+					}
+					else
+					{
+						self.preloadedScenes[m].Hide();
+					}
+				}
+				self.fadeSprite = new FSprite("Futile_White", true);
+				self.fadeSprite.scaleX = 87.5f;
+				self.fadeSprite.scaleY = 50f;
+				self.fadeSprite.x = manager.rainWorld.screenSize.x / 2f;
+				self.fadeSprite.y = manager.rainWorld.screenSize.y / 2f;
+				self.fadeSprite.color = new Color(0f, 0f, 0f);
+				self.container.AddChild(self.fadeSprite);
+				self.gradientsContainer = new GradientsContainer(self, self.pages[0], new Vector2(0f, 0f), 0.5f);
+				self.pages[0].subObjects.Add(self.gradientsContainer);
+				self.mapButtonPrompt = new MenuLabel(self, self.pages[0], (!self.IsFastTravelScreen) ? self.Translate("Press the MAP button to view regional map") : self.Translate("Press the MAP button to select the shelter you wish to continue from"), new Vector2(583f, 5f), new Vector2(200f, 30f), false);
+				self.mapButtonPrompt.label.color = Menu.Menu.MenuRGB(Menu.Menu.MenuColors.MediumGrey);
+				self.pages[0].subObjects.Add(self.mapButtonPrompt);
+				self.prevButton = new BigArrowButton(self, self.pages[0], "PREVIOUS", new Vector2(200f, 90f), -1);
+				self.pages[0].subObjects.Add(self.prevButton);
+				self.nextButton = new BigArrowButton(self, self.pages[0], "NEXT", new Vector2(1116f, 90f), 1);
+				self.pages[0].subObjects.Add(self.nextButton);
+				if (self.IsFastTravelScreen)
+				{
+					self.startButton = new HoldButton(self, self.pages[0], self.Translate("HOLD TO START"), "HOLD TO START", new Vector2(683f, 115f), 80f);
+					self.pages[0].subObjects.Add(self.startButton);
+				}
+				else if (self.IsRegionsScreen)
+				{
+					if (manager.rainWorld.inGameTranslator.currentLanguage == InGameTranslator.LanguageID.Portuguese)
+					{
+						self.pages[0].subObjects.Add(new SimpleButton(self, self.pages[0], self.Translate("EXIT"), "BACK", new Vector2(self.prevButton.pos.x, 668f), new Vector2(100f, 30f)));
+					}
+					else
+					{
+						self.pages[0].subObjects.Add(new SimpleButton(self, self.pages[0], self.Translate("BACK"), "BACK", new Vector2(self.prevButton.pos.x, 668f), new Vector2(100f, 30f)));
+					}
+				}
+				self.hudContainers = new MenuContainer[2];
+				for (int n = 0; n < self.hudContainers.Length; n++)
+				{
+					self.hudContainers[n] = new MenuContainer(self, self.pages[0], new Vector2(0f, 0f));
+					self.pages[0].subObjects.Add(self.hudContainers[n]);
+				}
+				string text = "JUMP/THROW buttons - Switch layers";
+				if (self.IsFastTravelScreen)
+				{
+					text += "<LINE>PICK UP button - Select shelter";
+				}
+				text = self.Translate(text);
+				text = text.Replace("<LINE>", "     ");
+				self.buttonInstruction = new MenuLabel(self, self.pages[0], text, new Vector2(583f, 5f), new Vector2(200f, 30f), false);
+				self.buttonInstruction.label.color = Menu.Menu.MenuRGB(Menu.Menu.MenuColors.DarkGrey);
+				self.pages[0].subObjects.Add(self.buttonInstruction);
+				self.selectedObject = null;
+				int num = 0;
+				string[] array = File.ReadAllLines(string.Concat(new object[]
+				{
+					Custom.RootFolderDirectory(),
+					"World",
+					Path.DirectorySeparatorChar,
+					"Regions",
+					Path.DirectorySeparatorChar,
+					"regions.txt"
+				}));
+
+				array = CustomWorldMod.AddModdedRegions(array);
+
+				self.allRegions = new Region[array.Length];
+				for (int num2 = 0; num2 < self.allRegions.Length; num2++)
+				{
+					self.allRegions[num2] = new Region(array[num2], num, num2);
+					num += self.allRegions[num2].numberOfRooms;
+				}
+				self.loadedWorlds = new World[self.accessibleRegions.Count];
+				self.loadedMapData = new Map.MapData[self.accessibleRegions.Count];
+				if (self.currentShelter != null)
+				{
+					for (int num3 = 0; num3 < self.accessibleRegions.Count; num3++)
+					{
+						if (self.allRegions[self.accessibleRegions[num3]].name == self.currentShelter.Substring(0, 2))
+						{
+							Debug.Log(self.currentShelter);
+							Debug.Log(string.Concat(new object[]
+							{
+								"found start region: ",
+								num3,
+								" ",
+								self.allRegions[self.accessibleRegions[num3]].name
+							}));
+							self.currentRegion = num3;
+							break;
+						}
+					}
+				}
+				self.InitiateRegionSwitch(self.currentRegion);
+				while (!self.worldLoader.Finished)
+				{
+					self.worldLoader.Update();
+				}
+				self.AddWorldLoaderResultToLoadedWorlds(self.currentRegion);
+				self.FinalizeRegionSwitch(self.currentRegion);
+				self.worldLoader = null;
+				self.hud = new HUD.HUD(new FContainer[]
+				{
+					self.hudContainers[1].Container,
+					self.hudContainers[0].Container
+				}, manager.rainWorld, self);
+			}
+			self.mySoundLoopID = ((ID != ProcessManager.ProcessID.RegionsOverviewScreen) ? SoundID.MENU_Fast_Travel_Screen_LOOP : SoundID.MENU_Main_Menu_LOOP);
+		}
+
+        private static List<string> FastTravelScreen_GetAccessibleShelterNamesOfRegion(On.Menu.FastTravelScreen.orig_GetAccessibleShelterNamesOfRegion orig, Menu.FastTravelScreen self, string regionAcronym)
         {
             List<string> ori = orig(self, regionAcronym);
             string debug = string.Empty;
@@ -37,113 +220,7 @@ namespace CustomRegions
             return ori;
         }
 
-        private static void FastTravelScreen_ctor(On.Menu.FastTravelScreen.orig_ctor orig, Menu.FastTravelScreen self, ProcessManager manager, ProcessManager.ProcessID ID)
-        {
-            List<string> regionOrderHook = FastTravelScreen_GetRegionOrder(FastTravelScreen.GetRegionOrder);
-            string debug = "Custom Regions: FastTravelHook {";
-            foreach (string region in regionOrderHook)
-            {
-                debug += region + ", ";
-            }
-            debug += "}";
-            Debug.Log(debug);
-
-
-            // DEBUG
-            string[] playerShelters = new string[3];
-            for (int i = 0; i < playerShelters.Length; i++)
-            {
-                if (manager.rainWorld.progression.IsThereASavedGame(i))
-                {
-                    playerShelters[i] = manager.rainWorld.progression.ShelterOfSaveGame(i);
-                }
-            }
-            string currentShelter = "SU_S01";
-            if (manager.rainWorld.progression.PlayingAsSlugcat >= 0 && manager.rainWorld.progression.PlayingAsSlugcat < playerShelters.Length && playerShelters[manager.rainWorld.progression.PlayingAsSlugcat] != null)
-            {
-                currentShelter = playerShelters[manager.rainWorld.progression.PlayingAsSlugcat];
-            }
-            else
-            {
-                for (int j = 0; j < playerShelters.Length; j++)
-                {
-                    if (playerShelters[j] != null)
-                    {
-                        currentShelter = playerShelters[j];
-                        break;
-                    }
-                }
-            }
-            /*
-            List<string> regionOrder = FastTravelScreen_GetRegionOrder(FastTravelScreen.GetRegionOrder);
-            for (int k = 0; k < regionOrder.Count; k++)
-            {
-                for (int l = 0; l < manager.rainWorld.progression.regionNames.Length; l++)
-                {
-                    if (regionOrder[k] == manager.rainWorld.progression.regionNames[l])
-                    {
-                        Debug.Log($"Custom Regions: Potential accesible regions [{regionOrder[k]}]");
-                        int num = -1;
-                        for (int i = 0; i < self.manager.rainWorld.progression.regionNames.Length; i++)
-                        {
-                            if (regionOrder[k] == self.manager.rainWorld.progression.regionNames[i])
-                            {
-                                num = i;
-                                break;
-                            }
-                        }
-
-                        if (self.manager.rainWorld.progression.miscProgressionData.discoveredShelters[num] == null)
-                        {
-                            Debug.Log("Custom Regions: ERROR! no discovered shelters");
-                        }
-                        else
-                        {
-                            debug = "Custom Regions: Discovered shelters [";
-                            foreach(string s in self.manager.rainWorld.progression.miscProgressionData.discoveredShelters[num])
-                            {
-                                debug += s + "/"; 
-                            }
-                        }
-                        debug += "]";
-                        Debug.Log(debug);
-                        //
-                        //if (self.GetAccessibleShelterNamesOfRegion(manager.rainWorld.progression.regionNames[l]) != null)
-                        //{
-                         //   Debug.Log($"Custom Regions: Found accesible region [{regionOrder[k]}]");
-                        //}
-                        //
-                    }
-                }
-            }
-            */
-            // DEBUG END
-
-            orig(self, manager, ID);
-
-            Debug.Log($"Custom Regions: Accesible region count {self.accessibleRegions.Count}");
-
-            string debug2 = "Custom Regions: Player Shelters {";
-            for (int j = 0; j < self.playerShelters.Length; j++)
-            {
-                if (self.playerShelters[j] != null)
-                {
-                    debug2 += self.playerShelters[j] + ", ";
-                }
-            }
-            debug2 += " }";
-            Debug.Log(debug2);
-            Debug.Log($"Custom Regions: Current Shelter {self.currentShelter}");
-
-            string debug3 = "Custom Regions: region Names {";
-            for (int l = 0; l < manager.rainWorld.progression.regionNames.Length; l++)
-            {
-                debug3 += manager.rainWorld.progression.regionNames[l] + ", ";
-            }
-            debug3 += " }";
-            Debug.Log(debug3);
-        }
-
+     
         private static List<string> FastTravelScreen_GetRegionOrder(On.Menu.FastTravelScreen.orig_GetRegionOrder orig)
         {
             List<string> list = orig();
@@ -167,7 +244,12 @@ namespace CustomRegions
 
             }
 
-            // should return string.empty
+            if (orig(self, regionName) == Menu.MenuScene.SceneID.Empty && CustomWorldMod.sceneCustomID != string.Empty)
+            {
+                Debug.Log($"Custom Regions: TitleSceneID. Using custom Scene ID [{CustomWorldMod.sceneCustomID}]");
+                return EnumExt_extendedSceneID.CustomSceneID;
+            }
+
             return orig(self, regionName);
         }
     }

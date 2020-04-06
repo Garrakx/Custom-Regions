@@ -37,7 +37,9 @@ namespace CustomRegions.Mod
             FastTravelScreenHook.ApplyHooks();
             MainMenuHook.ApplyHooks();
             MenuSceneHook.ApplyHook();
+            MenuIllustrationHook.ApplyHook();
             SlugcatSelectMenuHook.ApplyHooks();
+
         }
 
         public RainWorld rw;

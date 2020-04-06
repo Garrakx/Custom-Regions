@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="FastTravelScreenHook.cs" />
     <Compile Include="MapHook.cs" />
+    <Compile Include="MenuIllustrationHook.cs" />
     <Compile Include="MenuSceneHook.cs" />
     <Compile Include="Mod\CustomWorldMod.cs" />
     <Compile Include="Mod\CustomWorldOption.cs" />

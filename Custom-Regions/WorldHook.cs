@@ -27,14 +27,25 @@ namespace CustomRegions
         private static AbstractRoomNode World_GetNode(On.World.orig_GetNode orig, World self, WorldCoordinate c)
         {
             // this.GetAbstractRoom(c.room).nodes[c.abstractNode];
+            try
+            {
+                if (self.GetAbstractRoom(c.room) == null)
+                {
+                    Debug.Log("Custom Regions: ERROR at GetNode !!! c.room Abstract is null");
+                }
 
-            if(self.GetAbstractRoom(c.room).nodes == null)
-            {
-                Debug.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is null"); 
+                else if (self.GetAbstractRoom(c.room).nodes == null)
+                {
+                    Debug.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is null");
+                }
+                else if (self.GetAbstractRoom(c.room).nodes.Length < 1)
+                {
+                    Debug.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is empty");
+                }
             }
-            if(self.GetAbstractRoom(c.room).nodes.Length < 1)
+            catch (Exception e)
             {
-                Debug.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is empty");
+                Debug.Log("Custom Regions: ERROR!");
             }
 
             /*

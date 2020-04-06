@@ -5,9 +5,33 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using System.Security;
+using System.Runtime.CompilerServices;
+using System.Security.Permissions;
+
+
+// Delete Publicity Stunt requirement by pastebee
+[assembly: IgnoresAccessChecksTo("Assembly-CSharp")]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+[module: UnverifiableCode]
+
+namespace System.Runtime.CompilerServices
+{
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public class IgnoresAccessChecksToAttribute : Attribute
+    {
+        public IgnoresAccessChecksToAttribute(string assemblyName)
+        {
+            AssemblyName = assemblyName;
+        }
+
+        public string AssemblyName { get; }
+    }
+}
 
 namespace CustomRegions.Mod
 {
+
     public class CustomWorldMod : PartialityMod
     {
         public static CustomWorldScript script;
@@ -57,6 +81,33 @@ namespace CustomRegions.Mod
             CREATURES,
             BATS
         }
+
+
+        public static string[] AddModdedRegions(string[] regionNames)
+        {
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            {
+                Debug.Log($"Custom Regions: PlayerProgression, loading new regions");
+                string regionToAdd = keyValues.Key;
+                bool shouldAdd = true;
+
+                for (int i = 0; i < regionNames.Length; i++)
+                {
+                    if (regionToAdd.Equals(regionNames[i]))
+                    {
+                        shouldAdd = false;
+                    }
+                }
+                if (shouldAdd)
+                {
+                    Array.Resize(ref regionNames, regionNames.Length + 1);
+                    regionNames[regionNames.Length - 1] = keyValues.Key;
+                    Debug.Log($"Custom Regions: Added new region [{regionToAdd}] from [{keyValues.Value}].");
+                }
+            }
+            return regionNames;
+        }
+
 
         /// <summary>
         /// Compares and merges a room-connection in the existing room list
@@ -122,7 +173,7 @@ namespace CustomRegions.Mod
                         {
                             if (!oldConnections[i].Equals(newConnections[j]))
                             {
-                                if (oldConnections[i].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECTED"))
+                                if ((oldConnections[i].Equals("DISCONNECTED") || (oldConnections[i].Equals("DISCONNECT"))) && !(newConnections[j].Equals("DISCONNECTED") || newConnections[j].Equals("DISCONNECT")))
                                 {
                                     oldConnections[i] = newConnections[j];
                                     //Debug.Log($"Custom Regions: Added [{newConnections[j]}] to [{conflictingRoom}]");
@@ -243,10 +294,29 @@ namespace CustomRegions.Mod
         /// </summary>
         public static void FillCustomRegions(OverWorld self, RainWorldGame game)
         {
+
             string[] array = new string[]
             {
                 string.Empty
             };
+
+            string[] vanillaRegions = VanillaRegions();
+            for (int i = 0; i < vanillaRegions.Length; i++)
+            {
+                using (StreamWriter file = new StreamWriter(string.Concat(new object[]
+                        {
+                    Custom.RootFolderDirectory(),
+                    "World",
+                    Path.DirectorySeparatorChar,
+                    "Regions",
+                    Path.DirectorySeparatorChar,
+                    "regions.txt"
+                        })))
+                {
+                    file.WriteLine(vanillaRegions[i]);
+                }
+            }
+
             foreach (KeyValuePair<string, string> keyValues in loadedRegions)
             {
                 //Debug.Log($"Custom Regions: Loading custom properties for {keyValues.Key}");
@@ -278,6 +348,18 @@ namespace CustomRegions.Mod
                 for (int i = originalSize - 1; i < array.Length; i++)
                 {
                     Debug.Log($"Custom Regions: Added new region {array[i]} from {keyValues.Value}. Number of rooms {num}. Region position {i}");
+                    using (StreamWriter file = new StreamWriter(string.Concat(new object[]
+                    {
+                    Custom.RootFolderDirectory(),
+                    "World",
+                    Path.DirectorySeparatorChar,
+                    "Regions",
+                    Path.DirectorySeparatorChar,
+                    "regions.txt"
+                    }), true))
+                    {
+                        file.WriteLine(keyValues.Value);
+                    }
                     self.regions[i] = new Region(array[i], num, i);
                     num += self.regions[i].numberOfRooms;
                 }
@@ -300,7 +382,7 @@ namespace CustomRegions.Mod
         /// <summary>
         /// Where new World Folder is located
         /// </summary>
-        public const string resourcePath = "Mods/CustomResources/";
+        public const string resourcePath = "Mods\\CustomResources\\";
 
         /// <summary>
         /// Whether you enable loading your world or not

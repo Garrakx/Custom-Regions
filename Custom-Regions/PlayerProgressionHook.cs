@@ -23,33 +23,11 @@ namespace CustomRegions
             On.PlayerProgression.MiscProgressionData.FromString += MiscProgressionData_FromString;
         }
 
-        public static void AddModdedRegions(PlayerProgression self)
-        {
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
-            {
-                Debug.Log($"Custom Regions: PlayerProgression, loading new regions");
-                string regionToAdd = keyValues.Key;
-                bool shouldAdd = true;
 
-                for (int i = 0; i < self.regionNames.Length; i++)
-                {
-                    if (regionToAdd.Equals(self.regionNames[i]))
-                    {
-                        shouldAdd = false;
-                    }
-                }
-                if (shouldAdd)
-                {
-                    Array.Resize(ref self.regionNames, self.regionNames.Length + 1);
-                    self.regionNames[self.regionNames.Length - 1] = keyValues.Key;
-                    Debug.Log($"Custom Regions: Added new region [{regionToAdd}] from [{keyValues.Value}].");
-                }
-            }
-        }
 
         private static void PlayerProgression_InitiateProgression(On.PlayerProgression.orig_InitiateProgression orig, PlayerProgression self)
         {
-            AddModdedRegions(self);
+            self.regionNames = CustomWorldMod.AddModdedRegions(self.regionNames);
             if (self.regionNames.Length != self.mapDiscoveryTextures.Length)
             {
                 Array.Resize(ref self.mapDiscoveryTextures, self.regionNames.Length);
@@ -61,7 +39,7 @@ namespace CustomRegions
 
         private static void PlayerProgression_LoadProgression(On.PlayerProgression.orig_LoadProgression orig, PlayerProgression self)
         {
-            AddModdedRegions(self);
+            self.regionNames = CustomWorldMod.AddModdedRegions(self.regionNames);
             if (self.regionNames.Length != self.mapDiscoveryTextures.Length)
             {
                 Array.Resize(ref self.mapDiscoveryTextures, self.regionNames.Length);
@@ -73,7 +51,7 @@ namespace CustomRegions
 
         private static void MiscProgressionData_FromString(On.PlayerProgression.MiscProgressionData.orig_FromString orig, PlayerProgression.MiscProgressionData self, string s)
         {
-            string debug2 = "Custom Regions: RegionNames { ";
+            string debug2 = "Custom Regions: MISC PROGRESION FROM STRING - RegionNames { ";
             for (int i = 0; i < self.owner.regionNames.Length; i++)
             {
                 debug2 += self.owner.regionNames[i] + " , ";
@@ -129,6 +107,10 @@ namespace CustomRegions
                                             {
                                                 // self.discoveredShelters[num2].Add(array3[k]);
                                                 //shelters.Add(array3[k]);
+                                                for (int h = 0; h < array3[k].Length; h++)
+                                                {
+                                                    debug += array3[h] + " ";
+                                                }
                                             }
                                         }
                                     }
@@ -140,13 +122,13 @@ namespace CustomRegions
                 }
 
 
-                for (int a = 0; a < array2.Length; a++)
+                /*for (int a = 0; a < array2.Length; a++)
                 {
                     for (int b = 0; b < array2[a].Length; b++)
                     {
                         debug += array2[a][b] + " ";
                     }
-                }
+                }*/
             }
             debug += " ]";
             Debug.Log(debug);
