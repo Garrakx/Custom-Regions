@@ -33,6 +33,8 @@ namespace CustomRegions.Mod
             OverWorldHook.ApplyHooks();
             PlayerProgressionHook.ApplyHooks();
 
+            RoomCameraHook.ApplyHook();
+
             // Scene
             FastTravelScreenHook.ApplyHooks();
             MainMenuHook.ApplyHooks();
