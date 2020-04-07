@@ -16,44 +16,67 @@ namespace CustomRegions
             On.RoomCamera.LoadPalette += RoomCamera_LoadPalette;
         }
 
+
+        /// <summary>
+        /// Searchs the CustomResources folder for a custom palette if its name is greater than 35. 
+        /// CAREFUL! If two mods use the same palette number it will pick the first one it loads.
+        /// </summary>
         private static void RoomCamera_LoadPalette(On.RoomCamera.orig_LoadPalette orig, RoomCamera self, int pal, ref UnityEngine.Texture2D texture)
         {
             if (pal > 35)
             {
-                string regionName = self.room.world.region.name;
+                string regionName = string.Empty;
+                try
+                {
+                    regionName = self.room.world.region.name;
+                }
+                catch (Exception e)
+                {
+                    Debug.Log($"Custom Regions: Error loading regionName from palette, world / region is null [{e}]");
+                }
+
                 Debug.Log($"Custom Regions: Loading custom palette [{pal}] from [{regionName}]");
 
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                 {
-                    string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                   /* if (regionName == string.Empty) 
+                    {
+                    }*/
+                    regionName = keyValues.Value;
+                    string path = CustomWorldMod.resourcePath + regionName;
 
-                    string paletteFolder = string.Concat(new object[] { "file:///", Custom.RootFolderDirectory(), path, keyValues.Value, Path.DirectorySeparatorChar, "Assets", Path.DirectorySeparatorChar, "Futile", Path.DirectorySeparatorChar, "Resources", Path.DirectorySeparatorChar, "Palettes", Path.DirectorySeparatorChar, "palette", pal, ".png" });
-                    Debug.Log($"Custom Regions: Searching palette at {paletteFolder}");
+                    string paletteFolder = string.Concat(new object[] { Custom.RootFolderDirectory(), path, Path.DirectorySeparatorChar, "Assets", Path.DirectorySeparatorChar, "Futile", Path.DirectorySeparatorChar, "Resources", Path.DirectorySeparatorChar, "Palettes"});
+                    //Debug.Log($"Custom Regions: Searching palette at {paletteFolder}");
 
                     if (Directory.Exists(paletteFolder))
                     {
-                        Debug.Log($"Custom Regions: Found custom palette [{paletteFolder}]");
-                        //notFound = false;
-
-                        texture = new Texture2D(32, 16, TextureFormat.ARGB32, false);
-                        texture.anisoLevel = 0;
-                        texture.filterMode = FilterMode.Point;
-                        self.www = new WWW(paletteFolder);
-                        self.www.LoadImageIntoTexture(texture);
-                        if (self.room != null)
+                        //Debug.Log($"Custom Regions: Found custom palette directory [{paletteFolder}]");
+                        string palettePath = paletteFolder + Path.DirectorySeparatorChar + "palette" + pal + ".png";
+                        if (File.Exists(palettePath)) 
                         {
-                            self.ApplyEffectColorsToPaletteTexture(ref texture, self.room.roomSettings.EffectColorA, self.room.roomSettings.EffectColorB);
+                            Debug.Log($"Custom Regions: loading custom palette [{palettePath}]");
+                            texture = new Texture2D(32, 16, TextureFormat.ARGB32, false);
+                            texture.anisoLevel = 0;
+                            texture.filterMode = FilterMode.Point;
+                            self.www = new WWW("file:///" + palettePath);
+                            self.www.LoadImageIntoTexture(texture);
+                            if (self.room != null)
+                            {
+                                self.ApplyEffectColorsToPaletteTexture(ref texture, self.room.roomSettings.EffectColorA, self.room.roomSettings.EffectColorB);
+                            }
+                            else
+                            {
+                                self.ApplyEffectColorsToPaletteTexture(ref texture, -1, -1);
+                            }
+                            texture.Apply(false);
+                            break;
                         }
-                        else
+                        /*else
                         {
-                            self.ApplyEffectColorsToPaletteTexture(ref texture, -1, -1);
-                        }
-                        texture.Apply(false);
+                            Debug.Log($"Custom Regions: ERROR !!! loading custom palette [{palettePath}]");
+                        }*/
                     }
-
-
                 }
-
             }
             else
             {

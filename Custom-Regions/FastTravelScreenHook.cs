@@ -16,15 +16,23 @@ namespace CustomRegions
     {
         public static void ApplyHooks()
         {
+
+			// This method cannot be hooked due to limitations od MonoMod.exe
             //On.Menu.FastTravelScreen.GetRegionOrder += FastTravelScreen_GetRegionOrder;
+
+
             On.Menu.FastTravelScreen.TitleSceneID += FastTravelScreen_TitleSceneID;
+            On.Menu.FastTravelScreen.ctor += FastTravelScreen_ctor;
 
             // Debug
-            On.Menu.FastTravelScreen.ctor += FastTravelScreen_ctor;
             On.Menu.FastTravelScreen.GetAccessibleShelterNamesOfRegion += FastTravelScreen_GetAccessibleShelterNamesOfRegion;
         }
 
-        private static void FastTravelScreen_ctor(On.Menu.FastTravelScreen.orig_ctor orig, Menu.FastTravelScreen self, ProcessManager manager, ProcessManager.ProcessID ID)
+
+		/// <summary>
+		/// TODO
+		/// </summary>
+		private static void FastTravelScreen_ctor(On.Menu.FastTravelScreen.orig_ctor orig, Menu.FastTravelScreen self, ProcessManager manager, ProcessManager.ProcessID ID)
         {
             orig(self, manager, ID);
 
@@ -205,7 +213,10 @@ namespace CustomRegions
 			self.mySoundLoopID = ((ID != ProcessManager.ProcessID.RegionsOverviewScreen) ? SoundID.MENU_Fast_Travel_Screen_LOOP : SoundID.MENU_Main_Menu_LOOP);
 		}
 
-        private static List<string> FastTravelScreen_GetAccessibleShelterNamesOfRegion(On.Menu.FastTravelScreen.orig_GetAccessibleShelterNamesOfRegion orig, Menu.FastTravelScreen self, string regionAcronym)
+		/// <summary>
+		/// Used for Debug purposes.
+		/// </summary>
+		private static List<string> FastTravelScreen_GetAccessibleShelterNamesOfRegion(On.Menu.FastTravelScreen.orig_GetAccessibleShelterNamesOfRegion orig, Menu.FastTravelScreen self, string regionAcronym)
         {
             List<string> ori = orig(self, regionAcronym);
             string debug = string.Empty;
@@ -231,7 +242,10 @@ namespace CustomRegions
             return list;
         }
 
-        private static Menu.MenuScene.SceneID FastTravelScreen_TitleSceneID(On.Menu.FastTravelScreen.orig_TitleSceneID orig, Menu.FastTravelScreen self, string regionName)
+		/// <summary>
+		/// in FastTravelScreen - Fills CustomWorldMod.sceneCustomID with the ID of the region to load, and sets the extendedSceneID enum to CustomSceneID.
+		/// </summary>
+		private static Menu.MenuScene.SceneID FastTravelScreen_TitleSceneID(On.Menu.FastTravelScreen.orig_TitleSceneID orig, Menu.FastTravelScreen self, string regionName)
         {
             CustomWorldMod.sceneCustomID = string.Empty;
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)

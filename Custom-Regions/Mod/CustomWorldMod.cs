@@ -74,7 +74,9 @@ namespace CustomRegions.Mod
 
         }
 
-
+        /// <summary>
+        /// Enum used in the mergin process when loading the world_XX.txt file.
+        /// </summary>
         public enum MergeStatus
         {
             ROOMS,
@@ -82,12 +84,15 @@ namespace CustomRegions.Mod
             BATS
         }
 
-
+        /// <summary>
+        /// Providing an array with vanilla region IDs, returns this array but with the new regionsID added from the CustomWorldMod.lodadedRegions dictionary.
+        /// </summary>
+        /// <returns>returns string[] regionsID</returns>
         public static string[] AddModdedRegions(string[] regionNames)
         {
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                Debug.Log($"Custom Regions: PlayerProgression, loading new regions");
+                //Debug.Log($"Custom Regions: PlayerProgression, loading new regions");
                 string regionToAdd = keyValues.Key;
                 bool shouldAdd = true;
 
@@ -282,7 +287,7 @@ namespace CustomRegions.Mod
 
 
         /// <summary>
-        /// Returns the vanilla regions ID. UNUSED
+        /// Returns the vanilla regions ID.
         /// </summary>
         public static string[] VanillaRegions()
         {
@@ -380,15 +385,9 @@ namespace CustomRegions.Mod
         public static Dictionary<string, string> loadedRegions;
 
         /// <summary>
-        /// Where new World Folder is located
+        /// Path of the CustomResources folder
         /// </summary>
         public const string resourcePath = "Mods\\CustomResources\\";
-
-        /// <summary>
-        /// Whether you enable loading your world or not
-        /// </summary>
-        //public static bool enabled = BallanceMod.option.customWorld;
-
 
         /// <summary>
         /// Builds a dictionary where the Key is the region ID and the value is the name.
@@ -597,6 +596,10 @@ namespace CustomRegions.Mod
             }
         }
 
+        /// <summary>
+        /// Builds the world from the merged world_XX.txt files.
+        /// </summary>
+        /// <returns>Returns a List<string> with room connections, creatures and bat migration blockages.</returns>
         internal static List<string> BuildWorldText(List<string> ROOMS, List<string> CREATURES, List<string> BATS)
         {
             List<string> list = new List<string>();

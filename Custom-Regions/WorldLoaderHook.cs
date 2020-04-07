@@ -135,7 +135,7 @@ namespace CustomRegions
                 // THIS WILL REPLACE THE CTOR REDUCING COMPABILITY
 
                 // INITIALIZING LISTS
-                Debug.Log("Custom Worlds: Using custom WorldLoader ctor");
+                //Debug.Log("Custom Worlds: Using custom WorldLoader ctor");
                 try
                 {
                     InitializeWorldLoaderList(self);
@@ -435,7 +435,7 @@ namespace CustomRegions
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                Debug.Log($"Custom Regions: Reading world_{self.worldName}.txt from {keyValues.Value}");
+                //Debug.Log($"Custom Regions: Reading world_{self.worldName}.txt from {keyValues.Value}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                 string test = string.Concat(new object[]
@@ -526,6 +526,7 @@ namespace CustomRegions
                             }
                         }
                     }
+                    break;
                 }
 
             }
