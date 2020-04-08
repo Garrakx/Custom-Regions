@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace CustomRegions
+namespace CustomRegions.CustomMenu
 {
     public class EnumExt_extendedSceneID
     {

@@ -10,7 +10,7 @@ using UnityEngine;
 using HUD;
 using Menu;
 
-namespace CustomRegions
+namespace CustomRegions.CustomMenu
 {
     static class FastTravelScreenHook
     {

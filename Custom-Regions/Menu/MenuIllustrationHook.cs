@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace CustomRegions
+namespace CustomRegions.CustomMenu
 {
     static class MenuIllustrationHook
     {

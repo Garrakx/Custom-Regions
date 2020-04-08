@@ -58,15 +58,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomDecalHook.cs" />
-    <Compile Include="FastTravelScreenHook.cs" />
+    <Compile Include="Menu\FastTravelScreenHook.cs" />
     <Compile Include="MapHook.cs" />
-    <Compile Include="MenuIllustrationHook.cs" />
-    <Compile Include="MenuSceneHook.cs" />
+    <Compile Include="Menu\MenuIllustrationHook.cs" />
+    <Compile Include="Menu\MenuSceneHook.cs" />
     <Compile Include="Mod\CustomWorldMod.cs" />
     <Compile Include="Mod\CustomWorldOption.cs" />
     <Compile Include="Mod\CustomWorldScript.cs" />
-    <Compile Include="MainMenuHook.cs" />
-    <Compile Include="MultiplayerMenuHook.cs" />
+    <Compile Include="Menu\MainMenuHook.cs" />
+    <Compile Include="Menu\MultiplayerMenuHook.cs" />
     <Compile Include="OverWorldHook.cs" />
     <Compile Include="PlayerProgressionHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -74,7 +74,8 @@
     <Compile Include="RegionHook.cs" />
     <Compile Include="RoomCameraHook.cs" />
     <Compile Include="RoomSettingsHook.cs" />
-    <Compile Include="SlugcatSelectMenuHook.cs" />
+    <Compile Include="SandboxEditor.cs" />
+    <Compile Include="Menu\SlugcatSelectMenuHook.cs" />
     <Compile Include="WorldHook.cs" />
     <Compile Include="WorldLoaderHook.cs" />
   </ItemGroup>
