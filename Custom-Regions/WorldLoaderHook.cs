@@ -170,225 +170,63 @@ namespace CustomRegions
 
 
         /// <summary>
-        /// Returns new World path if there is any of new file is exist.
-        /// This method should be heavily optimized and cleaned up.
+        /// If finds the room in the CustomAssets folder, returns that path (takes priority over vanilla)
         /// </summary>
-        /// <returns>New World path first, then vanilla</returns>
+        /// <returns>returns path to room</returns>
         private static string WorldLoader_FindRoomFileDirectory(On.WorldLoader.orig_FindRoomFileDirectory orig, string roomName, bool includeRootDirectory)
         {
             //if (!enabled) { return orig(roomName, includeRootDirectory); }
 
             string result = "";
-
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                //Debug.Log($"Custom Regions: Finding room {roomName} in {keyValues.Key}. Path: {path}");
+                string pathToCustomFolder = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
-                string test = string.Concat(new object[]
+                //string test = Custom.RootFolderDirectory() + pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0];
+                //Debug.Log($"Custom Regions: Finding room {roomName} in {keyValues.Key}. Path: {test}");
+
+                string gatePath = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + roomName;
+                string gateShelterPath = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "Gate shelters" + Path.DirectorySeparatorChar + roomName;
+                string regularRoomPath = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0];
+
+                // room is regular room
+                if (Directory.Exists(regularRoomPath) && File.Exists(regularRoomPath + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName + ".txt"))
                 {
-                Custom.RootFolderDirectory(),
-                path.Replace('/', Path.DirectorySeparatorChar),
-                "World",
-                Path.DirectorySeparatorChar,
-                "Regions",
-                Path.DirectorySeparatorChar,
-                Regex.Split(roomName, "_")[0]
-                });
-                if (Directory.Exists(test))
-                { 
-                    bool file = false;
-                    if (File.Exists(string.Concat(new object[]
-                    {
-                    test,
-                    Path.DirectorySeparatorChar,
-                    "Rooms",
-                    Path.DirectorySeparatorChar,
-                    roomName,
-                    ".txt"
-                    }))) { file = true; }
-                    else
-                    {
-                        string n = Regex.Split(roomName, "_")[1].Substring(0, 1);
-                        int num = char.Parse(n) - 64;
-                        for (int i = 0; i < num; i++)
-                        {
-                            if (File.Exists(string.Concat(new object[]
-                            {
-                            test,
-                            Path.DirectorySeparatorChar,
-                            "Rooms",
-                            Path.DirectorySeparatorChar,
-                            roomName,
-                            "_",
-                            i,
-                            ".png"
-                            }))) { file = true; break; }
-                        }
-                    }
-
-
-                    if (file)
-                    {
-                        if (includeRootDirectory)
-                        {
-                            result = string.Concat(new object[]
-                            {
-                            "file:///",
-                            test,
-                            Path.DirectorySeparatorChar,
-                            "Rooms",
-                            Path.DirectorySeparatorChar,
-                            roomName
-                            });
-                        }
-                        else
-                        {
-                            result = string.Concat(new object[]
-                            {
-                            path.Replace('/', Path.DirectorySeparatorChar),
-                            "World",
-                            Path.DirectorySeparatorChar,
-                            "Regions",
-                            Path.DirectorySeparatorChar,
-                            Regex.Split(roomName, "_")[0],
-                            Path.DirectorySeparatorChar,
-                            "Rooms",
-                            Path.DirectorySeparatorChar,
-                            roomName
-                            });
-                        }
-                        // Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
-                    }
+                    result = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0] + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName;
+                    //Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
                 }
-                // room is a GATE
-                else if (Regex.Split(roomName, "_")[0] == "GATE" && File.Exists(string.Concat(new object[]
+                // room is GATE
+                else if (Regex.Split(roomName, "_")[0] == "GATE" && File.Exists(Custom.RootFolderDirectory() + gatePath + ".txt"))
                 {
-                    Custom.RootFolderDirectory(),
-                    path.Replace('/', Path.DirectorySeparatorChar),
-                    "World",
-                    Path.DirectorySeparatorChar,
-                    "Gates",
-                    Path.DirectorySeparatorChar,
-                    roomName,
-                    ".txt"
-                })))
-                {
-                    if (includeRootDirectory)
-                    {
-                        result = string.Concat(new object[]
-                        {
-                        "file:///",
-                        Custom.RootFolderDirectory(),
-                        path.Replace('/', Path.DirectorySeparatorChar),
-                        "World",
-                        Path.DirectorySeparatorChar,
-                        "Gates",
-                        Path.DirectorySeparatorChar,
-                        roomName
-                        });
-                    }
-                    else
-                    {
-                        result = string.Concat(new object[]
-                        {
-                        path.Replace('/', Path.DirectorySeparatorChar),
-                        "World",
-                        Path.DirectorySeparatorChar,
-                        "Gates",
-                        Path.DirectorySeparatorChar,
-                        roomName
-                        });
-                    }
-                    // Debug.Log($"Custom Regions: Found gate {roomName} in {keyValues.Key}. Path: {result}");
+                    result = gatePath;
+                    //Debug.Log($"Custom Regions: Found gate {roomName} in {keyValues.Key}. Path: {result}");
                 }
-                // Gate shelter
-                else if (File.Exists(string.Concat(new object[]
+                // room is Gate shelter
+                else if (File.Exists(Custom.RootFolderDirectory() + gateShelterPath + ".txt"))
                 {
-                    Custom.RootFolderDirectory(),
-                    path.Replace('/', Path.DirectorySeparatorChar),
-                    "World",
-                    Path.DirectorySeparatorChar,
-                    "Gates",
-                    Path.DirectorySeparatorChar,
-                    "Gate shelters",
-                    Path.DirectorySeparatorChar,
-                    roomName,
-                    ".txt"
-                })))
-                {
-                    if (includeRootDirectory)
-                    {
-                        result = string.Concat(new object[]
-                        {
-                    "file:///",
-                    Custom.RootFolderDirectory(),
-                    path.Replace('/', Path.DirectorySeparatorChar),
-                    "World",
-                    Path.DirectorySeparatorChar,
-                    "Gates",
-                    Path.DirectorySeparatorChar,
-                    "Gate shelters",
-                    Path.DirectorySeparatorChar,
-                    roomName
-                        });
-                    }
-                    else
-                    {
-
-                        result = string.Concat(new object[]
-                        {
-                    path.Replace('/', Path.DirectorySeparatorChar),
-                    "World",
-                    Path.DirectorySeparatorChar,
-                    "Gates",
-                    Path.DirectorySeparatorChar,
-                    "Gate shelters",
-                    Path.DirectorySeparatorChar,
-                    roomName
-                        });
-                    }
-                    //  Debug.Log($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
+                    result = gateShelterPath;
+                    //Debug.Log($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
                 }
-                // is Arena
+                // room is Arena
                 else
                 {
-                     //string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                    if(includeRootDirectory)
-                    {
-                        result = string.Concat(new object[]
-                        {
-                    "file:///",
-                    Custom.RootFolderDirectory(),
-                    path.Replace('/', Path.DirectorySeparatorChar),
-                    CustomWorldMod.resourcePath,
-                    Path.DirectorySeparatorChar,
-                    keyValues.Value,
-                    Path.DirectorySeparatorChar,
-                    "Levels",
-                    Path.DirectorySeparatorChar,
-                    roomName
-                        });
-                    }
-                    else
-                    {
-                        result = string.Concat(new object[]
-                        {
-                    CustomWorldMod.resourcePath,
-                    Path.DirectorySeparatorChar,
-                    keyValues.Value,
-                    Path.DirectorySeparatorChar,
-                    "Levels",
-                    Path.DirectorySeparatorChar,
-                    roomName
-                        });
-                    }
+                    result = pathToCustomFolder + "Levels" + Path.DirectorySeparatorChar + roomName;
+                    //Debug.Log($"Custom Regions: Found arena {roomName} in {keyValues.Key}. Path: {result}");
+                }
+
+                if (result != "")
+                {
+                    break;
                 }
             }
 
             if (result != "")
             {
                 // Debug.Log("Using Custom Worldfile: " + result);
+                if (includeRootDirectory)
+                {
+                    result = "file:///" + Custom.RootFolderDirectory() + result;
+                }
                 return result;
             }
             else
