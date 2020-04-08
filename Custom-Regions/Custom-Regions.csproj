@@ -66,6 +66,7 @@
     <Compile Include="Mod\CustomWorldOption.cs" />
     <Compile Include="Mod\CustomWorldScript.cs" />
     <Compile Include="MainMenuHook.cs" />
+    <Compile Include="MultiplayerMenuHook.cs" />
     <Compile Include="OverWorldHook.cs" />
     <Compile Include="PlayerProgressionHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

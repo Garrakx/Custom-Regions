@@ -350,6 +350,40 @@ namespace CustomRegions
                     }
                     //  Debug.Log($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
                 }
+                // is Arena
+                else
+                {
+                     //string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                    if(includeRootDirectory)
+                    {
+                        result = string.Concat(new object[]
+                        {
+                    "file:///",
+                    Custom.RootFolderDirectory(),
+                    path.Replace('/', Path.DirectorySeparatorChar),
+                    CustomWorldMod.resourcePath,
+                    Path.DirectorySeparatorChar,
+                    keyValues.Value,
+                    Path.DirectorySeparatorChar,
+                    "Levels",
+                    Path.DirectorySeparatorChar,
+                    roomName
+                        });
+                    }
+                    else
+                    {
+                        result = string.Concat(new object[]
+                        {
+                    CustomWorldMod.resourcePath,
+                    Path.DirectorySeparatorChar,
+                    keyValues.Value,
+                    Path.DirectorySeparatorChar,
+                    "Levels",
+                    Path.DirectorySeparatorChar,
+                    roomName
+                        });
+                    }
+                }
             }
 
             if (result != "")

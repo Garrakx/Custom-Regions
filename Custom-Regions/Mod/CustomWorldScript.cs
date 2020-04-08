@@ -46,6 +46,9 @@ namespace CustomRegions.Mod
             MenuIllustrationHook.ApplyHook();
             SlugcatSelectMenuHook.ApplyHooks();
 
+            // Arena
+            MultiplayerMenuHook.ApplyHook();
+
         }
 
         public RainWorld rw;

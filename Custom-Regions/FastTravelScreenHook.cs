@@ -25,7 +25,7 @@ namespace CustomRegions
             On.Menu.FastTravelScreen.ctor += FastTravelScreen_ctor;
 
             // Debug
-            On.Menu.FastTravelScreen.GetAccessibleShelterNamesOfRegion += FastTravelScreen_GetAccessibleShelterNamesOfRegion;
+            //On.Menu.FastTravelScreen.GetAccessibleShelterNamesOfRegion += FastTravelScreen_GetAccessibleShelterNamesOfRegion;
         }
 
 
@@ -37,15 +37,17 @@ namespace CustomRegions
             orig(self, manager, ID);
 
 			//self.pages.Clear();
+
 			
-            self.pages = new List<Page>();
+
+            //self.pages = new List<Page>();
 			self.blackFade = 1f;
 			self.lastBlackFade = 1f;
 			self.accessibleRegions = new List<int>();
 			self.discoveredSheltersInRegion = new List<int>();
-			self.pages.Add(new Page(self, null, "main", 0));
+			//self.pages.Add(new Page(self, null, "main", 0));
 			self.playerShelters = new string[3];
-			for (int i = 0; i < self.playerShelters.Length; i++)
+			/*for (int i = 0; i < self.playerShelters.Length; i++)
 			{
 				if (manager.rainWorld.progression.IsThereASavedGame(i))
 				{
@@ -67,7 +69,7 @@ namespace CustomRegions
 						break;
 					}
 				}
-			}
+			}*/
 			List<string> regionOrder = FastTravelScreen_GetRegionOrder(FastTravelScreen.GetRegionOrder); //FastTravelScreen.GetRegionOrder();
 			Debug.Log($"Custom Regions: FastTravelScreen. Manager.regionNames.Length [{manager.rainWorld.progression.regionNames.Length}]. RegionOrder.Count [{regionOrder.Count}]");
 			for (int k = 0; k < regionOrder.Count; k++)
@@ -80,14 +82,24 @@ namespace CustomRegions
 					}
 				}
 			}
-			if (self.accessibleRegions.Count == 0)
+			if (self.accessibleRegions.Count != 0)
 			{
-				Debug.Log("NO ACCESSIBLE REGIONS!");
-				self.pages[0].subObjects.Add(new SimpleButton(self, self.pages[0], self.Translate("BACK"), "BACK", new Vector2(200f, 100f), new Vector2(100f, 30f)));
-				self.noRegions = true;
-			}
-			else
-			{
+				try
+				{
+					foreach (SimpleButton button in self.pages[0].subObjects)
+					{
+						if (button.signalText.Equals("BACK"))
+						{
+							self.pages[0].subObjects.Remove(button);
+						}
+					}
+				} catch(Exception e)
+				{
+					Debug.Log($"Custom Regions: Failed to remove back button at FastTraveLScreen [{e}]");
+				}
+
+
+				self.noRegions = false;
 				self.currentRegion = 0;
 				self.upcomingRegion = -1;
 				self.preloadedScenes = new InteractiveMenuScene[self.accessibleRegions.Count];
@@ -210,7 +222,14 @@ namespace CustomRegions
 					self.hudContainers[0].Container
 				}, manager.rainWorld, self);
 			}
+			/*else
+			{
+				Debug.Log("NO ACCESSIBLE REGIONS!");
+				self.pages[0].subObjects.Add(new SimpleButton(self, self.pages[0], self.Translate("BACK"), "BACK", new Vector2(200f, 100f), new Vector2(100f, 30f)));
+				self.noRegions = true;
+			}
 			self.mySoundLoopID = ((ID != ProcessManager.ProcessID.RegionsOverviewScreen) ? SoundID.MENU_Fast_Travel_Screen_LOOP : SoundID.MENU_Main_Menu_LOOP);
+			*/
 		}
 
 		/// <summary>
