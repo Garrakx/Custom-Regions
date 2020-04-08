@@ -49,7 +49,7 @@ namespace CustomRegions
                 });
                 if (File.Exists(test))
                 {
-                    Debug.Log($"Custom Regions: Found custom properties for {keyValues.Key}");
+                    //Debug.Log($"Custom Regions: Found custom properties for {keyValues.Key}");
                     string[] array = File.ReadAllLines(test);
                     for (int i = 0; i < array.Length; i++)
                     {
@@ -193,7 +193,7 @@ namespace CustomRegions
                             flag = true;
                         }
                     }
-                    Debug.Log($"Custom Regions: {keyValues.Value} had {num} rooms-connections in region [{name}].");
+                    //Debug.Log($"Custom Regions: {keyValues.Value} had {num} rooms-connections in region [{name}].");
                     totalRooms += num;
                 }
             }

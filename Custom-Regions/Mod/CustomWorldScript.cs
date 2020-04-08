@@ -49,6 +49,7 @@ namespace CustomRegions.Mod
 
             // Arena
             MultiplayerMenuHook.ApplyHook();
+            ArenaCreatureSpawnerHook.ApplyHook();
 
         }
 

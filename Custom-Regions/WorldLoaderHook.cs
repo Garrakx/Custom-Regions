@@ -107,9 +107,9 @@ namespace CustomRegions
         {
             try
             {
-                Debug.Log($"Custom Regions: Creating WorldLoader : game - [{game}], playerCharacter - [{playerCharacter}], singleRoomWorld - [{singleRoomWorld}], worldName - [{worldName}], region - [{region.name}],");
+                Debug.Log($"Custom Regions: Creating WorldLoader : Game [{game}]. PlayerCharacter [{playerCharacter}]. SingleRoomWorld [{singleRoomWorld}]. WorldName [{worldName}]");
             }
-            catch (Exception e) { };
+            catch (Exception e) { Debug.Log($"Custom Reginons: Error ar WorldLoaderCtor [{e}]"); }
 
             string pathRegion = string.Concat(new object[]
             {
@@ -125,7 +125,7 @@ namespace CustomRegions
                 worldName,
                 ".txt"
             });
-            if (File.Exists(pathRegion))
+            if (!singleRoomWorld || File.Exists(pathRegion))
             {
                 orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues);
             }
@@ -142,7 +142,7 @@ namespace CustomRegions
                 }
                 catch (Exception e)
                 {
-                    Debug.Log("Custom Worlds, something failed ERROR!!!");
+                    Debug.Log($"Custom Worlds: something failed ERROR!!! [{e}]");
                 }
 
                 string path = CustomWorldMod.resourcePath + region + Path.DirectorySeparatorChar;
@@ -188,6 +188,7 @@ namespace CustomRegions
                 string gatePath = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + roomName;
                 string gateShelterPath = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "Gate shelters" + Path.DirectorySeparatorChar + roomName;
                 string regularRoomPath = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0];
+                string arenaPath = pathToCustomFolder + "Levels" + Path.DirectorySeparatorChar + roomName;
 
                 // room is regular room
                 if (Directory.Exists(regularRoomPath) && File.Exists(regularRoomPath + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName + ".txt"))
@@ -208,9 +209,9 @@ namespace CustomRegions
                     //Debug.Log($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
                 }
                 // room is Arena
-                else
+                else if(File.Exists(Custom.RootFolderDirectory() + arenaPath + ".txt"))
                 {
-                    result = pathToCustomFolder + "Levels" + Path.DirectorySeparatorChar + roomName;
+                    result = arenaPath;
                     //Debug.Log($"Custom Regions: Found arena {roomName} in {keyValues.Key}. Path: {result}");
                 }
 
