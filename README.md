@@ -42,9 +42,9 @@ D: A
 4) The mod will load decals, palettes, arena levels, illustrations, etc from this folder. If something is not being loaded contact me.
 
 * *How to uninstall a region*
-a) Rename the regionID.txt or delete it 
+1) Rename the regionID.txt or delete it 
 or
-b) Delete the folder created in step 2 (i.e. Rain World\Mods\CustomResources\The Root)
+2) Delete the folder created in step 2 (i.e. Rain World\Mods\CustomResources\The Root)
 
 * *Known issues*
 1) Arena thumbnails are not loaded (TO DO)
