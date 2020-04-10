@@ -41,9 +41,9 @@ D: A
 3) Inside this folder you must place your "World" and "Assets" folders containing any changes made, as well as a text file called "regionID.txt" with just the initials of your region (i.e TR). **If you don't include this file, the region won't be loaded**.
 4) The mod will load decals, palettes, arena levels, illustrations, etc from this folder. If something is not being loaded contact me.
 
-* *How to uninstall a region*
+* *How to uninstall a region (two options, pick one)*
 1) Rename the regionID.txt or delete it 
-or
+**or**
 2) Delete the folder created in step 2 (i.e. Rain World\Mods\CustomResources\The Root)
 
 * *Known issues*
