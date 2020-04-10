@@ -30,14 +30,36 @@ C: A
 D: A
 ```
 
+* *How to install it*
+1) Download latest version of partiality [here](https://github.com/PartialityModding/PartialityLauncher/releases "Partiality download").
+2) Make sure to check and install EnumExtender.dll, AutoUpdate.dll and CustomRegions.dll. This mod will be autoupdated.
+3) You are ready to go.
+
+
 * *How to use it*
-1) Create a new folder inside Rain World\Mods called "CustomResources"
-2) Create a new folder inside Rain World\Mods\CustomResources with the name of your region (i.e. Rain World\Mods\CustomResources\The Root)
+1) Create a new folder inside Rain World\Mods called "CustomResources (if you run the game with the mod it will be automatically created)"
+2) Create a new folder inside Rain World\Mods\CustomResources with the name of your region (i.e. Rain World\Mods\CustomResources\The Root). This will determine the name of the region in game.
 3) Inside this folder you must place your "World" and "Assets" folders containing any changes made, as well as a text file called "regionID.txt" with just the initials of your region (i.e TR). **If you don't include this file, the region won't be loaded**.
+4) The mod will load decals, palettes, arena levels, illustrations, etc from this folder. If something is not being loaded contact me.
+
+
+* *How to uninstall a region (two options, pick one)*
+1) Rename the regionID.txt or delete it 
+**or**
+2) Delete the folder created in step 2 (i.e. Rain World\Mods\CustomResources\The Root)
+
+* *Useful information for modders*
+1) To create the folder structure for you region, just follow the Vanilla structure and create the mod as if you would install it mergin files.
+2) Apart from the "positions.txt" file for the Region Art, you will need to include a "depths.txt" to position the depth of your art. Follows the same order as "positions.txt".
+3) You can include as many layers as you want for the region art.
+4) You will probably to adjust the positions of the region art again.
+5) This mod should be compatible with almost anything. If you find any incompabilities contact me.
+
+
 
 * *Known issues*
-1) Map does not work.
-2) Fast Travel screen does not work.
+1) Arena thumbnails are not loaded (TO DO)
+2) Due to Rain World savefile system, you need to clear you save slot if you uninstall / install new regions.
 
 * *Credits*
- based on @topicular's EasyModPack
+ loosely based on @topicular's EasyModPack. What it started as a simple mod, it turned to be one of the biggest and challening mods out there. Please be patient with bugs and error.
