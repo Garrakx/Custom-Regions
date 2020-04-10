@@ -12,15 +12,75 @@ namespace CustomRegions
 {
     public static class PlayerProgressionHook
     {
+        private static Dictionary<string, int> tempDictionary = null;
+
         public static void ApplyHooks()
         {
             On.PlayerProgression.LoadProgression += PlayerProgression_LoadProgression;
             On.PlayerProgression.InitiateProgression += PlayerProgression_InitiateProgression;
 
+            // Fix Savefile
+            // On.PlayerProgression.GetProgLines += PlayerProgression_GetProgLines;
+
             // Debug
             On.PlayerProgression.MiscProgressionData.SaveDiscoveredShelter += MiscProgressionData_SaveDiscoveredShelter;
             On.PlayerProgression.MiscProgressionData.ToString += MiscProgressionData_ToString;
             On.PlayerProgression.MiscProgressionData.FromString += MiscProgressionData_FromString;
+        }
+
+        // Debug
+        private static string[] PlayerProgression_GetProgLines(On.PlayerProgression.orig_GetProgLines orig, PlayerProgression self)
+        {
+            tempDictionary = null;
+            string[] progLines = orig(self);
+            string path = Custom.RootFolderDirectory() + "SavedList.txt";
+            for (int i = 0; i < progLines.Length; i++)
+            {
+                string[] array = Regex.Split(progLines[i], "<progDivB>");
+                if (array.Length == 2 && array[0] == "SAVE STATE")
+                {
+                    List<string> saveDataList = array.ToList<string>();
+                    List<string> updatedSaveDataList = saveDataList;
+
+                    foreach (string s in saveDataList)
+                    {
+                        if (!File.Exists(path))
+                        {
+                            using (TextWriter tw = new StreamWriter(path))
+                            {
+                                tw.WriteLine(s);
+                            }
+                        }
+                        else
+                        {
+                            using (StreamWriter tw = File.AppendText(path))
+                            {
+                                tw.WriteLine(s);
+                            }
+                        }
+
+                        if (s.Equals("MAP"))
+                        {
+                            int index = saveDataList.IndexOf(s);
+                            string regionName = string.Empty;
+                            try
+                            {
+                                regionName = saveDataList[index++];
+                            }
+                            catch (Exception e) { Debug.Log($"Custom Regions: Exception at fixing savefile {e}"); }
+
+                            if (regionName == string.Empty)
+                                continue;
+
+                            if (!self.regionNames.ToList<string>().Contains(regionName))
+                            {
+                                Debug.Log($"Custom Regions: fixing SAVE STATE file. Uninstalled region [{regionName}], clearing saveData...");
+                            }
+                        }
+                    }
+                }
+            }
+            return progLines;
         }
 
 
@@ -134,7 +194,7 @@ namespace CustomRegions
             Debug.Log(debug);
             orig(self, s);
 
-            debug2 = "Custom Regions: Discovered Shelters { "; 
+            debug2 = "Custom Regions: Discovered Shelters { ";
             for (int i = 0; i < self.discoveredShelters.Length; i++)
             {
                 if (self.discoveredShelters[i] != null)
@@ -149,7 +209,7 @@ namespace CustomRegions
                     }
                 }
             }
-            Debug.Log(debug2+ "} ");
+            Debug.Log(debug2 + "} ");
         }
 
         private static string MiscProgressionData_ToString(On.PlayerProgression.MiscProgressionData.orig_ToString orig, PlayerProgression.MiscProgressionData self)

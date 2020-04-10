@@ -125,7 +125,7 @@ namespace CustomRegions
                 worldName,
                 ".txt"
             });
-            if (!singleRoomWorld || File.Exists(pathRegion))
+            if (!singleRoomWorld && File.Exists(pathRegion))
             {
                 orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues);
             }

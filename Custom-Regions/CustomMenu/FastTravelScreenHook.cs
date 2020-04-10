@@ -30,46 +30,19 @@ namespace CustomRegions.CustomMenu
 
 
 		/// <summary>
-		/// TODO
+		/// TODO description
 		/// </summary>
 		private static void FastTravelScreen_ctor(On.Menu.FastTravelScreen.orig_ctor orig, Menu.FastTravelScreen self, ProcessManager manager, ProcessManager.ProcessID ID)
         {
             orig(self, manager, ID);
 
-			//self.pages.Clear();
-
-			
-
-            //self.pages = new List<Page>();
 			self.blackFade = 1f;
 			self.lastBlackFade = 1f;
 			self.accessibleRegions = new List<int>();
 			self.discoveredSheltersInRegion = new List<int>();
 			//self.pages.Add(new Page(self, null, "main", 0));
 			self.playerShelters = new string[3];
-			/*for (int i = 0; i < self.playerShelters.Length; i++)
-			{
-				if (manager.rainWorld.progression.IsThereASavedGame(i))
-				{
-					self.playerShelters[i] = manager.rainWorld.progression.ShelterOfSaveGame(i);
-				}
-			}
-			self.currentShelter = "SU_S01";
-			if (manager.rainWorld.progression.PlayingAsSlugcat >= 0 && manager.rainWorld.progression.PlayingAsSlugcat < self.playerShelters.Length && self.playerShelters[manager.rainWorld.progression.PlayingAsSlugcat] != null)
-			{
-				self.currentShelter = self.playerShelters[manager.rainWorld.progression.PlayingAsSlugcat];
-			}
-			else
-			{
-				for (int j = 0; j < self.playerShelters.Length; j++)
-				{
-					if (self.playerShelters[j] != null)
-					{
-						self.currentShelter = self.playerShelters[j];
-						break;
-					}
-				}
-			}*/
+
 			List<string> regionOrder = FastTravelScreen_GetRegionOrder(FastTravelScreen.GetRegionOrder); //FastTravelScreen.GetRegionOrder();
 			Debug.Log($"Custom Regions: FastTravelScreen. Manager.regionNames.Length [{manager.rainWorld.progression.regionNames.Length}]. RegionOrder.Count [{regionOrder.Count}]");
 			for (int k = 0; k < regionOrder.Count; k++)

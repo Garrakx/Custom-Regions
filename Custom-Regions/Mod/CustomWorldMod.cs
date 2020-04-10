@@ -385,9 +385,9 @@ namespace CustomRegions.Mod
         public static Dictionary<string, string> loadedRegions;
 
         /// <summary>
-        /// Path of the CustomResources folder
+        /// path of the CustomResources folder (Mods\CustomResources\)
         /// </summary>
-        public const string resourcePath = "Mods\\CustomResources\\";
+        public static string resourcePath = "Mods" + Path.DirectorySeparatorChar + "CustomResources" + Path.DirectorySeparatorChar;
 
         /// <summary>
         /// Builds a dictionary where the Key is the region ID and the value is the name.
@@ -408,13 +408,13 @@ namespace CustomRegions.Mod
                 // Used in case region does not include \regionID.txt
                 string regionID = new string(tempChar);
 
-                string regionIDpath = region + "\\regionID.txt";
+                string regionIDpath = region + Path.DirectorySeparatorChar + "regionID.txt";
                 if (File.Exists(regionIDpath))
                 {
                     regionID = File.ReadAllText(regionIDpath);
 
-                regionID = regionID.ToUpper();
-                dictionary.Add(regionID, Path.GetFileNameWithoutExtension(region));
+                    regionID = regionID.ToUpper();
+                    dictionary.Add(regionID, Path.GetFileNameWithoutExtension(region));
                 }
                 else
                 {
@@ -430,6 +430,14 @@ namespace CustomRegions.Mod
             using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + "customWorldLog.txt"))
             {
                 sw.WriteLine("######################\n Custom World Log\n");
+            }
+        }
+
+        public static void CreateCustomResourceFolder()
+        {
+            if(!Directory.Exists(Custom.RootFolderDirectory()+resourcePath)) 
+            {
+                Directory.CreateDirectory(Custom.RootFolderDirectory() + resourcePath);
             }
         }
 

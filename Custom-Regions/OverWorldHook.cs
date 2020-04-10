@@ -40,6 +40,7 @@ namespace CustomRegions
 
             bool flag = false;
             string text = string.Empty;
+
             if (self.game.IsArenaSession)
             {
                 flag = true;
@@ -50,6 +51,16 @@ namespace CustomRegions
                 string[] array = File.ReadAllLines(Custom.RootFolderDirectory() + "setup.txt");
                 text = Regex.Split(array[0], ": ")[1];
                 flag = !self.game.setupValues.world;
+            }
+            else if (self.game.manager.menuSetup.startGameCondition == ProcessManager.MenuSetup.StoryGameInitCondition.RegionSelect || self.game.manager.menuSetup.FastTravelInitCondition)
+            {
+                text = self.game.manager.menuSetup.regionSelectRoom;
+                flag = false;
+            }
+            else
+            {
+                text = (self.game.session as StoryGameSession).saveState.denPosition;
+                flag = false;
             }
 
             if (self.game.startingRoom != string.Empty)

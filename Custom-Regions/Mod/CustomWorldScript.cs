@@ -15,6 +15,7 @@ namespace CustomRegions.Mod
             CustomWorldMod.script = this;
 
             CustomWorldMod.CreateCustomWorldLog();
+            CustomWorldMod.CreateCustomResourceFolder();
 
             CustomWorldMod.loadedRegions = CustomWorldMod.BuildModRegionsDictionary();
             string dictionaryString = "Custom Regions: Loading \n{";
@@ -46,6 +47,7 @@ namespace CustomRegions.Mod
             MenuSceneHook.ApplyHook();
             MenuIllustrationHook.ApplyHook();
             SlugcatSelectMenuHook.ApplyHooks();
+            LevelSelectorHook.ApplyHook();
 
             // Arena
             MultiplayerMenuHook.ApplyHook();

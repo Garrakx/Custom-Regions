@@ -39,7 +39,8 @@ namespace CustomRegions
 
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                 {
-                    string customPath = $"{Custom.RootFolderDirectory()}{CustomWorldMod.resourcePath}{keyValues.Value}\\Assets\\Futile\\Resources\\Decals\\{fileName}.png";
+                    char dash = Path.DirectorySeparatorChar;
+                    string customPath = $"{Custom.RootFolderDirectory()}{CustomWorldMod.resourcePath}{keyValues.Value}{dash}Assets{dash}Futile{dash}Resources{dash}Decals{dash}{fileName}.png";
                     //Debug.Log($"Custom Regions: Searching custom decal [{fileName}] at [{customPath}]");
                     if(File.Exists(customPath))
                     {
