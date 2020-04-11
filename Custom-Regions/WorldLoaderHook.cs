@@ -125,6 +125,8 @@ namespace CustomRegions
                 worldName,
                 ".txt"
             });
+
+
             if (!singleRoomWorld && File.Exists(pathRegion))
             {
                 orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues);
@@ -194,7 +196,7 @@ namespace CustomRegions
                 if (Directory.Exists(regularRoomPath) && File.Exists(regularRoomPath + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName + ".txt"))
                 {
                     result = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0] + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName;
-                    //Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
+                    Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
                 }
                 // room is GATE
                 else if (Regex.Split(roomName, "_")[0] == "GATE" && File.Exists(Custom.RootFolderDirectory() + gatePath + ".txt"))
@@ -212,7 +214,7 @@ namespace CustomRegions
                 else if(File.Exists(Custom.RootFolderDirectory() + arenaPath + ".txt"))
                 {
                     result = arenaPath;
-                    //Debug.Log($"Custom Regions: Found arena {roomName} in {keyValues.Key}. Path: {result}");
+                    Debug.Log($"Custom Regions: Found arena {roomName} in {keyValues.Key}. Path: {result}");
                 }
 
                 if (result != "")
@@ -248,9 +250,11 @@ namespace CustomRegions
         public static List<string> getWorldLines(WorldLoader self)
         {
             List<string> lines = new List<string>();
-            List<string> ROOMS = new List<string>();
-            List<string> CREATURES = new List<string>();
-            List<string> BATS = new List<string>();
+
+            // Bool indicates whether it is vanilla or not
+            List<CustomWorldMod.worldData> ROOMS = new List<CustomWorldMod.worldData>();
+            List<CustomWorldMod.worldData> CREATURES = new List<CustomWorldMod.worldData>();
+            List<CustomWorldMod.worldData> BATS = new List<CustomWorldMod.worldData>();
 
             if (self.lines.Count > 0)
             {
@@ -269,7 +273,7 @@ namespace CustomRegions
                     }
                     if (startRooms)
                     {
-                        ROOMS.Add(s);
+                        ROOMS.Add(new CustomWorldMod.worldData(s, true));
                     }
                     if (s.Equals("ROOMS"))
                     {
@@ -283,7 +287,7 @@ namespace CustomRegions
                     }
                     if (startCreatures)
                     {
-                        CREATURES.Add(s);
+                        CREATURES.Add(new CustomWorldMod.worldData(s, true));
                     }
                     if (s.Equals("CREATURES"))
                     {
@@ -297,7 +301,7 @@ namespace CustomRegions
                     }
                     if (startBats)
                     {
-                        BATS.Add(s);
+                        BATS.Add(new CustomWorldMod.worldData(s, true));
                     }
                     if (s.Equals("BAT MIGRATION BLOCKAGES"))
                     {
@@ -314,7 +318,7 @@ namespace CustomRegions
                 string test = string.Concat(new object[]
                 {
                     Custom.RootFolderDirectory(),
-                    path.Replace('/', Path.DirectorySeparatorChar),
+                    path,
                     Path.DirectorySeparatorChar,
                     "World",
                     Path.DirectorySeparatorChar,
@@ -399,11 +403,15 @@ namespace CustomRegions
                             }
                         }
                     }
-                    break;
+                    //break;
                 }
 
             }
-            lines = CustomWorldMod.BuildWorldText(ROOMS, CREATURES, BATS);
+
+
+
+            lines = CustomWorldMod.BuildWorldText(CustomWorldMod.fromWorldDataToList(ROOMS), CustomWorldMod.fromWorldDataToList(CREATURES), CustomWorldMod.fromWorldDataToList(BATS));
+
 
             if (lines.Count < 2)
             {

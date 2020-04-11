@@ -58,7 +58,7 @@ namespace CustomRegions.CustomMenu
                     }
                 }
                 illu.Reverse();
-                foreach(MenuDepthIllustration depthIllustration in illu)
+                foreach (MenuDepthIllustration depthIllustration in illu)
                 {
                     Debug.Log($"Custom Regions: Adding MenuDepthIllustration - Name [{depthIllustration.fileName}]");
                     self.AddIllustration(depthIllustration);
@@ -96,13 +96,13 @@ namespace CustomRegions.CustomMenu
                 }
             }
 
-                string regionValue;
+            string regionValue;
             CustomWorldMod.loadedRegions.TryGetValue(regionID, out regionValue);
             string path = CustomWorldMod.resourcePath + regionValue + Path.DirectorySeparatorChar;
             string titleFolderName = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Illustrations";
             if (self.menu.ID == ProcessManager.ProcessID.FastTravelScreen || self.menu.ID == ProcessManager.ProcessID.RegionsOverviewScreen)
             {
-                Debug.Log($"Custom Regions: Adding Title - Name [{$"Title_{regionID}_Shadow"}], path [{titleFolderName}]");
+                Debug.Log($"Custom Regions: Adding Title - Name [{$"Title_{regionID}"}], path [{titleFolderName}]");
                 self.AddIllustration(new MenuIllustration(self.menu, self, titleFolderName, $"Title_{regionID}_Shadow", new Vector2(0.01f, 0.01f), true, false));
                 self.AddIllustration(new MenuIllustration(self.menu, self, titleFolderName, $"Title_{regionID}", new Vector2(0.01f, 0.01f), true, false));
                 self.flatIllustrations[self.flatIllustrations.Count - 1].sprite.shader = self.menu.manager.rainWorld.Shaders["MenuText"];

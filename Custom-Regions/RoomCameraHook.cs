@@ -14,8 +14,69 @@ namespace CustomRegions
         public static void ApplyHook()
         {
             On.RoomCamera.LoadPalette += RoomCamera_LoadPalette;
+
+
+            // If a custom room uses vanilla textures
+             //On.RoomCamera.MoveCamera2 += RoomCamera_MoveCamera2;
+
+             //On.RoomCamera.PreLoadTexture += RoomCamera_PreLoadTexture;
         }
 
+        private static void RoomCamera_PreLoadTexture(On.RoomCamera.orig_PreLoadTexture orig, RoomCamera self, Room room, int camPos)
+        {
+            if (self.quenedTexture == string.Empty)
+            {
+                string requestedTexture = WorldLoader.FindRoomFileDirectory(room.abstractRoom.name, true) + "_" + camPos + 1 + ".png";
+                string path = requestedTexture;
+
+                string delimitator = "file:///";
+                int index = path.IndexOf(delimitator) + delimitator.Length;
+                path = path.Substring(index);
+
+                //Debug.Log($"Custom regions: PreloadTexture path [{path}] Exists [{File.Exists(path)}]");
+                if (!File.Exists(path))
+                {
+                    self.quenedTexture = FindCameraTexturePath(requestedTexture);
+                    self.www = new WWW(self.quenedTexture);
+                }
+            }
+
+            orig(self, room, camPos);
+        }
+
+        private static void RoomCamera_MoveCamera2(On.RoomCamera.orig_MoveCamera2 orig, RoomCamera self, string requestedTexture)
+        {
+            string path = requestedTexture;
+            string delimitator = "file:///";
+                int index = path.IndexOf(delimitator) + delimitator.Length;
+                path = path.Substring(index);
+
+            //Debug.Log($"Custom regions: MoveCamera path [{path}] Exists [{File.Exists(path)}]");
+            if (!File.Exists(path))
+            {
+                requestedTexture = FindCameraTexturePath(requestedTexture);
+            }
+
+            orig(self, requestedTexture);
+        }
+
+
+        public static string FindCameraTexturePath(string requestedTexture)
+        {
+            string delimitator = "Regions\\";
+            int index = requestedTexture.IndexOf(delimitator) + delimitator.Length;
+            string roomPathWithRegion = requestedTexture.Substring(index);
+
+            string fullRoomPathWithRegion = Custom.RootFolderDirectory() + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + roomPathWithRegion;
+           // Debug.Log($"Custom regions: Searching vanilla room textures at [{fullRoomPathWithRegion}]");
+            if (File.Exists(fullRoomPathWithRegion))
+            {
+                requestedTexture = fullRoomPathWithRegion;
+                //Debug.Log($"Custom regions: used vanilla textures for room [{requestedTexture}]");
+            }
+
+            return requestedTexture;
+        }
 
         /// <summary>
         /// Searchs the CustomResources folder for a custom palette if its name is greater than 35. 

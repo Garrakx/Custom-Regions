@@ -53,6 +53,24 @@ namespace CustomRegions.Mod
         */
 
 
+        // Code for AutoUpdate support
+        // Should be put in the main PartialityMod class.
+        // Comments are optional.
+
+        // Update URL - don't touch!
+        // You can go to this in a browser (it's safe), but you might not understand the result.
+        // This URL is specific to this mod, and identifies it on AUDB.
+        public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
+        // Version - increase this by 1 when you upload a new version of the mod.
+        // The first upload should be with version 0, the next version 1, the next version 2, etc.
+        // If you ever lose track of the version you're meant to be using, ask Pastebin.
+        public int version = 3;
+        // Public key in base64 - don't touch!
+        public string keyE = "AQAB";
+        public string keyN = "13Mr+YOzb1iLnJvzkuP4NEZEWwOtWKWvWAN0HdsQ5SF2+RG7k8FbtmQut+2+69ideiJHDW66jWBcGGvfiQ0+5yLAUBpGSckC7V79yZgFQT39lvgU0ykAjonkA+ZTODFnehubyCkrrrzwno4boZghEZmDS2YsSyDJ6RLJyD2/WeCokcTj1vIHZhY9DzkooFtejz9yI/PCZtq8tfq2AzSiQPS+0xGQs3fnAkOGoV1WZ/inW5/rRyjD5HICr8t79UmcopfRK383YBrf2G96HeVYvY2vwSS/BW/m32rTLOZHr+XX7SIZshz7BLK6xEssy4qXjskvAUshqNudxtQnIkShGJuKWF1V2vvwqgY/IZiAbDXdBOUaSd09ldHBlTz9EfzBcgqffVRaUTzS71yGLISyrLriezozlK1YZW9vvijpbD0rmDaJ4aq9s6EzhdgVkTEuChtm/Fj9pgsswjvkbgHw1t9QZWqu4pweNd3IE/Lktst8HBKLiw1aRaffbZIhh1apbyjF8iflD8sNzbIHEfEvc35MEwIFqibJVnVxppBa15HpOxeXOzwuTjFaLSURRvbOEFPmpyd1Nm4nMzZZHHPjQXT7oYQAxjSCfqnLAdYsEnNo/2172jJGLfBWWGFTavqiCYqLhjtYkPfRgpcdw4FldgjX4w7RGMD/Ra5VXvmDMTE=";
+        // ------------------------------------------------
+
+
         public override void OnEnable()
         {
             base.OnEnable();
@@ -82,6 +100,18 @@ namespace CustomRegions.Mod
             ROOMS,
             CREATURES,
             BATS
+        }
+
+
+        public struct worldData
+        {
+            public string data;
+            public bool vanilla;
+            public worldData(string data, bool vanilla)
+            {
+                this.data = data;
+                this.vanilla = vanilla;
+            }
         }
 
         /// <summary>
@@ -118,13 +148,14 @@ namespace CustomRegions.Mod
         /// Compares and merges a room-connection in the existing room list
         /// This method should be heavily optimized and cleaned up.
         /// </summary>
-        public static List<string> AddNewRoom(string newRoom, List<string> oldList)
+        public static List<worldData> AddNewRoom(string newRoom, List<worldData> oldList)
         {
             bool sameConnections = false;
-            string conflictingRoom = string.Empty;
-            foreach (string oldRoom in oldList)
+            string roomToBeReplaced = string.Empty;
+
+            foreach (worldData oldRoom in oldList)
             {
-                if (oldRoom.Equals(newRoom))
+                if (oldRoom.data.Equals(newRoom))
                 {
                     // The room is exactly the same, skipped
                     sameConnections = true;
@@ -134,12 +165,15 @@ namespace CustomRegions.Mod
                 {
                     try
                     {
-                        string oldBaseRoom = oldRoom.Substring(0, oldRoom.IndexOf(" "));
+                        string oldBaseRoom = oldRoom.data.Substring(0, oldRoom.data.IndexOf(" "));
                         string newBaseRoom = newRoom.Substring(0, newRoom.IndexOf(" "));
+
                         if (oldBaseRoom.Equals(newBaseRoom))
                         {
                             // The room is the same but different connections
-                            conflictingRoom = oldRoom;
+                            roomToBeReplaced = oldRoom.data;
+                            if(!sameConnections)
+                                Debug.Log($"Custom Regions: Found conflict [{oldRoom.data}] with [{newRoom}]");
                             break;
                         }
                     }
@@ -148,29 +182,31 @@ namespace CustomRegions.Mod
                 }
             }
 
-            if (conflictingRoom == string.Empty && !sameConnections)
+            if (roomToBeReplaced == string.Empty && !sameConnections)
             {
                 //Debug.Log($"Custom Regions: Added new room [{newRoom}]");
-                oldList.Add(newRoom);
+                oldList.Add(new worldData(newRoom, false));
             }
             else
             {
                 //Debug.Log($"Custom Regions: Found conflict [{newRoom}]");
-                if (conflictingRoom != string.Empty)
+                if (roomToBeReplaced != string.Empty)
                 {
-                    //Debug.Log($"Custom Regions: Trying to merge {conflictingRoom}");
+                    Debug.Log($"Custom Regions: Trying to merge {roomToBeReplaced}");
 
                     // Check if containts GATE/SHELTER/SWARMROOM at the end
                     string endingSetting = string.Empty;
-                    string temp = conflictingRoom.Substring(conflictingRoom.IndexOf(": ") + 2);
+                    string temp = roomToBeReplaced.Substring(roomToBeReplaced.IndexOf(": ") + 2);
                     if (temp.IndexOf(": ") > 0)
                     {
                         endingSetting = temp.Substring(temp.IndexOf(": ") + 2);
                     }
 
-                    List<string> oldConnections = FromConnectionsToList(conflictingRoom);
+                    List<string> oldConnections = FromConnectionsToList(roomToBeReplaced);
                     List<string> newConnections = FromConnectionsToList(newRoom);
 
+                    bool isRoomBeingReplaced = false;
+                    bool allEmpty = true;
                     // Build new connections
                     for (int i = 0; i < oldConnections.Count; i++)
                     {
@@ -178,10 +214,21 @@ namespace CustomRegions.Mod
                         {
                             if (!oldConnections[i].Equals(newConnections[j]))
                             {
-                                if ((oldConnections[i].Equals("DISCONNECTED") || (oldConnections[i].Equals("DISCONNECT"))) && !(newConnections[j].Equals("DISCONNECTED") || newConnections[j].Equals("DISCONNECT")))
+                                if (oldConnections[i].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECT"))
                                 {
                                     oldConnections[i] = newConnections[j];
+                                    allEmpty = false;
                                     //Debug.Log($"Custom Regions: Added [{newConnections[j]}] to [{conflictingRoom}]");
+                                }
+                                else if(oldConnections[i].Equals("DISCONNECT") && !newConnections[j].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECT"))
+                                {
+                                    oldConnections[i] = newConnections[j];
+                                    allEmpty = false;
+                                    //Debug.Log($"Custom Regions: Added [{newConnections[j]}] to [{conflictingRoom}]");
+                                }
+                                else
+                                {
+                                    isRoomBeingReplaced = true;
                                 }
                                 /*
                                 else if(!oldConnections[i].Equals("DISCONNECTED") && newConnections[j].Equals("DISCONNECTED"))
@@ -198,20 +245,51 @@ namespace CustomRegions.Mod
                             }
                         }
                     }
+                    if (isRoomBeingReplaced && allEmpty)
+                    {
+                        bool isVanilla = oldList.Find(x => x.data.Equals(roomToBeReplaced)).vanilla;
+                        Debug.Log($"Custom Regions: Comparing two rooms without disconnected pipes. [{roomToBeReplaced}] is vanilla: [{isVanilla}].");
+                        if (newConnections.Count > oldConnections.Count || isVanilla)
+                        {
+                            oldConnections = newConnections;
+                        }
+
+                        if (oldConnections.Contains(roomToBeReplaced))
+                        {
+                            Debug.Log($"Custom Regions: Connections has conflict still. [{string.Join(", ", oldConnections.ToArray())}]");
+                        }
+                    }
 
                     endingSetting = endingSetting != string.Empty ? ": " + endingSetting : "";
 
                     // Convert from list to connections
-                    string updatedConnections = FromListToConnections(conflictingRoom.Substring(0, conflictingRoom.IndexOf(" ")), oldConnections);
-                    int index = oldList.IndexOf(conflictingRoom);
+                    string updatedConnections = FromListToConnections(roomToBeReplaced.Substring(0, roomToBeReplaced.IndexOf(" ")), oldConnections);
+                    //int index = oldList.IndexOf(conflictingRoom);
+                    int index = oldList.IndexOf(oldList.Find(x => x.data.Equals(roomToBeReplaced)));
                     if (index != -1)
                     {
-                        Debug.Log($"Custom Regions: Replaced [{oldList[index]}] with [{updatedConnections + endingSetting}]");
-                        oldList[index] = updatedConnections + endingSetting;
+                        Debug.Log($"Custom Regions: Replaced [{oldList[index].data}] with [{updatedConnections + endingSetting}]");
+                        oldList[index] = new worldData(updatedConnections + endingSetting, false);
                     }
                 }
             }
+            /*List<string> updatedList = new List<string>();
+            foreach(worldData data in oldList)
+            {
+                updatedList.Add(data.data);
+            }*/
             return oldList;
+        }
+
+        public static List<string> fromWorldDataToList(List<worldData> worldData)
+        {
+            List<string> updatedList = new List<string>();
+            foreach(worldData data in worldData)
+            {
+                updatedList.Add(data.data);
+            }
+
+            return updatedList;
         }
 
         /// <summary>
