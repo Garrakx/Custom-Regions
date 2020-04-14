@@ -53,6 +53,9 @@ namespace CustomRegions.Mod
             MultiplayerMenuHook.ApplyHook();
             ArenaCreatureSpawnerHook.ApplyHook();
 
+            // WinState - achievement
+            WinStateHook.ApplyHook();
+
         }
 
         public RainWorld rw;

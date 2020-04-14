@@ -73,8 +73,13 @@ namespace CustomRegions
             // CHECK IF THIS WORKS
             if (/*!enabled || */(!self.isTemplate && !File.Exists(self.filePath)))
             {
-                Debug.Log($"Custom Regions: Loading room settings");
-                self.filePath = CustomWorldMod.FindVanillaRoom(self.name, false) + "_Settings.txt";
+                string path = WorldLoader.FindRoomFileDirectory(self.name, false) + ".txt";
+                Debug.Log($"Custom Regions: Loading room settings for [{self.name}] at [{path}]");
+
+                if (!File.Exists(path))
+                {
+                    self.filePath = CustomWorldMod.FindVanillaRoom(self.name, false) + "_Settings.txt";
+                }
             }
             orig(self, playerChar);
         }

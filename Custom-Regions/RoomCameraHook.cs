@@ -17,9 +17,9 @@ namespace CustomRegions
 
 
             // If a custom room uses vanilla textures
-             //On.RoomCamera.MoveCamera2 += RoomCamera_MoveCamera2;
+             On.RoomCamera.MoveCamera2 += RoomCamera_MoveCamera2;
 
-             //On.RoomCamera.PreLoadTexture += RoomCamera_PreLoadTexture;
+             On.RoomCamera.PreLoadTexture += RoomCamera_PreLoadTexture;
         }
 
         private static void RoomCamera_PreLoadTexture(On.RoomCamera.orig_PreLoadTexture orig, RoomCamera self, Room room, int camPos)
@@ -48,14 +48,14 @@ namespace CustomRegions
         {
             string path = requestedTexture;
             string delimitator = "file:///";
-                int index = path.IndexOf(delimitator) + delimitator.Length;
-                path = path.Substring(index);
+            int index = path.IndexOf(delimitator) + delimitator.Length;
+            path = path.Substring(index);
 
-            //Debug.Log($"Custom regions: MoveCamera path [{path}] Exists [{File.Exists(path)}]");
             if (!File.Exists(path))
             {
                 requestedTexture = FindCameraTexturePath(requestedTexture);
             }
+            Debug.Log($"Custom regions: MoveCamera path [{path}] Exists [{File.Exists(path)}]. Requested texture [{requestedTexture}]. Quened texture [{self.quenedTexture}]");
 
             orig(self, requestedTexture);
         }
@@ -71,7 +71,7 @@ namespace CustomRegions
            // Debug.Log($"Custom regions: Searching vanilla room textures at [{fullRoomPathWithRegion}]");
             if (File.Exists(fullRoomPathWithRegion))
             {
-                requestedTexture = fullRoomPathWithRegion;
+                requestedTexture = "file:///" + fullRoomPathWithRegion;
                 //Debug.Log($"Custom regions: used vanilla textures for room [{requestedTexture}]");
             }
 

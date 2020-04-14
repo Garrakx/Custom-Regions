@@ -224,7 +224,7 @@ namespace CustomRegions.CustomMenu
         }
 
      
-        private static List<string> FastTravelScreen_GetRegionOrder(On.Menu.FastTravelScreen.orig_GetRegionOrder orig)
+        public static List<string> FastTravelScreen_GetRegionOrder(On.Menu.FastTravelScreen.orig_GetRegionOrder orig)
         {
             List<string> list = orig();
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
