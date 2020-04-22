@@ -47,7 +47,7 @@ namespace CustomRegions.Mod
             MenuSceneHook.ApplyHook();
             MenuIllustrationHook.ApplyHook();
             SlugcatSelectMenuHook.ApplyHooks();
-            LevelSelectorHook.ApplyHook();
+            //LevelSelectorHook.ApplyHook();
 
             // Arena
             MultiplayerMenuHook.ApplyHook();
