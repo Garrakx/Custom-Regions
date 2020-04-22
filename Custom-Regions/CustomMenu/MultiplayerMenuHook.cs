@@ -1,4 +1,5 @@
 ﻿using CustomRegions.Mod;
+using MonoMod.RuntimeDetour;
 using RWCustom;
 using System;
 using System.Collections.Generic;
@@ -6,76 +7,82 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+
+
 namespace CustomRegions.CustomMenu
 {
     static class MultiplayerMenuHook
     {
 
-        //public delegate void orig_WWW_ctor(WWW self, string url);
+        public delegate void orig_WWW_ctor(WWW self, string url);
 
         public static void ApplyHook()
         {
             On.Menu.MultiplayerMenu.ctor += MultiplayerMenu_ctor;
 
             // Thumbnail
-            //IDetour hookWWWctor = new Hook(typeof(WWW).GetConstructor(new Type[] { typeof(string) }), typeof(MultiplayerMenuHook).GetMethod("WWW_ctor"));
+            IDetour hookWWWctor = new Hook(typeof(WWW).GetConstructor(new Type[] { typeof(string) }), typeof(MultiplayerMenuHook).GetMethod("WWW_ctor"));
         }
 
-        /*
+
         public static void WWW_ctor(orig_WWW_ctor orig, WWW self, string url)
         {
-            if (url.Contains("Thumb.png"))
+            if (url.Contains("file:///" + Custom.RootFolderDirectory() + "Levels") && url.Contains("_1.png"))
             {
-                //"file:///", Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar, text, "_Thumb.png"
+                //"file:///", Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar, text, "_1.png"
                 string path = url;
 
                 //Remove "file:///"
                 string stringToRemove = "file:///";
                 int found = path.IndexOf(stringToRemove);
                 path = path.Substring(found + stringToRemove.Length);
-                //Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar, text, "_Thumb.png"
+                //Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar, text, "_1.png"
 
-                Debug.Log($"Custom Regions: WWW trimmed path [{path}]. File exists [{File.Exists(path)}]");
+                //Remove "_1.png"
+                stringToRemove = "_1.png";
+                found = path.IndexOf(stringToRemove);
+                path = path.Substring(0, found);
+                //Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar, text
+                path += "_Thumb.png";
+
+                //Debug.Log($"Custom Regions: WWW trimmed path [{path}]. File exists [{File.Exists(path)}]");
 
                 if (!File.Exists(path))
                 {
-                    Debug.Log($"Custom Regions: File does not exist [{path}]");
+                    //Debug.Log($"Custom Regions: File does not exist [{path}]");
                     foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                     {
-                        if (path.Contains(keyValues.Key))
+                        //Debug.Log($"Custom Regions: Loading arena image from [{keyValues.Key}]");
+
+                        //Remove Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar,
+                        stringToRemove = Custom.RootFolderDirectory() + "Levels" + Path.DirectorySeparatorChar;
+                        found = path.IndexOf(stringToRemove);
+                        path = path.Substring(found + stringToRemove.Length);
+                        //text, "_Thumb.png"
+
+
+                        //Remove after text
+                        found = path.IndexOf("_");
+                        if (found < 0)
+                            continue;
+                        path = path.Substring(0, found);
+                        //text
+
+                        //Debug.Log($"Custom Regions: WWWW trimmed path [{path}]");
+
+                        string updatedPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels" + Path.DirectorySeparatorChar;
+                        if (File.Exists(updatedPath + path + "_Thumb.png"))
                         {
-                            Debug.Log($"Custom Regions: Loading arena image from [{keyValues.Key}]");
-
-                            //Remove Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar,
-                            stringToRemove = Custom.RootFolderDirectory() + "Levels" + Path.DirectorySeparatorChar;
-                            found = path.IndexOf(stringToRemove);
-                            path = path.Substring(found + stringToRemove.Length);
-                            //text, "_Thumb.png"
-
-                            
-                            //Remove after text
-                            found = path.IndexOf("_");
-                            if (found < 0)
-                                continue;
-                            path = path.Substring(0, found);
-                            //text
-
-                            Debug.Log($"Custom Regions: WWWW trimmed path [{path}]");
-
-                            string updatedPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels"+ Path.DirectorySeparatorChar ;
-                            if (File.Exists(updatedPath + path + "_Thumb.png"))
-                            {
-                                url = "file:///" + updatedPath + path + "_Thumb.png";
-                            }
-                            break;
+                            url = "file:///" + updatedPath + path + "_Thumb.png";
                         }
+                        break;
                     }
                 }
 
             }
 
             orig(self, url);
-        }*/
+        }
 
         private static void MultiplayerMenu_ctor(On.Menu.MultiplayerMenu.orig_ctor orig, Menu.MultiplayerMenu self, ProcessManager manager)
         {

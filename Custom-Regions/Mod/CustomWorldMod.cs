@@ -8,6 +8,7 @@ using UnityEngine;
 using System.Security;
 using System.Runtime.CompilerServices;
 using System.Security.Permissions;
+using System.Linq;
 
 
 // Delete Publicity Stunt requirement by pastebee
@@ -103,14 +104,43 @@ namespace CustomRegions.Mod
         }
 
 
-        public struct worldData
+        public struct WorldDataLine
         {
             public string data;
             public bool vanilla;
-            public worldData(string data, bool vanilla)
+            public WorldDataLine(string data, bool vanilla)
             {
                 this.data = data;
                 this.vanilla = vanilla;
+            }
+        }
+
+        public struct CreatureLine
+        {
+            public bool lineage;
+            public string room;
+            public string[] connectedDens;
+            public string dens;
+            public int denNumber;
+
+            public CreatureLine(bool lineage, string room, string[] connectedDens)
+            {
+                this.lineage = lineage;
+                this.room = room;
+                this.connectedDens = connectedDens;
+
+                this.dens = null;
+                this.denNumber = -1;
+            }
+
+            public CreatureLine(bool lineage, string room, string dens, int denNumber)
+            {
+                this.lineage = lineage;
+                this.room = room;
+                this.dens = dens;
+                this.denNumber = denNumber;
+
+                this.connectedDens = null;
             }
         }
 
@@ -148,17 +178,18 @@ namespace CustomRegions.Mod
         /// Compares and merges a room-connection in the existing room list
         /// This method should be heavily optimized and cleaned up.
         /// </summary>
-        public static List<worldData> AddNewRoom(string newRoom, List<worldData> oldList)
+        public static List<WorldDataLine> AddNewRoom(string newRoom, List<WorldDataLine> oldList)
         {
             bool sameConnections = false;
             string roomToBeReplaced = string.Empty;
 
-            foreach (worldData oldRoom in oldList)
+            foreach (WorldDataLine oldRoom in oldList)
             {
                 if (oldRoom.data.Equals(newRoom))
                 {
                     // The room is exactly the same, skipped
                     sameConnections = true;
+                    roomToBeReplaced = string.Empty;
                     break;
                 }
                 else
@@ -172,9 +203,12 @@ namespace CustomRegions.Mod
                         {
                             // The room is the same but different connections
                             roomToBeReplaced = oldRoom.data;
-                            if(!sameConnections)
+
+                            if (!sameConnections)
+                            {
                                 Debug.Log($"Custom Regions: Found conflict [{oldRoom.data}] with [{newRoom}]");
-                            break;
+                                //roomToBeReplaced = string.Empty;
+                            }
                         }
                     }
                     catch (Exception e) { }
@@ -182,82 +216,86 @@ namespace CustomRegions.Mod
                 }
             }
 
-            if (roomToBeReplaced == string.Empty && !sameConnections)
+            if (roomToBeReplaced == string.Empty)
             {
-                //Debug.Log($"Custom Regions: Added new room [{newRoom}]");
-                oldList.Add(new worldData(newRoom, false));
+                if (!sameConnections)
+                {
+                    //Debug.Log($"Custom Regions: Added new room [{newRoom}]");
+                    oldList.Add(new WorldDataLine(newRoom, false));
+                }
             }
             else
             {
                 //Debug.Log($"Custom Regions: Found conflict [{newRoom}]");
-                if (roomToBeReplaced != string.Empty)
+
+                //Debug.Log($"Custom Regions: Trying to merge {roomToBeReplaced}");
+
+                // Check if containts GATE/SHELTER/SWARMROOM at the end
+                string endingSetting = string.Empty;
+                string temp = roomToBeReplaced.Substring(roomToBeReplaced.IndexOf(": ") + 2);
+                if (temp.IndexOf(": ") > 0)
                 {
-                    Debug.Log($"Custom Regions: Trying to merge {roomToBeReplaced}");
+                    endingSetting = temp.Substring(temp.IndexOf(": ") + 2);
+                }
 
-                    // Check if containts GATE/SHELTER/SWARMROOM at the end
-                    string endingSetting = string.Empty;
-                    string temp = roomToBeReplaced.Substring(roomToBeReplaced.IndexOf(": ") + 2);
-                    if (temp.IndexOf(": ") > 0)
+                List<string> oldConnections = FromConnectionsToList(roomToBeReplaced);
+                List<string> newConnections = FromConnectionsToList(newRoom);
+
+                bool isRoomBeingReplaced = false;
+                bool allEmpty = true;
+                // Build new connections
+                for (int i = 0; i < oldConnections.Count; i++)
+                {
+                    for (int j = 0; j < newConnections.Count; j++)
                     {
-                        endingSetting = temp.Substring(temp.IndexOf(": ") + 2);
-                    }
-
-                    List<string> oldConnections = FromConnectionsToList(roomToBeReplaced);
-                    List<string> newConnections = FromConnectionsToList(newRoom);
-
-                    bool isRoomBeingReplaced = false;
-                    bool allEmpty = true;
-                    // Build new connections
-                    for (int i = 0; i < oldConnections.Count; i++)
-                    {
-                        for (int j = 0; j < newConnections.Count; j++)
+                        if (!oldConnections[i].Equals(newConnections[j]))
                         {
-                            if (!oldConnections[i].Equals(newConnections[j]))
+                            if (oldConnections[i].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECT"))
                             {
-                                if (oldConnections[i].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECT"))
-                                {
-                                    oldConnections[i] = newConnections[j];
-                                    allEmpty = false;
-                                    //Debug.Log($"Custom Regions: Added [{newConnections[j]}] to [{conflictingRoom}]");
-                                }
-                                else if(oldConnections[i].Equals("DISCONNECT") && !newConnections[j].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECT"))
-                                {
-                                    oldConnections[i] = newConnections[j];
-                                    allEmpty = false;
-                                    //Debug.Log($"Custom Regions: Added [{newConnections[j]}] to [{conflictingRoom}]");
-                                }
-                                else
-                                {
-                                    isRoomBeingReplaced = true;
-                                }
-                                /*
-                                else if(!oldConnections[i].Equals("DISCONNECTED") && newConnections[j].Equals("DISCONNECTED"))
-                                {
-                                    newConnections[j] = oldConnections[i];
-                                    Debug.Log($"Custom Regions: Added [{oldConnections[i]}] to [{conflictingRoom}]");
-                                }
-                                else if(!oldConnections[i].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECTED"))
-                                {
-                                    Debug.Log("Custom Regions: ERROR!!! Regions incompatible!!!");
-                                    break;
-                                }
-                                */
+                                oldConnections[i] = newConnections[j];
+                                allEmpty = false;
+                                //Debug.Log($"Custom Regions: Added [{newConnections[j]}] to [{conflictingRoom}]");
                             }
+                            else if (oldConnections[i].Equals("DISCONNECT") && !newConnections[j].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECT"))
+                            {
+                                oldConnections[i] = newConnections[j];
+                                allEmpty = false;
+                                //Debug.Log($"Custom Regions: Added [{newConnections[j]}] to [{conflictingRoom}]");
+                            }
+                            else
+                            {
+                                isRoomBeingReplaced = true;
+                            }
+                            /*
+                            else if(!oldConnections[i].Equals("DISCONNECTED") && newConnections[j].Equals("DISCONNECTED"))
+                            {
+                                newConnections[j] = oldConnections[i];
+                                Debug.Log($"Custom Regions: Added [{oldConnections[i]}] to [{conflictingRoom}]");
+                            }
+                            else if(!oldConnections[i].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECTED"))
+                            {
+                                Debug.Log("Custom Regions: ERROR!!! Regions incompatible!!!");
+                                break;
+                            }
+                            */
                         }
                     }
-                    if (isRoomBeingReplaced && allEmpty)
-                    {
-                        bool isVanilla = oldList.Find(x => x.data.Equals(roomToBeReplaced)).vanilla;
-                        Debug.Log($"Custom Regions: Comparing two rooms without disconnected pipes. [{roomToBeReplaced}] is vanilla: [{isVanilla}].");
-                        if (newConnections.Count > oldConnections.Count || isVanilla)
-                        {
-                            oldConnections = newConnections;
-                        }
+                }
+                //bool performedOperations = false;
+                if (isRoomBeingReplaced && allEmpty)
+                {
+                    bool isVanilla = oldList.Find(x => x.data.Equals(roomToBeReplaced)).vanilla;
 
-                        if (oldConnections.Contains(roomToBeReplaced))
-                        {
-                            Debug.Log($"Custom Regions: Connections has conflict still. [{string.Join(", ", oldConnections.ToArray())}]");
-                        }
+                    Debug.Log($"Custom Regions: Comparing two rooms without disconnected pipes. [{roomToBeReplaced}] is vanilla: [{isVanilla}].");
+                    if (newConnections.Count > oldConnections.Count || isVanilla)
+                    {
+                        oldConnections = newConnections;
+                        //performedOperations = true;
+                    }
+
+                    if (oldConnections.Contains(roomToBeReplaced))
+                    {
+                        Debug.Log($"Custom Regions: Connections has conflict still. [{string.Join(", ", oldConnections.ToArray())}]");
                     }
 
                     endingSetting = endingSetting != string.Empty ? ": " + endingSetting : "";
@@ -269,9 +307,10 @@ namespace CustomRegions.Mod
                     if (index != -1)
                     {
                         Debug.Log($"Custom Regions: Replaced [{oldList[index].data}] with [{updatedConnections + endingSetting}]");
-                        oldList[index] = new worldData(updatedConnections + endingSetting, false);
+                        oldList[index] = new WorldDataLine(updatedConnections + endingSetting, false);
                     }
                 }
+
             }
             /*List<string> updatedList = new List<string>();
             foreach(worldData data in oldList)
@@ -281,10 +320,10 @@ namespace CustomRegions.Mod
             return oldList;
         }
 
-        public static List<string> fromWorldDataToList(List<worldData> worldData)
+        public static List<string> fromWorldDataToList(List<WorldDataLine> worldData)
         {
             List<string> updatedList = new List<string>();
-            foreach(worldData data in worldData)
+            foreach(WorldDataLine data in worldData)
             {
                 updatedList.Add(data.data);
             }
@@ -357,6 +396,325 @@ namespace CustomRegions.Mod
             //Debug.Log(debug + "]");
             return connections;
         }
+
+
+        internal static List<WorldDataLine> AddNewCreature(string newCreatureLine, List<WorldDataLine> oldCreaturesSpawns)
+        {
+            bool sameCreatureLine = false;
+            string creatureLineBeReplaced = string.Empty;
+
+
+            bool lineage = false;
+            string roomNameNewLine = string.Empty;
+
+            Debug.Log($"Custom Regions: Adding new creature spawn [{newCreatureLine}]]");
+
+            if (newCreatureLine.Contains("OFFSCREEN"))
+            {
+                creatureLineBeReplaced = newCreatureLine;
+            }
+            else
+            {
+
+                if (newCreatureLine.Contains("LINEAGE"))
+                {
+                    lineage = true;
+                    roomNameNewLine = Regex.Split(newCreatureLine, " : ")[1];
+                }
+                else
+                {
+                    roomNameNewLine = Regex.Split(newCreatureLine, " : ")[0];
+                }
+
+
+                foreach (WorldDataLine oldSpawnLine in oldCreaturesSpawns)
+                {
+
+                    if (oldSpawnLine.data.Equals(newCreatureLine))
+                    {
+                        // The spawn is exactly the same, skipped
+                        sameCreatureLine = true;
+                        creatureLineBeReplaced = string.Empty;
+                        break;
+                    }
+                    else
+                    {
+
+                        //Debug.Log($"Custom Regions: Splitting [{newCreatureLine}]");
+                        // Debug.Log($"Custom regions: Testing Creature listing [{string.Join(",", oldLinesList.ToArray())}]");
+
+                        string[] array = Regex.Split(oldSpawnLine.data, " : ");
+                        string oldRoomName = array[0];
+
+                        if (oldSpawnLine.data.Contains("OFFSCREEN"))
+                        {
+                            continue;
+                        }
+
+                        if (lineage)
+                        {
+                            if (!oldSpawnLine.data.Contains("LINEAGE"))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                oldRoomName = array[1];
+                            }
+                        }
+                        // Debug.Log($"Custom Regions: Comparing [{oldLinesList[roomIndex]}] with [{roomNameNewLine}]");
+
+
+                       /* if (lineage)
+                        {
+                            if(oldRoomName.Equals(roomNameNewLine))
+                            {
+                                if (array[2] == Regex.Split(newCreatureLine, " : ")[2])
+                                {
+                                    // Found same LINEAGE
+                                    creatureLineBeReplaced = string.Empty;
+                                    sameCreatureLine = true;
+                                    break;
+                                }
+                                creatureLineBeReplaced = oldSpawnLine.data;
+                            }
+                        }
+                        else*/
+                        {
+                            // Adding creatures to new room, check for collision
+                            if (oldRoomName.Equals(roomNameNewLine))
+                            {
+                                creatureLineBeReplaced = oldSpawnLine.data;
+                            }
+
+                        }
+
+
+
+
+                        // Debug.Log($"Custom Regions: Analyzing [{newCreatureLine}]. Room Name [{roomName}]");
+
+
+                    }
+
+
+                }
+
+                if (creatureLineBeReplaced == string.Empty)
+                {
+                    if (!sameCreatureLine)
+                    {
+                        oldCreaturesSpawns.Add(new WorldDataLine(newCreatureLine, false));
+                    }
+                }
+                else
+                {
+
+                    CreatureLine newLines = FillCreatureLine(newCreatureLine);
+                    CreatureLine oldLines = FillCreatureLine(creatureLineBeReplaced);
+
+                    bool isVanilla = oldCreaturesSpawns.Find(x => x.data.Equals(creatureLineBeReplaced)).vanilla;
+                    int index = oldCreaturesSpawns.IndexOf(oldCreaturesSpawns.Find(x => x.data.Equals(creatureLineBeReplaced)));
+
+                    Debug.Log($"Custom Regions: Trying to merge creature [{newCreatureLine}] with [{creatureLineBeReplaced}] (vanilla [{isVanilla}])");
+
+                    // This bit might be redundant
+                    if (lineage && oldLines.lineage && newLines.lineage)
+                    {
+                        if (oldLines.denNumber != newLines.denNumber)
+                        {
+                            oldCreaturesSpawns.Add(new WorldDataLine(newCreatureLine, false));
+                        }
+                        else if (isVanilla)
+                        {
+                            if (index > -1)
+                            {
+                                oldCreaturesSpawns[index] = new WorldDataLine(newCreatureLine, false);
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        string[] updatedConnections = new string[1];
+                        string updatedCreatureLine;
+
+                        bool empty = true;
+                        for (int i = 0; i < newLines.connectedDens.Length; i++)
+                        {
+                            bool shouldAdd = false;
+                            if (newLines.connectedDens[i] != null)
+                            {
+                                try
+                                {
+                                    if (oldLines.connectedDens.Length <= i || oldLines.connectedDens[i] == null)
+                                    {
+                                        Debug.Log($"Custom Regions: Empty pipe, filling with [{newLines.connectedDens[i]}]");;
+                                        shouldAdd = true;
+                                    }
+                                    else if (isVanilla)
+                                    {
+                                        Debug.Log($"Custom Regions: replacing vanilla pipe [{oldLines.connectedDens[i]}] with [{newLines.connectedDens[i]}]");
+                                        empty = false;
+                                        shouldAdd = true;
+                                    }
+                                }
+                                catch (Exception e) { shouldAdd = true; }
+                            }
+
+                            if (shouldAdd)
+                            {
+                                if (updatedConnections.Length <= i)
+                                {
+                                    Array.Resize(ref updatedConnections, i + 1);
+                                }
+                                updatedConnections[i] = newLines.connectedDens[i];
+                            }
+                        }
+
+                        for (int a = 0; a < oldLines.connectedDens.Length; a++)
+                        {
+                            try
+                            {
+                                if (updatedConnections.Length <= a)
+                                {
+                                    Array.Resize(ref updatedConnections, a + 1);
+                                }
+
+                                if (updatedConnections[a] == null && (oldLines.connectedDens[a] != null))
+                                {
+                                    updatedConnections[a] = oldLines.connectedDens[a];
+                                }
+                            }
+                            catch (Exception e) { }
+                        }
+
+                        // Remove empty slots
+                        updatedConnections = updatedConnections.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+
+                        updatedCreatureLine = $"{oldLines.room} : {string.Join(", ", updatedConnections)}";
+
+                        if (index > -1)
+                        {
+                            oldCreaturesSpawns[index] = new WorldDataLine(updatedCreatureLine, empty);
+                        }
+                    }
+
+
+                }
+            }
+
+            return oldCreaturesSpawns;
+        }
+
+
+        public static List<string> FromSpawnLinesToList(string spawnLine)
+        {
+            string elementToAdd = string.Empty;
+            string splittedLine = spawnLine;
+            string delimitator = " : ";
+            string delimitator2 = ", ";
+            int index = 0;
+
+            List<string> spawnList = new List<string>();
+
+            // SEPARATE DIFFICULTY
+            /*if (spawnLine.Contains("("))
+            {
+                index = splittedLine.IndexOf(")");
+                spawnList.Add(splittedLine.Substring(0, index+1));
+                splittedLine = splittedLine.Substring(index + 2);
+            }
+
+            // SEPARATE LINEAGE or OFFSCREEN
+            if (splittedLine.Contains("LINEAGE") || splittedLine.Contains("OFFSCREEN"))
+            {
+                index = splittedLine.IndexOf(delimitator);
+                spawnList.Add(splittedLine.Substring(0, index));
+                splittedLine = splittedLine.Substring(index + delimitator.Length);
+            }*/
+
+            while (splittedLine.Contains(delimitator))
+            {
+                index = splittedLine.IndexOf(delimitator);
+                spawnList.Add(splittedLine.Substring(0, index));
+                splittedLine = splittedLine.Substring(index + delimitator.Length);
+            }
+
+            while(splittedLine.Contains(delimitator2))
+            {
+                index = splittedLine.IndexOf(delimitator2);
+                spawnList.Add(splittedLine.Substring(0, index));
+                splittedLine = splittedLine.Substring(index + delimitator2.Length);
+            }
+            spawnList.Add(splittedLine);
+
+            return spawnList;
+
+        }
+
+
+        public static CreatureLine FillCreatureLine(string lines)
+        {
+            string roomName = string.Empty;
+            string[] connectedDens = new string[0];
+
+            string[] line = Regex.Split(lines, " : ");
+
+            if (line[0] == "LINEAGE")
+            {
+                roomName = line[1];
+                //Debug.Log($"Custom Regions: Creating creature line. Lineage[{true}]. RoonName[{roomName}]. Spawners[{line[3]}]. DenNumber[{int.Parse(line[2])}]");
+                return new CreatureLine(true, roomName, line[3], int.Parse(line[2]));
+
+            }
+            else
+            {
+                roomName = line[0];
+
+                string[] array = Regex.Split(line[1], ", ");
+
+                for (int i = 0; i < array.Length; i++)
+                {
+                    int denNumber = (int)char.GetNumericValue(array[i][0]);
+
+                    if (denNumber >= connectedDens.Length)
+                    {
+                        Array.Resize(ref connectedDens, denNumber + 1);
+                    }
+
+                    connectedDens[denNumber] = array[i];
+                }
+
+                //Debug.Log($"Custom Regions: Creating creature line. Lineage[{false}]. RoonName[{roomName}]. Spawners[{connectedDens.Length}]");
+                return new CreatureLine(false, roomName, connectedDens);
+
+            }
+
+        }
+
+/*
+        public static void ClassifyTypeOfSpawnLine(string spawnLine, out string lineageLine, out string offscreenLine, out string regularLine)
+        {
+            lineageLine = string.Empty;
+            offscreenLine = string.Empty;
+            regularLine = string.Empty;
+
+            string[] splitted = Regex.Split(spawnLine, " : ");
+            if (splitted[0] == "LINEAGE")
+            {
+                lineageLine = splitted[1];
+            }
+            else if (splitted[0] == "OFFSCREEN")
+            {
+                offscreenLine = splitted[1];
+            }
+            else
+            {
+                regularLine = splitted[1];
+            }
+        }*/
+
 
         /// <summary>
         /// Holds the value of the sceneID in use.
@@ -549,137 +907,44 @@ namespace CustomRegions.Mod
         /// <returns>Vanilla World path</returns>
         public static string FindVanillaRoom(string roomName, bool includeRootDirectory)
         {
-            string text = string.Concat(new object[]
+            string result = "";
+
+            string gatePath = Custom.RootFolderDirectory() + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + roomName;
+            string gateShelterPath = Custom.RootFolderDirectory() + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "Gate shelters" + Path.DirectorySeparatorChar + roomName;
+            string regularRoomPath = Custom.RootFolderDirectory() + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0];
+            string arenaPath = Custom.RootFolderDirectory() + "Levels" + Path.DirectorySeparatorChar + roomName;
+
+            // room is regular room
+            if (Directory.Exists(regularRoomPath) && File.Exists(regularRoomPath + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName + ".txt"))
             {
-                Custom.RootFolderDirectory(),
-                "World",
-                Path.DirectorySeparatorChar,
-                "Regions",
-                Path.DirectorySeparatorChar,
-                Regex.Split(roomName, "_")[0]
-            });
-            if (Directory.Exists(text) && File.Exists(string.Concat(new object[]
-                {
-                text,
-                Path.DirectorySeparatorChar,
-                "Rooms",
-                Path.DirectorySeparatorChar,
-                roomName,
-                ".txt"
-                })))
-            {
-                if (includeRootDirectory)
-                {
-                    return string.Concat(new object[]
-                    {
-                    "file:///",
-                    text,
-                    Path.DirectorySeparatorChar,
-                    "Rooms",
-                    Path.DirectorySeparatorChar,
-                    roomName
-                    });
-                }
-                return string.Concat(new object[]
-                {
-                "World",
-                Path.DirectorySeparatorChar,
-                "Regions",
-                Path.DirectorySeparatorChar,
-                Regex.Split(roomName, "_")[0],
-                Path.DirectorySeparatorChar,
-                "Rooms",
-                Path.DirectorySeparatorChar,
-                roomName
-                });
+                result = Custom.RootFolderDirectory() + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0] + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName;
+                //Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
             }
-            else if (Regex.Split(roomName, "_")[0] == "GATE" && File.Exists(string.Concat(new object[]
+            // room is GATE
+            else if (Regex.Split(roomName, "_")[0] == "GATE" && File.Exists(Custom.RootFolderDirectory() + gatePath + ".txt"))
             {
-            Custom.RootFolderDirectory(),
-            "World",
-            Path.DirectorySeparatorChar,
-            "Gates",
-            Path.DirectorySeparatorChar,
-            roomName,
-            ".txt"
-            })))
-            {
-                if (includeRootDirectory)
-                {
-                    return string.Concat(new object[]
-                    {
-                    "file:///",
-                    Custom.RootFolderDirectory(),
-                    "World",
-                    Path.DirectorySeparatorChar,
-                    "Gates",
-                    Path.DirectorySeparatorChar,
-                    roomName
-                    });
-                }
-                return string.Concat(new object[]
-                {
-                "World",
-                Path.DirectorySeparatorChar,
-                "Gates",
-                Path.DirectorySeparatorChar,
-                roomName
-                });
+                result = gatePath;
+                //Debug.Log($"Custom Regions: Found gate {roomName} in {keyValues.Key}. Path: {result}");
             }
-            else if (File.Exists(string.Concat(new object[]
+            // room is Gate shelter
+            else if (File.Exists(Custom.RootFolderDirectory() + gateShelterPath + ".txt"))
             {
-            Custom.RootFolderDirectory(),
-            "World",
-            Path.DirectorySeparatorChar,
-            "Gates",
-            Path.DirectorySeparatorChar,
-            "Gate shelters",
-            Path.DirectorySeparatorChar,
-            roomName,
-            ".txt"
-            })))
-            {
-                if (includeRootDirectory)
-                {
-                    return string.Concat(new object[]
-                    {
-                    "file:///",
-                    Custom.RootFolderDirectory(),
-                    "World",
-                    Path.DirectorySeparatorChar,
-                    "Gates",
-                    Path.DirectorySeparatorChar,
-                    "Gate shelters",
-                    Path.DirectorySeparatorChar,
-                    roomName
-                    });
-                }
-                return string.Concat(new object[]
-                {
-                "World",
-                Path.DirectorySeparatorChar,
-                "Gates",
-                Path.DirectorySeparatorChar,
-                "Gate shelters",
-                Path.DirectorySeparatorChar,
-                roomName
-                });
+                result = gateShelterPath;
+                //Debug.Log($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
             }
-            else
+            // room is Arena
+            else if (File.Exists(Custom.RootFolderDirectory() + arenaPath + ".txt"))
             {
-                if (includeRootDirectory)
-                {
-                    return string.Concat(new object[]
-                    {
-                    "file:///",
-                    Custom.RootFolderDirectory(),
-                    "Levels",
-                    Path.DirectorySeparatorChar,
-                    roomName
-                    });
-                }
-                return "Levels" + Path.DirectorySeparatorChar + roomName;
+                result = arenaPath;
+                //Debug.Log($"Custom Regions: Found arena {roomName} in {keyValues.Key}. Path: {result}");
             }
+
+            // Debug.Log("Using Custom Worldfile: " + result);
+            if (includeRootDirectory)
+            {
+                result = "file:///" + Custom.RootFolderDirectory() + result;
+            }
+            return result;
         }
 
         /// <summary>

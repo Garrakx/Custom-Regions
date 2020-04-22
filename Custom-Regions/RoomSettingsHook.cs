@@ -59,7 +59,7 @@ namespace CustomRegions
             }
             else
             {
-                Debug.Log($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
+                //Debug.Log($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
             }
 
             orig(self, region);

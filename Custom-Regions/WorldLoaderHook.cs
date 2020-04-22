@@ -196,7 +196,7 @@ namespace CustomRegions
                 if (Directory.Exists(regularRoomPath) && File.Exists(regularRoomPath + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName + ".txt"))
                 {
                     result = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0] + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName;
-                    Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
+                    //Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
                 }
                 // room is GATE
                 else if (Regex.Split(roomName, "_")[0] == "GATE" && File.Exists(Custom.RootFolderDirectory() + gatePath + ".txt"))
@@ -252,9 +252,9 @@ namespace CustomRegions
             List<string> lines = new List<string>();
 
             // Bool indicates whether it is vanilla or not
-            List<CustomWorldMod.worldData> ROOMS = new List<CustomWorldMod.worldData>();
-            List<CustomWorldMod.worldData> CREATURES = new List<CustomWorldMod.worldData>();
-            List<CustomWorldMod.worldData> BATS = new List<CustomWorldMod.worldData>();
+            List<CustomWorldMod.WorldDataLine> ROOMS = new List<CustomWorldMod.WorldDataLine>();
+            List<CustomWorldMod.WorldDataLine> CREATURES = new List<CustomWorldMod.WorldDataLine>();
+            List<CustomWorldMod.WorldDataLine> BATS = new List<CustomWorldMod.WorldDataLine>();
 
             if (self.lines.Count > 0)
             {
@@ -273,7 +273,7 @@ namespace CustomRegions
                     }
                     if (startRooms)
                     {
-                        ROOMS.Add(new CustomWorldMod.worldData(s, true));
+                        ROOMS.Add(new CustomWorldMod.WorldDataLine(s, true));
                     }
                     if (s.Equals("ROOMS"))
                     {
@@ -287,7 +287,7 @@ namespace CustomRegions
                     }
                     if (startCreatures)
                     {
-                        CREATURES.Add(new CustomWorldMod.worldData(s, true));
+                        CREATURES.Add(new CustomWorldMod.WorldDataLine(s, true));
                     }
                     if (s.Equals("CREATURES"))
                     {
@@ -301,7 +301,7 @@ namespace CustomRegions
                     }
                     if (startBats)
                     {
-                        BATS.Add(new CustomWorldMod.worldData(s, true));
+                        BATS.Add(new CustomWorldMod.WorldDataLine(s, true));
                     }
                     if (s.Equals("BAT MIGRATION BLOCKAGES"))
                     {
@@ -390,7 +390,7 @@ namespace CustomRegions
                                             break;
                                         case CustomWorldMod.MergeStatus.CREATURES:
                                             // MERGE CREATURES
-                                            //CREATURES.Add(array[i]);
+                                            CREATURES = CustomWorldMod.AddNewCreature(array[i], CREATURES); //CREATURES.Add(array[i]);
                                             break;
                                         case CustomWorldMod.MergeStatus.BATS:
                                             // MERGE BATS
@@ -409,8 +409,17 @@ namespace CustomRegions
             }
 
 
+            // Sort lists to increase readability 
+            List<string> sortedRooms = CustomWorldMod.fromWorldDataToList(ROOMS);
+            sortedRooms.Sort();
 
-            lines = CustomWorldMod.BuildWorldText(CustomWorldMod.fromWorldDataToList(ROOMS), CustomWorldMod.fromWorldDataToList(CREATURES), CustomWorldMod.fromWorldDataToList(BATS));
+            List<string> sortedCreatures = CustomWorldMod.fromWorldDataToList(CREATURES);
+            sortedCreatures.Sort();
+
+            List<string> sortedBats = CustomWorldMod.fromWorldDataToList(BATS);
+            sortedBats.Sort();
+
+            lines = CustomWorldMod.BuildWorldText(sortedRooms, sortedCreatures, sortedBats);
 
 
             if (lines.Count < 2)

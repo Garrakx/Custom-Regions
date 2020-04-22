@@ -54,7 +54,7 @@ namespace CustomRegions.CustomMenu
                     return;
                 }
             }
-            //orig(self);
+           //orig(self);
         }
 
         public static void vanillaLevelSelectorUpdate(LevelSelector self, string url, bool flag)
