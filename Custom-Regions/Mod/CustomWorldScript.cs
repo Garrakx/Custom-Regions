@@ -17,6 +17,9 @@ namespace CustomRegions.Mod
             CustomWorldMod.CreateCustomWorldLog();
             CustomWorldMod.CreateCustomResourceFolder();
 
+            CustomWorldMod.availableRegions = new Dictionary<string, CustomWorldMod.RegionInformation>();
+            CustomWorldMod.ProcessRegionsJson();
+
             CustomWorldMod.loadedRegions = CustomWorldMod.BuildModRegionsDictionary();
             string dictionaryString = "Custom Regions: Loading \n{";
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
@@ -55,6 +58,8 @@ namespace CustomRegions.Mod
 
             // WinState - achievement
             WinStateHook.ApplyHook();
+
+            SaveStateHook.ApplyHook();
 
         }
 

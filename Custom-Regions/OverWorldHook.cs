@@ -21,7 +21,7 @@ namespace CustomRegions
             On.OverWorld.LoadFirstWorld += OverWorld_LoadFirstWorld;
             On.OverWorld.GetRegion += OverWorld_GetRegion;
             On.OverWorld.GetRegion_1 += OverWorld_GetRegion_1;
-            On.OverWorld.LoadWorld += OverWorld_LoadWorld;
+           // On.OverWorld.LoadWorld += OverWorld_LoadWorld;
         }
 
         private static void OverWorld_LoadWorld(On.OverWorld.orig_LoadWorld orig, OverWorld self, string worldName, int playerCharacterNumber, bool singleRoomWorld)

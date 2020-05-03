@@ -169,7 +169,7 @@ namespace CustomRegions
                     }
                 }
 
-                Debug.Log($"Custom Regions: Loaded custom properties for room {keyValues.Value} as player: {slugcatNumber}");
+                //Debug.Log($"Custom Regions: Loaded custom properties for room {keyValues.Value} as player: {slugcatNumber}");
                 array = File.ReadAllLines(text);
                 for (int k = 0; k < array.Length; k++)
                 {

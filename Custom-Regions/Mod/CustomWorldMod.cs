@@ -41,8 +41,8 @@ namespace CustomRegions.Mod
         public CustomWorldMod()
         {
             ModID = "Custom Regions Mod";
-            Version = "0.1";
-            author = "Garrakx & topicular";
+            Version = "0.2." + version;
+            author = "Garrakx";
         }
 
 
@@ -65,7 +65,7 @@ namespace CustomRegions.Mod
         // Version - increase this by 1 when you upload a new version of the mod.
         // The first upload should be with version 0, the next version 1, the next version 2, etc.
         // If you ever lose track of the version you're meant to be using, ask Pastebin.
-        public int version = 6;
+        public int version = 8;
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
         public string keyN = "13Mr+YOzb1iLnJvzkuP4NEZEWwOtWKWvWAN0HdsQ5SF2+RG7k8FbtmQut+2+69ideiJHDW66jWBcGGvfiQ0+5yLAUBpGSckC7V79yZgFQT39lvgU0ykAjonkA+ZTODFnehubyCkrrrzwno4boZghEZmDS2YsSyDJ6RLJyD2/WeCokcTj1vIHZhY9DzkooFtejz9yI/PCZtq8tfq2AzSiQPS+0xGQs3fnAkOGoV1WZ/inW5/rRyjD5HICr8t79UmcopfRK383YBrf2G96HeVYvY2vwSS/BW/m32rTLOZHr+XX7SIZshz7BLK6xEssy4qXjskvAUshqNudxtQnIkShGJuKWF1V2vvwqgY/IZiAbDXdBOUaSd09ldHBlTz9EfzBcgqffVRaUTzS71yGLISyrLriezozlK1YZW9vvijpbD0rmDaJ4aq9s6EzhdgVkTEuChtm/Fj9pgsswjvkbgHw1t9QZWqu4pweNd3IE/Lktst8HBKLiw1aRaffbZIhh1apbyjF8iflD8sNzbIHEfEvc35MEwIFqibJVnVxppBa15HpOxeXOzwuTjFaLSURRvbOEFPmpyd1Nm4nMzZZHHPjQXT7oYQAxjSCfqnLAdYsEnNo/2172jJGLfBWWGFTavqiCYqLhjtYkPfRgpcdw4FldgjX4w7RGMD/Ra5VXvmDMTE=";
@@ -88,6 +88,11 @@ namespace CustomRegions.Mod
 
         }
 
+        public static CustomWorldOption LoadOI()
+        {
+            return new CustomWorldOption();
+        }
+
         public struct CustomWorldConfig
         {
 
@@ -101,6 +106,26 @@ namespace CustomRegions.Mod
             ROOMS,
             CREATURES,
             BATS
+        }
+
+        public struct RegionInformation
+        {
+            public string regionID;
+            public string regionName;
+            public string description;
+            public bool activated;
+            public string checksum;
+            public int loadOrder;
+
+            public RegionInformation(string regionID, string regionName, string description, bool activated, int loadOrder, string checksum)
+            {
+                this.regionID = regionID;
+                this.regionName = regionName;
+                this.description = description;
+                this.activated = activated;
+                this.checksum = checksum;
+                this.loadOrder = loadOrder;
+            }
         }
 
 
@@ -194,25 +219,15 @@ namespace CustomRegions.Mod
                 }
                 else
                 {
-                    try
+                    string oldBaseRoom = oldRoom.data.Substring(0, oldRoom.data.IndexOf(" "));
+                    string newBaseRoom = newRoom.Substring(0, newRoom.IndexOf(" "));
+
+                    if (oldBaseRoom.Equals(newBaseRoom))
                     {
-                        string oldBaseRoom = oldRoom.data.Substring(0, oldRoom.data.IndexOf(" "));
-                        string newBaseRoom = newRoom.Substring(0, newRoom.IndexOf(" "));
-
-                        if (oldBaseRoom.Equals(newBaseRoom))
-                        {
-                            // The room is the same but different connections
-                            roomToBeReplaced = oldRoom.data;
-
-                            if (!sameConnections)
-                            {
-                                Debug.Log($"Custom Regions: Found conflict [{oldRoom.data}] with [{newRoom}]");
-                                //roomToBeReplaced = string.Empty;
-                            }
-                        }
+                        // The room is the same but different connections
+                        roomToBeReplaced = oldRoom.data;
+                        Debug.Log($"Custom Regions: Found conflict [{oldRoom.data}] with [{newRoom}]");
                     }
-                    catch (Exception e) { }
-
                 }
             }
 
@@ -226,9 +241,10 @@ namespace CustomRegions.Mod
             }
             else
             {
-                //Debug.Log($"Custom Regions: Found conflict [{newRoom}]");
 
                 //Debug.Log($"Custom Regions: Trying to merge {roomToBeReplaced}");
+
+                bool isVanilla = oldList.Find(x => x.data.Equals(roomToBeReplaced)).vanilla;
 
                 // Check if containts GATE/SHELTER/SWARMROOM at the end
                 string endingSetting = string.Empty;
@@ -238,71 +254,80 @@ namespace CustomRegions.Mod
                     endingSetting = temp.Substring(temp.IndexOf(": ") + 2);
                 }
 
+
+                // Build new connections
                 List<string> oldConnections = FromConnectionsToList(roomToBeReplaced);
                 List<string> newConnections = FromConnectionsToList(newRoom);
 
+                // if isRoomBeingReplace is false, it means it got merged.
                 bool isRoomBeingReplaced = false;
+
+                // if allEmpty is true, there are not disconnnected pipes in the room
                 bool allEmpty = true;
-                // Build new connections
+
+
+                // Only merge if it is between to mods
                 for (int i = 0; i < oldConnections.Count; i++)
                 {
                     for (int j = 0; j < newConnections.Count; j++)
                     {
                         if (!oldConnections[i].Equals(newConnections[j]))
                         {
-                            if (oldConnections[i].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECT"))
+                            // old connection has a DISCONNECTED / DISCONNECT pipe
+                            bool oldConnectionDisconnected = oldConnections[i].Equals("DISCONNECTED") || oldConnections[i].Equals("DISCONNECT");
+
+                            // new connection has a DISCONNECTED / DISCONNECT pipe
+                            bool newConnectionDisconnected = newConnections[j].Equals("DISCONNECTED") || newConnections[j].Equals("DISCONNECT");
+
+                            if (oldConnectionDisconnected && !newConnectionDisconnected)
                             {
+                                Debug.Log($"Custom Regions: Replaced disconnected [{oldConnections[i]}] with [{newConnections[j]}]");
                                 oldConnections[i] = newConnections[j];
                                 allEmpty = false;
-                                //Debug.Log($"Custom Regions: Added [{newConnections[j]}] to [{conflictingRoom}]");
                             }
-                            else if (oldConnections[i].Equals("DISCONNECT") && !newConnections[j].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECT"))
+
+                            // If the room is Vanilla, mod can replace pipes with DISCONNECTED
+                            else if (isVanilla) 
                             {
-                                oldConnections[i] = newConnections[j];
-                                allEmpty = false;
-                                //Debug.Log($"Custom Regions: Added [{newConnections[j]}] to [{conflictingRoom}]");
+                                if (newConnectionDisconnected)
+                                {
+                                    Debug.Log($"Custom Regions: Replaced vanilla [{oldConnections[i]}] with disconnected [{newConnections[j]}]");
+                                    oldConnections[i] = newConnections[j];
+                                    allEmpty = false;
+                                }
                             }
                             else
                             {
+                                // room will be completly replaced
                                 isRoomBeingReplaced = true;
                             }
-                            /*
-                            else if(!oldConnections[i].Equals("DISCONNECTED") && newConnections[j].Equals("DISCONNECTED"))
-                            {
-                                newConnections[j] = oldConnections[i];
-                                Debug.Log($"Custom Regions: Added [{oldConnections[i]}] to [{conflictingRoom}]");
-                            }
-                            else if(!oldConnections[i].Equals("DISCONNECTED") && !newConnections[j].Equals("DISCONNECTED"))
-                            {
-                                Debug.Log("Custom Regions: ERROR!!! Regions incompatible!!!");
-                                break;
-                            }
-                            */
                         }
                     }
                 }
-                //bool performedOperations = false;
+
+                // No empty pipes but room needs to be replaced. Whole line will be replaced
                 if (isRoomBeingReplaced && allEmpty)
                 {
-                    bool isVanilla = oldList.Find(x => x.data.Equals(roomToBeReplaced)).vanilla;
-
-                    Debug.Log($"Custom Regions: Comparing two rooms without disconnected pipes. [{roomToBeReplaced}] is vanilla: [{isVanilla}].");
+                    Debug.Log($"Custom Regions: Comparing two rooms without disconnected pipes. [{roomToBeReplaced}] is vanilla: [{isVanilla}]. with [{string.Join(", ", newConnections.ToArray())}]");
                     if (newConnections.Count > oldConnections.Count || isVanilla)
                     {
                         oldConnections = newConnections;
-                        //performedOperations = true;
                     }
 
                     if (oldConnections.Contains(roomToBeReplaced))
                     {
                         Debug.Log($"Custom Regions: Connections has conflict still. [{string.Join(", ", oldConnections.ToArray())}]");
                     }
+                }
 
-                    endingSetting = endingSetting != string.Empty ? ": " + endingSetting : "";
+                // A merging / replacement got placed, so add changes to world lines.
+                if (isRoomBeingReplaced || !allEmpty)
+                {
+                    endingSetting = endingSetting != string.Empty ? " : " + endingSetting : "";
 
                     // Convert from list to connections
                     string updatedConnections = FromListToConnections(roomToBeReplaced.Substring(0, roomToBeReplaced.IndexOf(" ")), oldConnections);
-                    //int index = oldList.IndexOf(conflictingRoom);
+
                     int index = oldList.IndexOf(oldList.Find(x => x.data.Equals(roomToBeReplaced)));
                     if (index != -1)
                     {
@@ -312,11 +337,6 @@ namespace CustomRegions.Mod
                 }
 
             }
-            /*List<string> updatedList = new List<string>();
-            foreach(worldData data in oldList)
-            {
-                updatedList.Add(data.data);
-            }*/
             return oldList;
         }
 
@@ -360,40 +380,69 @@ namespace CustomRegions.Mod
         /// </summary>
         public static List<string> FromConnectionsToList(string oldConnections)
         {
+            //Debug.Log($"Custom Regions: Tryng to split [{oldConnections}]");
+             List<string> connections = new List<string>();
+
+            /*
             // Removing the base room
-            string splittingOldRoom = oldConnections.Substring(oldConnections.IndexOf(": ") + 2);
+             string splittingOldRoom = oldConnections.Substring(oldConnections.IndexOf(semicol_delimitator) + semicol_delimitator.Length);
+            string debug = $"Custom Regions: FromConnectionToList: [";
+            string semicol_delimitator = " : ";
+            string comma_delimitator = ", ";
 
-            // Remove GATE/SHELTER/SWARMROOM at the end
-            if (splittingOldRoom.IndexOf(": ") > 0)
-            {
-                splittingOldRoom = splittingOldRoom.Substring(0, splittingOldRoom.IndexOf(": "));
-            }
-            string debug = "Custom Regions: FromConnectionToList: [";
 
-            // Contains each connection
-            List<string> connections = new List<string>();
+             // Remove GATE/SHELTER/SWARMROOM at the end
+             if (splittingOldRoom.IndexOf(semicol_delimitator) > 0)
+             {
+                 splittingOldRoom = splittingOldRoom.Substring(0, splittingOldRoom.IndexOf(semicol_delimitator));
+             }
 
-            // I am sure this can be optimized
-            int position = splittingOldRoom.IndexOf(", ");
-            if (position < 0)
+             // Contains each connection
+
+             // I am sure this can be optimized
+             int position = splittingOldRoom.IndexOf(comma_delimitator);
+             if (position < 0)
+             {
+                 // Only one connection
+                 connections.Add(splittingOldRoom);
+                 debug += splittingOldRoom + "; ";
+             }
+             while (position > 0)
+             {
+                 connections.Add(splittingOldRoom.Substring(0, position));
+                 splittingOldRoom = splittingOldRoom.Substring(position + comma_delimitator.Length);
+                 position = splittingOldRoom.IndexOf(comma_delimitator);
+                 debug += splittingOldRoom.Substring(0, position) + "; ";
+             }
+             if (splittingOldRoom != string.Empty)
+             {
+                 connections.Add(splittingOldRoom);
+                 debug += splittingOldRoom + "; ";
+             }
+             Debug.Log(debug + "]");*/
+
+            string[] split = Regex.Split(oldConnections, " : ");
+            int position = 0;
+
+            if (split.Length > 2)
             {
-                // Only one connection
-                connections.Add(splittingOldRoom);
-                debug += splittingOldRoom + "; ";
+                // Remove base room
+                position = 1;
             }
-            while (position > 0)
+
+            string[] split_rooms = Regex.Split(split[position], ", ");
+
+            foreach (string s in split_rooms)
             {
-                connections.Add(splittingOldRoom.Substring(0, position));
-                debug += splittingOldRoom.Substring(0, position) + "; ";
-                splittingOldRoom = splittingOldRoom.Substring(position + 2);
-                position = splittingOldRoom.IndexOf(", ");
+                if (s.Trim() != "" )
+                {
+                    connections.Add(s);
+                }
             }
-            if (splittingOldRoom != string.Empty)
-            {
-                connections.Add(splittingOldRoom);
-                debug += splittingOldRoom + "; ";
-            }
-            //Debug.Log(debug + "]");
+            // updatedConnections = updatedConnections.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+
+            Debug.Log($"Custom Regions: FromConnectionToList [{string.Join(",", connections.ToArray())}]");
+
             return connections;
         }
 
@@ -821,6 +870,11 @@ namespace CustomRegions.Mod
         public static Dictionary<string, string> loadedRegions;
 
         /// <summary>
+        /// Dictionary where the Key is the region ID and the value is a struct with its information.
+        /// </summary>
+        public static Dictionary<string, RegionInformation> availableRegions;
+
+        /// <summary>
         /// path of the CustomResources folder (Mods\CustomResources\)
         /// </summary>
         public static string resourcePath = "Mods" + Path.DirectorySeparatorChar + "CustomResources" + Path.DirectorySeparatorChar;
@@ -832,7 +886,20 @@ namespace CustomRegions.Mod
         public static Dictionary<string, string> BuildModRegionsDictionary()
         {
             Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            foreach (KeyValuePair<string, RegionInformation> entry in CustomWorldMod.availableRegions)
+            {
+                try
+                {
+                    if (entry.Value.activated)
+                    {
+                        dictionary.Add(entry.Value.regionID, entry.Value.regionName);
+                    }
+                }
+                catch (Exception e) { Debug.Log($"Custom Regions: Error while trying to add customRegion: {e}"); }
+            }
+            return dictionary;
 
+            /*
             // Each directory is a custom region mod
             string[] moddedRegions = Directory.GetDirectories(resourcePath);
 
@@ -859,6 +926,7 @@ namespace CustomRegions.Mod
             }
 
             return dictionary;
+            */
         }
 
         public static void CreateCustomWorldLog()
@@ -871,7 +939,7 @@ namespace CustomRegions.Mod
 
         public static void CreateCustomResourceFolder()
         {
-            if(!Directory.Exists(Custom.RootFolderDirectory()+resourcePath)) 
+            if (!Directory.Exists(Custom.RootFolderDirectory()+resourcePath)) 
             {
                 Directory.CreateDirectory(Custom.RootFolderDirectory() + resourcePath);
             }
@@ -990,6 +1058,184 @@ namespace CustomRegions.Mod
 
             return list;
 
+        }
+
+        public static object GetRegionInfoJson(string key, Dictionary<string, object> dictionary)
+        {
+            object value = null;
+            if ((dictionary.ContainsKey(key)))
+            {
+                value = dictionary[key];
+            }
+            return value;
+        }
+
+        public static void ProcessRegionsJson()
+        {
+            string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath;
+            Dictionary<string, RegionInformation> notSortedDictionary = new Dictionary<string, RegionInformation>();
+
+            // For each Region Mod Installed
+            foreach (string dir in Directory.GetDirectories(path))
+            {
+                string pathOfRegionInfo = dir + Path.DirectorySeparatorChar + "regionInfo.json";
+
+                string regionID = string.Empty;
+                string regionName = string.Empty;
+                string description = "N / A";
+                bool activated = false;
+                string checksum = string.Empty;
+                int loadOrder = 100;
+
+                // File does not exist, generate regionInfo.json
+                if (!File.Exists(pathOfRegionInfo))
+                {
+                    // Region Name
+                    regionName = Path.GetFileNameWithoutExtension(dir);
+
+                    // If upgrading from old CR version
+                    if (File.Exists(dir + Path.DirectorySeparatorChar + "regionID.txt"))
+                    {
+                        regionID = File.ReadAllText(dir + Path.DirectorySeparatorChar + "regionID.txt");
+                        regionID = regionID.ToUpper();
+
+                        activated = true;
+
+                        File.Delete(dir + Path.DirectorySeparatorChar + "regionID.txt");
+                        Debug.Log($"Custom Regions: Updating regionID from old CR version... Obtained regionID [{regionID}]");
+                    }
+
+                    // regionID.txt did not exist or was empty
+                    if (regionID == string.Empty)
+                    {
+                        string regionsPath = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions";
+                        Debug.Log($"Custom Regions: Empty regionID, obtaining from [{regionsPath}]. Valid [{Directory.Exists(regionsPath)}]");
+
+                        if (Directory.Exists(regionsPath))
+                        {
+                            // Try to get regionID
+                            foreach (string regionsDir in Directory.GetDirectories(regionsPath + Path.DirectorySeparatorChar))
+                            {
+                                regionID = Path.GetFileNameWithoutExtension(regionsDir);
+                                foreach (string vanillaRegion in CustomWorldMod.VanillaRegions())
+                                {
+                                    if (regionsDir.Equals(vanillaRegion))
+                                    {
+                                        regionID = string.Empty;
+                                        break;
+                                    }
+                                }
+
+                                if (regionID != string.Empty)
+                                {
+                                    break;
+                                }
+                            }
+
+                        }
+
+                        if (regionID == string.Empty)
+                        {
+                            // If a customRegion does not add new regions, obtain regionID from capital letters.
+                            foreach (char letters in regionName)
+                            {
+                                if (char.IsUpper(letters))
+                                {
+                                    regionID += letters;
+                                }
+                            }
+                        }
+                    }
+
+                    // Create a file to write to.
+                    using (StreamWriter sw = File.CreateText(dir + Path.DirectorySeparatorChar + "regionInfo.json"))
+                    {
+                        sw.WriteLine("{\n"
+                            + " \"regionID\":  \"" + regionID + "\", \n"
+                            + " \"description\":  \"" + description + "\", \n"
+
+                            + " \"regionName\":  \"" + regionName + "\", \n"
+                            + " \"activated\":  " + activated.ToString().ToLower() + ", \n"
+                            + " \"loadOrder\": " + loadOrder + ", \n"
+
+                            // Checksum unused at the moment
+                            + " \"checksum\":  \"" + checksum + "\" \n"
+                            + "}");
+                    }
+
+                    Debug.Log($"Custom Regions: Adding available region [{regionID}]");
+                    notSortedDictionary.Add(regionID, new CustomWorldMod.RegionInformation(regionID, regionName, description, activated, loadOrder, checksum));
+
+                }
+                // Read JSON file
+                else
+                {
+                    Dictionary<string, object> dictionary = File.ReadAllText(pathOfRegionInfo).dictionaryFromJson();
+                    RegionInformation regionInformation = new RegionInformation(string.Empty, string.Empty, "N / A", true, loadOrder, string.Empty);
+
+                    if (dictionary != null)
+                    {
+                        if (GetRegionInfoJson("regionID", dictionary) != null)
+                        {
+                            regionInformation.regionID = (string)GetRegionInfoJson("regionID", dictionary);
+                        }
+                        
+                        if (GetRegionInfoJson("description", dictionary) != null)
+                        {
+                            regionInformation.description = (string)GetRegionInfoJson("description", dictionary);
+                        }
+                        
+                        if (GetRegionInfoJson("regionName", dictionary) != null)
+                        {
+                            regionInformation.regionName = (string)GetRegionInfoJson("regionName", dictionary);
+                        }
+                        
+                        if (dictionary.ContainsKey("activated"))
+                        {
+                            regionInformation.activated = dictionary["activated"].ToString().ToLower().Contains("true");
+                        }
+                        
+                        if (GetRegionInfoJson("loadOrder", dictionary) != null)
+                        {
+                            regionInformation.loadOrder = int.Parse(GetRegionInfoJson("loadOrder", dictionary).ToString());
+                        }
+
+                        if (GetRegionInfoJson("checksum", dictionary) != null)
+                        {
+                            regionInformation.checksum = (string)GetRegionInfoJson("checksum", dictionary);
+                        }
+
+                        Debug.Log($"Custom Regions: Adding available region [{regionInformation.regionID}]");
+                        if (regionInformation.regionID != string.Empty)
+                        {
+                            notSortedDictionary.Add(regionInformation.regionID, regionInformation);
+                        }
+                    }
+
+                }
+            }
+
+            //var sortedAvailableRegions = CustomWorldMod.availableRegions.ToList();
+            //sortedAvailableRegions.Sort((pair1, pair2) => pair1.Value.loadOrder.CompareTo(pair2.Value.loadOrder));
+
+            foreach(KeyValuePair<string, RegionInformation> element in notSortedDictionary.OrderBy(d => d.Value.loadOrder))
+            {
+                CustomWorldMod.availableRegions.Add(element.Key, element.Value);
+            }
+
+            //CustomWorldMod.availableRegions = sortedAvailableRegions.OrderBy(d => d.Value.loadOrder);
+        }
+
+        public static string GetSaveInformation()
+        {
+            string dictionaryString = "Custom Regions: New save, Custom Regions Information \n{";
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            {
+                dictionaryString += $"{keyValues.Key} : {keyValues.Value}. LoadOrder[{CustomWorldMod.availableRegions[keyValues.Key].loadOrder}] Checksum [{CustomWorldMod.availableRegions[keyValues.Key].checksum}], ";
+            }
+            dictionaryString =  dictionaryString.TrimEnd(',', ' ') + "}";
+
+            return dictionaryString;
         }
     }
 }

@@ -105,12 +105,12 @@ namespace CustomRegions
         /// </summary>
         private static void WorldLoader_ctor(On.WorldLoader.orig_ctor orig, WorldLoader self, RainWorldGame game, int playerCharacter, bool singleRoomWorld, string worldName, Region region, RainWorldGame.SetupValues setupValues)
         {
-            try
+           /* try
             {
                 Debug.Log($"Custom Regions: Creating WorldLoader : Game [{game}]. PlayerCharacter [{playerCharacter}]. SingleRoomWorld [{singleRoomWorld}]. WorldName [{worldName}]");
             }
             catch (Exception e) { Debug.Log($"Custom Reginons: Error ar WorldLoaderCtor [{e}]"); }
-
+            */
             string pathRegion = string.Concat(new object[]
             {
                 Custom.RootFolderDirectory(),
@@ -259,7 +259,7 @@ namespace CustomRegions
             if (self.lines.Count > 0)
             {
                 // Fill ROOMS with vanilla rooms
-                Debug.Log("Custom Regions: Found vanilla rooms");
+                //Debug.Log("Custom Regions: Found vanilla rooms");
                 bool startRooms = false;
                 bool startCreatures = false;
                 bool startBats = false;

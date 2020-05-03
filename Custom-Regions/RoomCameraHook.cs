@@ -55,7 +55,7 @@ namespace CustomRegions
             {
                 requestedTexture = FindCameraTexturePath(requestedTexture);
             }
-            Debug.Log($"Custom regions: MoveCamera path [{path}] Exists [{File.Exists(path)}]. Requested texture [{requestedTexture}]. Quened texture [{self.quenedTexture}]");
+            //Debug.Log($"Custom regions: MoveCamera path [{path}] Exists [{File.Exists(path)}]. Requested texture [{requestedTexture}]. Quened texture [{self.quenedTexture}]");
 
             orig(self, requestedTexture);
         }
