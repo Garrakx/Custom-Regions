@@ -41,7 +41,7 @@ namespace CustomRegions.Mod
         public CustomWorldMod()
         {
             ModID = "Custom Regions Mod";
-            Version = "0.2." + version;
+            Version = "0.4." + version;
             author = "Garrakx";
         }
 
