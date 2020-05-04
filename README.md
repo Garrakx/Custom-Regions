@@ -60,7 +60,7 @@ A: DISCONNECTED, B, D
 2) Option b) Delete the folder created in step 2 (i.e. Rain World\Mods\CustomResources\The Root)
 
 * *Useful information for modders*
-1) To create the folder structure for you region, just follow the Vanilla structure and create the mod as if you would install it merging files. **Important** If you want to delete a vanilla connection, you must put "DISCONNECTED". If you just do not include the connection, your region mod will be incompatible.
+1) To create the folder structure for you region, just follow the Vanilla structure and create the mod as if you would install it merging files. **Important** If you want to delete a vanilla connection, you must put "DISCONNECTED". 
 2) Apart from the "positions.txt" file for the Region Art, you will need to include a "depths.txt" to position the depth of your art. Follows the same order as "positions.txt".
 3) You can include as many layers as you want for the region art.
 4) You will probably to adjust the positions of the region art again.
