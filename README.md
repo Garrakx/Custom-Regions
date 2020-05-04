@@ -73,4 +73,4 @@ A: DISCONNECTED, B, D
 2) Custom music is not loaded (TO DO)
 
 * *Credits*
- loosely based on @topicular's EasyModPack. What it started as a simple mod, it turned to be one of the biggest and challening mods out there. Please be patient with bugs and error. Thanks to LeeMoriya for helping and suggestions.
+ loosely based on @topicular's EasyModPack. What it started as a simple mod, it turned to be a really big and challening mod. Please be patient with bugs and error. Thanks to LeeMoriya for helping and suggestions.
