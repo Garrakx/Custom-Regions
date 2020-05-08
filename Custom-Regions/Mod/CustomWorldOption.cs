@@ -58,6 +58,13 @@ namespace CustomRegions.Mod
             //How Many Options
             int numberOfOptions = CustomWorldMod.availableRegions.Count;
 
+            if (numberOfOptions < 1)
+            {
+                OpLabel label2 = new OpLabel(new Vector2(100f, 600), new Vector2(400f, 20f), "No regions available.", FLabelAlignment.Center, false);
+                Tabs[0].AddItems(labelDsc);
+                return;
+            }
+
             //string keyCheckBox = "";
             string labelCheck = "";
             string labelDescri = "";
@@ -72,7 +79,7 @@ namespace CustomRegions.Mod
 
             //int spacing = (420 - numberOfOptions * 100) / (numberOfOptions - 1);
 
-            float rectSizeY = (spacing / numberOfOptions+0.0001f) * 0.75f;
+            float rectSizeY = Mathf.Clamp((spacing / numberOfOptions) * 0.75f, 200);
 
             for (int i = 0; i < numberOfOptions; i++)
             {
@@ -113,7 +120,7 @@ namespace CustomRegions.Mod
                 Tabs[tab].AddItems(labelDesc);
 
 
-                rectPos.y -= (spacing / (numberOfOptions + 0.00001f));
+                rectPos.y -= (spacing / (numberOfOptions));
                 //rectPos.y -= (100 + spacing); //* i;
             }
 

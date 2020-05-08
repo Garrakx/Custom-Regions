@@ -17,10 +17,12 @@ namespace CustomRegions.Mod
             CustomWorldMod.CreateCustomWorldLog();
             CustomWorldMod.CreateCustomResourceFolder();
 
-            CustomWorldMod.availableRegions = new Dictionary<string, CustomWorldMod.RegionInformation>();
-            CustomWorldMod.ProcessRegionsJson();
+            CustomWorldMod.LoadAvailableRegions();
 
             CustomWorldMod.loadedRegions = CustomWorldMod.BuildModRegionsDictionary();
+
+            //-----
+            // Debug
             string dictionaryString = "Custom Regions: Loading \n{";
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
@@ -28,6 +30,7 @@ namespace CustomRegions.Mod
             }
             Debug.Log(dictionaryString.TrimEnd(',', ' ') + "}");
             CustomWorldMod.CustomWorldLog(dictionaryString.TrimEnd(',', ' ') + "}");
+            //-----
 
             MapHook.ApplyHook();
             RegionGateHook.ApplyHooks();
@@ -63,10 +66,12 @@ namespace CustomRegions.Mod
 
         }
 
-        public RainWorld rw;
         public static CustomWorldMod mod;
+        
+        public RainWorld rw;
         public static ProcessManager pm;
 
+        
         public void Update()
         {
             if (rw == null)

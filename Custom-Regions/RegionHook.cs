@@ -12,15 +12,16 @@ namespace CustomRegions
 {
     static class RegionHook
     {
-
-        // This code comes from EasyModPack by topicular
-        // Adapted to work with any region by Garrakx
-
         public static void ApplyHook()
         {
             On.Region.NumberOfRoomsInRegion += Region_NumberOfRoomsInRegion;
             On.Region.ctor += Region_ctor;
         }
+
+        /// <summary>
+        /// Holds the properties of the region
+        /// </summary>
+        public static Dictionary<string, int> dictionaryProperties;
 
         /// <summary>
         /// Loads new Properties for Region.
@@ -56,7 +57,7 @@ namespace CustomRegions
                         string text = Regex.Split(array[i], ": ")[0];
                         if (text != null)
                         {
-                            if (CustomWorldMod.dictionaryProperties == null)
+                            if (RegionHook.dictionaryProperties == null)
                             {
                                 Dictionary<string, int> dictionary = new Dictionary<string, int>(15);
                                 dictionary.Add("Room Setting Templates", 0);
@@ -74,9 +75,9 @@ namespace CustomRegions
                                 dictionary.Add("Subregion", 12);
                                 dictionary.Add("batsPerActiveSwarmRoom", 13);
                                 dictionary.Add("batsPerInactiveSwarmRoom", 14);
-                                CustomWorldMod.dictionaryProperties = dictionary;
+                                RegionHook.dictionaryProperties = dictionary;
                             }
-                            if (CustomWorldMod.dictionaryProperties.TryGetValue(text, out int num))
+                            if (RegionHook.dictionaryProperties.TryGetValue(text, out int num))
                             {
                                 switch (num)
                                 {

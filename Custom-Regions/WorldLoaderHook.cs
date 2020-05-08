@@ -386,7 +386,7 @@ namespace CustomRegions
                                     switch (status)
                                     {
                                         case CustomWorldMod.MergeStatus.ROOMS:
-                                            ROOMS = CustomWorldMod.AddNewRoom(array[i], ROOMS);
+                                            ROOMS = CustomWorldMod.AddNewRoom(array[i], ROOMS, keyValues.Key);
                                             break;
                                         case CustomWorldMod.MergeStatus.CREATURES:
                                             // MERGE CREATURES
@@ -394,7 +394,7 @@ namespace CustomRegions
                                             break;
                                         case CustomWorldMod.MergeStatus.BATS:
                                             // MERGE BATS
-                                            //BATS.Add(array[i]);
+                                            BATS = CustomWorldMod.AddNewBatBlockage(array[i], BATS);
                                             break;
                                     }
                                 }
