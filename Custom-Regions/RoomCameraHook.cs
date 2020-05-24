@@ -33,7 +33,7 @@ namespace CustomRegions
                 int index = path.IndexOf(delimitator) + delimitator.Length;
                 path = path.Substring(index);
 
-                //Debug.Log($"Custom regions: PreloadTexture path [{path}] Exists [{File.Exists(path)}]");
+                //CustomWorldMod.CustomWorldLog($"Custom regions: PreloadTexture path [{path}] Exists [{File.Exists(path)}]");
                 if (!File.Exists(path))
                 {
                     self.quenedTexture = FindCameraTexturePath(requestedTexture);
@@ -55,7 +55,7 @@ namespace CustomRegions
             {
                 requestedTexture = FindCameraTexturePath(requestedTexture);
             }
-            //Debug.Log($"Custom regions: MoveCamera path [{path}] Exists [{File.Exists(path)}]. Requested texture [{requestedTexture}]. Quened texture [{self.quenedTexture}]");
+            //CustomWorldMod.CustomWorldLog($"Custom regions: MoveCamera path [{path}] Exists [{File.Exists(path)}]. Requested texture [{requestedTexture}]. Quened texture [{self.quenedTexture}]");
 
             orig(self, requestedTexture);
         }
@@ -68,11 +68,11 @@ namespace CustomRegions
             string roomPathWithRegion = requestedTexture.Substring(index);
 
             string fullRoomPathWithRegion = Custom.RootFolderDirectory() + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + roomPathWithRegion;
-           // Debug.Log($"Custom regions: Searching vanilla room textures at [{fullRoomPathWithRegion}]");
+           // CustomWorldMod.CustomWorldLog($"Custom regions: Searching vanilla room textures at [{fullRoomPathWithRegion}]");
             if (File.Exists(fullRoomPathWithRegion))
             {
                 requestedTexture = "file:///" + fullRoomPathWithRegion;
-                //Debug.Log($"Custom regions: used vanilla textures for room [{requestedTexture}]");
+                //CustomWorldMod.CustomWorldLog($"Custom regions: used vanilla textures for room [{requestedTexture}]");
             }
 
             return requestedTexture;
@@ -93,10 +93,10 @@ namespace CustomRegions
                 }
                 catch (Exception e)
                 {
-                    Debug.Log($"Custom Regions: Error loading regionName from palette, world / region is null [{e}]");
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Error loading regionName from palette, world / region is null [{e}]");
                 }
 
-                Debug.Log($"Custom Regions: Loading custom palette [{pal}] from [{regionName}]");
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Loading custom palette [{pal}] from [{regionName}]");
 
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                 {
@@ -107,15 +107,15 @@ namespace CustomRegions
                     string path = CustomWorldMod.resourcePath + regionName;
 
                     string paletteFolder = string.Concat(new object[] { Custom.RootFolderDirectory(), path, Path.DirectorySeparatorChar, "Assets", Path.DirectorySeparatorChar, "Futile", Path.DirectorySeparatorChar, "Resources", Path.DirectorySeparatorChar, "Palettes"});
-                    //Debug.Log($"Custom Regions: Searching palette at {paletteFolder}");
+                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Searching palette at {paletteFolder}");
 
                     if (Directory.Exists(paletteFolder))
                     {
-                        //Debug.Log($"Custom Regions: Found custom palette directory [{paletteFolder}]");
+                        //CustomWorldMod.CustomWorldLog($"Custom Regions: Found custom palette directory [{paletteFolder}]");
                         string palettePath = paletteFolder + Path.DirectorySeparatorChar + "palette" + pal + ".png";
                         if (File.Exists(palettePath)) 
                         {
-                            Debug.Log($"Custom Regions: loading custom palette [{palettePath}]");
+                            CustomWorldMod.CustomWorldLog($"Custom Regions: loading custom palette [{palettePath}]");
                             texture = new Texture2D(32, 16, TextureFormat.ARGB32, false);
                             texture.anisoLevel = 0;
                             texture.filterMode = FilterMode.Point;
@@ -134,7 +134,7 @@ namespace CustomRegions
                         }
                         /*else
                         {
-                            Debug.Log($"Custom Regions: ERROR !!! loading custom palette [{palettePath}]");
+                            CustomWorldMod.CustomWorldLog($"Custom Regions: ERROR !!! loading custom palette [{palettePath}]");
                         }*/
                     }
                 }

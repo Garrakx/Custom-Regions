@@ -33,7 +33,7 @@ namespace CustomRegions
             //if (!enabled) { return; }
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                //Debug.Log($"Custom Regions: Loading custom properties for {keyValues.Key}");
+                //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading custom properties for {keyValues.Key}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                 string test = string.Concat(new object[]
@@ -50,7 +50,7 @@ namespace CustomRegions
                 });
                 if (File.Exists(test))
                 {
-                    //Debug.Log($"Custom Regions: Found custom properties for {keyValues.Key}");
+                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Found custom properties for {keyValues.Key}");
                     string[] array = File.ReadAllLines(test);
                     for (int i = 0; i < array.Length; i++)
                     {
@@ -90,8 +90,8 @@ namespace CustomRegions
                                             {
                                                 self.roomSettingTemplateNames[j] = array2[j];
                                                 self.ReloadRoomSettingsTemplate(array2[j]);
-                                                //Debug.Log("Custom reload: " + self.roomSettingTemplateNames[j]);
-                                                //Debug.Log(self.roomSettingsTemplates[j].RandomItemDensity.ToString() + " " + self.roomSettingsTemplates[j].RandomItemSpearChance.ToString());
+                                                //CustomWorldMod.CustomWorldLog("Custom reload: " + self.roomSettingTemplateNames[j]);
+                                                //CustomWorldMod.CustomWorldLog(self.roomSettingsTemplates[j].RandomItemDensity.ToString() + " " + self.roomSettingsTemplates[j].RandomItemSpearChance.ToString());
                                             }
                                             break;
                                         }
@@ -156,7 +156,7 @@ namespace CustomRegions
             int totalRooms = 0;
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                //Debug.Log($"Custom Regions: Counting total rooms for {keyValues.Value} in {name}");
+                //CustomWorldMod.CustomWorldLog($"Custom Regions: Counting total rooms for {keyValues.Value} in {name}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                 string test = string.Concat(new object[]
@@ -194,7 +194,7 @@ namespace CustomRegions
                             flag = true;
                         }
                     }
-                    //Debug.Log($"Custom Regions: {keyValues.Value} had {num} rooms-connections in region [{name}].");
+                    //CustomWorldMod.CustomWorldLog($"Custom Regions: {keyValues.Value} had {num} rooms-connections in region [{name}].");
                     totalRooms += num;
                 }
             }

@@ -27,7 +27,7 @@ namespace CustomRegions
             On.PlayerProgression.MiscProgressionData.ToString += MiscProgressionData_ToString;
             On.PlayerProgression.MiscProgressionData.FromString += MiscProgressionData_FromString;
 
-           // On.PlayerProgression.SaveToDisk += PlayerProgression_SaveToDisk;
+            On.PlayerProgression.SaveToDisk += PlayerProgression_SaveToDisk;
         }
 
         private static void PlayerProgression_SaveToDisk(On.PlayerProgression.orig_SaveToDisk orig, PlayerProgression self, bool saveCurrentState, bool saveMaps, bool saveMiscProg)
@@ -53,7 +53,7 @@ namespace CustomRegions
                     if (saveCurrentState && self.currentSaveState != null && int.Parse(array2[1][21].ToString()) == self.currentSaveState.saveStateNumber)
                     {
                         text = text + "SAVE STATE<progDivB>" + self.currentSaveState.SaveToString();
-                        Debug.Log("successfully saved state " + self.currentSaveState.saveStateNumber + " to disc");
+                        CustomWorldMod.CustomWorldLog("successfully saved state " + self.currentSaveState.saveStateNumber + " to disc");
                         flag = true;
                     }
                     else
@@ -114,7 +114,7 @@ namespace CustomRegions
             if (saveCurrentState && !flag && self.currentSaveState != null)
             {
                 text = text + "SAVE STATE<progDivB>" + self.currentSaveState.SaveToString() + "<progDivA>";
-                Debug.Log("successfully saved state " + self.currentSaveState.saveStateNumber + " to disc (fresh)");
+                CustomWorldMod.CustomWorldLog("successfully saved state " + self.currentSaveState.saveStateNumber + " to disc (fresh)");
             }
             if (saveMaps)
             {
@@ -140,7 +140,7 @@ namespace CustomRegions
                 text = text + "MISCPROG<progDivB>" + self.miscProgressionData.ToString() + "<progDivA>";
             }
 
-           // Debug.Log(text);
+           // CustomWorldMod.CustomWorldLog(text);
             
             using (StreamWriter streamWriter = File.CreateText(CustomWorldMod.resourcePath + "saveDebug.txt"))
             {
@@ -187,14 +187,14 @@ namespace CustomRegions
                             {
                                 regionName = saveDataList[index++];
                             }
-                            catch (Exception e) { Debug.Log($"Custom Regions: Exception at fixing savefile {e}"); }
+                            catch (Exception e) { CustomWorldMod.CustomWorldLog($"Custom Regions: Exception at fixing savefile {e}"); }
 
                             if (regionName == string.Empty)
                                 continue;
 
                             if (!self.regionNames.ToList<string>().Contains(regionName))
                             {
-                                Debug.Log($"Custom Regions: fixing SAVE STATE file. Uninstalled region [{regionName}], clearing saveData...");
+                                CustomWorldMod.CustomWorldLog($"Custom Regions: fixing SAVE STATE file. Uninstalled region [{regionName}], clearing saveData...");
                             }
                         }
                     }
@@ -211,7 +211,7 @@ namespace CustomRegions
             if (self.regionNames.Length != self.mapDiscoveryTextures.Length)
             {
                 Array.Resize(ref self.mapDiscoveryTextures, self.regionNames.Length);
-                Debug.Log($"Custom Regions: Resizing mapDiscovery in PlayerProgression.");
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Resizing mapDiscovery in PlayerProgression.");
             }
             self.miscProgressionData.discoveredShelters = new List<string>[self.regionNames.Length];
             orig(self);
@@ -223,7 +223,7 @@ namespace CustomRegions
             if (self.regionNames.Length != self.mapDiscoveryTextures.Length)
             {
                 Array.Resize(ref self.mapDiscoveryTextures, self.regionNames.Length);
-                Debug.Log($"Custom Regions: Resizing mapDiscovery in PlayerProgression.");
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Resizing mapDiscovery in PlayerProgression.");
             }
             self.miscProgressionData.discoveredShelters = new List<string>[self.regionNames.Length];
             orig(self);
@@ -236,7 +236,7 @@ namespace CustomRegions
             {
                 debug2 += self.owner.regionNames[i] + " , ";
             }
-            Debug.Log(debug2);
+            CustomWorldMod.CustomWorldLog(debug2);
 
             Dictionary<string, int> dictionaryTemp = new Dictionary<string, int>(7);
             string[] array = Regex.Split(s, "<mpdA>");
@@ -311,7 +311,7 @@ namespace CustomRegions
                 }*/
             }
             debug += " ]";
-            Debug.Log(debug);
+            CustomWorldMod.CustomWorldLog(debug);
             orig(self, s);
 
             debug2 = "Custom Regions: Discovered Shelters { ";
@@ -329,7 +329,7 @@ namespace CustomRegions
                     }
                 }
             }
-            Debug.Log(debug2 + "} ");
+            CustomWorldMod.CustomWorldLog(debug2 + "} ");
         }
 
         private static string MiscProgressionData_ToString(On.PlayerProgression.MiscProgressionData.orig_ToString orig, PlayerProgression.MiscProgressionData self)
@@ -347,14 +347,14 @@ namespace CustomRegions
                     text += "<mpdA>";
                 }
             }
-            Debug.Log(text + "] ");
+            CustomWorldMod.CustomWorldLog(text + "] ");
             return orig(self);
 
         }
 
         private static void MiscProgressionData_SaveDiscoveredShelter(On.PlayerProgression.MiscProgressionData.orig_SaveDiscoveredShelter orig, PlayerProgression.MiscProgressionData self, string roomName)
         {
-            Debug.Log($"Custom Regions: Save Discovered Shelter [{roomName}]. ");
+            CustomWorldMod.CustomWorldLog($"Custom Regions: Save Discovered Shelter [{roomName}]. ");
             string debug = "Custom Regions: RegionNames { ";
             int num = -1;
             for (int i = 0; i < self.owner.regionNames.Length; i++)
@@ -370,7 +370,7 @@ namespace CustomRegions
             {
                 debug += "\n ERROR! region not found";
             }
-            Debug.Log(debug);
+            CustomWorldMod.CustomWorldLog(debug);
             if (self.discoveredShelters[num] == null)
             {
                 self.discoveredShelters[num] = new List<string>();
@@ -379,7 +379,7 @@ namespace CustomRegions
             {
                 if (self.discoveredShelters[num][j] == roomName)
                 {
-                    Debug.Log("Custom Regions: Save shelter ERROR, already saved");
+                    CustomWorldMod.CustomWorldLog("Custom Regions: Save shelter ERROR, already saved");
                 }
             }
             orig(self, roomName);
@@ -399,7 +399,7 @@ namespace CustomRegions
                     }
                 }
             }
-            Debug.Log("} " + debug2);
+            CustomWorldMod.CustomWorldLog("} " + debug2);
         }
     }
 }

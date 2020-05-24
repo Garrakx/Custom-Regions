@@ -45,14 +45,14 @@ namespace CustomRegions.CustomMenu
                 //Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar, text
                 path += "_Thumb.png";
 
-                //Debug.Log($"Custom Regions: WWW trimmed path [{path}]. File exists [{File.Exists(path)}]");
+                //CustomWorldMod.CustomWorldLog($"Custom Regions: WWW trimmed path [{path}]. File exists [{File.Exists(path)}]");
 
                 if (!File.Exists(path))
                 {
-                    //Debug.Log($"Custom Regions: File does not exist [{path}]");
+                    //CustomWorldMod.CustomWorldLog($"Custom Regions: File does not exist [{path}]");
                     foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                     {
-                        //Debug.Log($"Custom Regions: Loading arena image from [{keyValues.Key}]");
+                        //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading arena image from [{keyValues.Key}]");
 
                         //Remove Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar,
                         stringToRemove = Custom.RootFolderDirectory() + "Levels" + Path.DirectorySeparatorChar;
@@ -68,7 +68,7 @@ namespace CustomRegions.CustomMenu
                         path = path.Substring(0, found);
                         //text
 
-                        //Debug.Log($"Custom Regions: WWWW trimmed path [{path}]");
+                        //CustomWorldMod.CustomWorldLog($"Custom Regions: WWWW trimmed path [{path}]");
 
                         string updatedPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels" + Path.DirectorySeparatorChar;
                         if (File.Exists(updatedPath + path + "_Thumb.png"))
@@ -93,7 +93,7 @@ namespace CustomRegions.CustomMenu
                 string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels";
                 if (Directory.Exists(path))
                 {
-                    Debug.Log($"Custom Regions: Loading arena(s) from [{keyValues.Value}]");
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loading arena(s) from [{keyValues.Value}]");
 
                     string[] files = Directory.GetFiles(path);
 
@@ -142,8 +142,8 @@ namespace CustomRegions.CustomMenu
 
                 }
 
-                Debug.Log(debug + "]");
-                //Debug.Log(debug2 + "]");
+                CustomWorldMod.CustomWorldLog(debug + "]");
+                //CustomWorldMod.CustomWorldLog(debug2 + "]");
                 self.ClearGameTypeSpecificButtons();
                 self.InitiateGameTypeSpecificButtons();
 

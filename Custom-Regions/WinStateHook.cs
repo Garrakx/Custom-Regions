@@ -36,11 +36,11 @@ namespace CustomRegions
 					}
 				}
 			}
-            Debug.Log($"Custom Regions: Cycle completed. num2 [{num2}].");
+            CustomWorldMod.CustomWorldLog($"Custom Regions: Cycle completed. num2 [{num2}].");
 			if (num2 >= 0)
 			{
 				WinState.BoolArrayTracker boolArrayTracker = self.GetTracker(WinState.EndgameID.Traveller, true) as WinState.BoolArrayTracker;
-                Debug.Log($"Custom Regions: Cycle completed. boolArrayTracker length [{boolArrayTracker.progress.Length}].");
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Cycle completed. boolArrayTracker length [{boolArrayTracker.progress.Length}].");
                 if (num2 < boolArrayTracker.progress.Length)
 				{
 					boolArrayTracker.progress[num2] = true;

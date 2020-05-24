@@ -41,10 +41,10 @@ namespace CustomRegions
                 {
                     char dash = Path.DirectorySeparatorChar;
                     string customPath = $"{Custom.RootFolderDirectory()}{CustomWorldMod.resourcePath}{keyValues.Value}{dash}Assets{dash}Futile{dash}Resources{dash}Decals{dash}{fileName}.png";
-                    //Debug.Log($"Custom Regions: Searching custom decal [{fileName}] at [{customPath}]");
+                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Searching custom decal [{fileName}] at [{customPath}]");
                     if(File.Exists(customPath))
                     {
-                        Debug.Log($"Custom Regions: Found custom decal [{fileName}] at [{customPath}]");
+                        CustomWorldMod.CustomWorldLog($"Custom Regions: Found custom decal [{fileName}] at [{customPath}]");
                         WWW www = new WWW("file:///"+customPath);
                         Texture2D texture2D = new Texture2D(1, 1, TextureFormat.ARGB32, false);
                         texture2D.wrapMode = TextureWrapMode.Clamp;

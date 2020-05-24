@@ -33,7 +33,7 @@ namespace CustomRegions
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                Debug.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}");
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                 string text = string.Concat(new object[]
@@ -58,7 +58,7 @@ namespace CustomRegions
                 {
                     if (Regex.Split(array[i], " : ")[0] == room.abstractRoom.name)
                     {
-                        Debug.Log($"Custom Regions: Found custom karmaGate requirement for {keyValues.Key}");
+                        CustomWorldMod.CustomWorldLog($"Custom Regions: Found custom karmaGate requirement for {keyValues.Key}");
                         self.karmaRequirements[0] = Custom.IntClamp(int.Parse(Regex.Split(array[i], " : ")[1]) - 1, 0, 4);
                         self.karmaRequirements[1] = Custom.IntClamp(int.Parse(Regex.Split(array[i], " : ")[2]) - 1, 0, 4);
                         break;

@@ -27,7 +27,7 @@ namespace CustomRegions
                 string settingsPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels" + Path.DirectorySeparatorChar + game.world.GetAbstractRoom(0).name + "_Arena.txt";
                 if (File.Exists(settingsPath))
                 {
-                    Debug.Log($"Custom Regions: Loading settings file in SpawnArenaCreatures. Path [{settingsPath}]");
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loading settings file in SpawnArenaCreatures. Path [{settingsPath}]");
                     string[] settingsFile = File.ReadAllLines(settingsPath);
                     SpawnArenaCreaturesVanilla(game, wildLifeSetting, ref availableCreatures, ref unlocks, settingsFile);
                     break;
@@ -97,7 +97,7 @@ namespace CustomRegions
                                         }
                                         else
                                         {
-                                            Debug.Log("not rec. " + array2[1]);
+                                            CustomWorldMod.CustomWorldLog("not rec. " + array2[1]);
                                         }
                                         break;
                                     }
@@ -335,7 +335,7 @@ namespace CustomRegions
                     CreatureTemplate.Type? type2 = unlocks.RecursiveFallBackCritter(new CreatureTemplate.Type?(list2[num10].type));
                     if (type2 != null)
                     {
-                        Debug.Log(list2[num10].type + " fall back to " + type2.Value);
+                        CustomWorldMod.CustomWorldLog(list2[num10].type + " fall back to " + type2.Value);
                         list2[num10].type = type2.Value;
                         list2[num10].spawnChance = Mathf.Clamp01(list2[num10].spawnChance) * 0.01f;
                         num11 *= 0.5f;
@@ -349,13 +349,13 @@ namespace CustomRegions
                 num9 += num11;
             }
             float num12 = (float)list6.Count / (float)(list6.Count + list7.Count);
-            Debug.Log("percentCritTypesAllowed: " + num12);
+            CustomWorldMod.CustomWorldLog("percentCritTypesAllowed: " + num12);
             float num13 = Mathf.InverseLerp(0.7f, 0.3f, num12);
             if (num2 > 0f)
             {
                 num2 *= Mathf.Lerp(Mathf.InverseLerp(0.15f, 0.75f, num12), 1f, 0.5f) * num;
             }
-            Debug.Log("diversify: " + num13);
+            CustomWorldMod.CustomWorldLog("diversify: " + num13);
             for (int num14 = 0; num14 < list3.Count; num14++)
             {
                 if (UnityEngine.Random.value > list3[num14].spawnChance || !list3[num14].AnyConnectedSpawnersActive())
@@ -397,7 +397,7 @@ namespace CustomRegions
                     list[num18].Disable();
                 }
             }
-            Debug.Log(string.Concat(new object[]
+            CustomWorldMod.CustomWorldLog(string.Concat(new object[]
             {
             "weight total pre rand: ",
             num9,
@@ -417,9 +417,9 @@ namespace CustomRegions
             {
                 num9 += Mathf.Lerp(-1.2f, 1.2f, Mathf.Pow(UnityEngine.Random.value, Custom.LerpMap(num9, 2f, 10f, 0.25f, 3f)));
             }
-            Debug.Log("weight total: " + num9);
+            CustomWorldMod.CustomWorldLog("weight total: " + num9);
             int num19 = Custom.IntClamp(Mathf.RoundToInt(num9), (int)wildLifeSetting, 25);
-            Debug.Log("creaturesToSpawn: " + num19);
+            CustomWorldMod.CustomWorldLog("creaturesToSpawn: " + num19);
             List<ArenaCreatureSpawner.CritterSpawnData> list8 = new List<ArenaCreatureSpawner.CritterSpawnData>();
             for (int num20 = 0; num20 < num19; num20++)
             {
@@ -434,10 +434,10 @@ namespace CustomRegions
                     }
                 }
             }
-            Debug.Log("-- ACTUALLY SPAWNING");
+            CustomWorldMod.CustomWorldLog("-- ACTUALLY SPAWNING");
             for (int num21 = 0; num21 < list8.Count; num21++)
             {
-                Debug.Log(string.Concat(new object[]
+                CustomWorldMod.CustomWorldLog(string.Concat(new object[]
                 {
                 num21,
                 " ---- ",

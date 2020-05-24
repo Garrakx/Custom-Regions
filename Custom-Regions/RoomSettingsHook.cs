@@ -27,7 +27,7 @@ namespace CustomRegions
 
         private static void RoomSettings_Save(On.RoomSettings.orig_Save orig, RoomSettings self)
         {
-            Debug.Log($"Custom Regions: Saving room settings at [{self.filePath}]");
+            CustomWorldMod.CustomWorldLog($"Custom Regions: Saving room settings at [{self.filePath}]");
             orig(self);
         }
 
@@ -39,7 +39,7 @@ namespace CustomRegions
 
                 if (!File.Exists(Custom.RootFolderDirectory() + filePath))
                 {
-                    //Debug.Log($"Custom Regions: Finding custom room settings template [{filePath}]");
+                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Finding custom room settings template [{filePath}]");
 
                     foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                     {
@@ -48,7 +48,7 @@ namespace CustomRegions
                         if (File.Exists(newPath))
                         {
                             self.filePath = newPath;
-                            Debug.Log($"Custom Regions: Found settings at [{newPath}]");
+                            CustomWorldMod.CustomWorldLog($"Custom Regions: Found settings at [{newPath}]");
                             break;
                         }
 
@@ -59,7 +59,7 @@ namespace CustomRegions
             }
             else
             {
-                //Debug.Log($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
+                //CustomWorldMod.CustomWorldLog($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
             }
 
             orig(self, region);
@@ -74,7 +74,7 @@ namespace CustomRegions
             if (/*!enabled || */(!self.isTemplate && !File.Exists(self.filePath)))
             {
                 string path = WorldLoader.FindRoomFileDirectory(self.name, false) + ".txt";
-                Debug.Log($"Custom Regions: Loading room settings for [{self.name}] at [{path}]");
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Loading room settings for [{self.name}] at [{path}]");
 
                 if (!File.Exists(path))
                 {

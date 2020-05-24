@@ -40,7 +40,7 @@ namespace CustomRegions.CustomMenu
                         {
                             string fullRegionName = "N / A";
                             CustomWorldMod.loadedRegions.TryGetValue(text2, out fullRegionName);
-                            Debug.Log("Custom Regions: text " + text2);
+                            CustomWorldMod.CustomWorldLog("Custom Regions: text " + text2);
 
                             if (fullRegionName.Length > 0)
                             {

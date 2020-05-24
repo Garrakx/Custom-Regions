@@ -28,7 +28,7 @@ namespace CustomRegions.Mod
             {
                 dictionaryString += keyValues.Key + " : " + keyValues.Value + ", ";
             }
-            Debug.Log(dictionaryString.TrimEnd(',', ' ') + "}");
+            CustomWorldMod.CustomWorldLog(dictionaryString.TrimEnd(',', ' ') + "}");
             CustomWorldMod.CustomWorldLog(dictionaryString.TrimEnd(',', ' ') + "}");
             //-----
 

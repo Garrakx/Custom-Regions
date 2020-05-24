@@ -88,12 +88,12 @@ namespace CustomRegions
                 {
                     debug += $" {lines},";
                 }
-                Debug.Log(debug);
+                CustomWorldMod.CustomWorldLog(debug);
 
             }
             catch (Exception e)
             {
-                Debug.Log($"Custom Regions: Mapping rooms failed, reason: {e}");
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Mapping rooms failed, reason: {e}");
             }
 
             orig(self);
@@ -107,9 +107,9 @@ namespace CustomRegions
         {
            /* try
             {
-                Debug.Log($"Custom Regions: Creating WorldLoader : Game [{game}]. PlayerCharacter [{playerCharacter}]. SingleRoomWorld [{singleRoomWorld}]. WorldName [{worldName}]");
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Creating WorldLoader : Game [{game}]. PlayerCharacter [{playerCharacter}]. SingleRoomWorld [{singleRoomWorld}]. WorldName [{worldName}]");
             }
-            catch (Exception e) { Debug.Log($"Custom Reginons: Error ar WorldLoaderCtor [{e}]"); }
+            catch (Exception e) { CustomWorldMod.CustomWorldLog($"Custom Reginons: Error ar WorldLoaderCtor [{e}]"); }
             */
             string pathRegion = string.Concat(new object[]
             {
@@ -137,14 +137,14 @@ namespace CustomRegions
                 // THIS WILL REPLACE THE CTOR REDUCING COMPABILITY
 
                 // INITIALIZING LISTS
-                //Debug.Log("Custom Worlds: Using custom WorldLoader ctor");
+                //CustomWorldMod.CustomWorldLog("Custom Worlds: Using custom WorldLoader ctor");
                 try
                 {
                     InitializeWorldLoaderList(self);
                 }
                 catch (Exception e)
                 {
-                    Debug.Log($"Custom Worlds: something failed ERROR!!! [{e}]");
+                    CustomWorldMod.CustomWorldLog($"Custom Worlds: something failed ERROR!!! [{e}]");
                 }
 
                 string path = CustomWorldMod.resourcePath + region + Path.DirectorySeparatorChar;
@@ -185,7 +185,7 @@ namespace CustomRegions
                 string pathToCustomFolder = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                 //string test = Custom.RootFolderDirectory() + pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0];
-                //Debug.Log($"Custom Regions: Finding room {roomName} in {keyValues.Key}. Path: {test}");
+                //CustomWorldMod.CustomWorldLog($"Custom Regions: Finding room {roomName} in {keyValues.Key}. Path: {test}");
 
                 string gatePath = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + roomName;
                 string gateShelterPath = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "Gate shelters" + Path.DirectorySeparatorChar + roomName;
@@ -196,25 +196,25 @@ namespace CustomRegions
                 if (Directory.Exists(regularRoomPath) && File.Exists(regularRoomPath + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName + ".txt"))
                 {
                     result = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0] + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName;
-                    //Debug.Log($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
+                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
                 }
                 // room is GATE
                 else if (Regex.Split(roomName, "_")[0] == "GATE" && File.Exists(Custom.RootFolderDirectory() + gatePath + ".txt"))
                 {
                     result = gatePath;
-                    //Debug.Log($"Custom Regions: Found gate {roomName} in {keyValues.Key}. Path: {result}");
+                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Found gate {roomName} in {keyValues.Key}. Path: {result}");
                 }
                 // room is Gate shelter
                 else if (File.Exists(Custom.RootFolderDirectory() + gateShelterPath + ".txt"))
                 {
                     result = gateShelterPath;
-                    //Debug.Log($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
+                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
                 }
                 // room is Arena
                 else if(File.Exists(Custom.RootFolderDirectory() + arenaPath + ".txt"))
                 {
                     result = arenaPath;
-                    Debug.Log($"Custom Regions: Found arena {roomName} in {keyValues.Key}. Path: {result}");
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Found arena {roomName} in {keyValues.Key}. Path: {result}");
                 }
 
                 if (result != "")
@@ -225,7 +225,7 @@ namespace CustomRegions
 
             if (result != "")
             {
-                // Debug.Log("Using Custom Worldfile: " + result);
+                // CustomWorldMod.CustomWorldLog("Using Custom Worldfile: " + result);
                 if (includeRootDirectory)
                 {
                     result = "file:///" + Custom.RootFolderDirectory() + result;
@@ -259,7 +259,7 @@ namespace CustomRegions
             if (self.lines.Count > 0)
             {
                 // Fill ROOMS with vanilla rooms
-                //Debug.Log("Custom Regions: Found vanilla rooms");
+                //CustomWorldMod.CustomWorldLog("Custom Regions: Found vanilla rooms");
                 bool startRooms = false;
                 bool startCreatures = false;
                 bool startBats = false;
@@ -312,7 +312,7 @@ namespace CustomRegions
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                //Debug.Log($"Custom Regions: Reading world_{self.worldName}.txt from {keyValues.Value}");
+                //CustomWorldMod.CustomWorldLog($"Custom Regions: Reading world_{self.worldName}.txt from {keyValues.Value}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                 string test = string.Concat(new object[]
@@ -333,7 +333,7 @@ namespace CustomRegions
 
                 if (File.Exists(test))
                 {
-                    Debug.Log($"Custom Regions: Found world_{self.worldName}.txt from {keyValues.Value}");
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Found world_{self.worldName}.txt from {keyValues.Value}");
                     //self.lines = new List<string>();
                     string[] array = File.ReadAllLines(test);
                     for (int i = 0; i < array.Length; i++)
@@ -424,7 +424,7 @@ namespace CustomRegions
 
             if (lines.Count < 2)
             {
-                Debug.Log("Custom Regions: ERROR! Lines.Count < 2");
+                CustomWorldMod.CustomWorldLog("Custom Regions: ERROR! Lines.Count < 2");
                 return self.lines;
             }
 
@@ -453,7 +453,7 @@ namespace CustomRegions
             {
                 if (self.lines == null)
                 {
-                    Debug.Log("Custom Regions: World was null, creating new lines");
+                    CustomWorldMod.CustomWorldLog("Custom Regions: World was null, creating new lines");
                     self.lines = new List<string>();
                 }
 
@@ -461,12 +461,12 @@ namespace CustomRegions
             }
             else
             {
-                //Debug.Log($"Custom Worlds: Next Activity was not init, was {self.activity}");
+                //CustomWorldMod.CustomWorldLog($"Custom Worlds: Next Activity was not init, was {self.activity}");
             }
 
             if (self.faultyExits == null)
             {
-                Debug.Log($"Custom Regions: NextActivity failed, faultyExits is null");
+                CustomWorldMod.CustomWorldLog($"Custom Regions: NextActivity failed, faultyExits is null");
                 self.faultyExits = new List<WorldCoordinate>();
             }
             orig(self);

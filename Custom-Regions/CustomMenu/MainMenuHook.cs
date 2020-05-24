@@ -29,7 +29,7 @@ namespace CustomRegions.CustomMenu
                 {
                     if (keyValues.Key.Equals(menuRegion))
                     {
-                        Debug.Log($"Custom Regions: TitleSceneID {menuRegion}");
+                        CustomWorldMod.CustomWorldLog($"Custom Regions: TitleSceneID {menuRegion}");
                         CustomWorldMod.sceneCustomID = menuRegion;
                     }
 

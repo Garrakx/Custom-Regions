@@ -31,21 +31,21 @@ namespace CustomRegions
             {
                 if (self.GetAbstractRoom(c.room) == null)
                 {
-                    Debug.Log("Custom Regions: ERROR at GetNode !!! c.room Abstract is null");
+                    CustomWorldMod.CustomWorldLog("Custom Regions: ERROR at GetNode !!! c.room Abstract is null");
                 }
 
                 else if (self.GetAbstractRoom(c.room).nodes == null)
                 {
-                    Debug.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is null");
+                    CustomWorldMod.CustomWorldLog("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is null");
                 }
                 else if (self.GetAbstractRoom(c.room).nodes.Length < 1)
                 {
-                    Debug.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is empty");
+                    CustomWorldMod.CustomWorldLog("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is empty");
                 }
             }
             catch (Exception e)
             {
-                Debug.Log("Custom Regions: ERROR!");
+                CustomWorldMod.CustomWorldLog("Custom Regions: ERROR!");
             }
 
             /*
@@ -58,7 +58,7 @@ namespace CustomRegions
                 }
                 catch (Exception e) { }
             }
-            Debug.Log(debug + "}");
+            CustomWorldMod.CustomWorldLog(debug + "}");
             */
 
             return orig(self, c);
@@ -70,13 +70,13 @@ namespace CustomRegions
         private static void World_LoadMapConfig(On.World.orig_LoadMapConfig orig, World self, int slugcatNumber)
         {
             //if (!enabled) { orig.Invoke(world, slugcatNumber); return; }
-            //Debug.Log("-- mapconfig as player: " + slugcatNumber);
+            //CustomWorldMod.CustomWorldLog("-- mapconfig as player: " + slugcatNumber);
 
             orig(self, slugcatNumber);
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                Debug.Log($"Custom Regions: Loading room configurations and properties for {keyValues.Key}");
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Loading room configurations and properties for {keyValues.Key}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
                 string[] array;
 
@@ -98,7 +98,7 @@ namespace CustomRegions
 
                 if (File.Exists(text))
                 {
-                    Debug.Log($"Custom Regions: Loaded custom mapconfig for room {keyValues.Value} as player: {slugcatNumber}");
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loaded custom mapconfig for room {keyValues.Value} as player: {slugcatNumber}");
                     array = File.ReadAllLines(text);
                     for (int i = 0; i < array.Length; i++)
                     {
@@ -169,7 +169,7 @@ namespace CustomRegions
                     }
                 }
 
-                //Debug.Log($"Custom Regions: Loaded custom properties for room {keyValues.Value} as player: {slugcatNumber}");
+                //CustomWorldMod.CustomWorldLog($"Custom Regions: Loaded custom properties for room {keyValues.Value} as player: {slugcatNumber}");
                 array = File.ReadAllLines(text);
                 for (int k = 0; k < array.Length; k++)
                 {
@@ -202,7 +202,7 @@ namespace CustomRegions
                             {
                                 if (self.GetAbstractRoom(array4[n]) != null && self.GetAbstractRoom(array4[n]).shelter)
                                 {
-                                    Debug.Log(string.Concat(new object[]
+                                    CustomWorldMod.CustomWorldLog(string.Concat(new object[]
                                     {
                                 "--slugcat ",
                                 slugcatNumber,

@@ -19,7 +19,7 @@ namespace CustomRegions
             // New game, generate regionsave checksum
             if (str == string.Empty)
             {
-                Debug.Log(CustomWorldMod.GetSaveInformation());
+                CustomWorldMod.CustomWorldLog(CustomWorldMod.GetSaveInformation());
             }
             // Existing game, validate regionsave checksum
             else
