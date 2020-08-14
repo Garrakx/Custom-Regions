@@ -41,22 +41,24 @@ namespace CustomRegions.CustomMenu
                             string fullRegionName = "N / A";
                             CustomWorldMod.loadedRegions.TryGetValue(text2, out fullRegionName);
                             CustomWorldMod.CustomWorldLog("Custom Regions: text " + text2);
-
-                            if (fullRegionName.Length > 0)
+                            if (fullRegionName != null)
                             {
-                                text2 = fullRegionName;
-
-                                fullRegionName = string.Concat(new object[]
+                                if (fullRegionName.Length > 0)
                                 {
+                                    text2 = fullRegionName;
+
+                                    fullRegionName = string.Concat(new object[]
+                                    {
                                 text2,
                             " - ",
                             menu.Translate("Cycle"),
                             " ",
                             (slugcatNumber != 2) ? self.saveGameData.cycle : (RedsIllness.RedsCycles(self.saveGameData.redsExtraCycles) - self.saveGameData.cycle)
-                                });
-                            }
+                                    });
+                                }
                             (label as MenuLabel).text = fullRegionName;
-                            break;
+                                break;
+                            }
                         }
                     }
                 }

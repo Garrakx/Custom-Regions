@@ -50,7 +50,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 15;
+        public int version = 18;
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
@@ -100,12 +100,14 @@ namespace CustomRegions.Mod
         {
             public string regionID;
             public string regionName;
+            public int regionNumber;
             public string description;
             public bool activated;
             public string checksum;
             public int loadOrder;
+            public string folderName;
 
-            public RegionInformation(string regionID, string regionName, string description, bool activated, int loadOrder, string checksum)
+            public RegionInformation(string regionID, string regionName, string description, bool activated, int loadOrder, string checksum, int regionNumber, string folderName)
             {
                 this.regionID = regionID;
                 this.regionName = regionName;
@@ -113,6 +115,8 @@ namespace CustomRegions.Mod
                 this.activated = activated;
                 this.checksum = checksum;
                 this.loadOrder = loadOrder;
+                this.regionNumber = regionNumber;
+                this.folderName = folderName;
             }
         }
 
@@ -787,18 +791,33 @@ namespace CustomRegions.Mod
         {
             // Only load activate regions from CustomWorldMod.availableRegions
             Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            Dictionary<string, RegionInformation> updatedEntry = new Dictionary<string, RegionInformation>();
             foreach (KeyValuePair<string, RegionInformation> entry in CustomWorldMod.availableRegions)
             {
+                int regionNumber = 11;
+
                 try
                 {
                     if (entry.Value.activated)
                     {
-                        dictionary.Add(entry.Value.regionID, entry.Value.regionName);
+                        CustomWorldMod.RegionInformation infoRegionUpdated = entry.Value;
+                        infoRegionUpdated.regionNumber = regionNumber;
+
+                        updatedEntry.Add(infoRegionUpdated.regionID, infoRegionUpdated);
+                        regionNumber++;
+
+                        dictionary.Add(entry.Value.regionID, entry.Value.folderName);
+                    }
+                    else
+                    {
+                        updatedEntry.Add(entry.Key, entry.Value);
                     }
                 }
+
                 catch (Exception e) { CustomWorldMod.CustomWorldLog($"Custom Regions: Error while trying to add customRegion: {e}"); }
             }
 
+            CustomWorldMod.availableRegions = updatedEntry;
             return dictionary;
         }
 
@@ -806,7 +825,7 @@ namespace CustomRegions.Mod
         {
             using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + "customWorldLog.txt"))
             {
-                sw.WriteLine("######################\n Custom World Log\n");
+                sw.WriteLine("######################\n Custom World Log ######################\n");
             }
         }
 
@@ -952,7 +971,7 @@ namespace CustomRegions.Mod
 
                 string regionID = string.Empty;
                 string regionName = string.Empty;
-                string description = "N / A";
+                string description = "No description";
                 bool activated = true;
                 string checksum = string.Empty;
                 int loadOrder = 100;
@@ -1018,101 +1037,165 @@ namespace CustomRegions.Mod
                         }
                     }
 
-                    // Create a file to write to.
-                    using (StreamWriter sw = File.CreateText(dir + Path.DirectorySeparatorChar + "regionInfo.json"))
+                    WriteRegionInfoJSONFile(dir, regionID, description, regionName, activated, loadOrder, checksum);
+                   
+                }
+
+
+                Dictionary<string, object> dictionary = File.ReadAllText(pathOfRegionInfo).dictionaryFromJson();
+                RegionInformation regionInformation = new RegionInformation(string.Empty, string.Empty, "No description", true, loadOrder, string.Empty, -1, Path.GetFileNameWithoutExtension(dir));
+
+                if (dictionary != null)
+                {
+                    if (GetRegionInfoJson("regionID", dictionary) != null)
                     {
-                        sw.WriteLine("{\n"
-                            + " \"regionID\":  \"" + regionID + "\", \n"
-                            + " \"description\":  \"" + description + "\", \n"
-
-                            + " \"regionName\":  \"" + regionName + "\", \n"
-                            + " \"activated\":  " + activated.ToString().ToLower() + ", \n"
-                            + " \"loadOrder\": " + loadOrder + ", \n"
-
-                            // Checksum unused at the moment
-                            + " \"checksum\":  \"" + checksum + "\" \n"
-                            + "}");
+                        regionInformation.regionID = (string)GetRegionInfoJson("regionID", dictionary);
                     }
 
+                    if (GetRegionInfoJson("description", dictionary) != null)
+                    {
+
+                        regionInformation.description = (string)GetRegionInfoJson("description", dictionary);
+                    }
+
+                    if (GetRegionInfoJson("regionName", dictionary) != null)
+                    {
+                        regionInformation.regionName = (string)GetRegionInfoJson("regionName", dictionary);
+                    }
+
+                    if (dictionary.ContainsKey("activated"))
+                    {
+                        regionInformation.activated = dictionary["activated"].ToString().ToLower().Contains("true");
+                    }
+
+                    if (GetRegionInfoJson("loadOrder", dictionary) != null)
+                    {
+                        regionInformation.loadOrder = int.Parse(GetRegionInfoJson("loadOrder", dictionary).ToString());
+                    }
+
+                    if (GetRegionInfoJson("checksum", dictionary) != null)
+                    {
+                        regionInformation.checksum = (string)GetRegionInfoJson("checksum", dictionary);
+                    }
+
+
+                    CustomWorldLog($"Description for {regionInformation.regionName} is {regionInformation.description}");
+                    string oldDescription = regionInformation.description;
+                    if (regionInformation.description.Equals("N / A"))
+                    {
+                        regionInformation.description = "No description";
+                    }
+                    if (regionInformation.description.Equals("No description"))
+                    {
+                        if (regionName.ToLower().Contains("aether"))
+                        {
+                            regionInformation.description = "Aether Ridge is derelict desalination rig to the north of Sky Islands. Includes over 200 new rooms, six new arenas, and more.";
+                        }
+                        else if (regionName.ToLower().Contains("badlands"))
+                        {
+                            regionInformation.description = "The Badlands is a region connecting Farm Arrays and Garbage Wastes. It features many secrets and unlockables, including three new arenas.";
+                        }
+                        else if (regionName.ToLower().Contains("root"))
+                        {
+                            regionInformation.description = "A new region expanding on Subterranean, and The Exterior, with all new rooms. Made to give exploration focused players more Rain World to discover.";
+                        }
+                        else if (regionName.ToLower().Contains("house"))
+                        {
+                            regionInformation.description = "Adds a new region connecting Shoreline, 5P, and Depths. An amalgamation of many of the game's unused rooms. Also includes a couple custom unlockable maps for arena mode.";
+                        }
+                        else if (regionName.ToLower().Contains("swamplands"))
+                        {
+                            regionInformation.description = "A new swampy region that connects Garbage Wastes and Shoreline.";
+                        }
+                        else if (regionName.ToLower().Contains("master"))
+                        {
+                            regionInformation.description = "A new game+ style mod that reorganizes the game's regions, trying to rekindle the feelings of when you first got lost in Rain World.";
+                        }
+                    }
+
+                    if (!oldDescription.Equals(regionInformation.description))
+                    {
+                        CustomWorldLog($"Updating regionInfo for {regionInformation.regionName}");
+                        File.Delete(dir + Path.DirectorySeparatorChar + "regionInfo.json");
+                        WriteRegionInfoJSONFile(dir, regionInformation.regionID, regionInformation.description, regionInformation.regionName, regionInformation.activated, regionInformation.loadOrder, regionInformation.checksum);
+
+                    }
+
+
+
+
+                    // Load region information
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Adding available region [{regionInformation.regionID}]");
+                    if (regionInformation.regionID != string.Empty)
+                    {
+                        try
+                        {
+                            notSortedDictionary.Add(regionInformation.regionID, regionInformation);
+                        }
+                        catch (Exception dic) { CustomWorldMod.CustomWorldLog($"Custom Regions: Error in adding [{regionInformation.regionID}] => {dic}"); };
+                    }
+                }
+
+
+                /*
                     CustomWorldMod.CustomWorldLog($"Custom Regions: Adding available region [{regionID}]");
                     try
                     {
-                        notSortedDictionary.Add(regionID, new CustomWorldMod.RegionInformation(regionID, regionName, description, activated, loadOrder, checksum));
+                        notSortedDictionary.Add(regionID, new CustomWorldMod.RegionInformation(regionID, regionName, description, activated, loadOrder, checksum, -1, Path.GetFileNameWithoutExtension(dir)));
                     }
                     catch (Exception dic) { CustomWorldMod.CustomWorldLog($"Custom Regions: Error in adding [{regionID}] => {dic}"); };
+                */
+                /* }
+                 // Read JSON file
+                 else
+                 {*/
 
-                }
-                // Read JSON file
-                else
-                {
-                    Dictionary<string, object> dictionary = File.ReadAllText(pathOfRegionInfo).dictionaryFromJson();
-                    RegionInformation regionInformation = new RegionInformation(string.Empty, string.Empty, "N / A", true, loadOrder, string.Empty);
 
-                    if (dictionary != null)
-                    {
-                        if (GetRegionInfoJson("regionID", dictionary) != null)
-                        {
-                            regionInformation.regionID = (string)GetRegionInfoJson("regionID", dictionary);
-                        }
-
-                        if (GetRegionInfoJson("description", dictionary) != null)
-                        {
-                            regionInformation.description = (string)GetRegionInfoJson("description", dictionary);
-                        }
-
-                        if (GetRegionInfoJson("regionName", dictionary) != null)
-                        {
-                            regionInformation.regionName = (string)GetRegionInfoJson("regionName", dictionary);
-                        }
-
-                        if (dictionary.ContainsKey("activated"))
-                        {
-                            regionInformation.activated = dictionary["activated"].ToString().ToLower().Contains("true");
-                        }
-
-                        if (GetRegionInfoJson("loadOrder", dictionary) != null)
-                        {
-                            regionInformation.loadOrder = int.Parse(GetRegionInfoJson("loadOrder", dictionary).ToString());
-                        }
-
-                        if (GetRegionInfoJson("checksum", dictionary) != null)
-                        {
-                            regionInformation.checksum = (string)GetRegionInfoJson("checksum", dictionary);
-                        }
-
-                        CustomWorldMod.CustomWorldLog($"Custom Regions: Adding available region [{regionInformation.regionID}]");
-                        if (regionInformation.regionID != string.Empty)
-                        {
-                            try
-                            {
-                                notSortedDictionary.Add(regionInformation.regionID, regionInformation);
-                            }
-                            catch (Exception dic) { CustomWorldMod.CustomWorldLog($"Custom Regions: Error in adding [{regionInformation.regionID}] => {dic}"); };
-                        }
-                    }
-
-                }
+                //}
             }
 
             // Save each world data line in alphabetical order
             foreach (KeyValuePair<string, RegionInformation> element in notSortedDictionary.OrderBy(d => d.Value.loadOrder))
             {
+                //element.Value.regionNumber = regionNumber;
                 CustomWorldMod.availableRegions.Add(element.Key, element.Value);
             }
-
-            //CustomWorldMod.availableRegions = sortedAvailableRegions.OrderBy(d => d.Value.loadOrder);
         }
 
         public static string GetSaveInformation()
         {
-            string dictionaryString = "Custom Regions: New save, Custom Regions Information \n{";
+            string dictionaryString = "Custom Regions: New save, Custom Regions Information \n";
+            dictionaryString += "<progCRdivA>";
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                dictionaryString += $"{keyValues.Key} : {keyValues.Value}. LoadOrder[{CustomWorldMod.availableRegions[keyValues.Key].loadOrder}] Checksum [{CustomWorldMod.availableRegions[keyValues.Key].checksum}], ";
+                dictionaryString += $"<progCRdivB>{keyValues.Key}" +
+                    $"<progCRdivB>{CustomWorldMod.availableRegions[keyValues.Key].regionNumber}" +
+                    $"<progCRdivB>{CustomWorldMod.availableRegions[keyValues.Key].checksum}";
             }
-            dictionaryString = dictionaryString.TrimEnd(',', ' ') + "}";
+            dictionaryString += "<progCRdivA>";
+            dictionaryString = dictionaryString.TrimEnd(',', ' ') + "";
 
             return dictionaryString;
+        }
+
+
+        public static void WriteRegionInfoJSONFile(string dirPath, string regionID, string description, string regionName, bool activated, int loadOrder, string checksum)
+        {
+            // Create a file to write to.
+            using (StreamWriter sw = File.CreateText(dirPath + Path.DirectorySeparatorChar + "regionInfo.json"))
+            {
+                sw.WriteLine("{\n"
+                    + " \"regionID\":  \"" + regionID + "\", \n"
+                    + " \"description\":  \"" + description + "\", \n"
+
+                    + " \"regionName\":  \"" + regionName + "\", \n"
+                    + " \"activated\":  " + activated.ToString().ToLower() + ", \n"
+                    + " \"loadOrder\": " + loadOrder + ", \n"
+
+                    // Checksum unused at the moment
+                    + " \"checksum\":  \"" + checksum + "\" \n"
+                    + "}");
+            }
         }
     }
 }

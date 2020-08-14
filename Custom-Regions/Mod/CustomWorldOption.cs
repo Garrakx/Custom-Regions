@@ -79,8 +79,8 @@ namespace CustomRegions.Mod
 
             //int spacing = (420 - numberOfOptions * 100) / (numberOfOptions - 1);
 
-            float rectSizeY = Mathf.Min((spacing / numberOfOptions) * 0.75f, 100);
-
+            // float rectSizeY = Mathf.Min(, 100);
+            float rectSizeY = Mathf.Clamp((spacing / numberOfOptions) * 0.75f, 10f, 75f);
             for (int i = 0; i < numberOfOptions; i++)
             {
 

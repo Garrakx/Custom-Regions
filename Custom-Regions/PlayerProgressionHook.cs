@@ -27,125 +27,53 @@ namespace CustomRegions
             On.PlayerProgression.MiscProgressionData.ToString += MiscProgressionData_ToString;
             On.PlayerProgression.MiscProgressionData.FromString += MiscProgressionData_FromString;
 
-            On.PlayerProgression.SaveToDisk += PlayerProgression_SaveToDisk;
+           // On.PlayerProgression.SaveToDisk += PlayerProgression_SaveToDisk;
         }
 
         private static void PlayerProgression_SaveToDisk(On.PlayerProgression.orig_SaveToDisk orig, PlayerProgression self, bool saveCurrentState, bool saveMaps, bool saveMiscProg)
         {
-            orig(self, saveCurrentState, saveMaps, saveMiscProg);
 
-            bool flag = false;
-            bool[] array = new bool[self.mapDiscoveryTextures.Length];
-            bool flag2 = false;
-           /* if (saveMaps)
+            if (File.Exists(self.saveFilePath))
             {
-                self.miscProgressionData.SaveDiscoveredShelters(ref self.tempSheltersDiscovered);
-            }
-            self.tempSheltersDiscovered.Clear();*/
-            string[] progLines = self.GetProgLines();
-            string text = string.Empty;
-            for (int i = 0; i < progLines.Length; i++)
-            {
-                bool flag3 = false;
-                string[] array2 = Regex.Split(progLines[i], "<progDivB>");
-                if (array2[0] == "SAVE STATE")
+                string textSaveData = File.ReadAllText(self.saveFilePath);
+
+                string[] progLinesToModify = Regex.Split(textSaveData, "<progDivA>");
+                string newSaveFile = string.Empty;
+
+                for (int i = 0; i < progLinesToModify.Length; i++)
                 {
-                    if (saveCurrentState && self.currentSaveState != null && int.Parse(array2[1][21].ToString()) == self.currentSaveState.saveStateNumber)
+                    string[] array2 = Regex.Split(progLinesToModify[i], "<progDivB>");
+
+                    if (array2[0] == "MAP")
                     {
-                        text = text + "SAVE STATE<progDivB>" + self.currentSaveState.SaveToString();
-                        CustomWorldMod.CustomWorldLog("successfully saved state " + self.currentSaveState.saveStateNumber + " to disc");
-                        flag = true;
-                    }
-                    else
-                    {
-                        text += progLines[i];
-                    }
-                    flag3 = true;
-                }
-                else if (array2[0] == "MAP")
-                {
-                    int num = -1;
-                    int num2 = 0;
-                    while (num2 < self.regionNames.Length && num < 0)
-                    {
-                        if (self.regionNames[num2] == array2[1])
+                        int num = -1;
+                        int num2 = 0;
+                        while (num2 < self.regionNames.Length && num < 0)
                         {
-                            num = num2;
+                            if (num2 > self.regionNames.Length)
+                            {
+                                // REGION NOT FOUND
+                                //array2[1];
+                                Debug.Log("Custom Regions: DEBUGGIN SAVE::::::");
+                                for(int z = 0; z < array2.Length; z++)
+                                {
+                                    Debug.Log(array2[z]);
+                                }
+                                break;
+                            }
+
                         }
-                        num2++;
                     }
-                    if (!saveMaps || num < 0 || self.mapDiscoveryTextures[num] == null)
-                    {
-                        text += progLines[i];
-                    }
-                    else
-                    {
-                        string text2 = text;
-                        text = string.Concat(new string[]
-                        {
-                    text2,
-                    "MAP<progDivB>",
-                    self.regionNames[num],
-                    "<progDivB>",
-                    Convert.ToBase64String(self.mapDiscoveryTextures[num].EncodeToPNG())
-                        });
-                    }
-                    flag3 = true;
-                    array[num] = true;
+                    newSaveFile += progLinesToModify;
                 }
-                else if (array2[0] == "MISCPROG")
+
+                using (StreamWriter streamWriter = File.CreateText(self.saveFilePath))
                 {
-                    if (!saveMiscProg)
-                    {
-                        text += progLines[i];
-                    }
-                    else
-                    {
-                        text = text + "MISCPROG<progDivB>" + self.miscProgressionData.ToString();
-                    }
-                    flag3 = true;
-                    flag2 = true;
+                   // streamWriter.Write(Custom.Md5Sum(newSaveFile) + newSaveFile);
                 }
-                if (flag3)
-                {
-                    text += "<progDivA>";
-                }
-            }
-            if (saveCurrentState && !flag && self.currentSaveState != null)
-            {
-                text = text + "SAVE STATE<progDivB>" + self.currentSaveState.SaveToString() + "<progDivA>";
-                CustomWorldMod.CustomWorldLog("successfully saved state " + self.currentSaveState.saveStateNumber + " to disc (fresh)");
-            }
-            if (saveMaps)
-            {
-                for (int j = 0; j < array.Length; j++)
-                {
-                    if (!array[j] && self.mapDiscoveryTextures[j] != null)
-                    {
-                        string text2 = text;
-                        text = string.Concat(new string[]
-                        {
-                    text2,
-                    "MAP<progDivB>",
-                    self.regionNames[j],
-                    "<progDivB>",
-                    Convert.ToBase64String(self.mapDiscoveryTextures[j].EncodeToPNG()),
-                    "<progDivA>"
-                        });
-                    }
-                }
-            }
-            if (saveMiscProg && !flag2)
-            {
-                text = text + "MISCPROG<progDivB>" + self.miscProgressionData.ToString() + "<progDivA>";
             }
 
-           // CustomWorldMod.CustomWorldLog(text);
-            
-            using (StreamWriter streamWriter = File.CreateText(CustomWorldMod.resourcePath + "saveDebug.txt"))
-            {
-                streamWriter.Write(text);
-            }
+            orig(self, saveCurrentState, saveMaps, saveMiscProg);
         }
 
         // Debug

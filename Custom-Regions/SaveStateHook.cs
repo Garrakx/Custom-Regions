@@ -28,7 +28,7 @@ namespace CustomRegions
 
             }
 
-            orig(self, str, game);
+			orig(self, str, game);
         }
     }
 }

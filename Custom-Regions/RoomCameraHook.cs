@@ -57,6 +57,8 @@ namespace CustomRegions
             }
             //CustomWorldMod.CustomWorldLog($"Custom regions: MoveCamera path [{path}] Exists [{File.Exists(path)}]. Requested texture [{requestedTexture}]. Quened texture [{self.quenedTexture}]");
 
+
+
             orig(self, requestedTexture);
         }
 
@@ -84,9 +86,26 @@ namespace CustomRegions
         /// </summary>
         private static void RoomCamera_LoadPalette(On.RoomCamera.orig_LoadPalette orig, RoomCamera self, int pal, ref UnityEngine.Texture2D texture)
         {
-            if (pal > 35)
+            string vanillaPalettePath = string.Concat(new object[]
+            {
+            Custom.RootFolderDirectory(),
+            "Assets",
+            Path.DirectorySeparatorChar,
+            "Futile",
+            Path.DirectorySeparatorChar,
+            "Resources",
+            Path.DirectorySeparatorChar,
+            "Palettes",
+            Path.DirectorySeparatorChar,
+            "palette",
+            pal,
+            ".png"
+            });
+
+            if (pal > 35 && !File.Exists(vanillaPalettePath))
             {
                 string regionName = string.Empty;
+                /* 
                 try
                 {
                     regionName = self.room.world.region.name;
@@ -97,7 +116,9 @@ namespace CustomRegions
                 }
 
                 CustomWorldMod.CustomWorldLog($"Custom Regions: Loading custom palette [{pal}] from [{regionName}]");
+                */
 
+                bool foundPalette = false;
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                 {
                    /* if (regionName == string.Empty) 
@@ -111,10 +132,11 @@ namespace CustomRegions
 
                     if (Directory.Exists(paletteFolder))
                     {
-                        //CustomWorldMod.CustomWorldLog($"Custom Regions: Found custom palette directory [{paletteFolder}]");
+                        CustomWorldMod.CustomWorldLog($"Custom Regions: Found custom palette directory [{paletteFolder}]");
                         string palettePath = paletteFolder + Path.DirectorySeparatorChar + "palette" + pal + ".png";
                         if (File.Exists(palettePath)) 
                         {
+                            foundPalette = true;
                             CustomWorldMod.CustomWorldLog($"Custom Regions: loading custom palette [{palettePath}]");
                             texture = new Texture2D(32, 16, TextureFormat.ARGB32, false);
                             texture.anisoLevel = 0;
@@ -132,11 +154,16 @@ namespace CustomRegions
                             texture.Apply(false);
                             break;
                         }
-                        /*else
+                        else
                         {
                             CustomWorldMod.CustomWorldLog($"Custom Regions: ERROR !!! loading custom palette [{palettePath}]");
-                        }*/
+                        }
                     }
+                }
+
+                if (!foundPalette)
+                {
+                    CustomWorldMod.CustomWorldLog($"Error loading palette: {pal}");
                 }
             }
             else

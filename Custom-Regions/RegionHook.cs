@@ -30,7 +30,6 @@ namespace CustomRegions
         {
             orig(self, name, firstRoomIndex, regionNumber);
 
-            //if (!enabled) { return; }
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
                 //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading custom properties for {keyValues.Key}");
