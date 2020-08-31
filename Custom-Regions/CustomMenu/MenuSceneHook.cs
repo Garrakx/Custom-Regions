@@ -1,5 +1,6 @@
 ﻿using CustomRegions.Mod;
 using Menu;
+using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +22,61 @@ namespace CustomRegions.CustomMenu
         public static void ApplyHook()
         {
             On.Menu.MenuScene.BuildScene += MenuScene_BuildScene;
+            On.Menu.MenuScene.SaveToFile += MenuScene_SaveToFile;
+            On.Menu.MenuScene.Update += MenuScene_Update;
+        }
+
+        private static void MenuScene_Update(On.Menu.MenuScene.orig_Update orig, MenuScene self)
+        {
+            orig(self);
+            if(Input.GetKeyDown("r"))
+            {
+                string regionID = self.depthIllustrations[0].fileName.Substring(0, 2);
+                LoadScenePositionSettings(self, self.sceneFolder, regionID);
+            }
+        }
+
+        private static void MenuScene_SaveToFile(On.Menu.MenuScene.orig_SaveToFile orig, MenuScene self)
+        {
+            try
+            {
+                orig(self);
+            } catch(Exception e)
+            {
+                CustomWorldMod.CustomWorldLog($"(Expected behaviour) Failed to save position.txt, using custom folder [Vanilla error - {e}]");
+                string regionID = self.depthIllustrations[0].fileName.Substring(0, 2);
+                Debug.Log("Saving : " + regionID);
+                string text = string.Empty;
+                for (int i = 0; i < self.depthIllustrations.Count; i++)
+                {
+                    Debug.Log(self.depthIllustrations[i].fileName + "   " + self.depthIllustrations[i].pos);
+                    string text2 = text;
+                    text = string.Concat(new object[]
+                    {
+                    text2,
+                    self.depthIllustrations[i].pos.x,
+                    ", ",
+                    self.depthIllustrations[i].pos.y,
+                    Environment.NewLine
+                    });
+                }
+                //string regionValue;
+                //CustomWorldMod.loadedRegions.TryGetValue(regionID, out regionValue);
+                //string path = CustomWorldMod.resourcePath + regionValue + Path.DirectorySeparatorChar;
+                string positionFiledPath = self.sceneFolder + Path.DirectorySeparatorChar + "positions.txt";
+                if (File.Exists(positionFiledPath))
+                {
+                    using (StreamWriter streamWriter = File.CreateText(positionFiledPath))
+                    {
+                        streamWriter.Write(text);
+                    }
+                }
+                else
+                {
+                    CustomWorldMod.CustomWorldLog($"ERROR! position.txt file not found! Looking at [{positionFiledPath}]");
+                    // Create position txt file?
+                }
+            }
         }
 
         public static void BuildCustomRegionScene(MenuScene self, string regionID, string sceneFolder)
@@ -38,10 +94,10 @@ namespace CustomRegions.CustomMenu
                 List<MenuDepthIllustration> illu = new List<MenuDepthIllustration>();
                 foreach (string fileName in fileEntries)
                 {
-                    if (fileName.Contains(".png") && !fileName.ToLower().Contains("flat"))
+                    if (fileName.Contains(".png") && !fileName.ToLower().Contains("flat") && !fileName.ToLower().Contains("meta"))
                     {
                         string name = Path.GetFileNameWithoutExtension(fileName);
-                        CustomWorldMod.CustomWorldLog($"Custom Regions: Loading {name}");
+                        //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading {name}");
                         /* int number = name[name.Length - 1];
                          if (number < positions.Length)
                          {
@@ -65,35 +121,7 @@ namespace CustomRegions.CustomMenu
                 }
 
                 // Load positions
-                CustomWorldMod.CustomWorldLog($"Custom Regions: Loading settings for Illustration at [{sceneFolder}]");
-                string[] readingTextFile = new string[0];
-                if (File.Exists(sceneFolder + "positions.txt"))
-                {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Reading positions.txt for {regionID}");
-                    readingTextFile = File.ReadAllLines(sceneFolder + "positions.txt");
-
-                    int num2 = 0;
-                    while (num2 < readingTextFile.Length && num2 < self.depthIllustrations.Count)
-                    {
-                        self.depthIllustrations[num2].pos.x = float.Parse(Regex.Split(readingTextFile[num2], ", ")[0]);
-                        self.depthIllustrations[num2].pos.y = float.Parse(Regex.Split(readingTextFile[num2], ", ")[1]);
-                        self.depthIllustrations[num2].lastPos = self.depthIllustrations[num2].pos;
-                        num2++;
-                    }
-                }
-                if (File.Exists(sceneFolder + "depths.txt"))
-                {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Reading depths.txt for {regionID}");
-                    readingTextFile = File.ReadAllLines(sceneFolder + "depths.txt");
-
-                    int num2 = 0;
-                    while (num2 < readingTextFile.Length && num2 < self.depthIllustrations.Count)
-                    {
-                        self.depthIllustrations[num2].depth = float.Parse(readingTextFile[num2]);
-                        CustomWorldMod.CustomWorldLog($"Custom Regions: Depths file Number [{num2}] position loaded [{self.depthIllustrations[num2].depth}]");
-                        num2++;
-                    }
-                }
+                LoadScenePositionSettings(self, sceneFolder, regionID);
             }
 
             string regionValue;
@@ -106,6 +134,40 @@ namespace CustomRegions.CustomMenu
                 self.AddIllustration(new MenuIllustration(self.menu, self, titleFolderName, $"Title_{regionID}_Shadow", new Vector2(0.01f, 0.01f), true, false));
                 self.AddIllustration(new MenuIllustration(self.menu, self, titleFolderName, $"Title_{regionID}", new Vector2(0.01f, 0.01f), true, false));
                 self.flatIllustrations[self.flatIllustrations.Count - 1].sprite.shader = self.menu.manager.rainWorld.Shaders["MenuText"];
+            }
+        }
+
+        public static void LoadScenePositionSettings(MenuScene self, string sceneFolder, string regionID)
+        {
+            CustomWorldMod.CustomWorldLog($"Custom Regions: Loading settings for Illustration at [{sceneFolder}]");
+            string[] readingTextFile = new string[0];
+            if (File.Exists(sceneFolder + "positions.txt"))
+            {
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Reading positions.txt for {regionID}");
+                readingTextFile = File.ReadAllLines(sceneFolder + "positions.txt");
+
+                int num2 = 0;
+                while (num2 < readingTextFile.Length && num2 < self.depthIllustrations.Count)
+                {
+                    self.depthIllustrations[num2].pos.x = float.Parse(Regex.Split(readingTextFile[num2], ", ")[0]);
+                    self.depthIllustrations[num2].pos.y = float.Parse(Regex.Split(readingTextFile[num2], ", ")[1]);
+                    self.depthIllustrations[num2].lastPos = self.depthIllustrations[num2].pos;
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Position file Number [{num2 + 1}] position loaded [{self.depthIllustrations[num2].pos}]");
+                    num2++;
+                }
+            }
+            if (File.Exists(sceneFolder + "depths.txt"))
+            {
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Reading depths.txt for {regionID}");
+                readingTextFile = File.ReadAllLines(sceneFolder + "depths.txt");
+
+                int num2 = 0;
+                while (num2 < readingTextFile.Length && num2 < self.depthIllustrations.Count)
+                {
+                    self.depthIllustrations[num2].depth = float.Parse(readingTextFile[num2]);
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Depths file Number [{num2 + 1}] position loaded [{self.depthIllustrations[num2].depth}]");
+                    num2++;
+                }
             }
         }
 
