@@ -1,6 +1,6 @@
 # [BETA] Custom-Regions
 
-## Load multiple regions at the same time from custom folder.
+## Lets you install region mods without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms.
 
 *disclaimer* this mod is in development so it has bugs!
 
