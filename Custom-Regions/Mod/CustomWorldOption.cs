@@ -23,11 +23,12 @@ namespace CustomRegions.Mod
         public override void Initialize()
         {
             base.Initialize();
-            Tabs = new OpTab[1];
+            Tabs = new OpTab[2];
             Tabs[0] = new OpTab("Main Tab");
+            Tabs[1] = new OpTab("Analyse");
             mainTab(0);
+            analyseTab(1);
         }
-        
 
         public override void Update(float dt)
         {
@@ -39,21 +40,20 @@ namespace CustomRegions.Mod
             base.ConfigOnChange();
         }
 
-        //TODO: add configuration for Config Machine
         public void mainTab(int tab)
         {
 
             //MOD DESCRIPTION
             OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), mod.ModID.ToUpper(), FLabelAlignment.Center, true);
-            Tabs[0].AddItems(labelID);
+            Tabs[tab].AddItems(labelID);
             OpLabel labelDsc = new OpLabel(new Vector2(100f, 525), new Vector2(400f, 20f), "Support for custom regions.", FLabelAlignment.Center, false);
-            Tabs[0].AddItems(labelDsc);
+            Tabs[tab].AddItems(labelDsc);
 
             //VERSION AND AUTHOR
             OpLabel labelVersion = new OpLabel(new Vector2(420, 550), new Vector2(200f, 20f), "Version: " + mod.Version, FLabelAlignment.Left, false);
-            Tabs[0].AddItems(labelVersion);
+            Tabs[tab].AddItems(labelVersion);
             OpLabel labelAuthor = new OpLabel(new Vector2(270, 545), new Vector2(60, 20f), "by Garrakx", FLabelAlignment.Right, false);
-            Tabs[0].AddItems(labelAuthor);
+            Tabs[tab].AddItems(labelAuthor);
 
             //How Many Options
             int numberOfOptions = CustomWorldMod.availableRegions.Count;
@@ -61,10 +61,78 @@ namespace CustomRegions.Mod
             if (numberOfOptions < 1)
             {
                 OpLabel label2 = new OpLabel(new Vector2(100f, 600), new Vector2(400f, 20f), "No regions available.", FLabelAlignment.Center, false);
-                Tabs[0].AddItems(labelDsc);
+                Tabs[tab].AddItems(labelDsc);
                 return;
             }
 
+            /*int cumulativeScrollSize = 0;
+            string labelCheck = "";
+            string labelDescri = "";*/
+            //int rectSizeY
+            //cumulativeScrollSize += (int)rectSize.y;
+
+            int spacing = 30;
+
+            Vector2 rectPos = new Vector2(spacing+5, spacing);
+            Vector2 rectSize = new Vector2(500, 75);
+            Vector2 labelSize = new Vector2(275, 27);
+            Vector2 descripSize = new Vector2(rectSize.x, 35);
+
+
+            OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 20), new Vector2(575, 500), spacing + ((rectSize.y + spacing) * numberOfOptions));
+            Tabs[tab].AddItems(mainScroll);
+
+            for (int i = numberOfOptions - 1; i >= 0; i--)
+            {
+                bool activated = CustomWorldMod.availableRegions.ElementAt(i).Value.activated;
+                Color colorEnabled = activated ? new Color((206f / 255f), 1f, (206f / 255f)) : new Color((108f / 255f), 0.001f, 0.001f);
+
+                OpRect rectOption = new OpRect(rectPos, rectSize, 0.3f)
+                {
+                    doesBump = activated,
+                    colorEdge = colorEnabled//new Color((206f / 255f), 1f, (206f / 255f))
+
+                };
+                if (!activated)
+                {
+                    rectOption.colorEdge = colorEnabled;//new Color((108f / 255f), 0.001f, 0.001f);
+                }
+                //Tabs[tab].AddItems(rectOption);
+                mainScroll.AddItems(rectOption);
+
+
+                OpLabel labelBox = new OpLabel(rectPos + new Vector2(20, rectSize.y * 0.30f), labelSize, "", FLabelAlignment.Left)
+                {
+                    text = CustomWorldMod.availableRegions.ElementAt(i).Value.regionName + ": ",
+                    color = colorEnabled// new Color((108f / 255f), 0.001f, 0.001f)
+                };
+                Debug.Log(labelBox.text);
+                //Tabs[tab].AddItems(labelBox);
+                mainScroll.AddItems(labelBox);
+
+                OpLabel orderLabel = new OpLabel(rectPos + new Vector2(10, rectSize.y * 0.30f), labelSize, "", FLabelAlignment.Left)
+                {
+                    text = (i+1).ToString()
+                };
+                mainScroll.AddItems(orderLabel);
+
+                descripSize.x = rectSize.x - labelBox.text.Length * 7f;
+                OpLabel labelDesc = new OpLabel(rectPos + new Vector2(20 + labelBox.text.Length * 7f, rectSize.y * 0.30f), descripSize, "", FLabelAlignment.Left)
+                {
+                    autoWrap = true,
+                    text = CustomWorldMod.availableRegions.ElementAt(i).Value.description,
+                    color = colorEnabled//new Color((108f / 255f), 0.001f, 0.001f)
+                };
+                //Tabs[tab].AddItems(labelDesc);
+                mainScroll.AddItems(labelDesc);
+
+                rectPos.y += rectSize.y + spacing;
+                //rectPos.y -= Mathf.Min((spacing / (numberOfOptions)), 150);
+            }
+
+            
+            
+            /*
             //string keyCheckBox = "";
             string labelCheck = "";
             string labelDescri = "";
@@ -100,11 +168,6 @@ namespace CustomRegions.Mod
                 }
                 Tabs[tab].AddItems(rectOption);
 
-                /*OpCheckBox checkBox = new OpCheckBox(rectPos + new Vector2(22, rectSizeY * 0.25f), keyCheckBox, activated); 
-                checkBox.greyedOut = true;
-                checkBox.colorEdge = Color.white;
-
-                Tabs[tab].AddItems(checkBox);*/
 
 
                 OpLabel labelBox = new OpLabel(rectPos + new Vector2(20, rectSizeY * 0.25f), labelSize, "", FLabelAlignment.Left);
@@ -123,7 +186,30 @@ namespace CustomRegions.Mod
                 rectPos.y -= Mathf.Min((spacing / (numberOfOptions)), 100);
                 //rectPos.y -= (100 + spacing); //* i;
             }
+            */
+        }
 
+        private void analyseInstallaionTab(int v)
+        {
+            OpLabel errorLabel = new OpLabel(new Vector2(10, 500), new Vector2(200, 20), "", FLabelAlignment.Left)
+            {
+                text = CustomWorldMod.analyzingLog,
+                autoWrap = true
+            };
+
+            if (errorLabel.text.Equals(string.Empty))
+            {
+                errorLabel.text = "After running loading the game once, any problems will show here.";
+            }
+
+            Tabs[v].AddItems(errorLabel);
+        }
+
+        private void AnalyseSaveTab(int v)
+        {
+            //OpLabel corruptedSave = OpLabel
+
+            string corruptedSave = "[Saveslot 1 is corrupted] / Reason: Missing region / checksum failed";
         }
     }
 }

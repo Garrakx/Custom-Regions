@@ -251,6 +251,9 @@ namespace CustomRegions
         {
             List<string> lines = new List<string>();
 
+            // Reset
+            CustomWorldMod.analyzingLog = string.Empty;
+
             // Bool indicates whether it is vanilla or not
             List<CustomWorldMod.WorldDataLine> ROOMS = new List<CustomWorldMod.WorldDataLine>();
             List<CustomWorldMod.WorldDataLine> CREATURES = new List<CustomWorldMod.WorldDataLine>();

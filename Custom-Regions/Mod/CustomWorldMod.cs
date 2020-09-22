@@ -50,7 +50,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 18;
+        public int version = 19;
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
@@ -174,6 +174,9 @@ namespace CustomRegions.Mod
                 this.connectedDens = null;
             }
         }
+
+        // Used for config screen
+        public static string analyzingLog;
 
         /// <summary>
         /// Providing an array with vanilla region IDs, returns this array but with the new regionsID added from the CustomWorldMod.lodadedRegions dictionary.
@@ -310,7 +313,7 @@ namespace CustomRegions.Mod
                     isRoomBeingReplaced = true;
                 }
 
-                else // Only merge if it is between to mods
+                else // Only merge if it is between two mods
                 {
                     for (int j = 0; j < newConnections.Count; j++)
                     {
@@ -354,23 +357,21 @@ namespace CustomRegions.Mod
                 CustomWorldMod.CustomWorldLog($"Custom Regions: Analized room [{roomConnectionsToBeReplaced}]. Vanilla [{isVanilla}]. NewRoomConnections [{string.Join(", ", newConnections.ToArray())}]. IsBeingReplaced [{isRoomBeingReplaced}]. No Empty Pipes [{noDisconnectedPipes}]");
 
                 // No empty pipes but room needs to be replaced. Whole line will be replaced
-                if (isRoomBeingReplaced && noDisconnectedPipes)
+                if (isVanilla)
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Comparing two rooms without disconnected pipes. [{roomConnectionsToBeReplaced}] is vanilla: [{isVanilla}]. with [{string.Join(", ", newConnections.ToArray())}]");
-                    if (/*newConnections.Count > oldConnections.Count ||*/ isVanilla)
+                    if (isRoomBeingReplaced && noDisconnectedPipes)
                     {
+                        CustomWorldMod.CustomWorldLog($"Custom Regions: Comparing two rooms without disconnected pipes. [{roomConnectionsToBeReplaced}] is vanilla: [{isVanilla}]. with [{string.Join(", ", newConnections.ToArray())}]");
                         oldConnections = newConnections;
                         performedOperation = true;
                     }
-                    else
-                    {
-                        CustomWorldMod.CustomWorldLog($"Custom Regions: ERROR! Found incompatible room [{roomToBeReplacedName} : {string.Join(", ", newConnections.ToArray())}] from [{modID}] and [{roomConnectionsToBeReplaced}] from [{oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}]");
-                    }
-
-                    /* if (oldConnections.Contains(roomConnectionsToBeReplaced))
-                     {
-                         CustomWorldMod.CustomWorldLog($"Custom Regions: Connections has conflict still. [{string.Join(", ", oldConnections.ToArray())}]");
-                     }*/
+                }
+                else
+                {
+                    string errorLog = $"Custom Regions: ERROR! Found incompatible room [{roomToBeReplacedName} : {string.Join(", ", newConnections.ToArray())}] from [{modID}] and [{roomConnectionsToBeReplaced}] from [{oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}]. Missing compatibility patch?";
+                    analyzingLog += errorLog + "\n";
+                    CustomWorldMod.CustomWorldLog(errorLog);
+                    UnityEngine.Debug.LogError($"Found two incompatible region mods: {modID} <-> {oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}");
                 }
 
                 // A merging / replacement got place, so add changes to world lines.

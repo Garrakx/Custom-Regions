@@ -21,6 +21,9 @@ namespace CustomRegions.Mod
 
             CustomWorldMod.loadedRegions = CustomWorldMod.BuildModRegionsDictionary();
 
+            // Load from file
+            CustomWorldMod.analyzingLog = string.Empty;
+
             //-----
             // Debug
             string dictionaryString = "Custom Regions: Loading \n{";
