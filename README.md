@@ -80,18 +80,19 @@ ERROR! #Found incompatible room [SB_J01 : SB_Q01, SB_E02, SB_G03, SB_C07] from [
 * You can include as many layers as you want for the region art.
 * You will probably to adjust the positions of the region art again.
 * This mod should be compatible with almost anything. If you find any incompabilities contact me.
-* *How to delete a vanilla connection*
 <details>
- <summary>Click to expand!</summary>
+  <summary> How to delete a vanilla connection</summary>
+
 If the vanilla world_XX.txt looks like:
 ```
 	A: C, B, D
 ```
-	And you want to delete a connection, you must put in your modded world_XX.txt file the following:
-	```
+you want to delete a connection, you must put in your modded world_XX.txt file the following:
+```
 	A: DISCONNECTED, B, D
-	```
+```
 </details>
+
 
 ### <a name="index7"></a>Known issues
 * Due to Rain World savefile system, you need to clear you save slot if you uninstall / install new regions.
