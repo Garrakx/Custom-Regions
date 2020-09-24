@@ -92,7 +92,35 @@ you want to delete a connection, you must put in your modded world_XX.txt file t
 	A: DISCONNECTED, B, D
 ```
 </details>
+* HOW TO ADD COMPATIBILITY BETWEEN TWO REGION MODS THAT MODIFY THE SAME ROOM
+1) Create a region mod that it is loaded first and modifies a vanilla room by adding new connections:
 
+how the *whole* world_HI.txt from the region NewPipes looks (you only need these lines)
+```
+ROOMS
+HI_A07 : HI_A14, DISCONNECTED, DISCONNECTED, HI_B04, HI_C02
+END ROOMS
+```
+*note* You might have to move around the DISCONNECTED to make sure the vanilla rooms maintains the same layout.
+
+2) Create another region that connects to the vanilla room, but loads after NewPipes
+
+how the *whole* world_HI.txt from the region ModA looks like
+```
+ROOMS
+HI_A07 : HI_A14, HI_B04, HI_C02, HI_MODA, DISCONNECTED
+HI_MODA : HI_A07
+END ROOMS
+```
+3) Create another region that connects to the vanilla room, but loads after NewPipes
+how the *whole* world_HI.txt from the region ModB looks like
+```
+ROOMS
+HI_A07 : HI_A14, HI_B04, HI_C02, DISCONNECTED, HI_MODB
+HI_MODB : HI_A07
+END ROOMS
+```
+![Compatibility patch](https://cdn.discordapp.com/attachments/481900360324218880/758592126786863154/ezgif.com-optimize_1.gif)
 
 ### <a name="index7"></a>Known issues
 * Due to Rain World savefile system, you need to clear you save slot if you uninstall / install new regions.
