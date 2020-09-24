@@ -5,7 +5,9 @@
 
 #### # *disclaimer* this mod is in development so it has bugs! 
 ![Custom Regions!](http://www.raindb.net/previews/customregion.png?raw=true)
-![Russian guide here]()
+
+[Russian guide here<img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="40"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-RU.md)
+
 
 ### Index
 * [Installing Custom Regions Mod](#index1)
