@@ -5,6 +5,8 @@
 
 #### # *disclaimer* this mod is in development so it has bugs! 
 ![Custom Regions!](http://www.raindb.net/previews/customregion.png?raw=true)
+![Russian guide here]()
+
 ### Index
 * [Installing Custom Regions Mod](#index1)
 * [Installing a new Region](#index2)
