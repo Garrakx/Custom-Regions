@@ -81,6 +81,7 @@ ERROR! #Found incompatible room [SB_J01 : SB_Q01, SB_E02, SB_G03, SB_C07] from [
 ```
 * To create the folder structure for you region, just follow the Vanilla structure and create the mod as if you would install it merging files. **Important** If you want to delete a vanilla connection, you must put "DISCONNECTED". (See below for more info)
 * Apart from the "`positions.txt`" file for the Region Art, you will need to include a "`depths.txt`" to position the depth of your art. Follows the same order as "`positions.txt`".
+* Example of a region that adds a single room to HI (made by LeeMoriya). [Click here](https://discordapp.com/channels/291184728944410624/431534164932689921/759459475328860160)
 * You can include as many layers as you want for the region art.
 * You will probably to adjust the positions of the region art again.
 * This mod should be compatible with almost anything. If you find any incompabilities contact me.
