@@ -23,11 +23,13 @@ namespace CustomRegions.Mod
         public override void Initialize()
         {
             base.Initialize();
-            Tabs = new OpTab[2];
+            Tabs = new OpTab[3];
             Tabs[0] = new OpTab("Main Tab");
-            Tabs[1] = new OpTab("Analyse");
+            Tabs[1] = new OpTab("Installation");
+            Tabs[2] = new OpTab("SaveSlot");
             mainTab(0);
-            analyseTab(1);
+            analyseInstallationTab(1);
+            AnalyseSaveTab(2);
         }
 
         public override void Update(float dt)
@@ -79,7 +81,7 @@ namespace CustomRegions.Mod
             Vector2 descripSize = new Vector2(rectSize.x, 35);
 
 
-            OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 20), new Vector2(575, 500), spacing + ((rectSize.y + spacing) * numberOfOptions));
+            OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 20), new Vector2(575, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfOptions)));
             Tabs[tab].AddItems(mainScroll);
 
             for (int i = numberOfOptions - 1; i >= 0; i--)
@@ -112,11 +114,11 @@ namespace CustomRegions.Mod
 
                 OpLabel orderLabel = new OpLabel(rectPos + new Vector2(10, rectSize.y * 0.30f), labelSize, "", FLabelAlignment.Left)
                 {
-                    text = (i+1).ToString()
+                    text = (i + 1).ToString()
                 };
                 mainScroll.AddItems(orderLabel);
 
-                descripSize.x = rectSize.x - labelBox.text.Length * 7f;
+                descripSize.x = rectSize.x - labelBox.text.Length * 7f - 2f;
                 OpLabel labelDesc = new OpLabel(rectPos + new Vector2(20 + labelBox.text.Length * 7f, rectSize.y * 0.30f), descripSize, "", FLabelAlignment.Left)
                 {
                     autoWrap = true,
@@ -189,12 +191,14 @@ namespace CustomRegions.Mod
             */
         }
 
-        private void analyseInstallaionTab(int v)
+        private void analyseInstallationTab(int v)
         {
-            OpLabel errorLabel = new OpLabel(new Vector2(10, 500), new Vector2(200, 20), "", FLabelAlignment.Left)
+            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), "Analyze installation", FLabelAlignment.Center, true);
+            Tabs[v].AddItems(labelID);
+
+            OpLabel errorLabel = new OpLabelLong(new Vector2(10, 500), new Vector2(600, 20), "", true, FLabelAlignment.Left)
             {
-                text = CustomWorldMod.analyzingLog,
-                autoWrap = true
+                text = CustomWorldMod.analyzingLog
             };
 
             if (errorLabel.text.Equals(string.Empty))
@@ -202,14 +206,18 @@ namespace CustomRegions.Mod
                 errorLabel.text = "After running loading the game once, any problems will show here.";
             }
 
-            Tabs[v].AddItems(errorLabel);
+            Tabs[v].AddItems(errorLabel); 
         }
 
         private void AnalyseSaveTab(int v)
         {
-            //OpLabel corruptedSave = OpLabel
+            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), "Analyze Save Slot", FLabelAlignment.Center, true);
+            Tabs[v].AddItems(labelID);
 
-            string corruptedSave = "[Saveslot 1 is corrupted] / Reason: Missing region / checksum failed";
+            OpLabel corruptedSave = new OpLabel(new Vector2(10, 500), new Vector2(200, 20), "Coming soon...", FLabelAlignment.Left);
+            Tabs[v].AddItems(corruptedSave);
+
+            //string corruptedSave = "[Saveslot 1 is corrupted] / Reason: Missing region / checksum failed";
         }
     }
 }

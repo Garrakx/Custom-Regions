@@ -1,0 +1,112 @@
+﻿using CustomRegions.Mod;
+using Partiality;
+using Partiality.Modloader;
+using RWCustom;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using UnityEngine;
+
+namespace CustomRegions
+{
+    static class MusicPieceHook
+    {
+        public static void ApplyHooks()
+        {
+            On.Music.MusicPiece.SubTrack.Update += SubTrack_Update;
+
+
+            // Only needed if you don't have CustomAssets
+			//On.Music.MusicPiece.Update += MusicPiece_Update;
+        }
+
+
+		
+		private static void MusicPiece_Update(On.Music.MusicPiece.orig_Update orig, Music.MusicPiece self)
+		{
+			AudioSource audioSource = null;
+			for (int i = 0; i < self.subTracks.Count; i++)
+			{
+				//this.subTracks[i].Update();
+				if (self.IsProcedural)
+				{
+					if (audioSource == null && self.subTracks[i].source.isPlaying)
+					{
+						audioSource = self.subTracks[i].source;
+					}
+					else if (audioSource != null && self.subTracks[i].source.isPlaying && Math.Abs(audioSource.timeSamples - self.subTracks[i].source.timeSamples) >= audioSource.clip.frequency / 4)
+					{
+						self.subTracks[i].source.timeSamples = audioSource.timeSamples;
+					}
+				}
+			}
+
+			orig(self);
+
+		}
+		
+
+
+		private static void SubTrack_Update(On.Music.MusicPiece.SubTrack.orig_Update orig, Music.MusicPiece.SubTrack self)
+        {
+            if (!self.readyToPlay)
+			{
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                {
+                    if (self.source.clip == null)
+                    {
+                        //string dataPath = Application.dataPath;
+                        //string dataPath2 = Application.dataPath;
+
+                        string dataPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+
+                        if (!self.piece.IsProcedural)
+                        {
+                            string text = dataPath.Substring(0, dataPath.LastIndexOf("/")) + "/Assets/Futile/Resources/Music/Songs/" + self.trackName + ".ogg";
+                            if (File.Exists(text))
+                            {
+                                CustomWorldMod.CustomWorldLog($"Loaded track [{self.trackName}] from [{keyValues.Value}]");
+                                WWW www = new WWW("file://" + text);
+                                self.source.clip = www.GetAudioClip(false, true, AudioType.OGGVORBIS);
+                            }
+                            else
+                            {
+                                self.source.clip = (Resources.Load("Music/Songs/" + self.trackName, typeof(AudioClip)) as AudioClip);
+                            }
+                        }
+                        else
+                        {
+                            string text2 = dataPath.Substring(0, dataPath.LastIndexOf("/")) + "/Assets/Futile/Resources/Music/Procedural/" + self.trackName + ".ogg";
+                            if (File.Exists(text2))
+                            {
+                                CustomWorldMod.CustomWorldLog($"Loaded procedural track [{self.trackName}] from [{keyValues.Value}]");
+                                WWW www2 = new WWW("file://" + text2);
+                                self.source.clip = www2.GetAudioClip(false, true, AudioType.OGGVORBIS);
+                            }
+                            else
+                            {
+                                self.source.clip = (Resources.Load("Music/Procedural/" + self.trackName, typeof(AudioClip)) as AudioClip);
+                            }
+                        }
+                    }
+                    else if (!self.source.isPlaying && self.source.clip.isReadyToPlay)
+                    {
+                        self.readyToPlay = true;
+                        break;
+                    }
+                }
+            }
+
+			orig(self);
+			/*
+			if (this.piece.startedPlaying)
+			{
+				this.source.volume = Mathf.Pow(this.volume * this.piece.volume * this.piece.musicPlayer.manager.rainWorld.options.musicVolume, this.piece.musicPlayer.manager.soundLoader.volumeExponent);
+			}
+			*/
+            
+		}
+	}
+}

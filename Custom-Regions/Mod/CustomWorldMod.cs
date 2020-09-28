@@ -50,7 +50,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 19;
+        public int version = 22;
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
@@ -238,7 +238,7 @@ namespace CustomRegions.Mod
                         // The room is the same but different connections
                         roomConnectionsToBeReplaced = oldRoom.data;
 
-                        CustomWorldMod.CustomWorldLog($"Custom Regions: Found conflict [{roomConnectionsToBeReplaced}] with [{newRoom}]");
+                        CustomWorldMod.CustomWorldLog($"Custom Regions: Found conflict. Existing room[{roomConnectionsToBeReplaced}] with room to be added [{newRoom}]");
                     }
                 }
             }
@@ -247,7 +247,7 @@ namespace CustomRegions.Mod
             if (roomConnectionsToBeReplaced != string.Empty)
             {
 
-                CustomWorldMod.CustomWorldLog($"Custom Regions: Trying to merge {roomConnectionsToBeReplaced}");
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Trying to merge [{roomConnectionsToBeReplaced}]");
 
                 // Extract room name from line to be merged / replaced
                 string roomToBeReplacedName = roomConnectionsToBeReplaced.Substring(0, roomConnectionsToBeReplaced.IndexOf(" "));
@@ -330,12 +330,16 @@ namespace CustomRegions.Mod
                                 // The room to be merged has empty exits, so new mod will use those
                                 if (oldConnectionDisconnected && !newConnectionDisconnected)
                                 {
-                                    CustomWorldMod.CustomWorldLog($"Custom Regions: Replaced disconnected [{oldConnections[i]}] with [{newConnections[j]}]");
-                                    oldConnections[i] = newConnections[j];
-                                    noDisconnectedPipes = false;
-                                    performedOperation = true;
-                                    break;
+                                    if (!oldConnections.Contains(newConnections[j]))
+                                    {
+                                        CustomWorldMod.CustomWorldLog($"Custom Regions: Replaced disconnected [{oldConnections[i]}] with [{newConnections[j]}]");
+                                        oldConnections[i] = newConnections[j];
+                                        noDisconnectedPipes = false;
+                                        performedOperation = true;
+                                        break;
+                                    }
                                 }
+
                                 // If the room is Vanilla, mod can replace pipes with DISCONNECTED
                                 /*else if (isVanilla && newConnectionDisconnected)
                                 {
@@ -354,7 +358,13 @@ namespace CustomRegions.Mod
                     }
                 }
 
-                CustomWorldMod.CustomWorldLog($"Custom Regions: Analized room [{roomConnectionsToBeReplaced}]. Vanilla [{isVanilla}]. NewRoomConnections [{string.Join(", ", newConnections.ToArray())}]. IsBeingReplaced [{isRoomBeingReplaced}]. No Empty Pipes [{noDisconnectedPipes}]");
+
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Analized old room [{roomConnectionsToBeReplaced}]. Added by a mod? [{isVanilla}]. NewRoomConnections [{string.Join(", ", newConnections.ToArray())}]. IsBeingReplaced [{isRoomBeingReplaced}]. No Empty Pipes [{noDisconnectedPipes}]");
+
+                if (roomConnectionsToBeReplaced.ToUpper().Contains("DISCONNECTED") && roomConnectionsToBeReplaced.ToUpper().Contains("DISCONNECT"))
+                {
+                    noDisconnectedPipes = true;
+                }
 
                 // No empty pipes but room needs to be replaced. Whole line will be replaced
                 if (isVanilla)
@@ -366,12 +376,17 @@ namespace CustomRegions.Mod
                         performedOperation = true;
                     }
                 }
-                else
+                else if(!performedOperation)
                 {
-                    string errorLog = $"Custom Regions: ERROR! Found incompatible room [{roomToBeReplacedName} : {string.Join(", ", newConnections.ToArray())}] from [{modID}] and [{roomConnectionsToBeReplaced}] from [{oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}]. Missing compatibility patch?";
-                    analyzingLog += errorLog + "\n";
-                    CustomWorldMod.CustomWorldLog(errorLog);
-                    UnityEngine.Debug.LogError($"Found two incompatible region mods: {modID} <-> {oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}");
+
+                    if (noDisconnectedPipes/*!errorLog.ToUpper().Contains("DISCONNECTED") && !errorLog.ToUpper().Contains("DISCONNECT")*/) 
+                    {
+                        string errorLog = $"#Found possible incompatible room [{roomToBeReplacedName} : {string.Join(", ", newConnections.ToArray())}] from [{modID}] and [{roomConnectionsToBeReplaced}] from [{oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}]. \\n If [{roomConnectionsToBeReplaced}] is from the vanilla game everything is fine. Otherwise you might be missing compatibility patch.";
+                        analyzingLog += errorLog + "\n\n";
+                        CustomWorldMod.CustomWorldLog("Custom Regions: ERROR! " + errorLog);
+                        UnityEngine.Debug.LogError(errorLog);
+                        //UnityEngine.Debug.LogError($"Found two incompatible region mods: {modID} <-> {oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}");
+                    }
                 }
 
                 // A merging / replacement got place, so add changes to world lines.
@@ -770,12 +785,12 @@ namespace CustomRegions.Mod
 
 
         /// <summary>
-        /// Dictionary where the Key is the region ID and the value is the name.
+        /// Dictionary with activaed regions, where the Key is the region ID and the value is the name.
         /// </summary>
         public static Dictionary<string, string> loadedRegions;
 
         /// <summary>
-        /// Dictionary where the Key is the region ID and the value is a struct with its information.
+        /// Dictionary with all installed regions, where the Key is the region ID and the value is a struct with its information.
         /// </summary>
         public static Dictionary<string, RegionInformation> availableRegions;
 

@@ -247,6 +247,7 @@ namespace CustomRegions.CustomMenu
                 {
                     CustomWorldMod.CustomWorldLog($"Custom Regions: TitleSceneID {regionName}");
                     CustomWorldMod.sceneCustomID = regionName;
+                    break;
                 }
 
             }

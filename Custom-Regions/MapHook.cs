@@ -13,9 +13,6 @@ namespace CustomRegions
 {
     static class MapHook
     {
-        // This code comes from EasyModPack by topicular
-        // Adapted to work with any region by Garrakx
-
 
         public static void ApplyHook()
         {
@@ -54,6 +51,7 @@ namespace CustomRegions
                         {
                             CustomWorldMod.CustomWorldLog($"Custom Regions: Loading map texture {keyValues.Value} in {self.RegionName}");
                             self.www = new WWW("file:///" + test);
+                            break;
                         }
                     }
                 }
@@ -67,12 +65,13 @@ namespace CustomRegions
         /// </summary>
         private static void Map_LoadConnectionPositions(On.HUD.Map.orig_LoadConnectionPositions orig, HUD.Map self)
         {
+            //List<Map.OnMapConnection> backUpConnections = self.mapConnections;
 
-            bool customMap = false;
+            orig(self);
 
+            //self.mapConnections = new List<Map.OnMapConnection>();
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-               // CustomWorldMod.CustomWorldLog($"Custom Regions: Counting total rooms for {keyValues.Key} in {self.RegionName}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
                 string test = string.Concat(new object[]
                 {
@@ -90,7 +89,7 @@ namespace CustomRegions
                 });
                 if (File.Exists(test))
                 {
-                    customMap = true;
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loading map data from {keyValues.Key} in {self.RegionName}");
                     self.mapConnections = new List<Map.OnMapConnection>();
                     string[] array = File.ReadAllLines(test);
                     for (int i = 0; i < array.Length; i++)
@@ -123,13 +122,16 @@ namespace CustomRegions
                             }
                         }
                     }
+                    break;
                 }
             }
 
-            if (!customMap)
+            if (self.mapConnections == null)
             {
-                orig(self);
+                CustomWorldMod.CustomWorldLog($"ERROR! No map found for {self.RegionName}");
+
             }
+
         }
     }
 }

@@ -29,7 +29,8 @@ namespace CustomRegions.CustomMenu
         private static void MenuScene_Update(On.Menu.MenuScene.orig_Update orig, MenuScene self)
         {
             orig(self);
-            if(Input.GetKeyDown("r"))
+
+            if (Input.GetKeyDown("r"))
             {
                 string regionID = self.depthIllustrations[0].fileName.Substring(0, 2);
                 LoadScenePositionSettings(self, self.sceneFolder, regionID);
@@ -188,13 +189,14 @@ namespace CustomRegions.CustomMenu
                 {
                     string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
                     string sceneFolder = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources"+ Path.DirectorySeparatorChar + "Scenes" + Path.DirectorySeparatorChar + $"Landscape - {keyValues.Key}" + Path.DirectorySeparatorChar;
-                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Searching assets at {sceneFolder}");
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Searching assets at {sceneFolder}");
                     if (Directory.Exists(sceneFolder) && keyValues.Key.Equals(CustomWorldMod.sceneCustomID))
                     {
                         CustomWorldMod.CustomWorldLog($"Custom Regions: Found custom scene [{sceneFolder}]");
                         //notFound = false;
                         self.sceneFolder = sceneFolder;
                         BuildCustomRegionScene(self, keyValues.Key, sceneFolder);
+                        break;
                     }
                 }
 

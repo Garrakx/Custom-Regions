@@ -67,6 +67,9 @@ namespace CustomRegions.Mod
 
             SaveStateHook.ApplyHook();
 
+            // MusicPiece
+            MusicPieceHook.ApplyHooks();
+
         }
 
         public static CustomWorldMod mod;

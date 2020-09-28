@@ -154,10 +154,12 @@ namespace CustomRegions
                             texture.Apply(false);
                             break;
                         }
+                        /*
                         else
                         {
-                            CustomWorldMod.CustomWorldLog($"Custom Regions: ERROR !!! loading custom palette [{palettePath}]");
+                            CustomWorldMod.CustomWorldLog($"Custom Regions: ERROR when loading custom palette [{palettePath}]");
                         }
+                        */
                     }
                 }
 
