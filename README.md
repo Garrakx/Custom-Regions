@@ -22,7 +22,7 @@
 ### <a name="index1"></a>Installing the Custom Regions Mod
 1) Download and install the latest version of the Partiality Launcher from [RainDB's Tool section](http://www.raindb.net/)
 2) Download the latest CR release from [here](https://github.com/Garrakx/Custom-Regions/releases/)
-3) Apply **all** (`EnumExtender.dll, AutoUpdate.dll, CustomAssets.dll and CustomRegions.dll`) the mods inside the `[DOWNLOAD_THIS_Custom-Regions-vX.X.zip]` file. You will receive updates automatically.
+3) Apply **all** (`EnumExtender.dll, AutoUpdate.dll, CustomAssets.dll `(if you want custom music)` and CustomRegions.dll`) the mods inside the `[DOWNLOAD_THIS_Custom-Regions-vX.X.zip]` file. You will receive updates automatically.
 
 ### <a name="index2"></a>Installing a Region
 * ***Attention:** Most instructions from the modded regions are outdated. If you want to use Custom Regions Mod, you should follow these instructions.*
