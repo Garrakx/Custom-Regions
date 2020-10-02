@@ -48,7 +48,7 @@ namespace CustomRegions
 		}
 		
 
-
+        // COULD LOOK FIRST FOR VANILLA TO BE A LITTLE MORE EFFICIENT
 		private static void SubTrack_Update(On.Music.MusicPiece.SubTrack.orig_Update orig, Music.MusicPiece.SubTrack self)
         {
             if (!self.readyToPlay)
@@ -64,31 +64,47 @@ namespace CustomRegions
 
                         if (!self.piece.IsProcedural)
                         {
-                            string text = dataPath.Substring(0, dataPath.LastIndexOf("/")) + "/Assets/Futile/Resources/Music/Songs/" + self.trackName + ".ogg";
+                            string text = dataPath.Substring(0, dataPath.LastIndexOf
+                                (Path.DirectorySeparatorChar))
+                                + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar
+                                + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Songs" + Path.DirectorySeparatorChar
+                                + self.trackName + ".ogg";
+                            CustomWorldMod.CustomWorldLog($"Subtrack-path [{text}]");
                             if (File.Exists(text))
                             {
                                 CustomWorldMod.CustomWorldLog($"Loaded track [{self.trackName}] from [{keyValues.Value}]");
                                 WWW www = new WWW("file://" + text);
                                 self.source.clip = www.GetAudioClip(false, true, AudioType.OGGVORBIS);
+                                break;
                             }
+                                /*
                             else
                             {
                                 self.source.clip = (Resources.Load("Music/Songs/" + self.trackName, typeof(AudioClip)) as AudioClip);
                             }
+                            */
                         }
                         else
                         {
-                            string text2 = dataPath.Substring(0, dataPath.LastIndexOf("/")) + "/Assets/Futile/Resources/Music/Procedural/" + self.trackName + ".ogg";
+                            string text2 = dataPath.Substring(0, dataPath.LastIndexOf
+                                (Path.DirectorySeparatorChar))
+                                + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar
+                                + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Procedural" + Path.DirectorySeparatorChar
+                                + self.trackName + ".ogg";
+                            CustomWorldMod.CustomWorldLog($"Subtrack-path [{text2}]");
                             if (File.Exists(text2))
                             {
                                 CustomWorldMod.CustomWorldLog($"Loaded procedural track [{self.trackName}] from [{keyValues.Value}]");
                                 WWW www2 = new WWW("file://" + text2);
                                 self.source.clip = www2.GetAudioClip(false, true, AudioType.OGGVORBIS);
+                                    break;
                             }
+                            /*
                             else
                             {
                                 self.source.clip = (Resources.Load("Music/Procedural/" + self.trackName, typeof(AudioClip)) as AudioClip);
                             }
+                            */
                         }
                     }
                     else if (!self.source.isPlaying && self.source.clip.isReadyToPlay)

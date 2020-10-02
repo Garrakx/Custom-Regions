@@ -12,10 +12,6 @@ namespace CustomRegions
     static class RoomSettingsHook
     {
 
-        // This code comes from EasyModPack by topicular
-        // Adapted to work with any region by Garrakx
-
-
         public static void ApplyHook()
         {
             On.RoomSettings.Load += RoomSettings_Load;
@@ -48,7 +44,7 @@ namespace CustomRegions
                         if (File.Exists(newPath))
                         {
                             self.filePath = newPath;
-                            CustomWorldMod.CustomWorldLog($"Custom Regions: Found settings at [{newPath}]");
+                            //CustomWorldMod.CustomWorldLog($"Custom Regions: Found settings at [{newPath}]");
                             break;
                         }
 
@@ -59,10 +55,16 @@ namespace CustomRegions
             }
             else
             {
-                //CustomWorldMod.CustomWorldLog($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
+               // CustomWorldMod.CustomWorldLog($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
             }
-
-            orig(self, region);
+            try
+            {
+                orig(self, region);
+            } catch (Exception e)
+            {
+                CustomWorldMod.CustomWorldLog("Found illegal characters in a room settings file." + e);
+                throw e;
+            }
         }
 
         /// <summary>

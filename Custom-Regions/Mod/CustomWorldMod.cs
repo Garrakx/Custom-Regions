@@ -50,7 +50,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 22;
+        public int version = 23;
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";

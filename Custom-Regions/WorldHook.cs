@@ -2,6 +2,7 @@
 using RWCustom;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -69,37 +70,27 @@ namespace CustomRegions
         /// </summary>
         private static void World_LoadMapConfig(On.World.orig_LoadMapConfig orig, World self, int slugcatNumber)
         {
-            //if (!enabled) { orig.Invoke(world, slugcatNumber); return; }
-            //CustomWorldMod.CustomWorldLog("-- mapconfig as player: " + slugcatNumber);
 
-            orig(self, slugcatNumber);
-
+            bool loadedMapConfig = false;
+            bool loadedProperties = false;
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                CustomWorldMod.CustomWorldLog($"Custom Regions: Loading room configurations and properties for {keyValues.Key}");
-                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+
+                string pathToRegionFolder = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.name + Path.DirectorySeparatorChar;
+                string mapPath = pathToRegionFolder + "map_" + self.name + ".txt";
+                string propertyPath = pathToRegionFolder + "Properties.txt";
+                //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading room map_config and properties for {keyValues.Key}. Paths: \n {mapPath} \n {propertyPath}");
+
+
                 string[] array;
 
                 //Mapconfig
-                string text = string.Concat(new object[]
+                if (File.Exists(mapPath))
                 {
-                    Custom.RootFolderDirectory(),
-                    path.Replace('/', Path.DirectorySeparatorChar),
-                    "World",
-                    Path.DirectorySeparatorChar,
-                    "Regions",
-                    Path.DirectorySeparatorChar,
-                    self.name,
-                    Path.DirectorySeparatorChar,
-                    "map_",
-                    self.name,
-                    ".txt"
-                });
-
-                if (File.Exists(text))
-                {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loaded custom mapconfig for room {keyValues.Value} as player: {slugcatNumber}");
-                    array = File.ReadAllLines(text);
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loaded mapconfig for {self.name} from {keyValues.Value}");
+                    loadedMapConfig = true;
+                    array = File.ReadAllLines(mapPath);
                     for (int i = 0; i < array.Length; i++)
                     {
                         string[] array2 = Regex.Split(array[i], ": ");
@@ -125,116 +116,88 @@ namespace CustomRegions
                         }
                     }
                 }
-                /*
-                else
-                {
-                    // orig(self, slugcatNumber);
-                    // goto properties;
-                    
-                }
-                */
-
 
                 // Properties.
-                text = string.Concat(new object[]
+                if (File.Exists(propertyPath))
                 {
-                    Custom.RootFolderDirectory(),
-                    path.Replace('/', Path.DirectorySeparatorChar),
-                    "World",
-                    Path.DirectorySeparatorChar,
-                    "Regions",
-                    Path.DirectorySeparatorChar,
-                    self.name,
-                    Path.DirectorySeparatorChar,
-                    "Properties.txt"
-                });
-
-                if (!File.Exists(text))
-                {
-                    text = string.Concat(new object[]
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loaded properties for {self.name} from {keyValues.Value}");
+                    loadedProperties = true;
+                    array = File.ReadAllLines(propertyPath);
+                    for (int k = 0; k < array.Length; k++)
                     {
-                    Custom.RootFolderDirectory(),
-                    "World",
-                    Path.DirectorySeparatorChar,
-                    "Regions",
-                    Path.DirectorySeparatorChar,
-                    self.name,
-                    Path.DirectorySeparatorChar,
-                    "Properties.txt"
-                    });
-
-                    if (!File.Exists(text))
-                    {
-                        return;
-                    }
-                }
-
-                //CustomWorldMod.CustomWorldLog($"Custom Regions: Loaded custom properties for room {keyValues.Value} as player: {slugcatNumber}");
-                array = File.ReadAllLines(text);
-                for (int k = 0; k < array.Length; k++)
-                {
-                    string[] array3 = Regex.Split(array[k], ": ");
-                    if (array3.Length == 3)
-                    {
-                        if (array3[0] == "Room_Attr")
+                        string[] array3 = Regex.Split(array[k], ": ");
+                        if (array3.Length == 3)
                         {
-                            for (int l = 0; l < self.NumberOfRooms; l++)
+                            if (array3[0] == "Room_Attr")
                             {
-                                if (self.abstractRooms[l].name == array3[1])
+                                for (int l = 0; l < self.NumberOfRooms; l++)
                                 {
-                                    string[] array4 = Regex.Split(array3[2], ",");
-                                    for (int m = 0; m < array4.Length; m++)
+                                    if (self.abstractRooms[l].name == array3[1])
                                     {
-                                        if (array4[m] != string.Empty)
+                                        string[] array4 = Regex.Split(array3[2], ",");
+                                        for (int m = 0; m < array4.Length; m++)
                                         {
-                                            string[] array5 = Regex.Split(array4[m], "-");
-                                            self.abstractRooms[l].roomAttractions[(int)Custom.ParseEnum<CreatureTemplate.Type>(array5[0])] = Custom.ParseEnum<AbstractRoom.CreatureRoomAttraction>(array5[1]);
+                                            if (array4[m] != string.Empty)
+                                            {
+                                                string[] array5 = Regex.Split(array4[m], "-");
+                                                self.abstractRooms[l].roomAttractions[(int)Custom.ParseEnum<CreatureTemplate.Type>(array5[0])] = Custom.ParseEnum<AbstractRoom.CreatureRoomAttraction>(array5[1]);
+                                            }
                                         }
+                                        break;
                                     }
-                                    break;
                                 }
                             }
-                        }
-                        else if (array3[0] == "Broken Shelters" && slugcatNumber == int.Parse(array3[1]))
-                        {
-                            string[] array4 = Regex.Split(array3[2], ", ");
-                            for (int n = 0; n < array4.Length; n++)
+                            else if (array3[0] == "Broken Shelters" && slugcatNumber == int.Parse(array3[1]))
                             {
-                                if (self.GetAbstractRoom(array4[n]) != null && self.GetAbstractRoom(array4[n]).shelter)
+                                string[] array4 = Regex.Split(array3[2], ", ");
+                                for (int n = 0; n < array4.Length; n++)
                                 {
-                                    CustomWorldMod.CustomWorldLog(string.Concat(new object[]
+                                    if (self.GetAbstractRoom(array4[n]) != null && self.GetAbstractRoom(array4[n]).shelter)
                                     {
-                                "--slugcat ",
-                                slugcatNumber,
-                                " has a broken shelter at : ",
-                                array4[n],
-                                " (shelter index ",
-                                self.GetAbstractRoom(array4[n]).shelterIndex,
-                                ")"
-                                    }));
-                                    self.brokenShelters[self.GetAbstractRoom(array4[n]).shelterIndex] = true;
+                                        CustomWorldMod.CustomWorldLog(string.Concat(new object[]
+                                        {
+                                            "--slugcat ",
+                                            slugcatNumber,
+                                            " has a broken shelter at : ",
+                                            array4[n],
+                                            " (shelter index ",
+                                            self.GetAbstractRoom(array4[n]).shelterIndex,
+                                            ")"
+                                        }));
+                                        self.brokenShelters[self.GetAbstractRoom(array4[n]).shelterIndex] = true;
+                                    }
                                 }
                             }
                         }
                     }
                 }
 
-                Vector2 b = new Vector2(float.MaxValue, float.MaxValue);
-                for (int num = 0; num < self.NumberOfRooms; num++)
+                if (loadedMapConfig)
                 {
-                    if (self.abstractRooms[num].mapPos.x - (float)self.abstractRooms[num].size.x * 3f * 0.5f < b.x)
+                    Vector2 b = new Vector2(float.MaxValue, float.MaxValue);
+                    for (int num = 0; num < self.NumberOfRooms; num++)
                     {
-                        b.x = self.abstractRooms[num].mapPos.x - (float)self.abstractRooms[num].size.x * 3f * 0.5f;
+                        if (self.abstractRooms[num].mapPos.x - (float)self.abstractRooms[num].size.x * 3f * 0.5f < b.x)
+                        {
+                            b.x = self.abstractRooms[num].mapPos.x - (float)self.abstractRooms[num].size.x * 3f * 0.5f;
+                        }
+                        if (self.abstractRooms[num].mapPos.y - (float)self.abstractRooms[num].size.y * 3f * 0.5f < b.y)
+                        {
+                            b.y = self.abstractRooms[num].mapPos.y - (float)self.abstractRooms[num].size.y * 3f * 0.5f;
+                        }
                     }
-                    if (self.abstractRooms[num].mapPos.y - (float)self.abstractRooms[num].size.y * 3f * 0.5f < b.y)
+                    for (int num2 = 0; num2 < self.NumberOfRooms; num2++)
                     {
-                        b.y = self.abstractRooms[num].mapPos.y - (float)self.abstractRooms[num].size.y * 3f * 0.5f;
+                        self.abstractRooms[num2].mapPos -= b;
                     }
+                    break;
                 }
-                for (int num2 = 0; num2 < self.NumberOfRooms; num2++)
-                {
-                    self.abstractRooms[num2].mapPos -= b;
-                }
+            }
+
+            // YOU MUST INCLUDE BOTH PROPERTIES AND MAP CONFIG TO MAKE CHANGES TO VANILLA
+            if (!loadedMapConfig || !loadedProperties)
+            {
+                orig(self, slugcatNumber);
             }
         }
     }

@@ -164,6 +164,7 @@ namespace CustomRegions
                 if (!singleRoomWorld)
                 {
                     self.simulateUpdateTicks = 100;
+                    CustomWorldMod.CustomWorldLog("World loader ctor...");
                     self.lines = getWorldLines(self);
                 }
                 self.NextActivity();
@@ -458,9 +459,9 @@ namespace CustomRegions
                 {
                     CustomWorldMod.CustomWorldLog("Custom Regions: World was null, creating new lines");
                     self.lines = new List<string>();
+                    self.lines = getWorldLines(self);
                 }
 
-                self.lines = getWorldLines(self);
             }
             else
             {
