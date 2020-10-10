@@ -16,7 +16,7 @@
 ### <a name="index1"></a>Установка мода
 1) Скачайте и установите последнюю версию Partiality Launcher из [раздела "Инструменты" RainDB's](http://www.raindb.net/)
 2) Скачайте последнюю версию CR [отсюда](https://github.com/Garrakx/Custom-Regions/releases/)
-3) Применить **ВСЕ** (`EnumExtender.dll, AutoUpdate.dll, CustomAssets.dll и CustomRegions.dll`) моды из архива `[DOWNLOAD_THIS_Custom-Regions-vX.X.zip]`. Обновления будут устанавливаться автоматически.
+3) Применить **ВСЕ** (`EnumExtender.dll, CustomAssets.dll и CustomRegions.dll`) моды из архива `[DOWNLOAD_THIS_Custom-Regions-vX.X.zip]`. Обновления будут устанавливаться автоматически.
 
 ### <a name="index2"></a>Установка новых регионов
 * ***Внимание:** Большая часть инструкций, поставляемых с файлами регионов, устарела. Для использования данного мода следуйте дальнейшим указаниям из этого файла.*
