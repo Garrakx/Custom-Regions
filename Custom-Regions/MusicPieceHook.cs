@@ -65,8 +65,8 @@ namespace CustomRegions
                         if (!self.piece.IsProcedural)
                         {
                             string text = dataPath.Substring(0, dataPath.LastIndexOf
-                                (Path.DirectorySeparatorChar))
-                                + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar
+                                (Path.DirectorySeparatorChar)) + Path.DirectorySeparatorChar
+                                 + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar
                                 + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Songs" + Path.DirectorySeparatorChar
                                 + self.trackName + ".ogg";
                             CustomWorldMod.CustomWorldLog($"Subtrack-path [{text}]");
@@ -87,7 +87,7 @@ namespace CustomRegions
                         else
                         {
                             string text2 = dataPath.Substring(0, dataPath.LastIndexOf
-                                (Path.DirectorySeparatorChar))
+                                (Path.DirectorySeparatorChar)) + Path.DirectorySeparatorChar 
                                 + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar
                                 + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Procedural" + Path.DirectorySeparatorChar
                                 + self.trackName + ".ogg";

@@ -46,7 +46,7 @@ namespace CustomRegions
             }
             catch (Exception e)
             {
-                CustomWorldMod.CustomWorldLog("Custom Regions: ERROR!");
+                CustomWorldMod.CustomWorldLog("Custom Regions: ERROR!" + e);
             }
 
             /*

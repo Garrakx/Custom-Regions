@@ -15,25 +15,12 @@ namespace CustomRegions.Mod
             CustomWorldMod.script = this;
 
             CustomWorldMod.CreateCustomWorldLog();
-            CustomWorldMod.CreateCustomResourceFolder();
+            CustomWorldMod.CreateCustomWorldFolders();
 
-            CustomWorldMod.LoadAvailableRegions();
-
-            CustomWorldMod.loadedRegions = CustomWorldMod.BuildModRegionsDictionary();
+            CustomWorldMod.LoadCustomWorldResources();
 
             // Load from file
             CustomWorldMod.analyzingLog = string.Empty;
-
-            //-----
-            // Debug
-            string dictionaryString = "Custom Regions: Loading \n{";
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
-            {
-                dictionaryString += keyValues.Key + " : " + keyValues.Value + ", ";
-            }
-            CustomWorldMod.CustomWorldLog(dictionaryString.TrimEnd(',', ' ') + "}");
-            CustomWorldMod.CustomWorldLog(dictionaryString.TrimEnd(',', ' ') + "}");
-            //-----
 
             MapHook.ApplyHook();
             RegionGateHook.ApplyHooks();
@@ -43,6 +30,9 @@ namespace CustomRegions.Mod
             WorldLoaderHook.ApplyHooks();
             OverWorldHook.ApplyHooks();
             PlayerProgressionHook.ApplyHooks();
+
+            // Rain wolrd instance
+            RainWorldHook.ApplyHooks();
 
             // Custom Palette
             RoomCameraHook.ApplyHook();
@@ -78,6 +68,8 @@ namespace CustomRegions.Mod
         public static ProcessManager pm;
 
         
+
+
         public void Update()
         {
             if (rw == null)

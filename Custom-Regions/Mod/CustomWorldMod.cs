@@ -9,6 +9,8 @@ using System.Security;
 using System.Runtime.CompilerServices;
 using System.Security.Permissions;
 using System.Linq;
+using On.ScavTradeInstruction;
+using Partiality;
 
 
 // Delete Publicity Stunt requirement by pastebee
@@ -50,7 +52,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 23;
+        public int version = 26;
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
@@ -81,6 +83,70 @@ namespace CustomRegions.Mod
         {
 
         }
+
+
+        /// <summary>
+        /// Holds the value of the sceneID in use.
+        /// </summary>
+        public static string sceneCustomID = string.Empty;
+
+
+        /// <summary>
+        /// Returns the vanilla regions ID.
+        /// </summary>
+        public static string[] VanillaRegions()
+        {
+            return new string[] { "CC", "DS", "HI", "GW", "SI", "SU", "SH", "SL", "LF", "UW", "SB", "SS" };
+        }
+
+
+        /// <summary>
+        /// Dictionary with activated regions, where the Key is the region ID and the value is the name.
+        /// </summary>
+        public static Dictionary<string, string> loadedRegions;
+
+        /// <summary>
+        /// Dictionary with all installed regions, where the Key is the region ID and the value is a struct with its information.
+        /// </summary>
+        public static Dictionary<string, RegionInformation> availableRegions;
+
+        /// <summary>
+        /// path of the CustomResources folder (Mods\CustomResources\)
+        /// </summary>
+        public static string resourcePath = "Mods" + Path.DirectorySeparatorChar + "CustomResources" + Path.DirectorySeparatorChar;
+
+        /// <summary>
+        /// path of the CustomResources save folder (UserData\CustomRegionSaveData\)
+        /// </summary>
+        public static string regionSavePath = "UserData" + Path.DirectorySeparatorChar + "CustomRegionSaveData" + Path.DirectorySeparatorChar;
+
+        /// <summary>
+        /// Divider A used for CR save
+        /// </summary>
+        public static string saveDividerA = "<CRdivA>";
+        /// <summary>
+        /// Divider B used for CR save
+        /// </summary>
+        public static string saveDividerB = "<CRdivB>";
+
+        /// <summary>
+        /// Rain world game instance
+        /// </summary>
+        internal static RainWorld rainWorldInstance = null;
+
+
+        /// <summary>
+        /// Array of lists containing loaded regions for each saveslot
+        /// </summary>
+        public static List<RegionInformation>[] regionInfoInSaveSlot = new List<RegionInformation>[3];
+
+        /// <summary>
+        /// Array of SaveProblems for each saveslot
+        /// </summary>
+        public static SaveProblems[] saveProblems = new SaveProblems[3];
+
+        // Used for config screen
+        public static string analyzingLog;
 
         /// <summary>
         /// Enum used in the mergin process when loading the world_XX.txt file.
@@ -175,8 +241,27 @@ namespace CustomRegions.Mod
             }
         }
 
-        // Used for config screen
-        public static string analyzingLog;
+        /// <summary>
+        /// Struct with information about problems with save.
+        /// </summary>
+        public struct SaveProblems
+        {
+            public bool loadOrder;
+            public bool installedRegions;
+            public List<string> checkSum;
+            public List<string> extraRegions;
+            public List<string> missingRegions;
+
+            public SaveProblems(bool differntLoadOrder, bool differentInstalledRegion, List<string> problematicCheckSum, List<string> extraReg, List<string> misReg)
+            {
+                this.loadOrder = differntLoadOrder;
+                this.installedRegions = differentInstalledRegion;
+                this.checkSum = problematicCheckSum;
+                this.extraRegions = extraReg;
+                this.missingRegions = misReg;
+            }
+        }
+
 
         /// <summary>
         /// Providing an array with vanilla region IDs, returns this array but with the new regionsID added from the CustomWorldMod.lodadedRegions dictionary.
@@ -376,10 +461,10 @@ namespace CustomRegions.Mod
                         performedOperation = true;
                     }
                 }
-                else if(!performedOperation)
+                else if (!performedOperation)
                 {
 
-                    if (noDisconnectedPipes/*!errorLog.ToUpper().Contains("DISCONNECTED") && !errorLog.ToUpper().Contains("DISCONNECT")*/) 
+                    if (noDisconnectedPipes/*!errorLog.ToUpper().Contains("DISCONNECTED") && !errorLog.ToUpper().Contains("DISCONNECT")*/)
                     {
                         string errorLog = $"#Found possible incompatible room [{roomToBeReplacedName} : {string.Join(", ", newConnections.ToArray())}] from [{modID}] and [{roomConnectionsToBeReplaced}] from [{oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}]. \\n If [{roomConnectionsToBeReplaced}] is from the vanilla game everything is fine. Otherwise you might be missing compatibility patch.";
                         analyzingLog += errorLog + "\n\n";
@@ -531,7 +616,9 @@ namespace CustomRegions.Mod
 
             if (newCreatureLine.Contains("OFFSCREEN"))
             {
-                creatureLineBeReplaced = newCreatureLine;
+                //creatureLineBeReplaced = newCreatureLine;
+                creatureLineBeReplaced = string.Empty;
+                sameCreatureLine = false;
             }
             else
             {
@@ -619,110 +706,110 @@ namespace CustomRegions.Mod
 
 
                 }
-
-                if (creatureLineBeReplaced == string.Empty)
+            }
+            if (creatureLineBeReplaced == string.Empty)
+            {
+                if (!sameCreatureLine)
                 {
-                    if (!sameCreatureLine)
+                    oldCreaturesSpawns.Add(new WorldDataLine(newCreatureLine, false));
+                }
+            }
+            else
+            {
+
+                CreatureLine newLines = FillCreatureLine(newCreatureLine);
+                CreatureLine oldLines = FillCreatureLine(creatureLineBeReplaced);
+
+                bool isVanilla = oldCreaturesSpawns.Find(x => x.data.Equals(creatureLineBeReplaced)).vanilla;
+                int index = oldCreaturesSpawns.IndexOf(oldCreaturesSpawns.Find(x => x.data.Equals(creatureLineBeReplaced)));
+
+                CustomWorldMod.CustomWorldLog($"Custom Regions: Trying to merge creature [{newCreatureLine}] with [{creatureLineBeReplaced}] (vanilla [{isVanilla}])");
+
+                // This bit might be redundant
+                if (lineage && oldLines.lineage && newLines.lineage)
+                {
+                    if (oldLines.denNumber != newLines.denNumber)
                     {
                         oldCreaturesSpawns.Add(new WorldDataLine(newCreatureLine, false));
                     }
+                    else if (isVanilla)
+                    {
+                        if (index > -1)
+                        {
+                            oldCreaturesSpawns[index] = new WorldDataLine(newCreatureLine, false);
+                        }
+                    }
+
                 }
                 else
                 {
+                    string[] updatedConnections = new string[1];
+                    string updatedCreatureLine;
 
-                    CreatureLine newLines = FillCreatureLine(newCreatureLine);
-                    CreatureLine oldLines = FillCreatureLine(creatureLineBeReplaced);
-
-                    bool isVanilla = oldCreaturesSpawns.Find(x => x.data.Equals(creatureLineBeReplaced)).vanilla;
-                    int index = oldCreaturesSpawns.IndexOf(oldCreaturesSpawns.Find(x => x.data.Equals(creatureLineBeReplaced)));
-
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Trying to merge creature [{newCreatureLine}] with [{creatureLineBeReplaced}] (vanilla [{isVanilla}])");
-
-                    // This bit might be redundant
-                    if (lineage && oldLines.lineage && newLines.lineage)
+                    bool empty = true;
+                    for (int i = 0; i < newLines.connectedDens.Length; i++)
                     {
-                        if (oldLines.denNumber != newLines.denNumber)
-                        {
-                            oldCreaturesSpawns.Add(new WorldDataLine(newCreatureLine, false));
-                        }
-                        else if (isVanilla)
-                        {
-                            if (index > -1)
-                            {
-                                oldCreaturesSpawns[index] = new WorldDataLine(newCreatureLine, false);
-                            }
-                        }
-
-                    }
-                    else
-                    {
-                        string[] updatedConnections = new string[1];
-                        string updatedCreatureLine;
-
-                        bool empty = true;
-                        for (int i = 0; i < newLines.connectedDens.Length; i++)
-                        {
-                            bool shouldAdd = false;
-                            if (newLines.connectedDens[i] != null)
-                            {
-                                try
-                                {
-                                    if (oldLines.connectedDens.Length <= i || oldLines.connectedDens[i] == null)
-                                    {
-                                        CustomWorldMod.CustomWorldLog($"Custom Regions: Empty pipe, filling with [{newLines.connectedDens[i]}]"); ;
-                                        shouldAdd = true;
-                                    }
-                                    else if (isVanilla)
-                                    {
-                                        CustomWorldMod.CustomWorldLog($"Custom Regions: replacing vanilla pipe [{oldLines.connectedDens[i]}] with [{newLines.connectedDens[i]}]");
-                                        empty = false;
-                                        shouldAdd = true;
-                                    }
-                                }
-                                catch (Exception e) { shouldAdd = true; }
-                            }
-
-                            if (shouldAdd)
-                            {
-                                if (updatedConnections.Length <= i)
-                                {
-                                    Array.Resize(ref updatedConnections, i + 1);
-                                }
-                                updatedConnections[i] = newLines.connectedDens[i];
-                            }
-                        }
-
-                        for (int a = 0; a < oldLines.connectedDens.Length; a++)
+                        bool shouldAdd = false;
+                        if (newLines.connectedDens[i] != null)
                         {
                             try
                             {
-                                if (updatedConnections.Length <= a)
+                                if (oldLines.connectedDens.Length <= i || oldLines.connectedDens[i] == null)
                                 {
-                                    Array.Resize(ref updatedConnections, a + 1);
+                                    CustomWorldMod.CustomWorldLog($"Custom Regions: Empty pipe, filling with [{newLines.connectedDens[i]}]"); ;
+                                    shouldAdd = true;
                                 }
-
-                                if (updatedConnections[a] == null && (oldLines.connectedDens[a] != null))
+                                else if (isVanilla)
                                 {
-                                    updatedConnections[a] = oldLines.connectedDens[a];
+                                    CustomWorldMod.CustomWorldLog($"Custom Regions: replacing vanilla pipe [{oldLines.connectedDens[i]}] with [{newLines.connectedDens[i]}]");
+                                    empty = false;
+                                    shouldAdd = true;
                                 }
                             }
-                            catch (Exception e) { }
+                            catch (Exception) { shouldAdd = true; }
                         }
 
-                        // Remove empty slots
-                        updatedConnections = updatedConnections.Where(x => !string.IsNullOrEmpty(x)).ToArray();
-
-                        updatedCreatureLine = $"{oldLines.room} : {string.Join(", ", updatedConnections)}";
-
-                        if (index > -1)
+                        if (shouldAdd)
                         {
-                            oldCreaturesSpawns[index] = new WorldDataLine(updatedCreatureLine, empty);
+                            if (updatedConnections.Length <= i)
+                            {
+                                Array.Resize(ref updatedConnections, i + 1);
+                            }
+                            updatedConnections[i] = newLines.connectedDens[i];
                         }
                     }
 
+                    for (int a = 0; a < oldLines.connectedDens.Length; a++)
+                    {
+                        try
+                        {
+                            if (updatedConnections.Length <= a)
+                            {
+                                Array.Resize(ref updatedConnections, a + 1);
+                            }
 
+                            if (updatedConnections[a] == null && (oldLines.connectedDens[a] != null))
+                            {
+                                updatedConnections[a] = oldLines.connectedDens[a];
+                            }
+                        }
+                        catch (Exception) { }
+                    }
+
+                    // Remove empty slots
+                    updatedConnections = updatedConnections.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+
+                    updatedCreatureLine = $"{oldLines.room} : {string.Join(", ", updatedConnections)}";
+
+                    if (index > -1)
+                    {
+                        oldCreaturesSpawns[index] = new WorldDataLine(updatedCreatureLine, empty);
+                    }
                 }
+
+
             }
+
 
             return oldCreaturesSpawns;
         }
@@ -769,35 +856,6 @@ namespace CustomRegions.Mod
 
         }
 
-        /// <summary>
-        /// Holds the value of the sceneID in use.
-        /// </summary>
-        public static string sceneCustomID = string.Empty;
-
-
-        /// <summary>
-        /// Returns the vanilla regions ID.
-        /// </summary>
-        public static string[] VanillaRegions()
-        {
-            return new string[] { "CC", "DS", "HI", "GW", "SI", "SU", "SH", "SL", "LF", "UW", "SB", "SS" };
-        }
-
-
-        /// <summary>
-        /// Dictionary with activaed regions, where the Key is the region ID and the value is the name.
-        /// </summary>
-        public static Dictionary<string, string> loadedRegions;
-
-        /// <summary>
-        /// Dictionary with all installed regions, where the Key is the region ID and the value is a struct with its information.
-        /// </summary>
-        public static Dictionary<string, RegionInformation> availableRegions;
-
-        /// <summary>
-        /// path of the CustomResources folder (Mods\CustomResources\)
-        /// </summary>
-        public static string resourcePath = "Mods" + Path.DirectorySeparatorChar + "CustomResources" + Path.DirectorySeparatorChar;
 
         /// <summary>
         /// Builds a dictionary where the Key is the region ID and the value is the region name.
@@ -841,15 +899,20 @@ namespace CustomRegions.Mod
         {
             using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + "customWorldLog.txt"))
             {
-                sw.WriteLine("######################\n Custom World Log ######################\n");
+                sw.WriteLine("############################################\n Custom World Log \n");
             }
         }
 
-        public static void CreateCustomResourceFolder()
+        public static void CreateCustomWorldFolders()
         {
             if (!Directory.Exists(Custom.RootFolderDirectory() + resourcePath))
             {
                 Directory.CreateDirectory(Custom.RootFolderDirectory() + resourcePath);
+            }
+
+            if (!Directory.Exists(Custom.RootFolderDirectory() + regionSavePath))
+            {
+                Directory.CreateDirectory(Custom.RootFolderDirectory() + regionSavePath);
             }
         }
 
@@ -857,11 +920,15 @@ namespace CustomRegions.Mod
         {
             if (!File.Exists(Custom.RootFolderDirectory() + "customWorldLog.txt"))
             {
+
                 // Create a file to write to.
+                /*
                 using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + "customWorldLog.txt"))
                 {
                     sw.WriteLine("######################\n Custom World Log\n");
                 }
+                */
+                CreateCustomWorldLog();
             }
 
             using (StreamWriter file =
@@ -871,6 +938,197 @@ namespace CustomRegions.Mod
             }
 
         }
+
+        /// <summary>
+        /// Builds available regions, loaded regions and SaveAnalyzer
+        /// </summary>
+        public static void LoadCustomWorldResources()
+        {
+            CustomWorldMod.LoadAvailableRegions();
+            CustomWorldMod.loadedRegions = CustomWorldMod.BuildModRegionsDictionary();
+
+            // Debug
+            string dictionaryString = "Custom Regions: Loading {";
+            dictionaryString += $"{ string.Join(", ", new List<string>(CustomWorldMod.loadedRegions.Values).ToArray())}" + "}";
+            CustomWorldMod.CustomWorldLog(dictionaryString);
+
+            CustomWorldMod.BuildSaveAnalyzer();
+
+
+            CustomWorldMod.AnalyzeSave();
+
+
+        }
+
+        private static void AnalyzeSave()
+        {
+            // foreach(List<RegionInformation> infoSave in regionInfoInSaveSlot)
+            if (regionInfoInSaveSlot == null)
+            {
+                return;
+            }
+
+            for (int saveSlot = 0; saveSlot < regionInfoInSaveSlot.Length; saveSlot++)
+            {
+                try
+                {
+                    if (regionInfoInSaveSlot[saveSlot] == null)
+                    {
+                        continue;
+                    }
+
+                    List<RegionInformation> savedRegions = regionInfoInSaveSlot[saveSlot];
+                    List<RegionInformation> loadedRegions = availableRegions.Values.ToList().FindAll(x => x.activated);
+                    saveProblems[saveSlot] = new SaveProblems(false, false, new List<string>(), new List<string>(), new List<string>());
+
+
+                    // DEBUG*****************
+                    List<string> savedRegionsString = new List<string>();
+                    foreach (RegionInformation region in savedRegions)
+                    { savedRegionsString.Add(region.regionID); }
+                    Debug.Log($"Saved Regions [{string.Join(", ", savedRegionsString.ToArray())}]\n");
+
+                    savedRegionsString = new List<string>();
+                    foreach (RegionInformation region in loadedRegions)
+                    { savedRegionsString.Add(region.regionID); }
+                    Debug.Log($"Loaded Regions [{string.Join(", ", savedRegionsString.ToArray())}]\n");
+                    // ENDDEBUG*****************
+
+
+                    // Compare installed regions
+                    List<RegionInformation> saveNotLoaded = savedRegions.Except(loadedRegions).ToList();
+                    List<RegionInformation> loadedNotSaved = loadedRegions.Except(savedRegions).ToList();
+
+                    // DEBUG*****************
+                    savedRegionsString = new List<string>();
+                    foreach (RegionInformation region in saveNotLoaded)
+                    { savedRegionsString.Add(region.regionID); }
+                    Debug.Log($"Saved except loaded [{string.Join(", ", savedRegionsString.ToArray())}]\n");
+
+                    savedRegionsString = new List<string>();
+                    foreach (RegionInformation region in loadedNotSaved)
+                    { savedRegionsString.Add(region.regionID); }
+                    Debug.Log($"Loaded except saved [{string.Join(", ", savedRegionsString.ToArray())}]\n");
+                    // ENDDEBUG*****************
+
+                    foreach (RegionInformation region in saveNotLoaded)
+                    { saveProblems[saveSlot].missingRegions.Add(region.regionID); }
+
+                    foreach (RegionInformation region in loadedNotSaved)
+                    { saveProblems[saveSlot].extraRegions.Add(region.regionID); }
+
+
+
+                    if (savedRegions.Count != loadedRegions.Count || 
+                        (saveProblems[saveSlot].missingRegions != null && saveProblems[saveSlot].missingRegions.Count != 0) || 
+                        (saveProblems[saveSlot].extraRegions != null && saveProblems[saveSlot].extraRegions.Count != 0) )
+                    {
+                        saveProblems[saveSlot].installedRegions = true;
+                    }
+                    else
+                    {
+                        // Compare region order
+                        for (int i = 0; i < savedRegions.Count; i++)
+                        {
+                            // Compare checksum
+                            if (savedRegions[i].checksum != loadedRegions[i].checksum)
+                            {
+                                saveProblems[saveSlot].checkSum.Add(savedRegions[i].checksum);
+                            }
+
+                            if (savedRegions[i].regionID != loadedRegions[i].regionID)
+                            {
+                                saveProblems[saveSlot].loadOrder = true;
+                            }
+                        }
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Debug.Log(e + "SaveSlot " + saveSlot);
+                }
+            }
+        }
+
+        public static void BuildSaveAnalyzer()
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                int saveSlot = i;
+
+                string saveFileName = Custom.RootFolderDirectory() + CustomWorldMod.regionSavePath + $"CRsav_{saveSlot + 1}.txt";
+
+                if (File.Exists(saveFileName))
+                {
+                    regionInfoInSaveSlot[saveSlot] = new List<RegionInformation>();
+                    string allText = File.ReadAllText(saveFileName);
+                    string sum = allText.Substring(0, 32);
+                    allText = allText.Substring(32, allText.Length - 32);
+
+                    if (Custom.Md5Sum(allText).Equals(sum))
+                    {
+                        CustomWorldLog("CR Save checksum is correct!");
+                    }
+                    else
+                    {
+                        File.Delete(saveFileName);
+                        CustomWorldLog("CR Save was tinkered! Why did you touch this?");
+                        Debug.LogError("CUSTOM REGIONS ERROR! CR save was tinkered. Why did you touch this?");
+                        throw new System.NullReferenceException("Deleting CR save and forcing restart");
+                    }
+
+
+                    string[] splitText = Regex.Split(allText, saveDividerA);
+                    try
+                    {
+                        for (int j = 0; j < splitText.Length; j++)
+                        {
+                            if (!splitText[j].Equals(string.Empty))
+                            {
+                                List<string> minedLines = new List<string>();
+                                string[] splitRegion = Regex.Split(splitText[j], saveDividerB);
+                                string loadedRegion = string.Empty;
+                                for (int k = 0; k < splitRegion.Length; k++)
+                                {
+                                    if (!splitRegion[k].Equals(string.Empty))
+                                    {
+                                        //loadedRegion += splitRegion[k];
+                                        //Debug.Log(splitRegion[k]);
+                                        minedLines.Add(splitRegion[k]);
+                                    }
+                                }
+
+                                string regionID = Regex.Split(minedLines.Find(x => x.Contains("REGID")), "<REGID>")[1];
+                                string checkSum = Regex.Split(minedLines.Find(x => x.Contains("SUM")), "<SUM>")[1];
+                                int regionNumber = int.Parse(Regex.Split(minedLines.Find(x => x.Contains("ORDER")), "<ORDER>")[1]);
+
+                                regionInfoInSaveSlot[saveSlot].Add(new RegionInformation(regionID, null, null, true, -20, checkSum, regionNumber, null));
+
+                            }
+                        }
+                    }
+                    catch (Exception e) { Debug.Log(e); }
+
+
+                    // DEBUG
+                    /*
+                    string regionsID = "";
+                    foreach(RegionInformation info in regionInfoInSaveSlot[saveSlot])
+                    {
+                        regionsID += info.regionID + " ";
+                    }
+                    CustomWorldLog($"Save slot[{saveSlot}] is using [{regionsID}]");
+                    */
+
+                }
+                else
+                {
+                    CustomWorldLog($"CR saveslot [{saveFileName}] does not exist");
+                }
+            }
+        }
+
 
         /// <summary>
         /// Returns vanilla world file, or other CustomWorld mod file if there is one
@@ -973,6 +1231,9 @@ namespace CustomRegions.Mod
             return value;
         }
 
+        /// <summary>
+        /// Builds available regions and manages json files
+        /// </summary>
         public static void LoadAvailableRegions()
         {
             CustomWorldMod.availableRegions = new Dictionary<string, CustomWorldMod.RegionInformation>();
@@ -1053,8 +1314,10 @@ namespace CustomRegions.Mod
                         }
                     }
 
+                    checksum = CustomWorldMod.GenerateRegionCheckSum(dir);
+
                     WriteRegionInfoJSONFile(dir, regionID, description, regionName, activated, loadOrder, checksum);
-                   
+
                 }
 
 
@@ -1095,12 +1358,13 @@ namespace CustomRegions.Mod
                     }
 
 
-                    CustomWorldLog($"Description for {regionInformation.regionName} is {regionInformation.description}");
+                    CustomWorldLog($"Description for ({regionInformation.regionName}) is: [{regionInformation.description}]");
                     string oldDescription = regionInformation.description;
                     if (regionInformation.description.Equals("N / A"))
                     {
                         regionInformation.description = "No description";
                     }
+
                     if (regionInformation.description.Equals("No description"))
                     {
                         if (regionName.ToLower().Contains("aether"))
@@ -1129,7 +1393,13 @@ namespace CustomRegions.Mod
                         }
                     }
 
-                    if (!oldDescription.Equals(regionInformation.description))
+                    string newChecksum = CustomWorldMod.GenerateRegionCheckSum(dir);
+                    if (!newChecksum.Equals(string.Empty))
+                    {
+                        regionInformation.checksum = newChecksum;
+                    }
+
+                    if (!oldDescription.Equals(regionInformation.description) || !newChecksum.Equals(string.Empty))
                     {
                         CustomWorldLog($"Updating regionInfo for {regionInformation.regionName}");
                         File.Delete(dir + Path.DirectorySeparatorChar + "regionInfo.json");
@@ -1178,6 +1448,37 @@ namespace CustomRegions.Mod
             }
         }
 
+        private static string GenerateRegionCheckSum(string path)
+        {
+            path += Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar;
+            string checkSum = string.Empty;
+
+            //checkSum += $"<gatesLock>{Custom.Md5Sum(ReadFileCheckSum(path + "Gates" + Path.DirectorySeparatorChar + "locks.txt"))}</gatesLock>";
+
+            string regionsPath = path + "Regions";
+            if (Directory.Exists(regionsPath))
+            {
+                // Try to get regionID
+                foreach (string regionsDir in Directory.GetDirectories(regionsPath))
+                {
+                    checkSum += ReadFileCheckSum(regionsDir + Path.DirectorySeparatorChar + "Properties.txt");
+                    checkSum += ReadFileCheckSum(regionsDir + Path.DirectorySeparatorChar + "world_" + Path.GetFileNameWithoutExtension(regionsDir) + ".txt");
+                }
+            }
+
+            return Custom.Md5Sum(checkSum);
+        }
+
+        private static string ReadFileCheckSum(string path)
+        {
+            if (!File.Exists(path))
+            {
+                CustomWorldLog($"ERROR! World text file doesn't exist: [{path}]");
+                return string.Empty;
+            }
+            return File.ReadAllText(path);
+        }
+
         public static string GetSaveInformation()
         {
             string dictionaryString = "Custom Regions: New save, Custom Regions Information \n";
@@ -1192,6 +1493,29 @@ namespace CustomRegions.Mod
             dictionaryString = dictionaryString.TrimEnd(',', ' ') + "";
 
             return dictionaryString;
+        }
+
+
+        public static string SerializeRegionInfo(RegionInformation regionInfo)
+        {
+
+            string infoSerial = string.Empty;
+
+            // Start Region ID
+            infoSerial += $"{saveDividerA}<REGID>{regionInfo.regionID}";
+
+            /*------ CHECKSUM --------*/
+            infoSerial += $"{saveDividerB}<SUM>{regionInfo.checksum}{saveDividerB}";
+            /*------ CHECKSUM --------*/
+
+            /*------ ORDER --------*/
+            infoSerial += $"{saveDividerB}<ORDER>{regionInfo.regionNumber}{saveDividerB}";
+            /*------ ORDER --------*/
+
+            // End Region ID
+            infoSerial += $"{saveDividerA}";
+
+            return infoSerial;
         }
 
 
