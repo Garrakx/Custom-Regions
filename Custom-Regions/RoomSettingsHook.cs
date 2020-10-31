@@ -14,7 +14,7 @@ namespace CustomRegions
 
         public static void ApplyHook()
         {
-           // On.RoomSettings.Load += RoomSettings_Load;
+            On.RoomSettings.Load += RoomSettings_Load;
             On.RoomSettings.FindParent += RoomSettings_FindParent;
 
             // Debug
@@ -44,7 +44,7 @@ namespace CustomRegions
                         if (File.Exists(newPath))
                         {
                             self.filePath = newPath;
-                            CustomWorldMod.CustomWorldLog($"Custom Regions: Found settings at [{newPath}]");
+                            //CustomWorldMod.CustomWorldLog($"Custom Regions: Found settings at [{newPath}]");
                             break;
                         }
 
@@ -55,9 +55,8 @@ namespace CustomRegions
             }
             else
             {
-                CustomWorldMod.CustomWorldLog($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
+               // CustomWorldMod.CustomWorldLog($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
             }
-
             try
             {
                 orig(self, region);
@@ -74,22 +73,16 @@ namespace CustomRegions
         private static void RoomSettings_Load(On.RoomSettings.orig_Load orig, RoomSettings self, int playerChar)
         {
             // CHECK IF THIS WORKS
-           // if (!self.isTemplate)
-           // {
-                string path = WorldLoader.FindRoomFileDirectory(self.name, false) + "_Settings.txt";
+            if (/*!enabled || */(!self.isTemplate && !File.Exists(self.filePath)))
+            {
+                string path = WorldLoader.FindRoomFileDirectory(self.name, false) + ".txt";
                 CustomWorldMod.CustomWorldLog($"Custom Regions: Loading room settings for [{self.name}] at [{path}]");
 
-            if (File.Exists(path))
-            {
-                self.filePath = path;
+                if (!File.Exists(path))
+                {
+                    self.filePath = CustomWorldMod.FindVanillaRoom(self.name, false) + "_Settings.txt";
+                }
             }
-            else
-            {
-                self.filePath = CustomWorldMod.FindVanillaRoom(self.name, false) + "_Settings.txt";
-            }
-            //}
-
-
             orig(self, playerChar);
         }
     }

@@ -14,20 +14,13 @@ namespace CustomRegions
         public static void ApplyHook()
         {
             On.RoomCamera.LoadPalette += RoomCamera_LoadPalette;
-            //On.RoomCamera.ctor += RoomCamera_ctor;
+
 
             // If a custom room uses vanilla textures
              On.RoomCamera.MoveCamera2 += RoomCamera_MoveCamera2;
 
              On.RoomCamera.PreLoadTexture += RoomCamera_PreLoadTexture;
         }
-
-        /*
-        private static void RoomCamera_ctor(On.RoomCamera.orig_ctor orig, RoomCamera self, RainWorldGame game, int cameraNumber)
-        {
-            orig(self, game, cameraNumber);
-        }
-        */
 
         private static void RoomCamera_PreLoadTexture(On.RoomCamera.orig_PreLoadTexture orig, RoomCamera self, Room room, int camPos)
         {
@@ -90,36 +83,9 @@ namespace CustomRegions
         /// <summary>
         /// Searchs the CustomResources folder for a custom palette if its name is greater than 35. 
         /// CAREFUL! If two mods use the same palette number it will pick the first one it loads.
-        /// Also loads effectColor.png
         /// </summary>
         private static void RoomCamera_LoadPalette(On.RoomCamera.orig_LoadPalette orig, RoomCamera self, int pal, ref UnityEngine.Texture2D texture)
         {
-            // effect Color loading
-            /*
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
-            {
-                string regionName = keyValues.Value;
-                string path = CustomWorldMod.resourcePath + regionName;
-
-                string effectColorPath = string.Concat(new object[] {
-                    Custom.RootFolderDirectory(), path, Path.DirectorySeparatorChar, "Assets", Path.DirectorySeparatorChar,
-                    "Futile", Path.DirectorySeparatorChar, "Resources", Path.DirectorySeparatorChar, "Palettes", Path.DirectorySeparatorChar, "effectColors.png" });
-
-                if (File.Exists(effectColorPath))
-                {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: loading custom effectColor from [{keyValues.Value}]");
-                    self.allEffectColorsTexture = new Texture2D(40, 4, TextureFormat.ARGB32, false);
-                    self.allEffectColorsTexture.anisoLevel = 0;
-                    self.allEffectColorsTexture.filterMode = FilterMode.Point;
-                    self.www = new WWW(effectColorPath);
-                    self.www.LoadImageIntoTexture(self.allEffectColorsTexture);
-                    break;
-                }
-            }
-            */
-
-
-            // Palette
             string vanillaPalettePath = string.Concat(new object[]
             {
             Custom.RootFolderDirectory(),
@@ -155,7 +121,9 @@ namespace CustomRegions
                 bool foundPalette = false;
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                 {
-    
+                   /* if (regionName == string.Empty) 
+                    {
+                    }*/
                     regionName = keyValues.Value;
                     string path = CustomWorldMod.resourcePath + regionName;
 

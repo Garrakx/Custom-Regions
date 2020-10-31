@@ -1,9 +1,6 @@
-﻿using CompletelyOptional;
-using Menu;
-using OptionalUI;
+﻿using OptionalUI;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -45,20 +42,6 @@ namespace CustomRegions.Mod
             base.ConfigOnChange();
         }
 
-        public override void Signal(UItrigger trigger, string signal)
-        {
-            base.Signal(trigger, signal);
-            if(signal != null)
-            {
-                if (signal.Equals("reloadRegions"))
-                {
-                    CustomWorldMod.LoadCustomWorldResources();
-                    ConfigMenu.ResetCurrentConfig();
-                }
-            }
-        }
-
-
         public void mainTab(int tab)
         {
 
@@ -73,11 +56,6 @@ namespace CustomRegions.Mod
             Tabs[tab].AddItems(labelVersion);
             OpLabel labelAuthor = new OpLabel(new Vector2(270, 545), new Vector2(60, 20f), "by Garrakx", FLabelAlignment.Right, false);
             Tabs[tab].AddItems(labelAuthor);
-
-
-            
-            Tabs[tab].AddItems(new OpSimpleButton(new Vector2(525, 550), new Vector2(60,30), "reloadRegions", "Reload")); 
-
 
             //How Many Options
             int numberOfOptions = CustomWorldMod.availableRegions.Count;
@@ -97,7 +75,7 @@ namespace CustomRegions.Mod
 
             int spacing = 30;
 
-            Vector2 rectPos = new Vector2(spacing + 5, spacing);
+            Vector2 rectPos = new Vector2(spacing+5, spacing);
             Vector2 rectSize = new Vector2(500, 75);
             Vector2 labelSize = new Vector2(275, 27);
             Vector2 descripSize = new Vector2(rectSize.x, 35);
@@ -130,7 +108,7 @@ namespace CustomRegions.Mod
                     text = CustomWorldMod.availableRegions.ElementAt(i).Value.regionName + ": ",
                     color = colorEnabled// new Color((108f / 255f), 0.001f, 0.001f)
                 };
-                //Debug.Log(labelBox.text);
+                Debug.Log(labelBox.text);
                 //Tabs[tab].AddItems(labelBox);
                 mainScroll.AddItems(labelBox);
 
@@ -231,66 +209,13 @@ namespace CustomRegions.Mod
             Tabs[v].AddItems(errorLabel); 
         }
 
-        private void AnalyseSaveTab(int tab)
+        private void AnalyseSaveTab(int v)
         {
-            int saveSlot = 0;
-            try
-            {
-                saveSlot = CustomWorldMod.rainWorldInstance.options.saveSlot;
-            }
-            catch (Exception) { }
-
             OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), "Analyze Save Slot", FLabelAlignment.Center, true);
-            Tabs[tab].AddItems(labelID);
+            Tabs[v].AddItems(labelID);
 
-            OpLabel labelDsc = new OpLabel(new Vector2(100f, 525), new Vector2(400f, 20f), $"Check problems in savelot {saveSlot+1}", FLabelAlignment.Center, false);
-            Tabs[tab].AddItems(labelDsc);
-
-            string problems = string.Empty;
-            int yPos = 400;
-
-
-            // problem with the installation
-            if (CustomWorldMod.saveProblems[saveSlot].installedRegions)
-            {
-                if (CustomWorldMod.saveProblems[saveSlot].extraRegions != null && CustomWorldMod.saveProblems[saveSlot].extraRegions.Count > 0)
-                {
-                    problems += "You have installed / enabled new regions without clearing your save. You will need to uninstall / disable the following regions:\n";
-                    problems += $"Extra Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].extraRegions.ToArray())}]\n";
-                }
-                if (CustomWorldMod.saveProblems[saveSlot].missingRegions != null && CustomWorldMod.saveProblems[saveSlot].missingRegions.Count > 0)
-                {
-                    problems += "You have uninstalled / disabled some regions without clearing your save. You will need to install / enable the following regions:\n";
-                    problems += $"Missing Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].missingRegions.ToArray())}]\n";
-                }
-            }
-
-            // problem with load order
-            if (CustomWorldMod.saveProblems[saveSlot].loadOrder)
-            {
-                List<string> expectedOrder = new List<string>();
-                foreach(CustomWorldMod.RegionInformation info in CustomWorldMod.regionInfoInSaveSlot[saveSlot])
-                {
-                    expectedOrder.Add(info.regionName);
-                }
-                problems += "You have changed the order in which regions are loaded. The expected order is:\n";
-                problems += $"Expected order [{string.Join(", ", expectedOrder.ToArray())}]\n";
-                problems += $"Installed order [{string.Join(", ", CustomWorldMod.loadedRegions.Values.ToArray())}]\n";
-            }
-
-            // problem with check sum
-            if (CustomWorldMod.saveProblems[saveSlot].checkSum != null && CustomWorldMod.saveProblems[saveSlot].checkSum.Count != 0)
-            {
-                problems += "You have modified the world files of some regions. Please download again the following regions:\n";
-                problems += $"Corrupted Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].checkSum.ToArray())}]\n";
-            }
-
-            CustomWorldMod.CustomWorldLog(problems);
-
-            /*
             OpLabel corruptedSave = new OpLabel(new Vector2(10, 500), new Vector2(200, 20), "Coming soon...", FLabelAlignment.Left);
-            Tabs[tab].AddItems(corruptedSave);
-            */
+            Tabs[v].AddItems(corruptedSave);
 
             //string corruptedSave = "[Saveslot 1 is corrupted] / Reason: Missing region / checksum failed";
         }
