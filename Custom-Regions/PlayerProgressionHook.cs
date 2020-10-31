@@ -2,8 +2,10 @@
 using RWCustom;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -27,49 +29,34 @@ namespace CustomRegions
             On.PlayerProgression.MiscProgressionData.ToString += MiscProgressionData_ToString;
             On.PlayerProgression.MiscProgressionData.FromString += MiscProgressionData_FromString;
 
-           // On.PlayerProgression.SaveToDisk += PlayerProgression_SaveToDisk;
+            On.PlayerProgression.SaveToDisk += PlayerProgression_SaveToDisk;
         }
 
         private static void PlayerProgression_SaveToDisk(On.PlayerProgression.orig_SaveToDisk orig, PlayerProgression self, bool saveCurrentState, bool saveMaps, bool saveMiscProg)
         {
-
-            if (File.Exists(self.saveFilePath))
+            // Check if first time saved
+            string saveFileName = Custom.RootFolderDirectory() + CustomWorldMod.regionSavePath + $"CRsav_{self.rainWorld.options.saveSlot + 1}.txt";
+            CustomWorldMod.CustomWorldLog($"CR save data path [{saveFileName}]");
+            if (!File.Exists(saveFileName))
             {
-                string textSaveData = File.ReadAllText(self.saveFilePath);
+                string saveRegionData = string.Empty;
+                //dictionaryString += $"{ string.Join(", ", new List<string>(CustomWorldMod.loadedRegions.Values).ToArray())}" + "}";
+                //saveRegionData += $"{CustomWorldMod.saveDividerA}REGIONLIST{string.Join(",",CustomWorldMod.loadedRegions.Keys.ToArray())}{CustomWorldMod.saveDividerA}";
 
-                string[] progLinesToModify = Regex.Split(textSaveData, "<progDivA>");
-                string newSaveFile = string.Empty;
-
-                for (int i = 0; i < progLinesToModify.Length; i++)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                 {
-                    string[] array2 = Regex.Split(progLinesToModify[i], "<progDivB>");
-
-                    if (array2[0] == "MAP")
+                    CustomWorldMod.RegionInformation regionInfo;
+                    if (CustomWorldMod.availableRegions.TryGetValue(keyValues.Key, out regionInfo))
                     {
-                        int num = -1;
-                        int num2 = 0;
-                        while (num2 < self.regionNames.Length && num < 0)
-                        {
-                            if (num2 > self.regionNames.Length)
-                            {
-                                // REGION NOT FOUND
-                                //array2[1];
-                                Debug.Log("Custom Regions: DEBUGGIN SAVE::::::");
-                                for(int z = 0; z < array2.Length; z++)
-                                {
-                                    Debug.Log(array2[z]);
-                                }
-                                break;
-                            }
-
-                        }
-                    }
-                    newSaveFile += progLinesToModify;
+                        saveRegionData += CustomWorldMod.SerializeRegionInfo(regionInfo);
+                    }    
                 }
 
-                using (StreamWriter streamWriter = File.CreateText(self.saveFilePath))
+                // WRITE FILE
+                using (StreamWriter streamWriter = File.CreateText(saveFileName))
                 {
-                   // streamWriter.Write(Custom.Md5Sum(newSaveFile) + newSaveFile);
+                    CustomWorldMod.CustomWorldLog($"Creating save log [{saveRegionData}]");
+                    streamWriter.Write(Custom.Md5Sum(saveRegionData) + saveRegionData);
                 }
             }
 

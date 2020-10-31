@@ -38,9 +38,10 @@ namespace CustomRegions
 
         public static void SpawnArenaCreaturesVanilla(RainWorldGame game, ArenaSetup.GameTypeSetup.WildLifeSetting wildLifeSetting, ref List<AbstractCreature> availableCreatures, ref MultiplayerUnlocks unlocks, string[] array)
         {
+            /*
             Dictionary<string, int> tempDictionary = null;
             Dictionary<string, int> tempDictionary2 = null;
-
+            */
             float num = 1f;
             switch (wildLifeSetting)
             {

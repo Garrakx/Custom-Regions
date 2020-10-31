@@ -165,7 +165,7 @@ namespace CustomRegions
                 {
                     self.simulateUpdateTicks = 100;
                     CustomWorldMod.CustomWorldLog("World loader ctor...");
-                    self.lines = getWorldLines(self);
+                    //self.lines = getWorldLines(self);
                 }
                 self.NextActivity();
             }
@@ -226,7 +226,7 @@ namespace CustomRegions
 
             if (result != "")
             {
-                // CustomWorldMod.CustomWorldLog("Using Custom Worldfile: " + result);
+                //CustomWorldMod.CustomWorldLog("Using Custom Worldfile: " + result);
                 if (includeRootDirectory)
                 {
                     result = "file:///" + Custom.RootFolderDirectory() + result;
@@ -459,8 +459,8 @@ namespace CustomRegions
                 {
                     CustomWorldMod.CustomWorldLog("Custom Regions: World was null, creating new lines");
                     self.lines = new List<string>();
-                    self.lines = getWorldLines(self);
                 }
+                self.lines = getWorldLines(self);
 
             }
             else
