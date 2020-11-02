@@ -41,7 +41,7 @@ namespace CustomRegions.CustomMenu
                 }
                 catch (Exception e)
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Failed loading textures for {folder} - {self.fileName}");
+                    CustomWorldMod.CustomWorldLog($"Custom Regions: Failed loading textures for {folder} - {self.fileName} "+e);
                 }
 
             }

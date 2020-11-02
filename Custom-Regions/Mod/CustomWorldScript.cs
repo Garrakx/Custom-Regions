@@ -37,6 +37,9 @@ namespace CustomRegions.Mod
             // Custom Palette
             RoomCameraHook.ApplyHook();
 
+            // Electric gate
+            RoomHook.ApplyHooks();
+
             // Custom Decal
             CustomDecalHook.ApplyHook();
 

@@ -19,7 +19,9 @@ namespace CustomRegions
         public static void ApplyHooks()
         {
             On.OverWorld.LoadFirstWorld += OverWorld_LoadFirstWorld;
-            On.OverWorld.GetRegion += OverWorld_GetRegion;
+
+            //On.OverWorld.GetRegion += OverWorld_GetRegion;
+
             On.OverWorld.GetRegion_1 += OverWorld_GetRegion_1;
             On.OverWorld.LoadWorld += OverWorld_LoadWorld;
         }

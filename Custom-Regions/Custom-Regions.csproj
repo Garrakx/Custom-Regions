@@ -82,6 +82,7 @@
     <Compile Include="RegionGateHook.cs" />
     <Compile Include="RegionHook.cs" />
     <Compile Include="RoomCameraHook.cs" />
+    <Compile Include="RoomHook.cs" />
     <Compile Include="RoomSettingsHook.cs" />
     <Compile Include="CustomMenu\SlugcatSelectMenuHook.cs" />
     <Compile Include="SaveStateHook.cs" />

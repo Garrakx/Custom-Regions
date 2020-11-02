@@ -89,6 +89,13 @@ namespace CustomRegions.Mod
                 return;
             }
 
+            OpLabel errorLabel = new OpLabelLong(new Vector2(50, 490), new Vector2(600, 20), "", true, FLabelAlignment.Center)
+            {
+                text = "Green means activated, red means deactivated"
+            };
+
+            Tabs[tab].AddItems(errorLabel);
+
             /*int cumulativeScrollSize = 0;
             string labelCheck = "";
             string labelDescri = "";*/
@@ -187,7 +194,7 @@ namespace CustomRegions.Mod
             OpLabel labelDsc = new OpLabel(new Vector2(100f, 540), new Vector2(400f, 20f), $"Check problems in savelot {saveSlot+1}", FLabelAlignment.Center, false);
             Tabs[tab].AddItems(labelDsc);
 
-            OpLabel errorLabel = new OpLabelLong(new Vector2(100, 490), new Vector2(600, 20), "", true, FLabelAlignment.Center)
+            OpLabel errorLabel = new OpLabelLong(new Vector2(50, 490), new Vector2(600, 20), "", true, FLabelAlignment.Center)
             {
                 text = "No problems found in your save :D"
             };

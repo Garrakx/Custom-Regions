@@ -69,6 +69,7 @@ namespace CustomRegions
                                  + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar
                                 + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Songs" + Path.DirectorySeparatorChar
                                 + self.trackName + ".ogg";
+
                             CustomWorldMod.CustomWorldLog($"Subtrack-path [{text}]");
                             if (File.Exists(text))
                             {
@@ -91,6 +92,7 @@ namespace CustomRegions
                                 + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar
                                 + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Procedural" + Path.DirectorySeparatorChar
                                 + self.trackName + ".ogg";
+
                             CustomWorldMod.CustomWorldLog($"Subtrack-path [{text2}]");
                             if (File.Exists(text2))
                             {

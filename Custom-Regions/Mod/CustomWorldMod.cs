@@ -44,7 +44,7 @@ namespace CustomRegions.Mod
         public CustomWorldMod()
         {
             ModID = "Custom Regions Mod";
-            Version = "0.4." + version;
+            Version = "0.5." + version;
             author = "Garrakx";
         }
 
@@ -53,7 +53,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 26;
+        public int version = 30;
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
@@ -174,8 +174,9 @@ namespace CustomRegions.Mod
             public string checksum;
             public int loadOrder;
             public string folderName;
+            public Dictionary<string, float> electricGates;
 
-            public RegionInformation(string regionID, string regionName, string description, bool activated, int loadOrder, string checksum, int regionNumber, string folderName)
+            public RegionInformation(string regionID, string regionName, string description, bool activated, int loadOrder, string checksum, int regionNumber, string folderName, Dictionary<string, float> electricGates)
             {
                 this.regionID = regionID;
                 this.regionName = regionName;
@@ -185,6 +186,7 @@ namespace CustomRegions.Mod
                 this.loadOrder = loadOrder;
                 this.regionNumber = regionNumber;
                 this.folderName = folderName;
+                this.electricGates = electricGates;
             }
         }
 
@@ -1108,7 +1110,7 @@ namespace CustomRegions.Mod
                                 string checkSum = Regex.Split(minedLines.Find(x => x.Contains("SUM")), "<SUM>")[1];
                                 int regionNumber = int.Parse(Regex.Split(minedLines.Find(x => x.Contains("ORDER")), "<ORDER>")[1]);
 
-                                regionInfoInSaveSlot[saveSlot].Add(new RegionInformation(regionID, null, null, true, -20, checkSum, regionNumber, null));
+                                regionInfoInSaveSlot[saveSlot].Add(new RegionInformation(regionID, null, null, true, -20, checkSum, regionNumber, null, null));
 
                             }
                         }
@@ -1326,9 +1328,11 @@ namespace CustomRegions.Mod
                 }
 
 
-                Dictionary<string, object> dictionary = File.ReadAllText(pathOfRegionInfo).dictionaryFromJson();
-                RegionInformation regionInformation = new RegionInformation(string.Empty, string.Empty, "No description", true, loadOrder, string.Empty, -1, Path.GetFileNameWithoutExtension(dir));
+                RegionInformation regionInformation = new RegionInformation(string.Empty, string.Empty, "No description", true, loadOrder, string.Empty, -1, Path.GetFileNameWithoutExtension(dir), new Dictionary<string, float>());
 
+
+
+                Dictionary<string, object> dictionary = File.ReadAllText(pathOfRegionInfo).dictionaryFromJson();
                 if (dictionary != null)
                 {
                     if (GetRegionInfoJson("regionID", dictionary) != null)
@@ -1427,6 +1431,22 @@ namespace CustomRegions.Mod
                     }
                 }
 
+
+                // Add electric gates
+                string pathToElectricGates = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "electricGates.txt";
+                CustomWorldLog($"Loading electric gates for {regionInformation.regionID}");
+                if (File.Exists(pathToElectricGates))
+                {
+                    string[] electricGates = File.ReadAllLines(pathToElectricGates);
+                    for (int i = 0; i < electricGates.Length; i++)
+                    {
+                        string gateName = Regex.Split(electricGates[i], " : ")[0];
+                        float meterHeigh = float.Parse(Regex.Split(electricGates[i], " : ")[1]);
+
+                        CustomWorldLog($"Added new gate [{gateName}]. Meter height [{meterHeigh}]");
+                        regionInformation.electricGates.Add(gateName, meterHeigh);
+                    }
+                }
 
                 /*
                     CustomWorldMod.CustomWorldLog($"Custom Regions: Adding available region [{regionID}]");

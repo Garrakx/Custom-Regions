@@ -14,7 +14,7 @@ namespace CustomRegions
 {
     public static class PlayerProgressionHook
     {
-        private static Dictionary<string, int> tempDictionary = null;
+        //private static Dictionary<string, int> tempDictionary = null;
 
         public static void ApplyHooks()
         {
@@ -77,6 +77,7 @@ namespace CustomRegions
         }
 
         // Debug
+        /*
         private static string[] PlayerProgression_GetProgLines(On.PlayerProgression.orig_GetProgLines orig, PlayerProgression self)
         {
             tempDictionary = null;
@@ -130,7 +131,7 @@ namespace CustomRegions
             }
             return progLines;
         }
-
+        */
 
 
         private static void PlayerProgression_InitiateProgression(On.PlayerProgression.orig_InitiateProgression orig, PlayerProgression self)
@@ -159,12 +160,15 @@ namespace CustomRegions
 
         private static void MiscProgressionData_FromString(On.PlayerProgression.MiscProgressionData.orig_FromString orig, PlayerProgression.MiscProgressionData self, string s)
         {
+            /*
             string debug2 = "Custom Regions: MISC PROGRESION FROM STRING - RegionNames { ";
             for (int i = 0; i < self.owner.regionNames.Length; i++)
             {
                 debug2 += self.owner.regionNames[i] + " , ";
             }
             CustomWorldMod.CustomWorldLog(debug2);
+            */
+            CustomWorldMod.CustomWorldLog($"Custom Regions: MISC PROGRESION FROM STRING - RegionNames[{string.Join(", ", self.owner.regionNames)}]");
 
             Dictionary<string, int> dictionaryTemp = new Dictionary<string, int>(7);
             string[] array = Regex.Split(s, "<mpdA>");
@@ -242,7 +246,7 @@ namespace CustomRegions
             CustomWorldMod.CustomWorldLog(debug);
             orig(self, s);
 
-            debug2 = "Custom Regions: Discovered Shelters { ";
+            string debug2 = "Custom Regions: Discovered Shelters { ";
             for (int i = 0; i < self.discoveredShelters.Length; i++)
             {
                 if (self.discoveredShelters[i] != null)
