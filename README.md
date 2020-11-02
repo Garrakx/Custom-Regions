@@ -85,7 +85,12 @@ ERROR! #Found incompatible room [SB_J01 : SB_Q01, SB_E02, SB_G03, SB_C07] from [
 * You can include as many layers as you want for the region art.
 * You will probably to adjust the positions of the region art again.
 * This mod should be compatible with almost anything. If you find any incompabilities contact me.
-* HOW TO ADD COMPATIBILITY BETWEEN TWO REGION MODS THAT MODIFY THE SAME ROOM
+* To add an Electric gate, create a new .txt file inside your mod's `Gates` folder (next to `locks.txt`) and call it `electricGates.txt`. Following the same format as `locks.txt`, write all the gate names that needs to be electric followed by the meter height:
+```
+GATE_SB_AR : 558
+```
+(`Rain World\Mods\CustomResources\"Your Region"\World\Gates\electricGates.txt`)
+### HOW TO ADD COMPATIBILITY BETWEEN TWO REGION MODS THAT MODIFY THE SAME ROOM
 1) Create a region mod that it is loaded first and modifies a vanilla room by adding new connections:
 
 how the *whole* world_HI.txt from the region NewPipes looks (you only need these lines)
