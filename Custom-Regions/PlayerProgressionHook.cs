@@ -30,6 +30,19 @@ namespace CustomRegions
             On.PlayerProgression.MiscProgressionData.FromString += MiscProgressionData_FromString;
 
             On.PlayerProgression.SaveToDisk += PlayerProgression_SaveToDisk;
+            On.PlayerProgression.WipeAll += PlayerProgression_WipeAll;
+        }
+
+        private static void PlayerProgression_WipeAll(On.PlayerProgression.orig_WipeAll orig, PlayerProgression self)
+        {
+            orig(self);
+            string saveFileName = Custom.RootFolderDirectory() + CustomWorldMod.regionSavePath + $"CRsav_{self.rainWorld.options.saveSlot + 1}.txt";
+            CustomWorldMod.CustomWorldLog($"Clearing CR save (data path [{saveFileName}])");
+            if (File.Exists(saveFileName))
+            {
+                File.Delete(saveFileName);
+                CustomWorldMod.CustomWorldLog("Deleted save");
+            }
         }
 
         private static void PlayerProgression_SaveToDisk(On.PlayerProgression.orig_SaveToDisk orig, PlayerProgression self, bool saveCurrentState, bool saveMaps, bool saveMiscProg)

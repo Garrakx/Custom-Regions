@@ -30,9 +30,9 @@ namespace CustomRegions.Mod
             Tabs[0] = new OpTab("Main Tab");
             Tabs[1] = new OpTab("Installation");
             Tabs[2] = new OpTab("SaveSlot");
-            mainTab(0);
-            analyseInstallationTab(1);
-            AnalyseSaveTab(2);
+            MainTab(0);
+            AnalyseSaveTab(1);
+            AnalyseInstallationTab(2);
         }
 
         public override void Update(float dt)
@@ -59,7 +59,7 @@ namespace CustomRegions.Mod
         }
 
 
-        public void mainTab(int tab)
+        public void MainTab(int tab)
         {
 
             //MOD DESCRIPTION
@@ -101,7 +101,6 @@ namespace CustomRegions.Mod
             Vector2 rectSize = new Vector2(500, 75);
             Vector2 labelSize = new Vector2(275, 27);
             Vector2 descripSize = new Vector2(rectSize.x, 35);
-
 
             OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 20), new Vector2(575, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfOptions)));
             Tabs[tab].AddItems(mainScroll);
@@ -153,70 +152,12 @@ namespace CustomRegions.Mod
                 rectPos.y += rectSize.y + spacing;
                 //rectPos.y -= Mathf.Min((spacing / (numberOfOptions)), 150);
             }
-
-            
-            
-            /*
-            //string keyCheckBox = "";
-            string labelCheck = "";
-            string labelDescri = "";
-
-            int spacing = 450;
-
-            Vector2 rectPos = new Vector2(92, spacing);
-            Vector2 rectSize = new Vector2(420, 55);
-            Vector2 labelSize = new Vector2(275, 27);
-            Vector2 descripSize = new Vector2(rectSize.x, 35);
-
-
-            //int spacing = (420 - numberOfOptions * 100) / (numberOfOptions - 1);
-
-            // float rectSizeY = Mathf.Min(, 100);
-            float rectSizeY = Mathf.Clamp((spacing / numberOfOptions) * 0.75f, 10f, 75f);
-            for (int i = 0; i < numberOfOptions; i++)
-            {
-
-                //keyCheckBox = CustomWorldMod.availableRegions.ElementAt(i).Key;
-                rectSize.y = rectSizeY;
-                bool activated = CustomWorldMod.availableRegions.ElementAt(i).Value.activated;
-
-                OpRect rectOption = new OpRect(rectPos, rectSize, 0.3f)
-                {
-                    doesBump = activated,
-                    colorEdge = new Color((206f / 255f), 1f, (206f / 255f))
-                    
-                };
-                if (!activated)
-                {
-                    rectOption.colorEdge = new Color((108f / 255f), 0.001f, 0.001f);
-                }
-                Tabs[tab].AddItems(rectOption);
-
-
-
-                OpLabel labelBox = new OpLabel(rectPos + new Vector2(20, rectSizeY * 0.25f), labelSize, "", FLabelAlignment.Left);
-                labelBox.text = CustomWorldMod.availableRegions.ElementAt(i).Value.regionName + ": ";
-                Tabs[tab].AddItems(labelBox);
-
-                descripSize.x = rectSize.x - labelBox.text.Length * 7f;
-                OpLabel labelDesc = new OpLabel(rectPos + new Vector2(20 + labelBox.text.Length*7f, rectSizeY * 0.20f), descripSize, "", FLabelAlignment.Left)
-                {
-                    autoWrap = true,
-                    text = CustomWorldMod.availableRegions.ElementAt(i).Value.description
-                };
-                Tabs[tab].AddItems(labelDesc);
-
-
-                rectPos.y -= Mathf.Min((spacing / (numberOfOptions)), 100);
-                //rectPos.y -= (100 + spacing); //* i;
-            }
-            */
         }
 
-        private void analyseInstallationTab(int v)
+        private void AnalyseInstallationTab(int tab)
         {
             OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), "Analyze installation", FLabelAlignment.Center, true);
-            Tabs[v].AddItems(labelID);
+            Tabs[tab].AddItems(labelID);
 
             OpLabel errorLabel = new OpLabelLong(new Vector2(10, 500), new Vector2(600, 20), "", true, FLabelAlignment.Left)
             {
@@ -228,7 +169,7 @@ namespace CustomRegions.Mod
                 errorLabel.text = "After running loading the game once, any problems will show here.";
             }
 
-            Tabs[v].AddItems(errorLabel); 
+            Tabs[tab].AddItems(errorLabel); 
         }
 
         private void AnalyseSaveTab(int tab)
@@ -240,59 +181,118 @@ namespace CustomRegions.Mod
             }
             catch (Exception) { }
 
-            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), "Analyze Save Slot", FLabelAlignment.Center, true);
+            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), $"Analyze Save Slot {saveSlot+1}", FLabelAlignment.Center, true);
             Tabs[tab].AddItems(labelID);
 
-            OpLabel labelDsc = new OpLabel(new Vector2(100f, 525), new Vector2(400f, 20f), $"Check problems in savelot {saveSlot+1}", FLabelAlignment.Center, false);
+            OpLabel labelDsc = new OpLabel(new Vector2(100f, 540), new Vector2(400f, 20f), $"Check problems in savelot {saveSlot+1}", FLabelAlignment.Center, false);
             Tabs[tab].AddItems(labelDsc);
 
-            string problems = string.Empty;
-            int yPos = 400;
+            OpLabel errorLabel = new OpLabelLong(new Vector2(100, 490), new Vector2(600, 20), "", true, FLabelAlignment.Center)
+            {
+                text = "No problems found in your save :D"
+            };
 
+            Tabs[tab].AddItems(errorLabel);
+
+            if (!CustomWorldMod.saveProblems[saveSlot].anyProblems)
+            {
+                return;
+            }
+
+            errorLabel.text = "If your save is working fine you can ignore these errors";
+
+            List<string> problems = new List<string>();
 
             // problem with the installation
             if (CustomWorldMod.saveProblems[saveSlot].installedRegions)
             {
+                string temp = string.Empty;
                 if (CustomWorldMod.saveProblems[saveSlot].extraRegions != null && CustomWorldMod.saveProblems[saveSlot].extraRegions.Count > 0)
                 {
-                    problems += "You have installed / enabled new regions without clearing your save. You will need to uninstall / disable the following regions:\n";
-                    problems += $"Extra Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].extraRegions.ToArray())}]\n";
+                    temp += "- You have installed / enabled new regions without clearing your save. You will need to uninstall / disable the following regions:\n";
+                    temp += $"Extra Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].extraRegions.ToArray())}]\n\n";
                 }
                 if (CustomWorldMod.saveProblems[saveSlot].missingRegions != null && CustomWorldMod.saveProblems[saveSlot].missingRegions.Count > 0)
                 {
-                    problems += "You have uninstalled / disabled some regions without clearing your save. You will need to install / enable the following regions:\n";
-                    problems += $"Missing Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].missingRegions.ToArray())}]\n";
+                    temp += "- You have uninstalled / disabled some regions without clearing your save. You will need to install / enable the following regions:\n";
+                    temp += $"Missing Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].missingRegions.ToArray())}]\n\n";
                 }
+                problems.Add(temp);
             }
 
             // problem with load order
-            if (CustomWorldMod.saveProblems[saveSlot].loadOrder)
+            else if (CustomWorldMod.saveProblems[saveSlot].loadOrder)
             {
+                string temp2 = string.Empty;
                 List<string> expectedOrder = new List<string>();
                 foreach(CustomWorldMod.RegionInformation info in CustomWorldMod.regionInfoInSaveSlot[saveSlot])
                 {
-                    expectedOrder.Add(info.regionName);
+                    expectedOrder.Add(info.regionID);
                 }
-                problems += "You have changed the order in which regions are loaded. The expected order is:\n";
-                problems += $"Expected order [{string.Join(", ", expectedOrder.ToArray())}]\n";
-                problems += $"Installed order [{string.Join(", ", CustomWorldMod.loadedRegions.Values.ToArray())}]\n";
+                temp2 += "- You have changed the order in which regions are loaded:\n";
+                temp2 += $"Expected order [{string.Join(", ", expectedOrder.ToArray())}]\n";
+                temp2 += $"Installed order [{string.Join(", ", CustomWorldMod.loadedRegions.Keys.ToArray())}]\n\n";
+                problems.Add(temp2);
             }
 
             // problem with check sum
             if (CustomWorldMod.saveProblems[saveSlot].checkSum != null && CustomWorldMod.saveProblems[saveSlot].checkSum.Count != 0)
             {
-                problems += "You have modified the world files of some regions. Please download again the following regions:\n";
-                problems += $"Corrupted Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].checkSum.ToArray())}]\n";
+                string temp3 = string.Empty;
+                temp3 += "\n- You have modified the world files of some regions:\n";
+                temp3 += $"Corrupted Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].checkSum.ToArray())}]\n\n";
+                problems.Add(temp3);
             }
 
-            CustomWorldMod.CustomWorldLog(problems);
 
-            /*
-            OpLabel corruptedSave = new OpLabel(new Vector2(10, 500), new Vector2(200, 20), "Coming soon...", FLabelAlignment.Left);
-            Tabs[tab].AddItems(corruptedSave);
-            */
 
-            //string corruptedSave = "[Saveslot 1 is corrupted] / Reason: Missing region / checksum failed";
+
+            int spacing = 30;
+
+            Vector2 rectPos = new Vector2(spacing + 5, spacing);
+            Vector2 rectSize = new Vector2(500, 75);
+            Vector2 labelSize = new Vector2(480, 27);
+            //Vector2 descripSize = new Vector2(rectSize.x, 35);
+
+            int scrollHeight = (int)(spacing + ((rectSize.y + spacing) * problems.Count));
+
+            OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 20), new Vector2(575, 500), scrollHeight);
+            Tabs[tab].AddItems(mainScroll);
+            for (int i = 0; i < problems.Count; i++)
+            {
+                
+                OpRect rectOption = new OpRect(rectPos, rectSize, 0.3f)
+                {
+                    colorEdge = new Color((108f / 255f), 0.001f, 0.001f)
+
+                };
+
+                //Tabs[tab].AddItems(rectOption);
+                mainScroll.AddItems(rectOption);
+
+                OpLabel labelBox = new OpLabel(rectPos + new Vector2(20, rectSize.y * 0.30f), labelSize, "", FLabelAlignment.Left)
+                {
+                    text = problems[i],
+                    autoWrap = true
+                };
+                //Debug.Log(labelBox.text);
+                //Tabs[tab].AddItems(labelBox);
+                mainScroll.AddItems(labelBox);
+
+
+                /*
+                descripSize.x = rectSize.x - labelBox.text.Length * 7f - 2f;
+                OpLabel labelDesc = new OpLabel(rectPos + new Vector2(20 + labelBox.text.Length * 7f, rectSize.y * 0.30f), descripSize, "", FLabelAlignment.Left)
+                {
+                    autoWrap = true,
+                    text = CustomWorldMod.availableRegions.ElementAt(i).Value.description,
+                };
+                */
+               // mainScroll.AddItems(labelDesc);
+
+                rectPos.y += rectSize.y + spacing;
+                //rectPos.y -= Mathf.Min((spacing / (numberOfOptions)), 150);
+            }
         }
     }
 }

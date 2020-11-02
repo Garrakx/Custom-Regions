@@ -39,6 +39,7 @@ namespace CustomRegions.Mod
     {
         public static CustomWorldScript script;
         public static CustomWorldConfig config;
+        public static CustomWorldOption customWorldOption;
 
         public CustomWorldMod()
         {
@@ -76,7 +77,8 @@ namespace CustomRegions.Mod
 
         public static CustomWorldOption LoadOI()
         {
-            return new CustomWorldOption();
+            customWorldOption = new CustomWorldOption();
+            return customWorldOption;
         }
 
         public struct CustomWorldConfig
@@ -260,6 +262,18 @@ namespace CustomRegions.Mod
                 this.extraRegions = extraReg;
                 this.missingRegions = misReg;
             }
+
+            public bool anyProblems => this.loadOrder || this.installedRegions || (this.checkSum != null && this.checkSum.Count > 0);
+
+        }
+
+        public static string Translate(string orig)
+        {
+            if (customWorldOption != null)
+            {
+                return customWorldOption.Translate(orig);
+            }
+            return orig;
         }
 
 
@@ -952,12 +966,9 @@ namespace CustomRegions.Mod
             dictionaryString += $"{ string.Join(", ", new List<string>(CustomWorldMod.loadedRegions.Values).ToArray())}" + "}";
             CustomWorldMod.CustomWorldLog(dictionaryString);
 
-            CustomWorldMod.BuildSaveAnalyzer();
 
-
+            CustomWorldMod.ReadSaveAnalyzer();
             CustomWorldMod.AnalyzeSave();
-
-
         }
 
         private static void AnalyzeSave()
@@ -977,46 +988,29 @@ namespace CustomRegions.Mod
                         continue;
                     }
 
-                    List<RegionInformation> savedRegions = regionInfoInSaveSlot[saveSlot];
-                    List<RegionInformation> loadedRegions = availableRegions.Values.ToList().FindAll(x => x.activated);
                     saveProblems[saveSlot] = new SaveProblems(false, false, new List<string>(), new List<string>(), new List<string>());
 
+                    List<string> savedRegions = new List<string>();
+                    foreach(RegionInformation info in regionInfoInSaveSlot[saveSlot])
+                    {
+                        savedRegions.Add(info.regionID);
+                        string savedsum = info.checksum;
+                        if (!savedsum.Equals(availableRegions[info.regionID].checksum))
+                        {
+                            saveProblems[saveSlot].checkSum.Add(info.regionID);
+                        }
 
-                    // DEBUG*****************
-                    List<string> savedRegionsString = new List<string>();
-                    foreach (RegionInformation region in savedRegions)
-                    { savedRegionsString.Add(region.regionID); }
-                    Debug.Log($"Saved Regions [{string.Join(", ", savedRegionsString.ToArray())}]\n");
+                        if (info.regionNumber != availableRegions[info.regionID].regionNumber)
+                        {
+                            saveProblems[saveSlot].loadOrder = true;
+                        }
+                    }
 
-                    savedRegionsString = new List<string>();
-                    foreach (RegionInformation region in loadedRegions)
-                    { savedRegionsString.Add(region.regionID); }
-                    Debug.Log($"Loaded Regions [{string.Join(", ", savedRegionsString.ToArray())}]\n");
-                    // ENDDEBUG*****************
 
 
                     // Compare installed regions
-                    List<RegionInformation> saveNotLoaded = savedRegions.Except(loadedRegions).ToList();
-                    List<RegionInformation> loadedNotSaved = loadedRegions.Except(savedRegions).ToList();
-
-                    // DEBUG*****************
-                    savedRegionsString = new List<string>();
-                    foreach (RegionInformation region in saveNotLoaded)
-                    { savedRegionsString.Add(region.regionID); }
-                    Debug.Log($"Saved except loaded [{string.Join(", ", savedRegionsString.ToArray())}]\n");
-
-                    savedRegionsString = new List<string>();
-                    foreach (RegionInformation region in loadedNotSaved)
-                    { savedRegionsString.Add(region.regionID); }
-                    Debug.Log($"Loaded except saved [{string.Join(", ", savedRegionsString.ToArray())}]\n");
-                    // ENDDEBUG*****************
-
-                    foreach (RegionInformation region in saveNotLoaded)
-                    { saveProblems[saveSlot].missingRegions.Add(region.regionID); }
-
-                    foreach (RegionInformation region in loadedNotSaved)
-                    { saveProblems[saveSlot].extraRegions.Add(region.regionID); }
-
+                    saveProblems[saveSlot].missingRegions = savedRegions.Except(loadedRegions.Keys).ToList();
+                    saveProblems[saveSlot].extraRegions = loadedRegions.Keys.Except(savedRegions).ToList();
 
 
                     if (savedRegions.Count != loadedRegions.Count || 
@@ -1025,23 +1019,27 @@ namespace CustomRegions.Mod
                     {
                         saveProblems[saveSlot].installedRegions = true;
                     }
+
+
+                    /*
                     else
                     {
                         // Compare region order
                         for (int i = 0; i < savedRegions.Count; i++)
                         {
                             // Compare checksum
-                            if (savedRegions[i].checksum != loadedRegions[i].checksum)
+                            if (regionInfoInSaveSlot[saveSlot].Find(x => x.regionID == savedRegions[i]).checksum != availableRegions[loadedRegions[savedRegions[i]]].checksum)
                             {
-                                saveProblems[saveSlot].checkSum.Add(savedRegions[i].checksum);
+                                saveProblems[saveSlot].checkSum.Add((regionInfoInSaveSlot[saveSlot].Find(x => x.regionID == savedRegions[i]).checksum));
                             }
+                            string temp = string.Empty;
 
-                            if (savedRegions[i].regionID != loadedRegions[i].regionID)
+                            if (!loadedRegions.TryGetValue(savedRegions[i], out temp) || savedRegions[i] != temp)
                             {
                                 saveProblems[saveSlot].loadOrder = true;
                             }
                         }
-                    }
+                    }*/
 
                 }
                 catch (Exception e)
@@ -1051,17 +1049,24 @@ namespace CustomRegions.Mod
             }
         }
 
-        public static void BuildSaveAnalyzer()
+        public static void ReadSaveAnalyzer()
         {
-            for (int i = 0; i < 3; i++)
+            for (int saveSlot = 0; saveSlot < 3; saveSlot++)
             {
-                int saveSlot = i;
 
                 string saveFileName = Custom.RootFolderDirectory() + CustomWorldMod.regionSavePath + $"CRsav_{saveSlot + 1}.txt";
 
+                regionInfoInSaveSlot[saveSlot] = new List<RegionInformation>();
+
+                if(!File.Exists(Custom.RootFolderDirectory() + "UserData"+Path.DirectorySeparatorChar+ ((saveSlot != 0) ? ("sav_" + (saveSlot + 1)) : "sav") + ".txt"))
+                {
+                    File.Delete(saveFileName);
+                    CustomWorldLog($"Deleting {saveFileName} since vanilla save is empty");
+                    return;
+                }
+
                 if (File.Exists(saveFileName))
                 {
-                    regionInfoInSaveSlot[saveSlot] = new List<RegionInformation>();
                     string allText = File.ReadAllText(saveFileName);
                     string sum = allText.Substring(0, 32);
                     allText = allText.Substring(32, allText.Length - 32);
