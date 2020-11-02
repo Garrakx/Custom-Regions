@@ -29,9 +29,9 @@
 1) Create a new folder inside Rain World\Mods called "`CustomResources`" (*if you run the game with the mod it will be automatically created*)
 2) Create a new folder inside Rain World\Mods\CustomResources with the name of your region (`i.e. Rain World\Mods\CustomResources\The Root`). This will determine the name of the region in game.
 3) Inside this folder you must place the "`World`", "`Assets`" and / or "`Levels`" folders from the Region you are installing.
-4) After running the game, the mod will create a file called "regionInfo.json". You can open this file with any text editor (notepad for example). Make sure all the information looks correct. You can add a description for each region. Region Order will be used to determine which region loads first. If you come from a version that used regionID.txt, the mod will try to upgrade it. To apply any changes, you need to restart the game and **YOU WILL NEED TO START A FRESH SAVESLOT AFTER YOU MAKE ANY CHANGES**.
+4) After running the game, the mod will create a file called "regionInfo.json". You can open this file with any text editor (notepad for example). Make sure all the information looks correct. You can add a description for each region. Region Order will be used to determine which region loads first. If you come from a version that used regionID.txt, the mod will try to upgrade it. To apply any changes, you need to restart the game or hit the reload button in the config menu **YOU WILL NEED TO START A FRESH SAVESLOT AFTER YOU MAKE ANY CHANGES**.
 5) The mod will load decals, palettes, arena levels, illustrations, etc from this folder.
-6) If you install Config Machine, you can check the activated regions (in green) and the order they are being loaded.
+6) You can check the activated regions (in green) and the order they are being loaded.
 
 ### <a name="index3"></a>Uninstalling a region (two options, pick one)
 Option a). Go to `Rain World\Mods\CustomResources\Your Region\regionInformation.json` and set activated to false.
