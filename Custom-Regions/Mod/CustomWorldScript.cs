@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using CustomRegions.CustomMenu;
+using CustomRegions.CustomPearls;
 
 namespace CustomRegions.Mod
 {
@@ -16,8 +17,10 @@ namespace CustomRegions.Mod
 
             CustomWorldMod.CreateCustomWorldLog();
             CustomWorldMod.CreateCustomWorldFolders();
-
             CustomWorldMod.LoadCustomWorldResources();
+
+            CustomWorldMod.DownloadThumbs();
+
 
             // Load from file
             CustomWorldMod.analyzingLog = string.Empty;
@@ -31,7 +34,11 @@ namespace CustomRegions.Mod
             OverWorldHook.ApplyHooks();
             PlayerProgressionHook.ApplyHooks();
 
-            // Rain wolrd instance
+            // Pearl
+            DataPearlHook.ApplyHooks();
+            SLOracleBehaviorHasMarkHook.ApplyHooks();
+
+            // Rain world instance
             RainWorldHook.ApplyHooks();
 
             // Custom Palette
@@ -39,6 +46,7 @@ namespace CustomRegions.Mod
 
             // Electric gate
             RoomHook.ApplyHooks();
+            ElectricGateHook.ApplyHooks();
 
             // Custom Decal
             CustomDecalHook.ApplyHook();

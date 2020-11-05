@@ -314,6 +314,7 @@ namespace CustomRegions
                 }
             }
 
+            bool foundAnyCustomRegion = false;
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
                 //CustomWorldMod.CustomWorldLog($"Custom Regions: Reading world_{self.worldName}.txt from {keyValues.Value}");
@@ -334,10 +335,11 @@ namespace CustomRegions
                     self.worldName,
                     ".txt"
                 });
-
+                
                 if (File.Exists(test))
                 {
                     CustomWorldMod.CustomWorldLog($"Custom Regions: Found world_{self.worldName}.txt from {keyValues.Value}");
+                    foundAnyCustomRegion = true;
                     //self.lines = new List<string>();
                     string[] array = File.ReadAllLines(test);
                     for (int i = 0; i < array.Length; i++)
@@ -414,13 +416,13 @@ namespace CustomRegions
 
 
             // Sort lists to increase readability 
-            List<string> sortedRooms = CustomWorldMod.fromWorldDataToList(ROOMS);
+            List<string> sortedRooms = CustomWorldMod.FromWorldDataToListString(ROOMS);
             sortedRooms.Sort();
 
-            List<string> sortedCreatures = CustomWorldMod.fromWorldDataToList(CREATURES);
+            List<string> sortedCreatures = CustomWorldMod.FromWorldDataToListString(CREATURES);
             sortedCreatures.Sort();
 
-            List<string> sortedBats = CustomWorldMod.fromWorldDataToList(BATS);
+            List<string> sortedBats = CustomWorldMod.FromWorldDataToListString(BATS);
             sortedBats.Sort();
 
             lines = CustomWorldMod.BuildWorldText(sortedRooms, sortedCreatures, sortedBats);
@@ -434,7 +436,13 @@ namespace CustomRegions
 
             foreach (string s in lines)
             {
+                if(!foundAnyCustomRegion)
+                {
+                    CustomWorldMod.CustomWorldLog("Custom regions did not find any custom world_XX.txt files, so it will load vanilla. (if you were not expecting this it means you have something installed incorrectly)"); 
+                }
+                CustomWorldMod.CustomWorldLog("\nMerged world_XX.txt file");
                 CustomWorldMod.CustomWorldLog(s);
+                CustomWorldMod.CustomWorldLog("\n");
             }
             return lines;
         }
