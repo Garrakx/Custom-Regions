@@ -41,7 +41,9 @@ namespace CustomRegions
             if (File.Exists(saveFileName))
             {
                 File.Delete(saveFileName);
+                CustomWorldMod.regionInfoInSaveSlot[self.rainWorld.options.saveSlot].Clear();
                 CustomWorldMod.CustomWorldLog("Deleted save");
+                CustomWorldMod.ReadSaveAnalyzer();
             }
         }
 

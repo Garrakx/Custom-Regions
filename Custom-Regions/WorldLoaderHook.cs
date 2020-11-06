@@ -434,16 +434,19 @@ namespace CustomRegions
                 return self.lines;
             }
 
+            /*
             foreach (string s in lines)
             {
-                if(!foundAnyCustomRegion)
-                {
-                    CustomWorldMod.CustomWorldLog("Custom regions did not find any custom world_XX.txt files, so it will load vanilla. (if you were not expecting this it means you have something installed incorrectly)"); 
-                }
-                CustomWorldMod.CustomWorldLog("\nMerged world_XX.txt file");
-                CustomWorldMod.CustomWorldLog(s);
-                CustomWorldMod.CustomWorldLog("\n");
             }
+            */
+
+            CustomWorldMod.CustomWorldLog("\nMerged world_XX.txt file");
+            if (!foundAnyCustomRegion)
+            {
+                CustomWorldMod.CustomWorldLog("Custom regions did not find any custom world_XX.txt files, so it will load vanilla. (if you were not expecting this it means you have something installed incorrectly)");
+            }
+            CustomWorldMod.CustomWorldLog(string.Join("\n", lines.ToArray()));
+            CustomWorldMod.CustomWorldLog("\n");
             return lines;
         }
 

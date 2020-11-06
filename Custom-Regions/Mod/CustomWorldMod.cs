@@ -14,6 +14,8 @@ using Partiality;
 using PastebinMachine.EnumExtender;
 using System.Collections;
 using System.ComponentModel;
+using System.Security.Cryptography;
+using System.Text;
 
 
 // Delete Publicity Stunt requirement by pastebee
@@ -47,7 +49,7 @@ namespace CustomRegions.Mod
         public CustomWorldMod()
         {
             ModID = "Custom Regions Mod";
-            Version = "0.5." + version;
+            Version = "0.6." + version;
             author = "Garrakx";
         }
 
@@ -56,7 +58,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 30;
+        public int version = 31;
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
@@ -524,7 +526,7 @@ namespace CustomRegions.Mod
 
                     if (Custom.Md5Sum(allText).Equals(sum))
                     {
-                        CustomWorldLog("CR Save checksum is correct!");
+                        CustomWorldLog($"SaveSlot [{saveSlot + 1}] found! Correct checksum");
                     }
                     else
                     {
@@ -580,7 +582,7 @@ namespace CustomRegions.Mod
                 }
                 else
                 {
-                    CustomWorldLog($"CR saveslot [{saveFileName}] does not exist");
+                    CustomWorldLog($"SaveSlot [{saveSlot+1}] does not have CR information");
                 }
             }
         }
@@ -1371,6 +1373,7 @@ namespace CustomRegions.Mod
 
                 }
 
+                
 
                 RegionInformation regionInformation = new RegionInformation(string.Empty, string.Empty, "No description", 
                     true, loadOrder, string.Empty, -1, new DirectoryInfo(dir).Name, string.Empty, new Dictionary<string, float>(), new Dictionary<string, CustomPearl>());
@@ -1416,50 +1419,67 @@ namespace CustomRegions.Mod
 
 
                     CustomWorldLog($"Description for ({regionInformation.regionName}) is: [{regionInformation.description}]");
-                    string oldDescription = regionInformation.description;
+                  //  string oldDescription = regionInformation.description;
                     if (regionInformation.description.Equals("N / A") || regionInformation.description.Equals(string.Empty))
                     {
                         regionInformation.description = "No description";
                     }
 
-                    if (regionInformation.description.Equals("No description"))
+                    string newDescr = string.Empty;
+                    string newUrl = string.Empty;
+
+                    if (regionInformation.regionName.ToLower().Contains("aether ridge"))
                     {
-                        if (regionName.ToLower().Contains("aether ridge"))
-                        {
-                            regionInformation.description = "Aether Ridge is derelict desalination rig to the north of Sky Islands. Includes over 200 new rooms, six new arenas, and more.";
-                            regionInformation.url = "http://www.raindb.net/previews/aether.png";
-                        }
-                        else if (regionName.ToLower().Contains("badlands"))
-                        {
-                            regionInformation.description = "The Badlands is a region connecting Farm Arrays and Garbage Wastes. It features many secrets and unlockables, including three new arenas.";
-                            regionInformation.url = "http://www.raindb.net/previews/badlands.png";
-                        }
-                        else if (regionName.ToLower().Contains("root"))
-                        {
-                            regionInformation.description = "A new region expanding on Subterranean, and The Exterior, with all new rooms. Made to give exploration focused players more Rain World to discover.";
-                        }
-                        else if (regionName.ToLower().Contains("side house"))
-                        {
-                            regionInformation.description = "Adds a new region connecting Shoreline, 5P, and Depths. An amalgamation of many of the game's unused rooms. Also includes a couple custom unlockable maps for arena mode.";
-                        }
-                        else if (regionName.ToLower().Contains("swamplands"))
-                        {
-                            regionInformation.description = "A new swampy region that connects Garbage Wastes and Shoreline.";
-                        }
-                        else if (regionName.ToLower().Contains("master quest"))
-                        {
-                            regionInformation.description = "A new game+ style mod that reorganizes the game's regions, trying to rekindle the feelings of when you first got lost in Rain World.";
-                        }
+                        newDescr = "Aether Ridge is derelict desalination rig to the north of Sky Islands. Includes over 200 new rooms, six new arenas, and more.";
+                        newUrl = "http://www.raindb.net/previews/aether.png";
                     }
+                    else if (regionInformation.regionName.ToLower().Contains("badlands"))
+                    {
+                        newDescr = "The Badlands is a region connecting Farm Arrays and Garbage Wastes. It features many secrets and unlockables, including three new arenas.";
+                        newUrl = "http://www.raindb.net/previews/badlands.png";
+                    }
+                    else if (regionInformation.regionName.ToLower().Contains("root"))
+                    {
+                        newDescr = "A new region expanding on Subterranean, and The Exterior, with all new rooms. Made to give exploration focused players more Rain World to discover.";
+                        newUrl = "http://www.raindb.net/previews/root2.png";
+                    }
+                    else if (regionInformation.regionName.ToLower().Contains("side house"))
+                    {
+                        newDescr = "Adds a new region connecting Shoreline, 5P, and Depths. An amalgamation of many of the game's unused rooms. Also includes a couple custom unlockable maps for arena mode.";
+                        newUrl = "http://www.raindb.net/previews/sidehouse_preview.png";
+                    }
+                    else if (regionInformation.regionName.ToLower().Contains("swamplands"))
+                    {
+                        newDescr = "A new swampy region that connects Garbage Wastes and Shoreline.";
+                        newUrl = "http://www.raindb.net/previews/swamp.png";
+                    }
+                    else if (regionInformation.regionName.ToLower().Contains("master quest"))
+                    {
+                        newDescr = "A new game+ style mod that reorganizes the game's regions, trying to rekindle the feelings of when you first got lost in Rain World.";
+                        newUrl = "http://www.raindb.net/previews/master.png";
+                    }
+
 
                     // Checksum handler
                     string newChecksum = CustomWorldMod.GenerateRegionCheckSum(dir);
-                    if (!newChecksum.Equals(string.Empty))
+                    if (!newChecksum.Equals(string.Empty) && !newChecksum.Equals(regionInformation.checksum))
                     {
+                        CustomWorldLog($"New checksum for {regionInformation.regionName} [{newChecksum}]");
                         regionInformation.checksum = newChecksum;
                     }
+                    if(!newDescr.Equals(string.Empty))
+                    {
+                        CustomWorldLog($"New description for {regionInformation.regionName} [{newDescr}]");
+                        regionInformation.description = newDescr;
+                    }
+                    if(!newUrl.Equals(string.Empty))
+                    {
+                        CustomWorldLog($"New url for {regionInformation.regionName} [{url}]");
+                        regionInformation.url = newUrl;
+                    }
 
-                    if (!oldDescription.Equals(regionInformation.description) || !newChecksum.Equals(string.Empty))
+                    // Write new info
+                    if ((!newDescr.Equals(string.Empty)&&regionInformation.description.Equals("No description")) || !newChecksum.Equals(string.Empty) || !newUrl.Equals(string.Empty))
                     {
                         CustomWorldLog($"Updating regionInfo for {regionInformation.regionName}");
                         File.Delete(dir + Path.DirectorySeparatorChar + "regionInfo.json");
@@ -1565,6 +1585,47 @@ namespace CustomRegions.Mod
                 }
                 EnumExtender.ExtendEnumsAgain();
             }
+
+            CustomWorldLog($"Creating conversatin files for {regionID}...");
+            {
+                
+                /*
+                foreach (string directory in Directory.GetDirectories(pathToConvo))
+                {
+                    foreach(string convoFile in Directory.GetFiles(directory))
+                    {
+                        string[] conversation = File.ReadAllLines(convoFile);
+                        if (conversation.[0] == '0' && Regex.Split(conversation, Environment.NewLine).Length > 1)
+                        {
+                            string text4 = Custom.xorEncrypt(conversation, 54 + k + j * 7);
+                            text4 = '1' + text4.Remove(0, 1);
+                            File.WriteAllText(conversation, text4);
+                        }
+                    }
+                    
+                }*/
+
+                for (int j = 0; j < Enum.GetNames(typeof(InGameTranslator.LanguageID)).Length; j++)
+                {
+                    for (int k = 1; k <= 57; k++)
+                    {
+                        string pathToConvo = dir + Path.DirectorySeparatorChar + "Assets" + Path.DirectorySeparatorChar + "Text" + 
+                            Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort((InGameTranslator.LanguageID)j) + Path.DirectorySeparatorChar + k + ".txt";
+
+                        if (File.Exists(pathToConvo))
+                        {
+                            CustomWorldLog($"Encrypting file [{Path.GetFileNameWithoutExtension(pathToConvo)}] from [{regionID}]");
+                            string convoLines = File.ReadAllText(pathToConvo, Encoding.Default);
+                            if (convoLines[0] == '0' && Regex.Split(convoLines, Environment.NewLine).Length > 1)
+                            {
+                                string text4 = Custom.xorEncrypt(convoLines, 54 + k + j * 7);
+                                text4 = '1' + text4.Remove(0, 1);
+                                File.WriteAllText(pathToConvo, text4);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private static string GenerateRegionCheckSum(string path)
@@ -1637,6 +1698,7 @@ namespace CustomRegions.Mod
             return infoSerial;
         }
 
+        
 
         public static void WriteRegionInfoJSONFile(string dirPath, string regionID, string description, string regionName, bool activated, int loadOrder, string url, string checksum)
         {

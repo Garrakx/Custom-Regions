@@ -16,6 +16,7 @@ namespace CustomRegions.CustomPearls
         public static void ApplyHooks()
         {
             On.DataPearl.ApplyPalette += DataPearl_ApplyPalette;
+
         }
 
         private static void DataPearl_ApplyPalette(On.DataPearl.orig_ApplyPalette orig, DataPearl self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)

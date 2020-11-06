@@ -93,7 +93,9 @@ namespace CustomRegions.Mod
 
             if (currentThumb >= this.urls.Count)
             {
+                this.Clear();
                 readyToDelete = true;
+                instance = null;
                 return;
             }
 

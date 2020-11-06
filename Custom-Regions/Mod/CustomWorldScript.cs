@@ -83,11 +83,13 @@ namespace CustomRegions.Mod
 
         public void Update()
         {
+            
             if (rw == null)
             {
                 rw = FindObjectOfType<RainWorld>();
                 pm = rw.processManager;
             }
+            
         }
 
     }

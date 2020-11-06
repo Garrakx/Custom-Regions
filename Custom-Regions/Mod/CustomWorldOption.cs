@@ -38,7 +38,7 @@ namespace CustomRegions.Mod
         }
 
         public override void Update(float dt)
-        {   
+        {
             base.Update(dt);
         }
 
@@ -50,7 +50,7 @@ namespace CustomRegions.Mod
         public override void Signal(UItrigger trigger, string signal)
         {
             base.Signal(trigger, signal);
-            if(signal != null)
+            if (signal != null)
             {
                 if (signal.Equals("reloadRegions"))
                 {
@@ -91,27 +91,21 @@ namespace CustomRegions.Mod
                 return;
             }
 
-            OpLabel errorLabel = new OpLabelLong(new Vector2(25, 1), new Vector2(500, 20), "", true, FLabelAlignment.Center)
+            OpLabel errorLabel = new OpLabelLong(new Vector2(25, 1), new Vector2(500, 15), "", true, FLabelAlignment.Center)
             {
                 text = "Green means activated, red means deactivated"
             };
 
             Tabs[tab].AddItems(errorLabel);
 
-            /*int cumulativeScrollSize = 0;
-            string labelCheck = "";
-            string labelDescri = "";*/
-            //int rectSizeY
-            //cumulativeScrollSize += (int)rectSize.y;
-
             int spacing = 25;
 
-            Vector2 rectSize = new Vector2(440, 175);
-            OpScrollBox mainScroll = new OpScrollBox(new Vector2(50, 25), new Vector2(500, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfOptions)));
+            Vector2 rectSize = new Vector2(475, 175);
+            OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfOptions)));
 
-            Vector2 descripSize = new Vector2(225, 100);
-            Vector2 thumbSize = new Vector2(160, 111);
-            Vector2 rectPos = new Vector2(spacing, mainScroll.contentSize-rectSize.y-spacing);
+            Vector2 descripSize = new Vector2(200, 130);
+            Vector2 thumbSize = new Vector2(225, 156);
+            Vector2 rectPos = new Vector2(spacing, mainScroll.contentSize - rectSize.y - spacing);
             Vector2 labelSize = new Vector2(thumbSize.x, 25);
 
 
@@ -126,8 +120,8 @@ namespace CustomRegions.Mod
                 OpRect relieve = new OpRect(rectPos + new Vector2(15, 15), rectSize, 0.3f);
                 mainScroll.AddItems(relieve);
                 */
-
-                OpRect rectOption = new OpRect(rectPos, rectSize, 0.3f)
+                
+                OpRect rectOption = new OpRect(rectPos, rectSize, 0.2f)
                 {
                     doesBump = activated,
                     colorEdge = colorEnabled//new Color((206f / 255f), 1f, (206f / 255f))
@@ -137,23 +131,24 @@ namespace CustomRegions.Mod
                 {
                     rectOption.colorEdge = colorEnabled;//new Color((108f / 255f), 0.001f, 0.001f);
                 }
-                //Tabs[tab].AddItems(rectOption);
                 mainScroll.AddItems(rectOption);
 
 
-                OpLabel labelRegionName = new OpLabel(rectPos + new Vector2(25, 140), labelSize, "", FLabelAlignment.Left)
+                OpLabel labelRegionName = new OpLabel(rectPos + new Vector2(thumbSize.x + spacing, 140), labelSize, "", FLabelAlignment.Left)
                 {
-                    text = (i + 1).ToString()+") "+CustomWorldMod.availableRegions.ElementAt(i).Value.regionName,
+                    text = (i + 1).ToString() + ") " + CustomWorldMod.availableRegions.ElementAt(i).Value.regionName,
                     color = colorEnabled// new Color((108f / 255f), 0.001f, 0.001f)
                 };
                 //Debug.Log(labelBox.text);
                 //Tabs[tab].AddItems(labelBox);
                 mainScroll.AddItems(labelRegionName);
 
+
+
                 string filePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath +
                     CustomWorldMod.availableRegions.ElementAt(i).Value.folderName + Path.DirectorySeparatorChar + "thumb.png";
 
-                Texture2D oldTex = new Texture2D(2, 2);
+                Texture2D oldTex = new Texture2D((int)thumbSize.x, (int)thumbSize.y);
                 if (File.Exists(filePath))
                 {
                     byte[] fileData;
@@ -163,7 +158,15 @@ namespace CustomRegions.Mod
                     oldTex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
 
                     Texture2D newTex = new Texture2D(oldTex.width, oldTex.height, TextureFormat.RGBA32, false);
-                    newTex.SetPixels(oldTex.GetPixels());
+                    Color[] convertedImage = oldTex.GetPixels();
+                    if (!activated)
+                    {
+                        for (int c = 0; c < convertedImage.Length; c++)
+                        {
+                            convertedImage[c].a *= 0.5f;
+                        }
+                    }
+                    newTex.SetPixels(convertedImage);
                     newTex.Apply();
 
                     TextureScale.Point(newTex, (int)thumbSize.x, (int)thumbSize.y);//(int)thumbSize.x, (int)thumbSize.y );
@@ -171,23 +174,18 @@ namespace CustomRegions.Mod
                     oldTex = newTex;
                 }
 
-                try
-                {
-                    OpImage thumbnail = new OpImage(rectPos + new Vector2(25, 25), oldTex);
-                    mainScroll.AddItems(thumbnail);
-                }
-                catch (Exception e)
-                {
-                    Debug.Log(e);
-                }
+
+                OpImage thumbnail = new OpImage(rectPos + new Vector2((rectSize.y - thumbSize.y) / 2f, (rectSize.y - thumbSize.y) / 2f), oldTex);
+                mainScroll.AddItems(thumbnail);
 
                 /*
-                OpRect thumb = new OpRect(rectPos + new Vector2(25, 25), thumbSize, 0.3f);
+                OpRect thumb = new OpRect(thumbnail.GetPos() + new Vector2(2, 2), thumbSize, 0f);
                 mainScroll.AddItems(thumb);
                 */
 
+
                 //descripSize.x = rectSize.x - labelRegionName.text.Length * 7f - 2f;
-                OpLabel labelDesc = new OpLabel(rectPos + new Vector2(1.5f*spacing+thumbSize.x, rectSize.y * 0.30f), descripSize, "", FLabelAlignment.Left)
+                OpLabel labelDesc = new OpLabel(rectPos + new Vector2(spacing + thumbSize.x, (rectSize.y - descripSize.y - labelSize.y)), descripSize, "", FLabelAlignment.Left)
                 {
                     autoWrap = true,
                     text = CustomWorldMod.availableRegions.ElementAt(i).Value.description,
@@ -217,8 +215,8 @@ namespace CustomRegions.Mod
             Tabs[tab].AddItems(labelAuthor);
 
 
-            
-            Tabs[tab].AddItems(new OpSimpleButton(new Vector2(525, 550), new Vector2(60,30), "reloadRegions", "Reload")); 
+
+            Tabs[tab].AddItems(new OpSimpleButton(new Vector2(525, 550), new Vector2(60, 30), "reloadRegions", "Reload"));
 
 
             //How Many Options
@@ -321,7 +319,7 @@ namespace CustomRegions.Mod
             };
 
 
-            Tabs[tab].AddItems(errorLabel); 
+            Tabs[tab].AddItems(errorLabel);
         }
 
         private void AnalyseSaveTab(int tab)
@@ -333,10 +331,10 @@ namespace CustomRegions.Mod
             }
             catch (Exception) { }
 
-            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), $"Analyze Save Slot {saveSlot+1}", FLabelAlignment.Center, true);
+            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), $"Analyze Save Slot {saveSlot + 1}", FLabelAlignment.Center, true);
             Tabs[tab].AddItems(labelID);
 
-            OpLabel labelDsc = new OpLabel(new Vector2(100f, 540), new Vector2(400f, 20f), $"Check problems in savelot {saveSlot+1}", FLabelAlignment.Center, false);
+            OpLabel labelDsc = new OpLabel(new Vector2(100f, 540), new Vector2(400f, 20f), $"Check problems in savelot {saveSlot + 1}", FLabelAlignment.Center, false);
             Tabs[tab].AddItems(labelDsc);
 
             OpLabel errorLabel = new OpLabelLong(new Vector2(50, 490), new Vector2(600, 20), "", true, FLabelAlignment.Center)
@@ -377,7 +375,7 @@ namespace CustomRegions.Mod
             {
                 string temp2 = string.Empty;
                 List<string> expectedOrder = new List<string>();
-                foreach(CustomWorldMod.RegionInformation info in CustomWorldMod.regionInfoInSaveSlot[saveSlot])
+                foreach (CustomWorldMod.RegionInformation info in CustomWorldMod.regionInfoInSaveSlot[saveSlot])
                 {
                     expectedOrder.Add(info.regionID);
                 }
@@ -412,7 +410,7 @@ namespace CustomRegions.Mod
             Tabs[tab].AddItems(mainScroll);
             for (int i = 0; i < problems.Count; i++)
             {
-                
+
                 OpRect rectOption = new OpRect(rectPos, rectSize, 0.3f)
                 {
                     colorEdge = new Color((108f / 255f), 0.001f, 0.001f)
@@ -440,7 +438,7 @@ namespace CustomRegions.Mod
                     text = CustomWorldMod.availableRegions.ElementAt(i).Value.description,
                 };
                 */
-               // mainScroll.AddItems(labelDesc);
+                // mainScroll.AddItems(labelDesc);
 
                 rectPos.y += rectSize.y + spacing;
                 //rectPos.y -= Mathf.Min((spacing / (numberOfOptions)), 150);
