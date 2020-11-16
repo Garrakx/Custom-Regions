@@ -158,7 +158,7 @@ CR adds the ability to add custom data pearls without any code, and even include
 - The fourth field is optional if you want your pearl to shine in a different color.
 
 *If you want to add pearls without dialogue, you are done. If you want dialogue keep following the instructions*
-3. Navigate to `Rain World\Mods\CustomResources\"your region name"\Assets\Text\Text_Eng\` folder. Here, you have to create as many text files as unique dialogue you want for your pearls. Following the names from above, if I want to add dialogue for *first_pearl_name *, I will create a text file called `1.txt`(since it was correspond to the first column, the pearl ID). Open the file and write the dialogue. 
+3. Navigate to `Rain World\Mods\CustomResources\"your region name"\Assets\Text\Text_Eng\` folder. Here, you have to create as many text files as unique dialogue you want for your pearls. Following the names from above, if I want to add dialogue for *first_pearl_name*, I will create a text file called `1.txt`(since it was correspond to the first column, the pearl ID). Open the file and write the dialogue.  ***DO NOT USE THE ORIGINAL FILES HERE; MAKE A BACKUP***
 Sample:
 ```
 0-46
