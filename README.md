@@ -6,7 +6,7 @@
 
 ![Custom Regions!](https://cdn.discordapp.com/attachments/305139167300550666/777644000529088532/unknown.png)
 
-[Russian guide here (outdated) 
+[Russian guide here 
 <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="40"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-RU.md)
 
 
