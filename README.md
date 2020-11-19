@@ -6,7 +6,7 @@
 
 ![Custom Regions!](https://cdn.discordapp.com/attachments/305139167300550666/777644000529088532/unknown.png)
 
-[Russian guide here (outdated) 
+[Russian guide here 
 <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="40"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-RU.md)
 
 
@@ -154,11 +154,11 @@ CR adds the ability to add custom data pearls without any code, and even include
 ```
 - The first number indicates the numberID of the pearl (later it will determine the name of dialogue file). 
 - The second field is the name that it will appear in Devtools, it can be anything (for example: `root_pearl_CC`) 
-- The third field is the color in hex (for example `00FF00`, use an HEX color picker online for example). 
+- The third field is the color in hex (for example `00FF00`, use an HEX color picker online). 
 - The fourth field is optional if you want your pearl to shine in a different color.
 
 *If you want to add pearls without dialogue, you are done. If you want dialogue keep following the instructions*
-3. Navigate to `Rain World\Mods\CustomResources\"your region name"\Assets\Text\Text_Eng\` folder. Here, you have to create as many text files as unique dialogue you want for your pearls. Following the names from above, if I want to add dialogue for *first_pearl_name *, I will create a text file called `1.txt`(since it was correspond to the first column, the pearl ID). Open the file and write the dialogue. 
+3. Navigate to `Rain World\Mods\CustomResources\"your region name"\Assets\Text\Text_Eng\` folder. Here, you have to create as many text files as unique dialogue you want for your pearls. Following the names from above, if I want to add dialogue for *first_pearl_name*, I will create a text file called `1.txt`(since it was correspond to the first column, the pearl ID). Open the file and write the dialogue.  ***DO NOT USE THE ORIGINAL FILES HERE; MAKE A BACKUP***
 Sample:
 ```
 0-46
@@ -167,8 +167,9 @@ First line of the first text box.<LINE>Second line of the first text box.
 This line will be shown in a second text box!
 ```
 Quoting the modding wiki:
-"The first line of the text file should be **0-##**, where **##** matches the number of the text file.
-Copy and paste this file into the other language folders (Text_Fre, Text_Ger, etc). This will prevent the game from crashing if the player is playing in another language other than English. (If you could actually translate the text for these languages that'd be even better, but you probably don't have a localization budget for your mod...)"
+`The first line of the text file should be **0-##**, where **##** matches the number of the text file.
+Copy and paste this file into the other language folders (Text_Fre, Text_Ger, etc). This will prevent the game from crashing if the player is playing in another language other than English. (If you could actually translate the text for these languages that'd be even better, but you probably don't have a localization budget for your mod...)`
+
 4. Run the game once (with CR installed of course). The game will encrypt all dialogue files so it is harder to data mine. You should included this encrypted files and all the other created files in this steps when you make your mod available.
 
 ### <a name="index6.6"></a>THUMBNAILS
