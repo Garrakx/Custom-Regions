@@ -44,9 +44,10 @@ namespace CustomRegions.Mod
             // Custom Palette
             RoomCameraHook.ApplyHook();
 
+
             // Electric gate
             RoomHook.ApplyHooks();
-            ElectricGateHook.ApplyHooks();
+            WaterGateHook.ApplyHooks();
 
             // Custom Decal
             CustomDecalHook.ApplyHook();
@@ -72,6 +73,7 @@ namespace CustomRegions.Mod
             MusicPieceHook.ApplyHooks();
 
         }
+
 
         public static CustomWorldMod mod;
         
