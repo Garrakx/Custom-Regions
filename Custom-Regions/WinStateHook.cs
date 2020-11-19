@@ -13,9 +13,11 @@ namespace CustomRegions
         public static void ApplyHook()
         {
             On.WinState.CreateAndAddTracker += WinState_CreateAndAddTracker;
-            On.WinState.CycleCompleted += WinState_CycleCompleted;
+
+           // On.WinState.CycleCompleted += WinState_CycleCompleted;
         }
 
+        // NOT NEEDED ANYMORE
         private static void WinState_CycleCompleted(On.WinState.orig_CycleCompleted orig, WinState self, RainWorldGame game)
         {
             orig(self, game);
