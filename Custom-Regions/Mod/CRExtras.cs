@@ -54,7 +54,8 @@ namespace CustomRegions.Mod
         {
             if (thumbInfo == null || thumbInfo.Count < 1)
             {
-                CustomWorldMod.CustomWorldLog("Error loading thubm downloader", true);
+                CustomWorldMod.Log("Error creating thumbnail downloader", true);
+                this.readyToDelete = true;
                 return;
             }
 
@@ -86,16 +87,11 @@ namespace CustomRegions.Mod
 
         public void Update()
         {
-            if (urls == null || regionFolders == null)
-            {
-                return;
-            }
 
-            if (currentThumb >= this.urls.Count)
+            if (urls == null || currentThumb >= this.urls.Count  || regionFolders == null || readyToDelete)
             {
                 this.Clear();
                 readyToDelete = true;
-                instance = null;
                 return;
             }
 
@@ -104,14 +100,14 @@ namespace CustomRegions.Mod
                 if (www.isDone && !next)
                 {
 
-                    CustomWorldMod.CustomWorldLog($"Dowloading thumb[{currentThumb}].. path [{path}]");
+                    CustomWorldMod.Log($"Dowloading thumb[{currentThumb}].. path [{path}]");
                     Texture2D tex;
                     tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
                     www.LoadImageIntoTexture(tex);
                     tex.Apply();
                     byte[] file = tex.EncodeToPNG();
                     File.WriteAllBytes(path, file);
-                    CustomWorldMod.CustomWorldLog("Thumb downloaded " + path);
+                    CustomWorldMod.Log("Thumb downloaded " + path);
 
 
                     next = true;
@@ -127,14 +123,21 @@ namespace CustomRegions.Mod
             else
             {
                 readyToDelete = true;
-                CustomWorldMod.CustomWorldLog(www.error, true);
+                CustomWorldMod.Log(www.error, true);
             }
         }
 
         public void Clear()
         {
-            this.regionFolders.Clear();
-            this.urls.Clear();
+            try
+            {
+                this.regionFolders.Clear();
+            } catch (Exception) { }
+            try
+            {
+                this.urls.Clear();
+            }
+            catch (Exception) { }
         }
         /*
         internal void Create()

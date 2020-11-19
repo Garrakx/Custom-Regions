@@ -17,6 +17,12 @@ namespace CustomRegions
         {
             orig(self);
             CustomWorldMod.rainWorldInstance = self;
+
+            if (ThumbnailDownloader.instance != null && ThumbnailDownloader.instance.readyToDelete)
+            {
+                ThumbnailDownloader.instance.Clear();
+                ThumbnailDownloader.instance = null;
+            }
         }
     }
 }
