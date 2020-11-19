@@ -8,10 +8,6 @@ namespace CustomRegions.CustomPearls
 {
     static class DataPearlHook
     {
-        public class EnumExt_DataPearlType
-        {
-            public static DataPearl.AbstractDataPearl.DataPearlType CustomDataPearl;
-        }
 
         public static void ApplyHooks()
         {
