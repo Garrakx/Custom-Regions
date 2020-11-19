@@ -11,10 +11,6 @@ using UnityEngine;
 
 namespace CustomRegions
 {
-
-    // This code comes from EasyModPack by topicular
-    // Adapted to work with any region by Garrakx
-
     public static class RegionGateHook
     {
         public static void ApplyHooks()
@@ -29,13 +25,13 @@ namespace CustomRegions
         private static void RegionGate_ctor(On.RegionGate.orig_ctor orig, RegionGate self, Room room)
         {
             orig(self, room);
-            //if (!enabled) { return; }
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                CustomWorldMod.CustomWorldLog($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}");
+                //CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
+                /*
                 string text = string.Concat(new object[]
                 {
                 Custom.RootFolderDirectory(),
@@ -46,31 +42,37 @@ namespace CustomRegions
                 Path.DirectorySeparatorChar,
                 "locks.txt"
                 });
+                */
 
-                if (!File.Exists(text)) { return; }
+                string path2 = path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "locks.txt";
 
-                self.karmaGlyphs[0].Destroy();
-                self.karmaGlyphs[1].Destroy();
-
-                string[] array = File.ReadAllLines(text);
-
-                for (int i = 0; i < array.Length; i++)
+                if (File.Exists(path2))
                 {
-                    if (Regex.Split(array[i], " : ")[0] == room.abstractRoom.name)
-                    {
-                        CustomWorldMod.CustomWorldLog($"Custom Regions: Found custom karmaGate requirement for {keyValues.Key}");
-                        self.karmaRequirements[0] = Custom.IntClamp(int.Parse(Regex.Split(array[i], " : ")[1]) - 1, 0, 4);
-                        self.karmaRequirements[1] = Custom.IntClamp(int.Parse(Regex.Split(array[i], " : ")[2]) - 1, 0, 4);
-                        break;
-                    }
-                }
-            }
 
-            self.karmaGlyphs = new GateKarmaGlyph[2];
-            for (int j = 0; j < 2; j++)
-            {
-                self.karmaGlyphs[j] = new GateKarmaGlyph(j == 1, self, self.karmaRequirements[j]);
-                room.AddObject(self.karmaGlyphs[j]);
+                    self.karmaGlyphs[0].Destroy();
+                    self.karmaGlyphs[1].Destroy();
+
+                    string[] array = File.ReadAllLines(path2);
+
+                    for (int i = 0; i < array.Length; i++)
+                    {
+                        if (Regex.Split(array[i], " : ")[0] == room.abstractRoom.name)
+                        {
+                            CustomWorldMod.Log($"Custom Regions: Found custom karmaGate requirement for {keyValues.Key}. Gate [{self.karmaRequirements[0]}/{self.karmaRequirements[1]}]");
+                            self.karmaRequirements[0] = Custom.IntClamp(int.Parse(Regex.Split(array[i], " : ")[1]) - 1, 0, 4);
+                            self.karmaRequirements[1] = Custom.IntClamp(int.Parse(Regex.Split(array[i], " : ")[2]) - 1, 0, 4);
+                            break;
+                        }
+                    }
+
+                    self.karmaGlyphs = new GateKarmaGlyph[2];
+                    for (int j = 0; j < 2; j++)
+                    {
+                        self.karmaGlyphs[j] = new GateKarmaGlyph(j == 1, self, self.karmaRequirements[j]);
+                        room.AddObject(self.karmaGlyphs[j]);
+                    }
+                    break;
+                }
             }
         }
     }
