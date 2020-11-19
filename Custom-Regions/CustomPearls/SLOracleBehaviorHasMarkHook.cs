@@ -10,10 +10,6 @@ using UnityEngine;
 
 namespace CustomRegions.CustomPearls
 {
-    public class EnumExt_ConversationID
-    {
-        public static Conversation.ID CustomConversationID;
-    }
 
 
 
@@ -36,7 +32,7 @@ namespace CustomRegions.CustomPearls
                 {
                     if (item is DataPearl)
                     {
-                        CustomWorldMod.CustomWorldLog($"Moon grabbed pearl: {(item as DataPearl).AbstractPearl.dataPearlType}");
+                        CustomWorldMod.Log($"Moon grabbed pearl: {(item as DataPearl).AbstractPearl.dataPearlType}");
                         if ((item as DataPearl).AbstractPearl.dataPearlType != DataPearl.AbstractDataPearl.DataPearlType.Misc)
                         {
                             if ((item as DataPearl).AbstractPearl.dataPearlType != DataPearl.AbstractDataPearl.DataPearlType.Misc2)
@@ -54,7 +50,7 @@ namespace CustomRegions.CustomPearls
 
                                             if((item as DataPearl).AbstractPearl.dataPearlType == dataPearlType)
                                             {
-                                                CustomWorldMod.CustomWorldLog($"Loading custom pearl...[{pearls.Key}] from [{pearls.Value.regionID}]");
+                                                CustomWorldMod.Log($"Loading custom pearl...[{pearls.Key}] from [{pearls.Value.regionID}]");
                                                 foundPearl = true;
                                                 if (self.currentConversation != null)
                                                 {
@@ -69,7 +65,7 @@ namespace CustomRegions.CustomPearls
                                                 } 
                                                 catch (Exception e)
                                                 {
-                                                    CustomWorldMod.CustomWorldLog($"Conversation not found for [{pearls.Key}] + {e}");
+                                                    CustomWorldMod.Log($"Conversation not found for [{pearls.Key}] + {e}");
                                                 }
 
                                                 self.currentConversation = new SLOracleBehaviorHasMark.MoonConversation(id, self, SLOracleBehaviorHasMark.MiscItemType.NA);
@@ -126,7 +122,7 @@ namespace CustomRegions.CustomPearls
 
         private static void LoadCustomEventsFromFile(int fileName, string customRegion, Conversation self)
         {
-            CustomWorldMod.CustomWorldLog("~~~LOAD CONVO " + fileName);
+            CustomWorldMod.Log("~~~LOAD CONVO " + fileName);
 
             char div = Path.DirectorySeparatorChar;
             string convoPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + customRegion + div +
@@ -135,7 +131,7 @@ namespace CustomRegions.CustomPearls
 
             if (!File.Exists(convoPath))
             {
-                CustomWorldMod.CustomWorldLog("NOT FOUND " + convoPath);
+                CustomWorldMod.Log("NOT FOUND " + convoPath);
                 return;
             }
             string text2 = File.ReadAllText(convoPath, Encoding.UTF8);
@@ -182,7 +178,7 @@ namespace CustomRegions.CustomPearls
             }
             catch
             {
-                CustomWorldMod.CustomWorldLog("TEXT ERROR");
+                CustomWorldMod.Log("TEXT ERROR");
                 self.events.Add(new Conversation.TextEvent(self, 0, "TEXT ERROR", 100));
             }
         }

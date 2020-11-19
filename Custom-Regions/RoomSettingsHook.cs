@@ -23,7 +23,7 @@ namespace CustomRegions
 
         private static void RoomSettings_Save(On.RoomSettings.orig_Save orig, RoomSettings self)
         {
-            CustomWorldMod.CustomWorldLog($"Custom Regions: Saving room settings at [{self.filePath}]");
+            CustomWorldMod.Log($"Custom Regions: Saving room settings at [{self.filePath}]");
             orig(self);
         }
 
@@ -44,7 +44,7 @@ namespace CustomRegions
                         if (File.Exists(newPath))
                         {
                             self.filePath = newPath;
-                            CustomWorldMod.CustomWorldLog($"Custom Regions: Found settings at [{newPath}]");
+                            CustomWorldMod.Log($"Custom Regions: Found settings at [{newPath}]");
                             break;
                         }
 
@@ -55,7 +55,7 @@ namespace CustomRegions
             }
             else
             {
-                CustomWorldMod.CustomWorldLog($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
+                CustomWorldMod.Log($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
             }
 
             try
@@ -63,7 +63,7 @@ namespace CustomRegions
                 orig(self, region);
             } catch (Exception e)
             {
-                CustomWorldMod.CustomWorldLog("Found illegal characters in a room settings file." + e);
+                CustomWorldMod.Log("Found illegal characters in a room settings file." + e);
                 throw e;
             }
         }
@@ -77,7 +77,7 @@ namespace CustomRegions
            // if (!self.isTemplate)
            // {
                 string path = WorldLoader.FindRoomFileDirectory(self.name, false) + "_Settings.txt";
-                CustomWorldMod.CustomWorldLog($"Custom Regions: Loading room settings for [{self.name}] at [{path}]");
+                CustomWorldMod.Log($"Custom Regions: Loading room settings for [{self.name}] at [{path}]");
 
             if (File.Exists(path))
             {

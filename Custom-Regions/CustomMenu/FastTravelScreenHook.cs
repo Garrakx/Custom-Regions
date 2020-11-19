@@ -44,7 +44,7 @@ namespace CustomRegions.CustomMenu
             self.playerShelters = new string[3];
 
             List<string> regionOrder = FastTravelScreen_GetRegionOrder(FastTravelScreen.GetRegionOrder); //FastTravelScreen.GetRegionOrder();
-            CustomWorldMod.CustomWorldLog($"Custom Regions: FastTravelScreen. Manager.regionNames.Length [{manager.rainWorld.progression.regionNames.Length}]. RegionOrder.Count [{regionOrder.Count}]");
+            CustomWorldMod.Log($"Custom Regions: FastTravelScreen. Manager.regionNames.Length [{manager.rainWorld.progression.regionNames.Length}]. RegionOrder.Count [{regionOrder.Count}]");
             for (int k = 0; k < regionOrder.Count; k++)
             {
                 for (int l = 0; l < manager.rainWorld.progression.regionNames.Length; l++)
@@ -69,7 +69,7 @@ namespace CustomRegions.CustomMenu
                 }
                 catch (Exception e)
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Failed to remove back button at FastTraveLScreen [{e}]");
+                    CustomWorldMod.Log($"Custom Regions: Failed to remove back button at FastTraveLScreen [{e}]");
                 }
 
 
@@ -169,8 +169,8 @@ namespace CustomRegions.CustomMenu
                     {
                         if (self.allRegions[self.accessibleRegions[num3]].name == self.currentShelter.Substring(0, 2))
                         {
-                            CustomWorldMod.CustomWorldLog(self.currentShelter);
-                            CustomWorldMod.CustomWorldLog(string.Concat(new object[]
+                            CustomWorldMod.Log(self.currentShelter);
+                            CustomWorldMod.Log(string.Concat(new object[]
                             {
                                 "found start region: ",
                                 num3,
@@ -220,7 +220,7 @@ namespace CustomRegions.CustomMenu
                     debug += s + "/";
                 }
             }
-            CustomWorldMod.CustomWorldLog($"Custom Regions: GetAccesibleShelter. RegionAcronym [{regionAcronym}]. List:[{debug}]");
+            CustomWorldMod.Log($"Custom Regions: GetAccesibleShelter. RegionAcronym [{regionAcronym}]. List:[{debug}]");
             return ori;
         }
 
@@ -245,7 +245,7 @@ namespace CustomRegions.CustomMenu
             {
                 if (keyValues.Key.Equals(regionName))
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: TitleSceneID {regionName}");
+                    CustomWorldMod.Log($"Custom Regions: TitleSceneID {regionName}");
                     CustomWorldMod.sceneCustomID = regionName;
                     break;
                 }
@@ -254,7 +254,7 @@ namespace CustomRegions.CustomMenu
 
             if (orig(self, regionName) == Menu.MenuScene.SceneID.Empty && CustomWorldMod.sceneCustomID != string.Empty)
             {
-                CustomWorldMod.CustomWorldLog($"Custom Regions: TitleSceneID. Using custom Scene ID [{CustomWorldMod.sceneCustomID}]");
+                CustomWorldMod.Log($"Custom Regions: TitleSceneID. Using custom Scene ID [{CustomWorldMod.sceneCustomID}]");
                 return EnumExt_extendedSceneID.CustomSceneID;
             }
 

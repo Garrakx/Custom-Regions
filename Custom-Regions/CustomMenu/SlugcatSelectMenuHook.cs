@@ -80,7 +80,7 @@ namespace CustomRegions.CustomMenu
                         {
                             string fullRegionName = "N / A";
                             CustomWorldMod.loadedRegions.TryGetValue(text2, out fullRegionName);
-                            CustomWorldMod.CustomWorldLog("Custom Regions: text " + text2);
+                            CustomWorldMod.Log("Custom Regions: text " + text2);
                             if (fullRegionName != null)
                             {
                                 if (fullRegionName.Length > 0)

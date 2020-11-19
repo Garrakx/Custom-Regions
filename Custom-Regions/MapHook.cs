@@ -49,7 +49,7 @@ namespace CustomRegions
                         });
                         if (File.Exists(test))
                         {
-                            CustomWorldMod.CustomWorldLog($"Custom Regions: Loading map texture {keyValues.Value} in {self.RegionName}");
+                            CustomWorldMod.Log($"Custom Regions: Loading map texture {keyValues.Value} in {self.RegionName}");
                             self.www = new WWW("file:///" + test);
                             break;
                         }
@@ -89,7 +89,7 @@ namespace CustomRegions
                 });
                 if (File.Exists(test))
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loading map data from {keyValues.Key} in {self.RegionName}");
+                    CustomWorldMod.Log($"Custom Regions: Loading map data from {keyValues.Key} in {self.RegionName}");
                     self.mapConnections = new List<Map.OnMapConnection>();
                     string[] array = File.ReadAllLines(test);
                     for (int i = 0; i < array.Length; i++)
@@ -128,7 +128,7 @@ namespace CustomRegions
 
             if (self.mapConnections == null)
             {
-                CustomWorldMod.CustomWorldLog($"ERROR! No map found for {self.RegionName}");
+                CustomWorldMod.Log($"ERROR! No map found for {self.RegionName}");
 
             }
 

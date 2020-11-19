@@ -44,7 +44,7 @@ namespace CustomRegions
                     //CustomWorldMod.CustomWorldLog($"Custom Regions: Searching custom decal [{fileName}] at [{customPath}]");
                     if(File.Exists(customPath))
                     {
-                        CustomWorldMod.CustomWorldLog($"Custom Regions: Found custom decal [{fileName}] at [{customPath}]");
+                        CustomWorldMod.Log($"Custom Regions: Found custom decal [{fileName}] at [{customPath}]");
                         WWW www = new WWW("file:///"+customPath);
                         Texture2D texture2D = new Texture2D(1, 1, TextureFormat.ARGB32, false);
                         texture2D.wrapMode = TextureWrapMode.Clamp;

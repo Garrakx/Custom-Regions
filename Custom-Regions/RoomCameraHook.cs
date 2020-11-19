@@ -164,12 +164,12 @@ namespace CustomRegions
 
                     if (Directory.Exists(paletteFolder))
                     {
-                        CustomWorldMod.CustomWorldLog($"Custom Regions: Found custom palette directory [{paletteFolder}]");
+                        CustomWorldMod.Log($"Custom Regions: Found custom palette directory [{paletteFolder}]");
                         string palettePath = paletteFolder + Path.DirectorySeparatorChar + "palette" + pal + ".png";
                         if (File.Exists(palettePath)) 
                         {
                             foundPalette = true;
-                            CustomWorldMod.CustomWorldLog($"Custom Regions: loading custom palette [{palettePath}]");
+                            CustomWorldMod.Log($"Custom Regions: loading custom palette [{palettePath}]");
                             texture = new Texture2D(32, 16, TextureFormat.ARGB32, false);
                             texture.anisoLevel = 0;
                             texture.filterMode = FilterMode.Point;
@@ -197,7 +197,7 @@ namespace CustomRegions
 
                 if (!foundPalette)
                 {
-                    CustomWorldMod.CustomWorldLog($"Error loading palette: {pal}");
+                    CustomWorldMod.Log($"Error loading palette: {pal}");
                 }
             }
             else

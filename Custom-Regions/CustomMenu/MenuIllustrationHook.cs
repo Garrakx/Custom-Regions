@@ -22,7 +22,7 @@ namespace CustomRegions.CustomMenu
             {
                 try
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loading custom resources at MenuIllustration. Folder [{folder}] and fileName [{self.fileName}]");
+                    CustomWorldMod.Log($"Custom Regions: Loading custom resources at MenuIllustration. Folder [{folder}] and fileName [{self.fileName}]");
                     /*string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
                     string sceneFolder = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Scenes" + Path.DirectorySeparatorChar + $"Landscape - {keyValues.Key}";
                     */
@@ -41,7 +41,7 @@ namespace CustomRegions.CustomMenu
                 }
                 catch (Exception e)
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Failed loading textures for {folder} - {self.fileName} "+e);
+                    CustomWorldMod.Log($"Custom Regions: Failed loading textures for {folder} - {self.fileName} "+e);
                 }
 
             }

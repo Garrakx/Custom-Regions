@@ -32,21 +32,21 @@ namespace CustomRegions
             {
                 if (self.GetAbstractRoom(c.room) == null)
                 {
-                    CustomWorldMod.CustomWorldLog("Custom Regions: ERROR at GetNode !!! c.room Abstract is null");
+                    CustomWorldMod.Log("Custom Regions: ERROR at GetNode !!! c.room Abstract is null");
                 }
 
                 else if (self.GetAbstractRoom(c.room).nodes == null)
                 {
-                    CustomWorldMod.CustomWorldLog("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is null");
+                    CustomWorldMod.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is null");
                 }
                 else if (self.GetAbstractRoom(c.room).nodes.Length < 1)
                 {
-                    CustomWorldMod.CustomWorldLog("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is empty");
+                    CustomWorldMod.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is empty");
                 }
             }
             catch (Exception e)
             {
-                CustomWorldMod.CustomWorldLog("Custom Regions: ERROR!" + e);
+                CustomWorldMod.Log("Custom Regions: ERROR!" + e);
             }
 
             /*
@@ -88,7 +88,7 @@ namespace CustomRegions
                 //Mapconfig
                 if (File.Exists(mapPath))
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loaded mapconfig for {self.name} from {keyValues.Value}");
+                    CustomWorldMod.Log($"Custom Regions: Loaded mapconfig for {self.name} from {keyValues.Value}");
                     loadedMapConfig = true;
                     array = File.ReadAllLines(mapPath);
                     for (int i = 0; i < array.Length; i++)
@@ -120,7 +120,7 @@ namespace CustomRegions
                 // Properties.
                 if (File.Exists(propertyPath))
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loaded properties for {self.name} from {keyValues.Value}");
+                    CustomWorldMod.Log($"Custom Regions: Loaded properties for {self.name} from {keyValues.Value}");
                     loadedProperties = true;
                     array = File.ReadAllLines(propertyPath);
                     for (int k = 0; k < array.Length; k++)
@@ -154,7 +154,7 @@ namespace CustomRegions
                                 {
                                     if (self.GetAbstractRoom(array4[n]) != null && self.GetAbstractRoom(array4[n]).shelter)
                                     {
-                                        CustomWorldMod.CustomWorldLog(string.Concat(new object[]
+                                        CustomWorldMod.Log(string.Concat(new object[]
                                         {
                                             "--slugcat ",
                                             slugcatNumber,

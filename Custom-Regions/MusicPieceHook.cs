@@ -73,7 +73,7 @@ namespace CustomRegions
                             //CustomWorldMod.CustomWorldLog($"Subtrack-path [{text}]");
                             if (File.Exists(text))
                             {
-                                CustomWorldMod.CustomWorldLog($"Loaded track [{self.trackName}] from [{keyValues.Value}]");
+                                CustomWorldMod.Log($"Loaded track [{self.trackName}] from [{keyValues.Value}]");
                                 WWW www = new WWW("file://" + text);
                                 self.source.clip = www.GetAudioClip(false, true, AudioType.OGGVORBIS);
                                 break;
@@ -96,7 +96,7 @@ namespace CustomRegions
                             //CustomWorldMod.CustomWorldLog($"Subtrack-path [{text2}]");
                             if (File.Exists(text2))
                             {
-                                CustomWorldMod.CustomWorldLog($"Loaded procedural track [{self.trackName}] from [{keyValues.Value}]");
+                                CustomWorldMod.Log($"Loaded procedural track [{self.trackName}] from [{keyValues.Value}]");
                                 WWW www2 = new WWW("file://" + text2);
                                 self.source.clip = www2.GetAudioClip(false, true, AudioType.OGGVORBIS);
                                     break;

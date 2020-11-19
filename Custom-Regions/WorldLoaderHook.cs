@@ -88,12 +88,12 @@ namespace CustomRegions
                 {
                     debug += $" {lines},";
                 }
-                CustomWorldMod.CustomWorldLog(debug);
+                CustomWorldMod.Log(debug);
 
             }
             catch (Exception e)
             {
-                CustomWorldMod.CustomWorldLog($"Custom Regions: Mapping rooms failed, reason: {e}");
+                CustomWorldMod.Log($"Custom Regions: Mapping rooms failed, reason: {e}");
             }
 
             orig(self);
@@ -144,7 +144,7 @@ namespace CustomRegions
                 }
                 catch (Exception e)
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Worlds: something failed ERROR!!! [{e}]");
+                    CustomWorldMod.Log($"Custom Worlds: something failed ERROR!!! [{e}]");
                 }
 
                 string path = CustomWorldMod.resourcePath + region + Path.DirectorySeparatorChar;
@@ -164,7 +164,7 @@ namespace CustomRegions
                 if (!singleRoomWorld)
                 {
                     self.simulateUpdateTicks = 100;
-                    CustomWorldMod.CustomWorldLog("World loader ctor...");
+                    CustomWorldMod.Log("World loader ctor...");
                     //self.lines = getWorldLines(self);
                 }
                 self.NextActivity();
@@ -215,7 +215,7 @@ namespace CustomRegions
                 else if(File.Exists(Custom.RootFolderDirectory() + arenaPath + ".txt"))
                 {
                     result = arenaPath;
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Found arena {roomName} in {keyValues.Key}. Path: {result}");
+                    CustomWorldMod.Log($"Custom Regions: Found arena {roomName} in {keyValues.Key}. Path: {result}");
                 }
 
                 if (result != "")
@@ -338,7 +338,7 @@ namespace CustomRegions
                 
                 if (File.Exists(test))
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Found world_{self.worldName}.txt from {keyValues.Value}");
+                    CustomWorldMod.Log($"Custom Regions: Found world_{self.worldName}.txt from {keyValues.Value}");
                     foundAnyCustomRegion = true;
                     //self.lines = new List<string>();
                     string[] array = File.ReadAllLines(test);
@@ -430,7 +430,7 @@ namespace CustomRegions
 
             if (lines.Count < 2)
             {
-                CustomWorldMod.CustomWorldLog("Custom Regions: ERROR! Lines.Count < 2");
+                CustomWorldMod.Log("Custom Regions: ERROR! Lines.Count < 2");
                 return self.lines;
             }
 
@@ -440,13 +440,16 @@ namespace CustomRegions
             }
             */
 
-            CustomWorldMod.CustomWorldLog("\nMerged world_XX.txt file");
             if (!foundAnyCustomRegion)
             {
-                CustomWorldMod.CustomWorldLog("Custom regions did not find any custom world_XX.txt files, so it will load vanilla. (if you were not expecting this it means you have something installed incorrectly)");
+                CustomWorldMod.Log("Custom regions did not find any custom world_XX.txt files, so it will load vanilla. (if you were not expecting this it means you have something installed incorrectly)");
             }
-            CustomWorldMod.CustomWorldLog(string.Join("\n", lines.ToArray()));
-            CustomWorldMod.CustomWorldLog("\n");
+            else
+            {
+                CustomWorldMod.Log("\nMerged world_XX.txt file");
+                CustomWorldMod.Log(string.Join("\n", lines.ToArray()));
+                CustomWorldMod.Log("\n");
+            }
             return lines;
         }
 
@@ -468,7 +471,7 @@ namespace CustomRegions
             {
                 if (self.lines == null)
                 {
-                    CustomWorldMod.CustomWorldLog("Custom Regions: World was null, creating new lines");
+                    CustomWorldMod.Log("Custom Regions: World was null, creating new lines");
                     self.lines = new List<string>();
                 }
                 self.lines = getWorldLines(self);
@@ -481,7 +484,7 @@ namespace CustomRegions
 
             if (self.faultyExits == null)
             {
-                CustomWorldMod.CustomWorldLog($"Custom Regions: NextActivity failed, faultyExits is null");
+                CustomWorldMod.Log($"Custom Regions: NextActivity failed, faultyExits is null");
                 self.faultyExits = new List<WorldCoordinate>();
             }
             orig(self);
