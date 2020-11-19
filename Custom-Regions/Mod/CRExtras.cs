@@ -13,30 +13,6 @@ using System.Runtime.CompilerServices;
 
 namespace CustomRegions.Mod
 {
-    // MOVE ALL THE EXTERNAL METHODS HERE
-    static class CRExtras
-    {
-        /*
-        string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath +
-    CustomWorldMod.availableRegions.ElementAt(i).Value.folderName + Path.DirectorySeparatorChar + "thumb.png";
-
-                using (WWW www = new WWW(path))
-                {
-                    yield return www;
-                    www.LoadImageIntoTexture(tex);
-                }
-*/
-        static IEnumerator Start(string url, Texture2D tex)
-        {
-            tex = new Texture2D(160, 175, TextureFormat.DXT1, false);
-            using (WWW www = new WWW(url))
-            {
-                yield return www;
-                www.LoadImageIntoTexture(tex);
-                //GetComponent<Renderer>().material.mainTexture = tex;
-            }
-        }
-    }
 
     public class ThumbnailDownloader : MonoBehaviour
     {
@@ -54,7 +30,7 @@ namespace CustomRegions.Mod
         {
             if (thumbInfo == null || thumbInfo.Count < 1)
             {
-                CustomWorldMod.Log("Error creating thumbnail downloader", true);
+                CustomWorldMod.Log("Error creating thumbnail downloader, thumbnail not found", true);
                 this.readyToDelete = true;
                 return;
             }
@@ -148,69 +124,6 @@ namespace CustomRegions.Mod
         }
         */
     }
-
-
-    // SOURCE: AUTOUPDATE
-    // AUTHOR: BEE
-    /*
-    public class DownloadScript : MonoBehaviour
-    {
-        public PartialityMod mod;
-        public string path;
-        public WWW www;
-        public bool ready;
-        public bool done;
-        public string filename;
-
-        public void Initialize(AutoUpdateMod au, PartialityMod mod, string path, string url, string filename)
-        {
-            this.au = au;
-            this.mod = mod;
-            this.path = path + Path.DirectorySeparatorChar + filename;
-            this.www = new WWW(url);
-            this.ready = true;
-            this.done = false;
-            this.filename = filename;
-        }
-
-        public void Update()
-        {
-            if (this.ready && this.www.isDone)
-            {
-
-                //File.WriteAllBytes(this.path, this.www.bytes);
-                if (CustomWorldMod.www.isDone && !CustomWorldMod.complete)
-                {
-                    Debug.Log("Dowloading thumb..");
-                    Texture2D tex;
-                    tex = new Texture2D(4, 4, TextureFormat.DXT1, false);
-                    www.LoadImageIntoTexture(tex);
-                    byte[] file = tex.EncodeToPNG();
-                    File.WriteAllBytes(path, file);
-                    Debug.Log("Thumb downloaded " + path);
-
-                }
-
-                lock (this.au.otherLockObj)
-                {
-                    if (File.Exists(this.path))
-                    {
-                        this.au.actuallyUpdated = true;
-                    }
-                    this.au.needUpdate.Remove(this.mod);
-                    if (this.au.needUpdate.Count == 0)
-                    {
-                        Debug.Log("Calling Done");
-                        this.au.Done();
-                    }
-                }
-                this.ready = false;
-            }
-        }
-
-    }
-    */
-
 
 
     // Only works on ARGB32, RGB24 and Alpha8 textures that are marked readable

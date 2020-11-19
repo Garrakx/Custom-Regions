@@ -33,7 +33,7 @@ namespace CustomRegions.CustomMenu
                     self.currentShelter = temporalShelter;
                     temporalShelter = null;
                 }
-                string shelter = self.currentShelter != null ? self.currentShelter : string.Empty;
+                string shelter = self.currentShelter ?? string.Empty;
                 CustomWorldMod.Log($"Initiate Region switch, called from Fast Travel ctor... [{shelter}]");
                 int num = 0;
                 string[] array = File.ReadAllLines(string.Concat(new object[]

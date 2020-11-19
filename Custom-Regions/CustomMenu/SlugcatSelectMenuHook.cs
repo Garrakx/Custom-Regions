@@ -23,7 +23,7 @@ namespace CustomRegions.CustomMenu
             orig(self, manager);
 
             int saveSlot = self.manager.rainWorld.options.saveSlot;
-            if (CustomWorldMod.saveProblems[saveSlot].anyProblems)
+            if (CustomWorldMod.saveProblems[saveSlot].AnyProblems)
             {
                 bool allNewGame = true;
                 string errorText = CustomWorldMod.Translate("Problems found in your save, please check the tab SaveAnalyzer in the config screen for more information.");

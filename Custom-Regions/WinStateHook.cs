@@ -18,6 +18,7 @@ namespace CustomRegions
         }
 
         // NOT NEEDED ANYMORE
+        /*
         private static void WinState_CycleCompleted(On.WinState.orig_CycleCompleted orig, WinState self, RainWorldGame game)
         {
             orig(self, game);
@@ -49,7 +50,7 @@ namespace CustomRegions
 				}
 			}
 		}
-
+        */
         private static WinState.EndgameTracker WinState_CreateAndAddTracker(On.WinState.orig_CreateAndAddTracker orig, WinState.EndgameID ID, List<WinState.EndgameTracker> endgameTrackers)
         {
             WinState.EndgameTracker endgameTracker = null;

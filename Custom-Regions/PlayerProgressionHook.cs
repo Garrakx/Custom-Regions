@@ -179,8 +179,7 @@ namespace CustomRegions
 
             Dictionary<string, int> dictionaryTemp = new Dictionary<string, int>(7);
             string[] array = Regex.Split(s, "<mpdA>");
-            List<string> shelters = new List<string>();
-            string myStringOutput = string.Empty;
+
             string debug = "Custom Regions: Loaded shelters from string: [ ";
             for (int i = 0; i < array.Length; i++)
             {
@@ -190,14 +189,16 @@ namespace CustomRegions
                 {
                     if (dictionaryTemp == null)
                     {
-                        Dictionary<string, int> dictionary = new Dictionary<string, int>(7);
-                        dictionary.Add("SHELTERLIST", 0);
-                        dictionary.Add("MENUREGION", 1);
-                        dictionary.Add("LEVELTOKENS", 2);
-                        dictionary.Add("SANDBOXTOKENS", 3);
-                        dictionary.Add("INTEGERS", 4);
-                        dictionary.Add("PLAYEDARENAS", 5);
-                        dictionary.Add("REDSFLOWER", 6);
+                        Dictionary<string, int> dictionary = new Dictionary<string, int>(7)
+                        {
+                            { "SHELTERLIST", 0 },
+                            { "MENUREGION", 1 },
+                            { "LEVELTOKENS", 2 },
+                            { "SANDBOXTOKENS", 3 },
+                            { "INTEGERS", 4 },
+                            { "PLAYEDARENAS", 5 },
+                            { "REDSFLOWER", 6 }
+                        };
                         dictionaryTemp = dictionary;
                     }
                     int num;

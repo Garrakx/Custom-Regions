@@ -22,24 +22,32 @@ namespace CustomRegions.Mod
 
         public override bool Configuable()
         {
-            return true;
+            return false;
         }
 
         public override void Initialize()
         {
             base.Initialize();
             Tabs = new OpTab[3];
+
             Tabs[0] = new OpTab("Main Tab");
-            Tabs[1] = new OpTab("Installation");
-            Tabs[2] = new OpTab("SaveSlot");
             MainTabRedux(0);
+
+            Tabs[1] = new OpTab("Save Slot");
             AnalyseSaveTab(1);
+
+            Tabs[2] = new OpTab("Installation");
             AnalyseInstallationTab(2);
         }
 
         public override void Update(float dt)
         {
             base.Update(dt);
+            if (ThumbnailDownloader.instance != null && ThumbnailDownloader.instance.readyToDelete)
+            {
+                ThumbnailDownloader.instance.Clear();
+                ThumbnailDownloader.instance = null;
+            }
         }
 
         public override void ConfigOnChange()
@@ -225,11 +233,11 @@ namespace CustomRegions.Mod
             if (numberOfOptions < 1)
             {
                 OpLabel label2 = new OpLabel(new Vector2(100f, 600), new Vector2(400f, 20f), "No regions available.", FLabelAlignment.Center, false);
-                Tabs[tab].AddItems(labelDsc);
+                Tabs[tab].AddItems(label2);
                 return;
             }
 
-            OpLabel errorLabel = new OpLabelLong(new Vector2(50, 490), new Vector2(600, 20), "", true, FLabelAlignment.Center)
+            OpLabel errorLabel = new OpLabelLong(new Vector2(25, 490), new Vector2(575, 20), "", true, FLabelAlignment.Center)
             {
                 text = "Green means activated, red means deactivated"
             };
@@ -313,11 +321,10 @@ namespace CustomRegions.Mod
                 errorLog = "After running loading the game once, any problems will show here.";
             }
 
-            OpLabel errorLabel = new OpLabelLong(new Vector2(10, 500), new Vector2(600, 20), "", true, FLabelAlignment.Left)
+            OpLabel errorLabel = new OpLabelLong(new Vector2(25, 500), new Vector2(550, 20), "", true, FLabelAlignment.Center)
             {
                 text = errorLog
             };
-
 
             Tabs[tab].AddItems(errorLabel);
         }
@@ -337,14 +344,14 @@ namespace CustomRegions.Mod
             OpLabel labelDsc = new OpLabel(new Vector2(100f, 540), new Vector2(400f, 20f), $"Check problems in savelot {saveSlot + 1}", FLabelAlignment.Center, false);
             Tabs[tab].AddItems(labelDsc);
 
-            OpLabel errorLabel = new OpLabelLong(new Vector2(50, 490), new Vector2(600, 20), "", true, FLabelAlignment.Center)
+            OpLabel errorLabel = new OpLabelLong(new Vector2(25, 500), new Vector2(550, 20), "", true, FLabelAlignment.Center)
             {
                 text = "No problems found in your save :D"
             };
 
             Tabs[tab].AddItems(errorLabel);
 
-            if (!CustomWorldMod.saveProblems[saveSlot].anyProblems)
+            if (!CustomWorldMod.saveProblems[saveSlot].AnyProblems)
             {
                 return;
             }
