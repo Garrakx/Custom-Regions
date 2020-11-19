@@ -37,13 +37,18 @@ namespace CustomRegions
         {
             orig(self);
             string saveFileName = Custom.RootFolderDirectory() + CustomWorldMod.regionSavePath + $"CRsav_{self.rainWorld.options.saveSlot + 1}.txt";
-            CustomWorldMod.CustomWorldLog($"Clearing CR save (data path [{saveFileName}])");
+            CustomWorldMod.Log($"Clearing CR save (data path [{saveFileName}])");
             if (File.Exists(saveFileName))
             {
                 File.Delete(saveFileName);
-                CustomWorldMod.regionInfoInSaveSlot[self.rainWorld.options.saveSlot].Clear();
-                CustomWorldMod.CustomWorldLog("Deleted save");
-                CustomWorldMod.ReadSaveAnalyzer();
+                try
+                {
+                    CustomWorldMod.regionInfoInSaveSlot[self.rainWorld.options.saveSlot].Clear();
+                } catch (Exception) { }
+
+                CustomWorldMod.Log("Deleted CR save");
+                CustomWorldMod.ReadSaveAnalyzerFiles();
+                CustomWorldMod.AnalyzeSave();
             }
         }
 
@@ -51,7 +56,7 @@ namespace CustomRegions
         {
             // Check if first time saved
             string saveFileName = Custom.RootFolderDirectory() + CustomWorldMod.regionSavePath + $"CRsav_{self.rainWorld.options.saveSlot + 1}.txt";
-            CustomWorldMod.CustomWorldLog($"CR save data path [{saveFileName}]");
+            CustomWorldMod.Log($"CR save data path [{saveFileName}]");
             if (!File.Exists(saveFileName))
             {
                 string saveRegionData = string.Empty;
@@ -70,7 +75,7 @@ namespace CustomRegions
                 // WRITE FILE
                 using (StreamWriter streamWriter = File.CreateText(saveFileName))
                 {
-                    CustomWorldMod.CustomWorldLog($"Creating save log [{saveRegionData}]");
+                    CustomWorldMod.Log($"Creating save log [{saveRegionData}]");
                     streamWriter.Write(Custom.Md5Sum(saveRegionData) + saveRegionData);
                 }
             }
@@ -142,7 +147,7 @@ namespace CustomRegions
             if (self.regionNames.Length != self.mapDiscoveryTextures.Length)
             {
                 Array.Resize(ref self.mapDiscoveryTextures, self.regionNames.Length);
-                CustomWorldMod.CustomWorldLog($"Custom Regions: Resizing mapDiscovery in PlayerProgression.");
+                CustomWorldMod.Log($"Custom Regions: Resizing mapDiscovery in PlayerProgression.");
             }
             self.miscProgressionData.discoveredShelters = new List<string>[self.regionNames.Length];
             orig(self);
@@ -154,7 +159,7 @@ namespace CustomRegions
             if (self.regionNames.Length != self.mapDiscoveryTextures.Length)
             {
                 Array.Resize(ref self.mapDiscoveryTextures, self.regionNames.Length);
-                CustomWorldMod.CustomWorldLog($"Custom Regions: Resizing mapDiscovery in PlayerProgression.");
+                CustomWorldMod.Log($"Custom Regions: Resizing mapDiscovery in PlayerProgression.");
             }
             self.miscProgressionData.discoveredShelters = new List<string>[self.regionNames.Length];
             orig(self);
@@ -170,7 +175,7 @@ namespace CustomRegions
             }
             CustomWorldMod.CustomWorldLog(debug2);
             */
-            CustomWorldMod.CustomWorldLog($"Custom Regions: MISC PROGRESION FROM STRING - RegionNames[{string.Join(", ", self.owner.regionNames)}]");
+            CustomWorldMod.Log($"MISC PROGRESSION FROM STRING - RegionNames[{string.Join(", ", self.owner.regionNames)}]");
 
             Dictionary<string, int> dictionaryTemp = new Dictionary<string, int>(7);
             string[] array = Regex.Split(s, "<mpdA>");
@@ -245,7 +250,7 @@ namespace CustomRegions
                 }*/
             }
             debug += " ]";
-            CustomWorldMod.CustomWorldLog(debug);
+            CustomWorldMod.Log(debug);
             orig(self, s);
 
             string debug2 = "Custom Regions: Discovered Shelters { ";
@@ -263,7 +268,7 @@ namespace CustomRegions
                     }
                 }
             }
-            CustomWorldMod.CustomWorldLog(debug2 + "} ");
+            CustomWorldMod.Log(debug2 + "} ");
         }
 
         private static string MiscProgressionData_ToString(On.PlayerProgression.MiscProgressionData.orig_ToString orig, PlayerProgression.MiscProgressionData self)
@@ -281,14 +286,14 @@ namespace CustomRegions
                     text += "<mpdA>";
                 }
             }
-            CustomWorldMod.CustomWorldLog(text + "] ");
+            CustomWorldMod.Log(text + "] ");
             return orig(self);
 
         }
 
         private static void MiscProgressionData_SaveDiscoveredShelter(On.PlayerProgression.MiscProgressionData.orig_SaveDiscoveredShelter orig, PlayerProgression.MiscProgressionData self, string roomName)
         {
-            CustomWorldMod.CustomWorldLog($"Custom Regions: Save Discovered Shelter [{roomName}]. ");
+            CustomWorldMod.Log($"Custom Regions: Save Discovered Shelter [{roomName}]. ");
             string debug = "Custom Regions: RegionNames { ";
             int num = -1;
             for (int i = 0; i < self.owner.regionNames.Length; i++)
@@ -304,7 +309,7 @@ namespace CustomRegions
             {
                 debug += "\n ERROR! region not found";
             }
-            CustomWorldMod.CustomWorldLog(debug);
+            CustomWorldMod.Log(debug);
             if (self.discoveredShelters[num] == null)
             {
                 self.discoveredShelters[num] = new List<string>();
@@ -313,7 +318,7 @@ namespace CustomRegions
             {
                 if (self.discoveredShelters[num][j] == roomName)
                 {
-                    CustomWorldMod.CustomWorldLog("Custom Regions: Save shelter ERROR, already saved");
+                    CustomWorldMod.Log("Custom Regions: Save shelter ERROR, already saved");
                 }
             }
             orig(self, roomName);
@@ -333,7 +338,7 @@ namespace CustomRegions
                     }
                 }
             }
-            CustomWorldMod.CustomWorldLog("} " + debug2);
+            CustomWorldMod.Log("} " + debug2);
         }
     }
 }
