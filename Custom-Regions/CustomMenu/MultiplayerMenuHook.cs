@@ -50,32 +50,32 @@ namespace CustomRegions.CustomMenu
                 if (!File.Exists(path))
                 {
                     //CustomWorldMod.CustomWorldLog($"Custom Regions: File does not exist [{path}]");
+                    //CustomWorldMod.Log($"Custom Regions: Loading arena image from [{keyValues.Key}]");
+
+                    //Remove Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar,
+                    stringToRemove = Custom.RootFolderDirectory() + "Levels" + Path.DirectorySeparatorChar;
+                    found = path.IndexOf(stringToRemove);
+                    path = path.Substring(found + stringToRemove.Length);
+                    //text, "_Thumb.png"
+
+
+                    //Remove after text
+                    found = path.IndexOf("_");
+                    if (found > 0)
+                    { path = path.Substring(0, found); ; }
+
+                    //text
+
                     foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                     {
-                        //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading arena image from [{keyValues.Key}]");
-
-                        //Remove Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar,
-                        stringToRemove = Custom.RootFolderDirectory() + "Levels" + Path.DirectorySeparatorChar;
-                        found = path.IndexOf(stringToRemove);
-                        path = path.Substring(found + stringToRemove.Length);
-                        //text, "_Thumb.png"
-
-
-                        //Remove after text
-                        found = path.IndexOf("_");
-                        if (found < 0)
-                            continue;
-                        path = path.Substring(0, found);
-                        //text
-
-                        //CustomWorldMod.CustomWorldLog($"Custom Regions: WWWW trimmed path [{path}]");
+                        CustomWorldMod.Log($"Custom Regions: WWWW trimmed path [{path}]");
 
                         string updatedPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels" + Path.DirectorySeparatorChar;
                         if (File.Exists(updatedPath + path + "_Thumb.png"))
                         {
                             url = "file:///" + updatedPath + path + "_Thumb.png";
+                            break;
                         }
-                        break;
                     }
                 }
 
@@ -93,7 +93,7 @@ namespace CustomRegions.CustomMenu
                 string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels";
                 if (Directory.Exists(path))
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Loading arena(s) from [{keyValues.Value}]");
+                    CustomWorldMod.Log($"Custom Regions: Loading arena(s) from [{keyValues.Value}]");
 
                     string[] files = Directory.GetFiles(path);
 
@@ -142,7 +142,7 @@ namespace CustomRegions.CustomMenu
 
                 }
 
-                CustomWorldMod.CustomWorldLog(debug + "]");
+                CustomWorldMod.Log(debug + "]");
                 //CustomWorldMod.CustomWorldLog(debug2 + "]");
                 self.ClearGameTypeSpecificButtons();
                 self.InitiateGameTypeSpecificButtons();
