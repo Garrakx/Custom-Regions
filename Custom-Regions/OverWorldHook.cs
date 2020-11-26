@@ -96,9 +96,9 @@ namespace CustomRegions
                     foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                     {
                         string customDirectory = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + text2;
-                        string customDirectory2 = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(text, "_")[1];
+                        //string customDirectory2 = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(text, "_")[1];
                         CustomWorldMod.Log($"Custom Regions: CustomDirectory [{customDirectory}]");
-                        CustomWorldMod.Log($"Custom Regions: CustomDirectory2 [{customDirectory2}]");
+                        //CustomWorldMod.Log($"Custom Regions: CustomDirectory2 [{customDirectory2}]");
                         if (Directory.Exists(customDirectory))
                         {
                             flag2 = true;
