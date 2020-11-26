@@ -23,7 +23,7 @@ namespace CustomRegions.DevInterface
 			string customFilePath = string.Empty;
 			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
 			{
-				customFilePath = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + 
+				customFilePath = Custom.RootFolderDirectory() + 
 					CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
 					"World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.owner.game.world.name + Path.DirectorySeparatorChar + "Properties.txt";
 
@@ -44,14 +44,14 @@ namespace CustomRegions.DevInterface
             string customFilePath = string.Empty;
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                customFilePath = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + 
+                customFilePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + 
                     "World" + Path.DirectorySeparatorChar +"Regions" + Path.DirectorySeparatorChar + 
 					self.owner.game.world.name + Path.DirectorySeparatorChar + "map_" + self.owner.game.world.name + ".txt"; 
 
                 if (File.Exists(customFilePath))
                 {
                     self.filePath = customFilePath;
-                    CustomWorldMod.Log($"new map filepath for [{keyValues.Value}]");
+                    CustomWorldMod.Log($"[DEV] New map filepath for [{keyValues.Value}]");
 					break;
                 }
             }

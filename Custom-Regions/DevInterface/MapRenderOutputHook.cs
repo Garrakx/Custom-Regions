@@ -19,21 +19,23 @@ namespace CustomRegions.DevInterface
         private static void MapRenderOutput_Signal(On.DevInterface.MapRenderOutput.orig_Signal orig, global::DevInterface.MapRenderOutput self, global::DevInterface.DevUISignalType type, global::DevInterface.DevUINode sender, string message)
         {
 			string customFilePath = string.Empty;
+            /*
 			string pathToRegion = Custom.RootFolderDirectory() +
 					"World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.owner.game.world.name;
-
-            if (!File.Exists(pathToRegion))
-            {
+            */
+            //if (!File.Exists(pathToRegion))
+            //{
                 // From a Custom Region
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                 {
-                    customFilePath = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
+                    customFilePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
                         "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.owner.game.world.name;
 
+                    CustomWorldMod.Log($"[DEV] Searching folder to render map...[{customFilePath}]");
 
-                    if (File.Exists(customFilePath))
+                    if (Directory.Exists(customFilePath))
                     {
-                        CustomWorldMod.Log($"Saving custom Map Config to Properties.txt from [{keyValues.Value}]");
+                        CustomWorldMod.Log($"[DEV] Saving custom Map Config to map_XX.png from [{keyValues.Value}]");
                         string pathToMapFile = customFilePath + Path.DirectorySeparatorChar + "map_" + self.owner.game.world.name + ".png";
 
                         PNGSaver.SaveTextureToFile(self.texture, pathToMapFile);
@@ -44,9 +46,9 @@ namespace CustomRegions.DevInterface
                         return;
                     }
                 }
-            }
+            //}
 
-            CustomWorldMod.Log($"No Custom Properties.txt file found for [{self.owner.game.world.name}], using vanilla...");
+            CustomWorldMod.Log($"[DEV] No custom region folder found for [{self.owner.game.world.name}], using vanilla...");
 
 			orig(self, type, sender, message);
         }

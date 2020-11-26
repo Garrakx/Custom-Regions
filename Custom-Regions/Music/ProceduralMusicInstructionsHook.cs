@@ -19,6 +19,8 @@ namespace CustomRegions.Music
 
 		private static void ProceduralMusicInstruction_ctor(On.Music.ProceduralMusic.ProceduralMusicInstruction.orig_ctor orig, ProceduralMusic.ProceduralMusicInstruction self, string name)
 		{
+            orig(self, name);
+
 			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
 			{
 				string pathToProceduralText = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;

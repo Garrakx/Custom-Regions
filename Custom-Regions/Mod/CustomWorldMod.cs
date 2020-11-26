@@ -59,7 +59,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 34;
+        public int version = 35;
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
@@ -960,7 +960,7 @@ namespace CustomRegions.Mod
             bool lineage = false;
             string roomNameNewLine = string.Empty;
 
-            CustomWorldMod.Log($"Custom Regions: Adding new creature spawn [{newCreatureLine}]]");
+            //CustomWorldMod.Log($"Custom Regions: Adding new creature spawn [{newCreatureLine}]]");
 
             if (newCreatureLine.Contains("OFFSCREEN"))
             {

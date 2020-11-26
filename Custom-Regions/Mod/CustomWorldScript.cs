@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using CustomRegions.CustomMenu;
 using CustomRegions.CustomPearls;
+using CustomRegions.DevInterface;
+using CustomRegions.Music;
 
 namespace CustomRegions.Mod
 {
@@ -58,7 +60,10 @@ namespace CustomRegions.Mod
             MenuSceneHook.ApplyHook();
             MenuIllustrationHook.ApplyHook();
             SlugcatSelectMenuHook.ApplyHooks();
-            //LevelSelectorHook.ApplyHook();
+
+            // DevInterface
+            MapPageHook.ApplyHooks();
+            MapRenderOutputHook.ApplyHooks();
 
             // Arena
             MultiplayerMenuHook.ApplyHook();
@@ -71,6 +76,7 @@ namespace CustomRegions.Mod
 
             // MusicPiece
             MusicPieceHook.ApplyHooks();
+            ProceduralMusicInstructionsHook.ApplyHooks();
 
         }
 
