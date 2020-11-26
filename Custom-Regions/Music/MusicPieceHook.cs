@@ -1,4 +1,5 @@
 ﻿using CustomRegions.Mod;
+using Music;
 using Partiality;
 using Partiality.Modloader;
 using RWCustom;
@@ -9,7 +10,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace CustomRegions
+namespace CustomRegions.Music
 {
     static class MusicPieceHook
     {
@@ -17,39 +18,12 @@ namespace CustomRegions
         {
             On.Music.MusicPiece.SubTrack.Update += SubTrack_Update;
 
-
             // Only needed if you don't have CustomAssets
 			//On.Music.MusicPiece.Update += MusicPiece_Update;
         }
 
-
-		
-		private static void MusicPiece_Update(On.Music.MusicPiece.orig_Update orig, Music.MusicPiece self)
-		{
-			AudioSource audioSource = null;
-			for (int i = 0; i < self.subTracks.Count; i++)
-			{
-				//this.subTracks[i].Update();
-				if (self.IsProcedural)
-				{
-					if (audioSource == null && self.subTracks[i].source.isPlaying)
-					{
-						audioSource = self.subTracks[i].source;
-					}
-					else if (audioSource != null && self.subTracks[i].source.isPlaying && Math.Abs(audioSource.timeSamples - self.subTracks[i].source.timeSamples) >= audioSource.clip.frequency / 4)
-					{
-						self.subTracks[i].source.timeSamples = audioSource.timeSamples;
-					}
-				}
-			}
-
-			orig(self);
-
-		}
-		
-
         // COULD LOOK FIRST FOR VANILLA TO BE A LITTLE MORE EFFICIENT
-		private static void SubTrack_Update(On.Music.MusicPiece.SubTrack.orig_Update orig, Music.MusicPiece.SubTrack self)
+		private static void SubTrack_Update(On.Music.MusicPiece.SubTrack.orig_Update orig, MusicPiece.SubTrack self)
         {
             if (!self.readyToPlay)
 			{
@@ -126,5 +100,28 @@ namespace CustomRegions
 			*/
             
 		}
-	}
+
+        private static void MusicPiece_Update(On.Music.MusicPiece.orig_Update orig, MusicPiece self)
+        {
+            AudioSource audioSource = null;
+            for (int i = 0; i < self.subTracks.Count; i++)
+            {
+                //this.subTracks[i].Update();
+                if (self.IsProcedural)
+                {
+                    if (audioSource == null && self.subTracks[i].source.isPlaying)
+                    {
+                        audioSource = self.subTracks[i].source;
+                    }
+                    else if (audioSource != null && self.subTracks[i].source.isPlaying && Math.Abs(audioSource.timeSamples - self.subTracks[i].source.timeSamples) >= audioSource.clip.frequency / 4)
+                    {
+                        self.subTracks[i].source.timeSamples = audioSource.timeSamples;
+                    }
+                }
+            }
+
+            orig(self);
+
+        }
+    }
 }
