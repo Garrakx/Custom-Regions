@@ -55,7 +55,7 @@ namespace CustomRegions
             }
             else
             {
-                CustomWorldMod.Log($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
+                //CustomWorldMod.Log($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
             }
 
             try
@@ -63,7 +63,7 @@ namespace CustomRegions
                 orig(self, region);
             } catch (Exception e)
             {
-                CustomWorldMod.Log("Found illegal characters in a room settings file." + e);
+                CustomWorldMod.Log("Found illegal characters in a room settings file." + e, true);
                 throw e;
             }
         }
