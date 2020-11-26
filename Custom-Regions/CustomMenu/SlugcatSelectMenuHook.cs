@@ -37,13 +37,13 @@ namespace CustomRegions.CustomMenu
                 }
                 if(allNewGame)
                 {
-                    errorText = CustomWorldMod.Translate("Problems found in your save, please use the Rest Progress button in the RW options menu");
+                    errorText = CustomWorldMod.Translate("Problems found in your save, please use the Reset Progress button in the RW options menu");
                 }
 
                 MenuLabel menuLabel = new MenuLabel(self, self.pages[0],
                 errorText,
                 new Vector2(self.manager.rainWorld.options.ScreenSize.x * 0.5f, self.manager.rainWorld.options.ScreenSize.y * 0.85f),
-                new Vector2(100f, 30f), false);
+                new Vector2(0, 0), false);
 
                 menuLabel.label.color = new Color((108f / 255f), 0.001f, 0.001f);
                 menuLabel.label.alignment = FLabelAlignment.Center;
