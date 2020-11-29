@@ -2,7 +2,7 @@
   
 # [BETA] Custom-Regions
 
-## Vous permet d'installer des mods ajoutant un ou plusieurs région(s) sans modifier les fichiers du jeu de base et plus encore. Cela fonctionne en fusionnant automatiquement les fichiers du monde lors de l'exécution et en redirigeant les accès aux salles.
+## Vous permet d'installer des mods ajoutant une ou plusieurs région(s) sans modifier les fichiers du jeu de base et plus encore. Cela fonctionne en fusionnant automatiquement les fichiers du monde lors de l'exécution et en redirigeant les accès aux salles.
 
 ![Custom Regions!](https://cdn.discordapp.com/attachments/305139167300550666/777644000529088532/unknown.png)
 
