@@ -28,7 +28,7 @@
 2) Téléchargez la dernière version CR depuis [ici](https://github.com/Garrakx/Custom-Regions/releases/).
 3) Appliquez **tous** (`EnumExtender.dll, ConfigMachine.dll, CustomAssets.dll `(si vous voulez de la musique personnalisée)`et CustomRegions.dll`) les mods dans le fichier `[DOWNLOAD_THIS_Custom-Regions-vX.X. zip]`. Vous recevrez automatiquement les mises à jour.
 
-### <a name="index2"></a>Installing a Region
+### <a name="index2"></a>Installer une région
 * ***Attention:** La plupart des instructions des régions personnalisées sont obsolètes. Si vous souhaitez utiliser le mod Custom Regions, vous devez suivre ces instructions.*
 1) Créez un nouveau dossier dans Rain World\Mods appelé "`CustomResources`"(*si vous exécutez le jeu avec le mod, il sera automatiquement créé*).
 2) Créez un nouveau dossier dans Rain World\Mods\CustomResources avec le nom de votre région (`par exemple Rain World\Mods\CustomResources\The Root`). Cela déterminera le nom de la région dans le jeu.
