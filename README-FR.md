@@ -164,7 +164,7 @@ Exemple:
 0-46
 Première ligne de la première boîte de dialogue.<LINE>Deuxième ligne de la première boîte de dialogue.
 
-Cette ligne sera affichée dans une deuxième zone de texte !
+Cette ligne sera affichée dans une deuxième boîte de dialogue !
 ```
 Citant le "Rain World Modding Wiki":
 `La première ligne du fichier texte doit être **0-##**, où **##** correspond au numéro du fichier texte.
