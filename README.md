@@ -10,7 +10,7 @@
 <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="40"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-RU.md)
 
 [French guide here 
-<img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="40"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-FR.md)
+<img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="40"/>](https://github.com/Fyeryn/Custom-Regions/blob/master/README-FR.md)
 
 
 ## Index
