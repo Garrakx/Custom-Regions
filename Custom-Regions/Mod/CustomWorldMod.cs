@@ -59,7 +59,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 35;
+        public int version = 36;
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
@@ -1729,6 +1729,30 @@ namespace CustomRegions.Mod
                     + " \"url\":  \"" + url + "\", \n"
                     + " \"checksum\":  \"" + checksum + "\" \n"
                     + "}");
+            }
+        }
+
+        public static void WriteRegionConfigJSONFile(string dirPath, bool leviAlbino, bool jetfishAlbino, bool shortcutVanilla, 
+            string shortcutColor, bool kelpVanilla, string kelpColor, bool bllVanilla, string bllColor)
+        {
+            using (StreamWriter sw = File.CreateText(dirPath + Path.DirectorySeparatorChar + "regionConfiguration.json"))
+            {
+                sw.WriteLine("{\n"
+                    + $" \"albino_leviathan\":  \"{leviAlbino.ToString().ToLower()}\", \n"
+                    + $" \"albino_jetfish\":  \"{jetfishAlbino.ToString().ToLower()}\", \n"
+
+                    + "\n \"shortcut_color\":{\n"
+                    + $" \"vanilla\":  \"{shortcutVanilla.ToString().ToLower()}\", \n"
+                    + $" \"color\":  \"{shortcutColor}\", \n"
+
+                    + "\n \"monster_kelp_color\":{\n"
+                    + $" \"vanilla\":  \"{kelpVanilla.ToString().ToLower()}\", \n"
+                    + $" \"color\":  \"{kelpColor}\", \n"
+
+                    + "\n \"bll_color\":{\n"
+                    + $" \"vanilla\":  \"{bllVanilla.ToString().ToLower()}\", \n"
+                    + $" \"color\":  \"{bllColor}\", \n"
+                );
             }
         }
 
