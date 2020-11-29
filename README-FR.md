@@ -39,6 +39,7 @@
 
 ### <a name="index3"></a>Désinstaller une région (deux options, choisissez-en une)
 Option a). Allez dans `Rain World\Mods\CustomResources\Your Region\regionInformation.json` et définissez "activated" sur false.
+
 Option b). Supprimez le dossier créé à l'étape 2 (`par exemple Rain World\Mods\CustomResources\The Root`)
 
 
