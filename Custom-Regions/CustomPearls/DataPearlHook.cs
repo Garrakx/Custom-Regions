@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions.CustomPearls
 {
@@ -20,7 +21,7 @@ namespace CustomRegions.CustomPearls
             orig(self, sLeaser, rCam, palette);
 
             bool foundPearl = false;
-            foreach (KeyValuePair<string, CustomWorldMod.CustomPearl> pearls in CustomWorldMod.customPearls)
+            foreach (KeyValuePair<string, CustomPearl> pearls in CustomWorldMod.customPearls)
             {
                 if (foundPearl) { break; }
 

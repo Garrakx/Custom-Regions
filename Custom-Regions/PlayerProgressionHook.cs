@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions
 {
@@ -65,7 +66,7 @@ namespace CustomRegions
 
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                 {
-                    CustomWorldMod.RegionInformation regionInfo;
+                    RegionInformation regionInfo;
                     if (CustomWorldMod.availableRegions.TryGetValue(keyValues.Key, out regionInfo))
                     {
                         saveRegionData += CustomWorldMod.SerializeRegionInfo(regionInfo);

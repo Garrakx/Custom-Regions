@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using System.IO;
+using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions.Mod
 {
@@ -382,7 +383,7 @@ namespace CustomRegions.Mod
             {
                 string temp2 = string.Empty;
                 List<string> expectedOrder = new List<string>();
-                foreach (CustomWorldMod.RegionInformation info in CustomWorldMod.regionInfoInSaveSlot[saveSlot])
+                foreach (RegionInformation info in CustomWorldMod.regionInfoInSaveSlot[saveSlot])
                 {
                     expectedOrder.Add(info.regionID);
                 }

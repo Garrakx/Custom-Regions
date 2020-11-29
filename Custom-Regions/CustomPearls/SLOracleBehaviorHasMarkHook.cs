@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions.CustomPearls
 {
@@ -41,7 +42,7 @@ namespace CustomRegions.CustomPearls
                                 {
                                     if (!self.State.significantPearls[(int)(item as DataPearl).AbstractPearl.dataPearlType])
                                     {
-                                        foreach (KeyValuePair<string, CustomWorldMod.CustomPearl> pearls in CustomWorldMod.customPearls)
+                                        foreach (KeyValuePair<string, CustomPearl> pearls in CustomWorldMod.customPearls)
                                         {
                                             if (foundPearl) { break; }
 
@@ -104,7 +105,7 @@ namespace CustomRegions.CustomPearls
         private static void MoonConversation_AddEvents(On.SLOracleBehaviorHasMark.MoonConversation.orig_AddEvents orig, SLOracleBehaviorHasMark.MoonConversation self)
         {
             bool foundPearl = false;
-            foreach (KeyValuePair<string, CustomWorldMod.CustomPearl> pearls in CustomWorldMod.customPearls)
+            foreach (KeyValuePair<string, CustomPearl> pearls in CustomWorldMod.customPearls)
             {
                 if (foundPearl) { break; }
 

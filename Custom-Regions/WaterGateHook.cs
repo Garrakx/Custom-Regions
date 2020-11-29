@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions
 {
@@ -48,7 +49,7 @@ namespace CustomRegions
 
         private static void ElectricGate_ctor(On.ElectricGate.orig_ctor orig, ElectricGate self, Room room)
         {
-            foreach (KeyValuePair<string, CustomWorldMod.RegionInformation> entries in CustomWorldMod.availableRegions)
+            foreach (KeyValuePair<string, RegionInformation> entries in CustomWorldMod.availableRegions)
             {
                 if (!entries.Value.activated || entries.Value.electricGates == null || entries.Value.electricGates.Count == 0)
                 {
