@@ -32,7 +32,7 @@
 * ***Attention:** La plupart des instructions trouvées dans les régions personnalisées sont obsolètes. Si vous souhaitez utiliser le mod Custom Regions, vous devez suivre ces instructions.*
 1) Créez un nouveau dossier dans Rain World\Mods appelé "`CustomResources`"(*si vous exécutez le jeu avec le mod, il sera automatiquement créé*).
 2) Créez un nouveau dossier dans Rain World\Mods\CustomResources avec le nom de votre région (`par exemple Rain World\Mods\CustomResources\The Root`). Cela déterminera le nom de la région dans le jeu.
-3) Dans ce dossier, vous devez placer les dossiers "`World`","`Assets`" et / ou "`Levels`"de la région que vous installez.
+3) Dans ce dossier, vous devez placer les dossiers "`World`", "`Assets`" et / ou "`Levels`"de la région que vous installez.
 4) Après avoir lancé le jeu, le mod créera un fichier appelé "regionInfo.json". Vous pouvez ouvrir ce fichier avec n'importe quel éditeur de texte (bloc-notes par exemple). Assurez-vous que toutes les informations semblent correctes. Vous pouvez ajouter une description pour chaque région. L'ordre des régions sera utilisé pour déterminer la région à charger en premier. Si vous venez d'une version utilisant regionID.txt, le mod essaiera de le mettre à jour. Pour appliquer des modifications, vous devez redémarrer le jeu ou appuyer sur le bouton de rechargement dans le menu de configuration **VOUS AUREZ BESOIN DE DÉMARRER UNE NOUVELLE SAUVEGARDE APRÈS AVOIR EFFECTUÉ DES CHANGEMENTS**.
 5) Le mod chargera les grafittis, les palettes, les arènes, les illustrations, etc. à partir de ce dossier.
 6) Vous pouvez vérifier les régions activées (en vert) et l'ordre dans lequel elles sont chargées.
