@@ -51,6 +51,7 @@ Au lieu de fusionner le nouveau dossier de région dans les fichiers du jeu, vou
 ### <a name="index5"></a> Conflits de régions
 Le mod essaiera de fusionner tous les mods de région pour qu'ils soient compatibles:
 ![Mergin visualized](https://cdn.discordapp.com/attachments/473881110695378964/670463211060985866/unknown.png)
+
 Si le fichier world_XX.txt du Mod 1 ressemble à:
 ```
 A: C, B, DISCONNECTED
