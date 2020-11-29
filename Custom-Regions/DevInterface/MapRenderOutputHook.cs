@@ -35,8 +35,8 @@ namespace CustomRegions.DevInterface
 
                     if (Directory.Exists(customFilePath))
                     {
-                        CustomWorldMod.Log($"[DEV] Saving custom Map Config to map_XX.png from [{keyValues.Value}]");
                         string pathToMapFile = customFilePath + Path.DirectorySeparatorChar + "map_" + self.owner.game.world.name + ".png";
+                        CustomWorldMod.Log($"[DEV] Saving custom Map Config to map_XX.png from [{keyValues.Value}] to [{pathToMapFile}]");
 
                         PNGSaver.SaveTextureToFile(self.texture, pathToMapFile);
                         self.ClearSprites();
