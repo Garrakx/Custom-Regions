@@ -45,7 +45,7 @@ Option b). Supprimez le dossier créé à l'étape 2 (`par exemple Rain World\Mo
 
 
 ### <a name="index4"></a>Comment ça marche ?
-Au lieu de fusionner le nouveau dossier de région dans les fichiers du jeu, vous le placez dans un dossier séparé. Cela gardera votre installation Rain World propre et ajoutera la possibilité de jouer avec plusieurs régions en même temps. Vous pouvez même créer des modifications d'apparation (spawns) pour les régions de base ou les régions personnalisées (il vous suffit d'inclure dans votre fichier world_XX.txt les modifications que vous souhaitez appliquer).
+Au lieu de fusionner le nouveau dossier de région dans les fichiers du jeu, vous le placez dans un dossier séparé. Cela gardera votre installation Rain World propre et ajoutera la possibilité de jouer avec plusieurs régions en même temps. Vous pouvez même créer des modifications d'apparation de créatures (spawns) pour les régions de base ou les régions personnalisées (il vous suffit d'inclure dans votre fichier world_XX.txt les modifications que vous souhaitez appliquer).
 
 
 ### <a name="index5"></a> Conflits de régions
