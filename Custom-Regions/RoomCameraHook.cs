@@ -1,25 +1,32 @@
 ﻿using CustomRegions.Mod;
+using MonoMod.RuntimeDetour;
 using RWCustom;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace CustomRegions
 {
     static class RoomCameraHook
     {
+        public delegate void orig_WWW_ctor(WWW self, string url);
+
         public static void ApplyHook()
         {
-            On.RoomCamera.LoadPalette += RoomCamera_LoadPalette;
-            //On.RoomCamera.ctor += RoomCamera_ctor;
+            // Palette
+            //On.RoomCamera.LoadPalette += RoomCamera_LoadPalette;
+            IDetour hookWWWctor = new Hook(typeof(WWW).GetConstructor(new Type[] { typeof(string) }), typeof(RoomCameraHook).GetMethod("WWW_ctor"));
 
             // If a custom room uses vanilla textures
-             On.RoomCamera.MoveCamera2 += RoomCamera_MoveCamera2;
+            On.RoomCamera.MoveCamera2 += RoomCamera_MoveCamera2;
 
-             On.RoomCamera.PreLoadTexture += RoomCamera_PreLoadTexture;
+            On.RoomCamera.PreLoadTexture += RoomCamera_PreLoadTexture;
+
         }
 
         /*
@@ -77,7 +84,7 @@ namespace CustomRegions
             string roomPathWithRegion = requestedTexture.Substring(index);
 
             string fullRoomPathWithRegion = Custom.RootFolderDirectory() + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + roomPathWithRegion;
-           // CustomWorldMod.CustomWorldLog($"Custom regions: Searching vanilla room textures at [{fullRoomPathWithRegion}]");
+            // CustomWorldMod.CustomWorldLog($"Custom regions: Searching vanilla room textures at [{fullRoomPathWithRegion}]");
             if (File.Exists(fullRoomPathWithRegion))
             {
                 requestedTexture = "file:///" + fullRoomPathWithRegion;
@@ -92,33 +99,79 @@ namespace CustomRegions
         /// CAREFUL! If two mods use the same palette number it will pick the first one it loads.
         /// Also loads effectColor.png
         /// </summary>
-        private static void RoomCamera_LoadPalette(On.RoomCamera.orig_LoadPalette orig, RoomCamera self, int pal, ref UnityEngine.Texture2D texture)
+        /// 
+        public static void WWW_ctor(orig_WWW_ctor orig, WWW self, string url)
         {
-            // effect Color loading
-            /*
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            string vanillaPalettePath = string.Concat(new object[]
             {
-                string regionName = keyValues.Value;
-                string path = CustomWorldMod.resourcePath + regionName;
+            Custom.RootFolderDirectory(),
+            "Assets",
+            Path.DirectorySeparatorChar,
+            "Futile",
+            Path.DirectorySeparatorChar,
+            "Resources",
+            Path.DirectorySeparatorChar,
+            "Palettes",
+            Path.DirectorySeparatorChar,
+            "palette"
+            });
+            if (url.Contains(vanillaPalettePath) && url.Contains(".png"))
+            {
+                //CustomWorldMod.Log($"Loading palette [{url}]");
+                bool foundPalette = false;
+                int pal = -1;
+                //string[] split = Regex.Split(url, "Palettes");
 
-                string effectColorPath = string.Concat(new object[] {
-                    Custom.RootFolderDirectory(), path, Path.DirectorySeparatorChar, "Assets", Path.DirectorySeparatorChar,
-                    "Futile", Path.DirectorySeparatorChar, "Resources", Path.DirectorySeparatorChar, "Palettes", Path.DirectorySeparatorChar, "effectColors.png" });
-
-                if (File.Exists(effectColorPath))
+                //Remove all path
+                int found = url.IndexOf(vanillaPalettePath);
+                if (found > 0)
                 {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: loading custom effectColor from [{keyValues.Value}]");
-                    self.allEffectColorsTexture = new Texture2D(40, 4, TextureFormat.ARGB32, false);
-                    self.allEffectColorsTexture.anisoLevel = 0;
-                    self.allEffectColorsTexture.filterMode = FilterMode.Point;
-                    self.www = new WWW(effectColorPath);
-                    self.www.LoadImageIntoTexture(self.allEffectColorsTexture);
-                    break;
+                    string trimmedUrl = url.Substring(found + vanillaPalettePath.Length);
+                    pal = int.Parse(Regex.Split(trimmedUrl, ".png")[0]);
+                    string regionName = string.Empty;
+                    //CustomWorldMod.Log($"WWW trimmed path [{trimmedUrl}] Searching for palette [{pal}]");
+                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                    {
+
+                        regionName = keyValues.Value;
+                        string path = CustomWorldMod.resourcePath + regionName;
+
+                        string paletteFolder = string.Concat(new object[] { Custom.RootFolderDirectory(), path, Path.DirectorySeparatorChar, "Assets", Path.DirectorySeparatorChar, "Futile", Path.DirectorySeparatorChar, "Resources", Path.DirectorySeparatorChar, "Palettes" });
+                        //CustomWorldMod.CustomWorldLog($"Custom Regions: Searching palette at {paletteFolder}");
+
+                        if (Directory.Exists(paletteFolder))
+                        {
+                            string palettePath = paletteFolder + Path.DirectorySeparatorChar + "palette" + pal + ".png";
+                            //CustomWorldMod.Log($"Found custom palette directory. Searching palette [{palettePath}]");
+                            if (File.Exists(palettePath))
+                            {
+                                foundPalette = true;
+                                //CustomWorldMod.Log($"Loading custom palette [{palettePath}]");
+                                url = "file:///" + palettePath;
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    CustomWorldMod.Log($"Error loading pallete [{url}]", true);
+                }
+
+                if (!foundPalette)
+                {
+                    if (!File.Exists(vanillaPalettePath+pal+".png"))
+                    {
+                        CustomWorldMod.Log($"ERROR! Missing pallete [{pal}]", true);
+                    }
                 }
             }
-            */
+            orig(self, url);
+        }
 
-
+        /*
+        private static void RoomCamera_LoadPalette(On.RoomCamera.orig_LoadPalette orig, RoomCamera self, int pal, ref UnityEngine.Texture2D texture)
+        {
             // Palette
             string vanillaPalettePath = string.Concat(new object[]
             {
@@ -136,74 +189,59 @@ namespace CustomRegions
             ".png"
             });
 
-            if (pal > 35 && !File.Exists(vanillaPalettePath))
+            // if (pal > 35 && !File.Exists(vanillaPalettePath))
+            // {
+
+            string regionName = string.Empty;
+
+            bool foundPalette = false;
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                string regionName = string.Empty;
-                /* 
-                try
+
+                regionName = keyValues.Value;
+                string path = CustomWorldMod.resourcePath + regionName;
+
+                string paletteFolder = string.Concat(new object[] { Custom.RootFolderDirectory(), path, Path.DirectorySeparatorChar, "Assets", Path.DirectorySeparatorChar, "Futile", Path.DirectorySeparatorChar, "Resources", Path.DirectorySeparatorChar, "Palettes" });
+                //CustomWorldMod.CustomWorldLog($"Custom Regions: Searching palette at {paletteFolder}");
+
+                if (Directory.Exists(paletteFolder))
                 {
-                    regionName = self.room.world.region.name;
-                }
-                catch (Exception e)
-                {
-                    CustomWorldMod.CustomWorldLog($"Custom Regions: Error loading regionName from palette, world / region is null [{e}]");
-                }
-
-                CustomWorldMod.CustomWorldLog($"Custom Regions: Loading custom palette [{pal}] from [{regionName}]");
-                */
-
-                bool foundPalette = false;
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
-                {
-    
-                    regionName = keyValues.Value;
-                    string path = CustomWorldMod.resourcePath + regionName;
-
-                    string paletteFolder = string.Concat(new object[] { Custom.RootFolderDirectory(), path, Path.DirectorySeparatorChar, "Assets", Path.DirectorySeparatorChar, "Futile", Path.DirectorySeparatorChar, "Resources", Path.DirectorySeparatorChar, "Palettes"});
-                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Searching palette at {paletteFolder}");
-
-                    if (Directory.Exists(paletteFolder))
+                    CustomWorldMod.Log($"Custom Regions: Found custom palette directory [{paletteFolder}]");
+                    string palettePath = paletteFolder + Path.DirectorySeparatorChar + "palette" + pal + ".png";
+                    if (File.Exists(palettePath))
                     {
-                        CustomWorldMod.Log($"Custom Regions: Found custom palette directory [{paletteFolder}]");
-                        string palettePath = paletteFolder + Path.DirectorySeparatorChar + "palette" + pal + ".png";
-                        if (File.Exists(palettePath)) 
+                        foundPalette = true;
+                        CustomWorldMod.Log($"Custom Regions: loading custom palette [{palettePath}]");
+                        texture = new Texture2D(32, 16, TextureFormat.ARGB32, false);
+                        texture.anisoLevel = 0;
+                        texture.filterMode = FilterMode.Point;
+                        self.www = new WWW("file:///" + palettePath);
+                        self.www.LoadImageIntoTexture(texture);
+                        if (self.room != null)
                         {
-                            foundPalette = true;
-                            CustomWorldMod.Log($"Custom Regions: loading custom palette [{palettePath}]");
-                            texture = new Texture2D(32, 16, TextureFormat.ARGB32, false);
-                            texture.anisoLevel = 0;
-                            texture.filterMode = FilterMode.Point;
-                            self.www = new WWW("file:///" + palettePath);
-                            self.www.LoadImageIntoTexture(texture);
-                            if (self.room != null)
-                            {
-                                self.ApplyEffectColorsToPaletteTexture(ref texture, self.room.roomSettings.EffectColorA, self.room.roomSettings.EffectColorB);
-                            }
-                            else
-                            {
-                                self.ApplyEffectColorsToPaletteTexture(ref texture, -1, -1);
-                            }
-                            texture.Apply(false);
-                            break;
+                            self.ApplyEffectColorsToPaletteTexture(ref texture, self.room.roomSettings.EffectColorA, self.room.roomSettings.EffectColorB);
                         }
-                        /*
                         else
                         {
-                            CustomWorldMod.CustomWorldLog($"Custom Regions: ERROR when loading custom palette [{palettePath}]");
+                            self.ApplyEffectColorsToPaletteTexture(ref texture, -1, -1);
                         }
-                        */
+                        texture.Apply(false);
+                        break;
                     }
                 }
-
-                if (!foundPalette)
-                {
-                    CustomWorldMod.Log($"Error loading palette: {pal}");
-                }
             }
-            else
+
+            if (!foundPalette)
             {
+                CustomWorldMod.Log($"Trying to load vanilla palette [{pal}]");
+                if (!File.Exists(vanillaPalettePath))
+                {
+                    CustomWorldMod.Log($"ERROR! Missing pallete [{pal}]", true);
+                }
                 orig(self, pal, ref texture);
             }
+
         }
+        */
     }
 }
