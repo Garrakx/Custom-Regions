@@ -139,6 +139,9 @@ END ROOMS
 * Apart from the "`positions.txt`" file for the Region Art, you will need to include a "`depths.txt`" to position the depth of your art. Follows the same order as "`positions.txt`".
 * You can include as many layers as you want for the region art.
 * You will probably to adjust the positions of the region art again.
+* You can now move the layers by holding `N` and clicking with the mouse.
+* For saving the layers just press `B`
+* Additionally, you can modify the positions text file while the game is open, and press `R` to see the changes
 
 ### <a name="index6.4"></a>ELECTRIC GATES
 * To add an Electric gate, create a new .txt file inside your mod's `Gates` folder (next to `locks.txt`) and call it `electricGates.txt`. Following the same format as `locks.txt`, write all the gate names that needs to be electric followed by the meter height:
