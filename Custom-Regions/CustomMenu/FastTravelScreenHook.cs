@@ -106,7 +106,7 @@ namespace CustomRegions.CustomMenu
         private static Menu.MenuScene.SceneID FastTravelScreen_TitleSceneID(On.Menu.FastTravelScreen.orig_TitleSceneID orig, Menu.FastTravelScreen self, string regionName)
         {
             // Debug
-            CustomWorldMod.Log($"Accesible regions count [{self.accessibleRegions.Count}] Expected [{FastTravelScreen.GetRegionOrder().Count}]");
+            CustomWorldMod.Log($"Accesible regions count [{self.accessibleRegions.Count}] out of [{FastTravelScreen.GetRegionOrder().Count}]");
 
             //CustomWorldMod.sceneCustomID = string.Empty;
             MenuScene.SceneID ID = MenuScene.SceneID.Empty;

@@ -30,7 +30,7 @@ namespace CustomRegions.Mod
         {
             if (thumbInfo == null || thumbInfo.Count < 1)
             {
-                CustomWorldMod.Log("Error creating thumbnail downloader, thumbnail not found", true);
+                //CustomWorldMod.Log("Error creating thumbnail downloader, thumbnail not found", true);
                 this.readyToDelete = true;
                 return;
             }
