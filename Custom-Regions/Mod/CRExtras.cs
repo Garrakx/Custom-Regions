@@ -13,6 +13,64 @@ using System.Runtime.CompilerServices;
 
 namespace CustomRegions.Mod
 {
+    public static class CRExtras
+    {
+        public static HSLColor RGB2HSL(Color color)
+        {
+            // Source: https://www.programmingalgorithms.com/algorithm/rgb-to-hsl/
+
+            HSLColor hsl;
+
+            float r = color.r;
+            float g = color.g;
+            float b = color.b;
+
+            float min = Math.Min(Math.Min(r, g), b);
+            float max = Math.Max(Math.Max(r, g), b);
+            float delta = max - min;
+
+            hsl.lightness = (max + min) / 2;
+
+            if (delta == 0)
+            {
+                hsl.hue = 0;
+                hsl.saturation = 0.0f;
+            }
+            else
+            {
+                hsl.saturation = (hsl.lightness <= 0.5) ? (delta / (max + min)) : (delta / (2 - max - min));
+
+                float hue;
+
+                if (r == max)
+                {
+                    hue = ((g - b) / 6) / delta;
+                }
+                else if (g == max)
+                {
+                    hue = (1.0f / 3) + ((b - r) / 6) / delta;
+                }
+                else
+                {
+                    hue = (2.0f / 3) + ((r - g) / 6) / delta;
+                }
+
+                if (hue < 0)
+                    hue += 1;
+                if (hue > 1)
+                    hue -= 1;
+
+                //hsl.hue = (hue * 360);
+                hsl.hue = hue;
+            }
+
+            //hsl.saturation *= 1 / 360f;
+            //hsl.lightness *= 1 / 360f;
+            //hsl.hue *= 1 / 360f;
+            return hsl;
+
+        }
+    }
 
     public class ThumbnailDownloader : MonoBehaviour
     {
