@@ -120,6 +120,11 @@ namespace CustomRegions.Mod
         public static Dictionary<string, RegionInformation> availableRegions;
 
         /// <summary>
+        /// Dictionary with all installed regions, where the Key is the region ID and the value is a struct with its configuration.
+        /// </summary>
+        //public static Dictionary<string, RegionConfiguration> configurationRegions;
+
+        /// <summary>
         /// Dictionary with custom pearls lodaded from activated regions. Key is region and value is Pearl Information
         /// </summary>
         public static Dictionary<string, CustomPearl> customPearls;
@@ -221,8 +226,10 @@ namespace CustomRegions.Mod
             try
             {
                 EnumExtender.ExtendEnumsAgain();
-                Array array = Enum.GetValues(typeof(MenuScene.SceneID));
-                Log($"Extending SceneID enum ... [{array}]");
+                Array array = Enum.GetNames(typeof(MenuScene.SceneID));
+                List<string> debug = new List<string>((string[])array);
+                Log($"Extending SceneID enum ... [{string.Join(", ", debug.ToArray())}]");
+
 
             } catch (Exception e)
             {
@@ -269,14 +276,6 @@ namespace CustomRegions.Mod
         {
             if (!File.Exists(Custom.RootFolderDirectory() + "customWorldLog.txt"))
             {
-
-                // Create a file to write to.
-                /*
-                using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + "customWorldLog.txt"))
-                {
-                    sw.WriteLine("######################\n Custom World Log\n");
-                }
-                */
                 CreateCustomWorldLog();
             }
 
@@ -294,7 +293,7 @@ namespace CustomRegions.Mod
         public static void Log(string test, bool throwException)
         {
             Log(test);
-            if(throwException)
+            if (throwException)
             {
                 Debug.LogError("[CustomRegions] "+test);
             }
@@ -451,7 +450,7 @@ namespace CustomRegions.Mod
                                 string checkSum = Regex.Split(minedLines.Find(x => x.Contains("SUM")), "<SUM>")[1];
                                 int regionNumber = int.Parse(Regex.Split(minedLines.Find(x => x.Contains("ORDER")), "<ORDER>")[1]);
 
-                                regionInfoInSaveSlot[saveSlot].Add(new RegionInformation(regionID, null, null, true, -20, checkSum, regionNumber, null, null, null));
+                                regionInfoInSaveSlot[saveSlot].Add(new RegionInformation(regionID, null, null, true, -20, checkSum, regionNumber, null, null, null, null));
 
                             }
                         }
@@ -509,8 +508,7 @@ namespace CustomRegions.Mod
         }
 
 
-        
-
+      
         /// <summary>
         /// Returns a List from WorldData
         /// </summary>
@@ -526,10 +524,10 @@ namespace CustomRegions.Mod
         }
 
 
-        public static object GetRegionInfoJson(string key, Dictionary<string, object> dictionary)
+        public static object GetValueDictionary(string key, Dictionary<string, object> dictionary)
         {
             object value = null;
-            if ((dictionary.ContainsKey(key)))
+            if (dictionary.ContainsKey(key))
             {
                 value = dictionary[key];
             }
@@ -543,6 +541,7 @@ namespace CustomRegions.Mod
         {
             CustomWorldMod.availableRegions = new Dictionary<string, RegionInformation>();
             CustomWorldMod.customPearls = new Dictionary<string, CustomPearl>();
+            //CustomWorldMod.configurationRegions = new Dictionary<string, RegionConfiguration>();
 
             string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath;
             Dictionary<string, RegionInformation> notSortedDictionary = new Dictionary<string, RegionInformation>();
@@ -553,6 +552,7 @@ namespace CustomRegions.Mod
 
                 string pathOfRegionInfo = dir + Path.DirectorySeparatorChar + "regionInfo.json";
 
+                // Region Information
                 string regionID = string.Empty;
                 string regionName = string.Empty;
                 string description = "No description";
@@ -560,7 +560,6 @@ namespace CustomRegions.Mod
                 string checksum = string.Empty;
                 string url = string.Empty;
                 int loadOrder = 100;
-
                 // File does not exist, generate regionInfo.json
                 if (!File.Exists(pathOfRegionInfo))
                 {
@@ -631,47 +630,26 @@ namespace CustomRegions.Mod
                 
 
                 RegionInformation regionInformation = new RegionInformation(string.Empty, string.Empty, "No description", 
-                    true, loadOrder, string.Empty, -1, new DirectoryInfo(dir).Name, string.Empty, new Dictionary<string, float>());
+                    true, loadOrder, string.Empty, -1, new DirectoryInfo(dir).Name, string.Empty, new Dictionary<string, float>(), new Dictionary<string, RegionConfiguration>());
 
 
-                Dictionary<string, object> dictionary = File.ReadAllText(pathOfRegionInfo).dictionaryFromJson();
+                Dictionary<string, object> dictionary = null;
+                try
+                {
+                    dictionary = File.ReadAllText(pathOfRegionInfo).dictionaryFromJson();
+                }
+                catch (Exception e) 
+                {
+                    Log($"CORRUPTED JSON FILE -- DELETING [{pathOfRegionInfo}] - [{e}]", true);
+                    File.Delete(dir + Path.DirectorySeparatorChar + "regionInfo.json");
+                    WriteRegionInfoJSONFile(dir, regionInformation.regionID, regionInformation.description, regionInformation.regionName, regionInformation.activated, regionInformation.loadOrder, regionInformation.url, regionInformation.checksum);
+                }
+
+                //List<string> jsonFields = new List<string>(){ "regionID", "description", "regionName", "activated","loadOrder", "checksum", "url"};
                 if (dictionary != null)
                 {
-                    if (GetRegionInfoJson("regionID", dictionary) != null)
-                    {
-                        regionInformation.regionID = (string)GetRegionInfoJson("regionID", dictionary);
-                    }
 
-                    if (GetRegionInfoJson("description", dictionary) != null)
-                    {
-
-                        regionInformation.description = (string)GetRegionInfoJson("description", dictionary);
-                    }
-
-                    if (GetRegionInfoJson("regionName", dictionary) != null)
-                    {
-                        regionInformation.regionName = (string)GetRegionInfoJson("regionName", dictionary);
-                    }
-
-                    if (dictionary.ContainsKey("activated"))
-                    {
-                        regionInformation.activated = dictionary["activated"].ToString().ToLower().Contains("true");
-                    }
-
-                    if (GetRegionInfoJson("loadOrder", dictionary) != null)
-                    {
-                        regionInformation.loadOrder = int.Parse(GetRegionInfoJson("loadOrder", dictionary).ToString());
-                    }
-
-                    if (GetRegionInfoJson("checksum", dictionary) != null)
-                    {
-                        regionInformation.checksum = (string)GetRegionInfoJson("checksum", dictionary);
-                    }
-                    if (GetRegionInfoJson("checksum", dictionary) != null)
-                    {
-                        regionInformation.url = (string)GetRegionInfoJson("url", dictionary);
-                    }
-
+                    FromDictionaryToRegionInfo(dictionary, ref regionInformation);
 
                     Log($"Description for ({regionInformation.regionName}) is: [{regionInformation.description}]");
                   //  string oldDescription = regionInformation.description;
@@ -683,17 +661,17 @@ namespace CustomRegions.Mod
                     string newDescr = string.Empty;
                     string newUrl = string.Empty;
 
-                    if (regionInformation.regionName.ToLower().Contains("aether ridge"))
+                    if (regionInformation.regionName.ToLower().Contains("aether ridge") || regionInformation.regionID.Equals("AR"))
                     {
                         newDescr = "Aether Ridge is derelict desalination rig to the north of Sky Islands. Includes over 200 new rooms, six new arenas, and more.";
                         newUrl = "http://www.raindb.net/previews/aether.png";
                     }
-                    else if (regionInformation.regionName.ToLower().Contains("badlands"))
+                    else if (regionInformation.regionName.ToLower().Contains("badlands") || regionInformation.regionID.Equals("BL"))
                     {
                         newDescr = "The Badlands is a region connecting Farm Arrays and Garbage Wastes. It features many secrets and unlockables, including three new arenas.";
                         newUrl = "http://www.raindb.net/previews/badlands.png";
                     }
-                    else if (regionInformation.regionName.ToLower().Contains("root"))
+                    else if (regionInformation.regionName.ToLower().Contains("root") || regionInformation.regionID.Equals("TR"))
                     {
                         newDescr = "A new region expanding on Subterranean, and The Exterior, with all new rooms. Made to give exploration focused players more Rain World to discover.";
                         newUrl = "http://www.raindb.net/previews/root2.png";
@@ -742,9 +720,6 @@ namespace CustomRegions.Mod
 
                     }
 
-
-
-
                     // Load region information
                     CustomWorldMod.Log($"Adding available region [{regionInformation.regionID}]. Activated [{regionInformation.activated}]. Folder name [{regionInformation.folderName}]");
                     if (regionInformation.regionID != string.Empty)
@@ -762,31 +737,20 @@ namespace CustomRegions.Mod
                     }
                 }
 
-                // Add electric gates (MOVE INSIDE LOAD CUSTOM EXTRAS
-                string pathToElectricGates = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "electricGates.txt";
-                //Log($"Loading electric gates for {regionInformation.regionID}");
-                if (File.Exists(pathToElectricGates))
-                {
-                    string[] electricGates = File.ReadAllLines(pathToElectricGates);
-                    for (int i = 0; i < electricGates.Length; i++)
-                    {
-                        string gateName = Regex.Split(electricGates[i], " : ")[0];
-                        float meterHeigh = float.Parse(Regex.Split(electricGates[i], " : ")[1]);
-
-                        Log($"Added new gate electric gate [{gateName}] from [{regionInformation.regionID}]. Meter height [{meterHeigh}]");
-                        regionInformation.electricGates.Add(gateName, meterHeigh);
-                    }
-                }
-
                 if (regionInformation.activated)
                 {
-                    LoadCustomExtras(dir, regionInformation.regionID);
+                    LoadCustomPearls(dir, regionInformation.regionID);
+                    LoadElectricGates(dir, regionInformation);
+                    LoadVariations(dir, regionInformation);
+                }
+                else
+                {
+                    Log("Won't load configuration / pearls / electric gates until it is enabled");
                 }
 
                 Log("-------");
             } 
 
-            // Save each world data line in alphabetical order
             foreach (KeyValuePair<string, RegionInformation> element in notSortedDictionary.OrderBy(d => d.Value.loadOrder))
             {
                 //element.Value.regionNumber = regionNumber;
@@ -794,7 +758,94 @@ namespace CustomRegions.Mod
             }
         }
 
-        public static void LoadCustomExtras(string dir, string regionID)
+        private static void FromDictionaryToRegionInfo(Dictionary<string, object> dictionary, ref RegionInformation regionInformation)
+        {
+            if (GetValueDictionary("regionID", dictionary) != null)
+            {
+                regionInformation.regionID = (string)GetValueDictionary("regionID", dictionary);
+            }
+
+            if (GetValueDictionary("description", dictionary) != null)
+            {
+
+                regionInformation.description = (string)GetValueDictionary("description", dictionary);
+            }
+
+            if (GetValueDictionary("regionName", dictionary) != null)
+            {
+                regionInformation.regionName = (string)GetValueDictionary("regionName", dictionary);
+            }
+
+            if (dictionary.ContainsKey("activated"))
+            {
+                regionInformation.activated = dictionary["activated"].ToString().ToLower().Contains("true");
+            }
+
+            if (GetValueDictionary("loadOrder", dictionary) != null)
+            {
+                regionInformation.loadOrder = int.Parse(GetValueDictionary("loadOrder", dictionary).ToString());
+            }
+
+            if (GetValueDictionary("checksum", dictionary) != null)
+            {
+                regionInformation.checksum = (string)GetValueDictionary("checksum", dictionary);
+            }
+            if (GetValueDictionary("url", dictionary) != null)
+            {
+                regionInformation.url = (string)GetValueDictionary("url", dictionary);
+            }
+        }
+
+        public static void FromDictionaryToRegionConfig(Dictionary<string, object> dictionary, ref RegionConfiguration regionConfiguration)
+        {
+            if (GetValueDictionary("albino_leviathan", dictionary) != null)
+            {
+                regionConfiguration.albinoLevi = bool.Parse((string)GetValueDictionary("albino_leviathan", dictionary));
+            }
+
+            if (GetValueDictionary("albino_jetfish", dictionary) != null)
+            {
+                regionConfiguration.albinoJet = bool.Parse((string)GetValueDictionary("albino_jetfish", dictionary));
+            }
+
+            if (GetValueDictionary("monster_kelp_color", dictionary) != null)
+            {
+                try
+                {
+                    regionConfiguration.kelpColor = OptionalUI.OpColorPicker.HexToColor((string)GetValueDictionary("monster_kelp_color", dictionary));
+                }
+                catch (Exception) { regionConfiguration.kelpColor = null; }
+            }
+            if (GetValueDictionary("brother_color", dictionary) != null)
+            {
+                try
+                {
+                    regionConfiguration.bllColor = OptionalUI.OpColorPicker.HexToColor((string)GetValueDictionary("brother_color", dictionary));
+                }
+                catch (Exception) { regionConfiguration.bllColor = null; }
+            }
+        }
+
+        public static void LoadElectricGates(string dir, RegionInformation regionInfo)
+        {
+            // Add electric gates
+            string pathToElectricGates = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "electricGates.txt";
+            if (File.Exists(pathToElectricGates))
+            {
+                string[] electricGates = File.ReadAllLines(pathToElectricGates);
+                for (int i = 0; i < electricGates.Length; i++)
+                {
+                    string gateName = Regex.Split(electricGates[i], " : ")[0];
+                    float meterHeigh = float.Parse(Regex.Split(electricGates[i], " : ")[1]);
+
+                    Log($"Added new gate electric gate [{gateName}] from [{regionInfo.regionID}]. Meter height [{meterHeigh}]");
+                    regionInfo.electricGates.Add(gateName, meterHeigh);
+                }
+            }
+
+        }
+
+        public static void LoadCustomPearls(string dir, string regionID)
         {
             // Add Custom Pearls
             string pathToPearls = dir + Path.DirectorySeparatorChar + "Assets" + Path.DirectorySeparatorChar + "pearlData.txt";
@@ -810,7 +861,7 @@ namespace CustomRegions.Mod
                         continue;
                     }
                     string[] lineDivided = Regex.Split(customPearlsLines[i], " : ");
-                    int fileNumber = 0; string pearlName = ""; Color pearlColor = new Color(0.7f, 0.7f, 0.7f); Color ?secondaryColor = new Color();
+                    int fileNumber = 0; string pearlName = ""; Color pearlColor = new Color(0.7f, 0.7f, 0.7f); Color? secondaryColor = new Color();
 
                     try
                     {
@@ -826,7 +877,8 @@ namespace CustomRegions.Mod
                     try
                     {
                         pearlColor = OptionalUI.OpColorPicker.HexToColor(lineDivided[2]);
-                    } catch (Exception) { Log($"Pearl missing color from {regionID}", true); }
+                    }
+                    catch (Exception) { Log($"Pearl missing color from {regionID}", true); }
                     try
                     {
                         secondaryColor = OptionalUI.OpColorPicker.HexToColor(lineDivided[3]);
@@ -847,7 +899,7 @@ namespace CustomRegions.Mod
                 EnumExtender.ExtendEnumsAgain();
             }
 
-
+            // Encrypt text files
             for (int j = 0; j < Enum.GetNames(typeof(InGameTranslator.LanguageID)).Length; j++)
             {
                 for (int k = 1; k <= 57; k++)
@@ -869,7 +921,59 @@ namespace CustomRegions.Mod
                     }
                 }
             }
+        }
 
+        // Only will apply to new regions added
+        public static void LoadVariations(string dir, RegionInformation regionInfo)
+        {
+            string pathToRegionsDir = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar;
+            foreach (string regionDir in Directory.GetDirectories(pathToRegionsDir))
+            {
+                string pathConfig = regionDir +Path.DirectorySeparatorChar+ "CustomConfig.json";
+                // Load configuration
+                if (File.Exists(pathConfig))
+                {
+                    Log($"Loading variation config for region [{new DirectoryInfo(regionDir).Name}] from [{regionInfo.regionName}]");
+                    RegionConfiguration regionConfiguration = new RegionConfiguration(null, false, false, false, null, false, null);
+
+                    Dictionary<string, object> dictionary = null;
+                    try
+                    {
+                        dictionary = File.ReadAllText(pathConfig).dictionaryFromJson();
+                    }
+                    catch (Exception e)
+                    {
+                        Log($"CORRUPTED JSON FILE -- DELETING [{pathConfig}] - [{e}]", true);
+                        File.Delete(pathConfig);
+                        return;
+                    }
+
+                    //List<string> jsonFields = new List<string>(){ "regionID", "description", "regionName", "activated","loadOrder", "checksum", "url"};
+                    if (dictionary != null)
+                    {
+
+                        FromDictionaryToRegionConfig(dictionary, ref regionConfiguration);
+                        regionConfiguration.kelpVanilla = regionConfiguration.kelpColor == null;
+                        regionConfiguration.bllVanilla = regionConfiguration.bllColor == null;
+                        regionConfiguration.regionID = new DirectoryInfo(regionDir).Name;
+
+                        // Load region information
+                            CustomWorldMod.Log($"Adding configuration for region [{regionConfiguration.regionID}] from [{regionInfo.regionName}] - " +
+                            $"AlbinoLev [{regionConfiguration.albinoLevi}] AlbinoJet [{regionConfiguration.albinoJet}] " +
+                            $"KelpColor [{!regionConfiguration.kelpVanilla}] BLLColor [{!regionConfiguration.bllVanilla}]");
+
+                        if (regionInfo.regionID != string.Empty)
+                        {
+                            try
+                            {
+                                regionInfo.regionConfig.Add(regionConfiguration.regionID, regionConfiguration);
+                            }
+                            catch (Exception dic) { CustomWorldMod.Log($"Custom Regions: Error in adding config [{regionConfiguration.regionID}] => {dic}"); };
+                        }
+
+                    }
+                }
+            }
         }
 
         private static string GenerateRegionCheckSum(string path)
@@ -949,40 +1053,45 @@ namespace CustomRegions.Mod
             // Create a file to write to.
             using (StreamWriter sw = File.CreateText(dirPath + Path.DirectorySeparatorChar + "regionInfo.json"))
             {
-                sw.WriteLine("{\n"
-                    + " \"regionID\":  \"" + regionID + "\", \n"
-                    + " \"description\":  \"" + description + "\", \n"
+                 sw.WriteLine("{\n"
+                     + "   \"regionID\":  \"" + regionID + "\", \n"
+                     + "   \"description\":  \"" + description + "\", \n"
 
-                    + " \"regionName\":  \"" + regionName + "\", \n"
-                    + " \"activated\":  " + activated.ToString().ToLower() + ", \n"
-                    + " \"loadOrder\": " + loadOrder + ", \n"
+                     + "   \"regionName\":  \"" + regionName + "\", \n"
+                     + "   \"activated\":  " + activated.ToString().ToLower() + ", \n"
+                     + "   \"loadOrder\": " + loadOrder + ", \n"
 
-                    + " \"url\":  \"" + url + "\", \n"
-                    + " \"checksum\":  \"" + checksum + "\" \n"
-                    + "}");
+                     + "   \"url\":  \"" + url + "\", \n"
+                     + "   \"checksum\":  \"" + checksum + "\" \n"
+                     + "}");
+                /*
+                sw.WriteLine(new Dictionary<string, object>() { 
+                    { "regionID", regionID },
+                    { "description", description },
+                    { "regionName", regionName },
+                    { "activated", activated.ToString().ToLower() },
+                    { "loadOrder", loadOrder },
+                    { "url", url },
+                    { "checksum", checksum }
+
+                }.toJson());*/
             }
         }
 
-        public static void WriteRegionConfigJSONFile(string dirPath, bool leviAlbino, bool jetfishAlbino, bool shortcutVanilla, 
-            string shortcutColor, bool kelpVanilla, string kelpColor, bool bllVanilla, string bllColor)
+        public static void WriteRegionConfigJSONFile(string dirPath, bool leviAlbino, bool jetfishAlbino,  
+            string shortcutColor, string kelpColor, string bllColor)
         {
             using (StreamWriter sw = File.CreateText(dirPath + Path.DirectorySeparatorChar + "regionConfiguration.json"))
             {
                 sw.WriteLine("{\n"
-                    + $" \"albino_leviathan\":  \"{leviAlbino.ToString().ToLower()}\", \n"
-                    + $" \"albino_jetfish\":  \"{jetfishAlbino.ToString().ToLower()}\", \n"
+                    + $"   \"albino_leviathan\":  \"{leviAlbino.ToString().ToLower()}\", \n"
+                    + $"   \"albino_jetfish\":  \"{jetfishAlbino.ToString().ToLower()}\", \n"
 
-                    + "\n \"shortcut_color\":{\n"
-                    + $" \"vanilla\":  \"{shortcutVanilla.ToString().ToLower()}\", \n"
-                    + $" \"color\":  \"{shortcutColor}\", \n"
+                    + $"   \"shortcut_color\":  \"{shortcutColor}\", \n"
 
-                    + "\n \"monster_kelp_color\":{\n"
-                    + $" \"vanilla\":  \"{kelpVanilla.ToString().ToLower()}\", \n"
-                    + $" \"color\":  \"{kelpColor}\", \n"
+                    + $"   \"monster_kelp_color\":  \"{kelpColor}\", \n"
 
-                    + "\n \"bll_color\":{\n"
-                    + $" \"vanilla\":  \"{bllVanilla.ToString().ToLower()}\", \n"
-                    + $" \"color\":  \"{bllColor}\", \n"
+                    + $"   \"brother_color\":  \"{bllColor}\", \n"
                 );
             }
         }
