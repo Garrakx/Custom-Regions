@@ -91,7 +91,7 @@ namespace CustomRegions.CustomMenu
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                if(!order.Contains(keyValues.Key))
+                if (!order.Contains(keyValues.Key))
                 {
                     order.Add(keyValues.Key);
                 }
@@ -117,9 +117,10 @@ namespace CustomRegions.CustomMenu
                     CustomWorldMod.Log($"Custom Regions: TitleSceneID {regionName}");
                     try
                     {
-                         ID = (MenuScene.SceneID)Enum.Parse(typeof(MenuScene.SceneID), $"Landscape_{regionName}");
+                        ID = (MenuScene.SceneID)Enum.Parse(typeof(MenuScene.SceneID), $"Landscape_{regionName}");
 
-                    } catch (Exception e)
+                    }
+                    catch (Exception e)
                     {
                         CustomWorldMod.Log($"Enum not found [{e}]");
                     }
