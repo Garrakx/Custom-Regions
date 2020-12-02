@@ -24,10 +24,11 @@ namespace CustomRegions.Mod
             public string folderName;
             public string url;
             public Dictionary<string, float> electricGates;
+            public Dictionary<string, RegionConfiguration> regionConfig;
 
             public RegionInformation(string regionID, string regionName, string description, bool activated,
                 int loadOrder, string checksum, int regionNumber, string folderName, string url,
-                Dictionary<string, float> electricGates)
+                Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig)
             {
                 this.regionID = regionID;
                 this.regionName = regionName;
@@ -39,6 +40,30 @@ namespace CustomRegions.Mod
                 this.folderName = folderName;
                 this.url = url;
                 this.electricGates = electricGates;
+                this.regionConfig = regionConfig;
+            }
+        }
+
+        public struct RegionConfiguration
+        {
+            public string regionID;
+            public bool albinoLevi;
+            public bool albinoJet;
+            public bool kelpVanilla;
+            public Color? kelpColor;
+            public bool bllVanilla;
+            public Color? bllColor;
+
+            public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, 
+                bool kelpVanilla, Color? kelpColor, bool bllVanilla, Color? bllColor)
+            {
+                this.regionID = regionID;
+                this.albinoLevi = albinoLevi;
+                this.albinoJet = albinoJet;
+                this.kelpVanilla = kelpVanilla;
+                this.kelpColor = kelpColor;
+                this.bllVanilla = bllVanilla;
+                this.bllColor = bllColor;
             }
         }
 
