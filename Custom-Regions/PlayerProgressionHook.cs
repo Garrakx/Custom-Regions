@@ -311,7 +311,7 @@ namespace CustomRegions
             {
                 debug += "\n ERROR! region not found";
             }
-            CustomWorldMod.Log(debug);
+           // CustomWorldMod.Log(debug);
             if (self.discoveredShelters[num] == null)
             {
                 self.discoveredShelters[num] = new List<string>();
