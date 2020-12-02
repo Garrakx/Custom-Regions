@@ -7,6 +7,7 @@ using CustomRegions.CustomMenu;
 using CustomRegions.CustomPearls;
 using CustomRegions.DevInterface;
 using CustomRegions.Music;
+using CustomRegions.Creatures;
 
 namespace CustomRegions.Mod
 {
@@ -77,6 +78,10 @@ namespace CustomRegions.Mod
             // MusicPiece
             MusicPieceHook.ApplyHooks();
             ProceduralMusicInstructionsHook.ApplyHooks();
+
+            BigEelHook.ApplyHooks();
+            TentaclePlantGraphicsHook.ApplyHooks();
+            DaddyLongLegsHook.ApplyHooks();
 
         }
 
