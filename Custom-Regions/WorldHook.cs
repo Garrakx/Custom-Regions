@@ -13,18 +13,40 @@ namespace CustomRegions
 {
     static class WorldHook
     {
-        // This code comes from EasyModPack by topicular
-        // Adapted to work with any region by Garrakx
-
-
         public static void ApplyHook()
         {
             On.World.LoadMapConfig += World_LoadMapConfig;
 
+            // Albino Jetfish
+            On.World.RegionNumberOfSpawner += World_RegionNumberOfSpawner;
+
             // Debug
             On.World.GetNode += World_GetNode;
         }
-         
+
+        private static int World_RegionNumberOfSpawner(On.World.orig_RegionNumberOfSpawner orig, World self, EntityID ID)
+        {
+            //CustomWorldMod.Log($"Creating jetfish...Spawner: [{ID.spawner}] ");
+            if (self != null && ID.spawner >= 0)
+            {
+                //CustomWorldMod.Log($"Region Name [{self.region.name}]");
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                {
+                    //CustomWorldMod.Log($"Checking in [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
+                    if (CustomWorldMod.availableRegions[keyValues.Key].regionConfig.TryGetValue(self.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    {
+                        if (config.albinoJet)
+                        {
+                            CustomWorldMod.Log($"Spawning albino jetfish [{ID}] in [{self.region.name}] from [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
+                            return 10;
+                            break;
+                        }
+                    }
+                }
+            }
+            return orig(self, ID);
+        }
+
         private static AbstractRoomNode World_GetNode(On.World.orig_GetNode orig, World self, WorldCoordinate c)
         {
             // this.GetAbstractRoom(c.room).nodes[c.abstractNode];
@@ -32,21 +54,21 @@ namespace CustomRegions
             {
                 if (self.GetAbstractRoom(c.room) == null)
                 {
-                    CustomWorldMod.Log("Custom Regions: ERROR at GetNode !!! c.room Abstract is null");
+                    CustomWorldMod.Log("ERROR at GetNode !!! c.room Abstract is null", true);
                 }
 
                 else if (self.GetAbstractRoom(c.room).nodes == null)
                 {
-                    CustomWorldMod.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is null");
+                    CustomWorldMod.Log("ERROR at GetNode !!! abstractRoomNodes is null", true);
                 }
                 else if (self.GetAbstractRoom(c.room).nodes.Length < 1)
                 {
-                    CustomWorldMod.Log("Custom Regions: ERROR at GetNode !!! abstractRoomNodes is empty");
+                    CustomWorldMod.Log("ERROR at GetNode !!! abstractRoomNodes is empty", true);
                 }
             }
             catch (Exception e)
             {
-                CustomWorldMod.Log("Custom Regions: ERROR!" + e);
+                CustomWorldMod.Log("ERROR!" + e, true);
             }
 
             /*
@@ -73,17 +95,16 @@ namespace CustomRegions
 
             bool loadedMapConfig = false;
             bool loadedProperties = false;
+            string[] array;
+
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
                 string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                 string pathToRegionFolder = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.name + Path.DirectorySeparatorChar;
                 string mapPath = pathToRegionFolder + "map_" + self.name + ".txt";
-                string propertyPath = pathToRegionFolder + "Properties.txt";
+
                 //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading room map_config and properties for {keyValues.Key}. Paths: \n {mapPath} \n {propertyPath}");
-
-
-                string[] array;
 
                 //Mapconfig
                 if (File.Exists(mapPath))
@@ -115,8 +136,16 @@ namespace CustomRegions
                             }
                         }
                     }
+                    break;
                 }
+            }
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            {
+                string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
+                string pathToRegionFolder = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.name + Path.DirectorySeparatorChar;
+
+                string propertyPath = pathToRegionFolder + "Properties.txt";
                 // Properties.
                 if (File.Exists(propertyPath))
                 {
@@ -170,33 +199,34 @@ namespace CustomRegions
                             }
                         }
                     }
-                }
-
-                if (loadedMapConfig)
-                {
-                    Vector2 b = new Vector2(float.MaxValue, float.MaxValue);
-                    for (int num = 0; num < self.NumberOfRooms; num++)
-                    {
-                        if (self.abstractRooms[num].mapPos.x - (float)self.abstractRooms[num].size.x * 3f * 0.5f < b.x)
-                        {
-                            b.x = self.abstractRooms[num].mapPos.x - (float)self.abstractRooms[num].size.x * 3f * 0.5f;
-                        }
-                        if (self.abstractRooms[num].mapPos.y - (float)self.abstractRooms[num].size.y * 3f * 0.5f < b.y)
-                        {
-                            b.y = self.abstractRooms[num].mapPos.y - (float)self.abstractRooms[num].size.y * 3f * 0.5f;
-                        }
-                    }
-                    for (int num2 = 0; num2 < self.NumberOfRooms; num2++)
-                    {
-                        self.abstractRooms[num2].mapPos -= b;
-                    }
                     break;
                 }
             }
+            if (loadedMapConfig)
+            {
+                Vector2 b = new Vector2(float.MaxValue, float.MaxValue);
+                for (int num = 0; num < self.NumberOfRooms; num++)
+                {
+                    if (self.abstractRooms[num].mapPos.x - (float)self.abstractRooms[num].size.x * 3f * 0.5f < b.x)
+                    {
+                        b.x = self.abstractRooms[num].mapPos.x - (float)self.abstractRooms[num].size.x * 3f * 0.5f;
+                    }
+                    if (self.abstractRooms[num].mapPos.y - (float)self.abstractRooms[num].size.y * 3f * 0.5f < b.y)
+                    {
+                        b.y = self.abstractRooms[num].mapPos.y - (float)self.abstractRooms[num].size.y * 3f * 0.5f;
+                    }
+                }
+                for (int num2 = 0; num2 < self.NumberOfRooms; num2++)
+                {
+                    self.abstractRooms[num2].mapPos -= b;
+                }
+            }
+
 
             // YOU MUST INCLUDE BOTH PROPERTIES AND MAP CONFIG TO MAKE CHANGES TO VANILLA
-            if (!loadedMapConfig || !loadedProperties)
+            if (!(loadedMapConfig && loadedProperties))
             {
+                CustomWorldMod.Log($"ERROR! You are missing either the mapconfig or properties file to make changes to vanilla. Loaded MapConfig [{loadedMapConfig}]. Loaded Properties [{loadedProperties}]", true);
                 orig(self, slugcatNumber);
             }
         }
