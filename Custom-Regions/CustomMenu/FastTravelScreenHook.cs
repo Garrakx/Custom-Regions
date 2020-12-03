@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using HUD;
 
 
 namespace CustomRegions.CustomMenu
@@ -55,7 +54,7 @@ namespace CustomRegions.CustomMenu
                     num += self.allRegions[num2].numberOfRooms;
                 }
                 self.loadedWorlds = new World[self.accessibleRegions.Count];
-                self.loadedMapData = new Map.MapData[self.accessibleRegions.Count];
+                self.loadedMapData = new HUD.Map.MapData[self.accessibleRegions.Count];
                 if (self.currentShelter != null)
                 {
                     for (int num3 = 0; num3 < self.accessibleRegions.Count; num3++)
