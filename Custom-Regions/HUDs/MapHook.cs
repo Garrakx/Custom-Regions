@@ -25,34 +25,19 @@ namespace CustomRegions
         /// </summary>
         private static void Map_Update(On.HUD.Map.orig_Update orig, HUD.Map self)
         {
-            if (self.www == null)
+            if (self.www == null && self.mapTexture == null)
             {
-                if (self.mapTexture == null)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
                 {
-                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
-                    {
-                        string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                    string pathToCustomFolder = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                    string test = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +
+                        self.RegionName + Path.DirectorySeparatorChar + "map_" + self.RegionName + ".png";
 
-                        string test = string.Concat(new object[]
-                        {
-                        Custom.RootFolderDirectory(),
-                        path.Replace('/', Path.DirectorySeparatorChar),
-                        "World",
-                        Path.DirectorySeparatorChar,
-                        "Regions",
-                        Path.DirectorySeparatorChar,
-                        self.RegionName,
-                        Path.DirectorySeparatorChar,
-                        "map_",
-                        self.RegionName,
-                        ".png"
-                        });
-                        if (File.Exists(test))
-                        {
-                            CustomWorldMod.Log($"Custom Regions: Loading map texture {keyValues.Value} in {self.RegionName}");
-                            self.www = new WWW("file:///" + test);
-                            break;
-                        }
+                    if (File.Exists(test))
+                    {
+                        CustomWorldMod.Log($"Loading map texture from {keyValues.Value} in region [{self.RegionName}]. Path [{test}]");
+                        self.www = new WWW("file:///" + test);
+                        break;
                     }
                 }
             }
@@ -72,24 +57,13 @@ namespace CustomRegions
             //self.mapConnections = new List<Map.OnMapConnection>();
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
             {
-                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                string test = string.Concat(new object[]
-                {
-                Custom.RootFolderDirectory(),
-                path.Replace('/', Path.DirectorySeparatorChar),
-                "World",
-                Path.DirectorySeparatorChar,
-                "Regions",
-                Path.DirectorySeparatorChar,
-                self.RegionName,
-                Path.DirectorySeparatorChar,
-                "map_",
-                self.RegionName,
-                ".txt"
-                });
+                string pathToCustomFolder = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                string test = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +
+                    self.RegionName + Path.DirectorySeparatorChar + "map_" + self.RegionName + ".txt";
+
                 if (File.Exists(test))
                 {
-                    CustomWorldMod.Log($"Custom Regions: Loading map data from {keyValues.Key} in {self.RegionName}");
+                    CustomWorldMod.Log($"Loading map data from {keyValues.Key} in region [{self.RegionName}]. Path [{test}]");
                     self.mapConnections = new List<Map.OnMapConnection>();
                     string[] array = File.ReadAllLines(test);
                     for (int i = 0; i < array.Length; i++)
