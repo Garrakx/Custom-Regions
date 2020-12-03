@@ -20,8 +20,6 @@ namespace CustomRegions
         {
             On.OverWorld.LoadFirstWorld += OverWorld_LoadFirstWorld;
 
-            //On.OverWorld.GetRegion += OverWorld_GetRegion;
-
             On.OverWorld.GetRegion_1 += OverWorld_GetRegion_1;
             On.OverWorld.LoadWorld += OverWorld_LoadWorld;
         }
@@ -159,31 +157,6 @@ namespace CustomRegions
             return orig(self, rName);
         }
 
-        /// <summary>
-        /// Used for debugging purposes
-        /// </summary>
-        private static Region OverWorld_GetRegion(On.OverWorld.orig_GetRegion orig, OverWorld self, AbstractRoom room)
-        {
-            string[] array = Regex.Split(room.name, "_");
-            CustomWorldMod.Log($"Custom Region: Getting region. AbstractRoom [{room.name}] (splitted {array[0]}).");
-            if (array.Length == 2)
-            {
-                CustomWorldMod.Log($"Custom Region: Region obtained [{self.GetRegion(array[0])}]");
-            }
-            string debug = "Custom Region: All regions: {";
-            for (int i = 0; i < self.regions.Length; i++)
-            {
-
-                    debug += $" {self.regions[i]},";
-
-            }
-            debug += "}";
-
-            CustomWorldMod.Log(debug);
-
-            return orig(self, room);
-        }
-
         public static void AddMissingRegions(OverWorld self)
         {
             int num = self.regions[self.regions.Length - 1].firstRoomIndex;
@@ -199,6 +172,11 @@ namespace CustomRegions
                     foreach (string regionEach in regions)
                     {
                         string regionToAdd = Path.GetFileNameWithoutExtension(regionEach);
+                        if (regionToAdd != keyValues.Key)
+                        {
+                            continue;
+                        }
+
                         bool shouldAdd = true;
 
                         for (int i = 0; i < self.regions.Length; i++)
