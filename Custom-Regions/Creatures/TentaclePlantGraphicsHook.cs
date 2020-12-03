@@ -19,6 +19,7 @@ namespace CustomRegions.Creatures
         private static void TentaclePlantGraphics_ctor(On.TentaclePlantGraphics.orig_ctor orig, TentaclePlantGraphics self, PhysicalObject ow)
         {
             orig(self, ow);
+
             customColor = null;
             World world = ow.abstractPhysicalObject.world;
             if (world != null)
