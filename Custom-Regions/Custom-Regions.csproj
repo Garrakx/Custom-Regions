@@ -38,6 +38,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Rain World References\Config Machine 1.4\ConfigMachine.dll</HintPath>
     </Reference>
+    <Reference Include="EnumExtender">
+      <HintPath>C:\Rain World References\EnumExtender.dll</HintPath>
+    </Reference>
     <Reference Include="HOOKS-Assembly-CSharp">
       <HintPath>C:\Rain World References\HOOKS-Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -64,17 +67,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArenaCreatureSpawnerHook.cs" />
+    <Compile Include="Creatures\BigEelHook.cs" />
+    <Compile Include="Creatures\DaddyLongLegsHook.cs" />
+    <Compile Include="Creatures\TentaclePlantGraphicsHook.cs" />
     <Compile Include="CustomDecalHook.cs" />
     <Compile Include="CustomMenu\FastTravelScreenHook.cs" />
-    <Compile Include="MapHook.cs" />
+    <Compile Include="CustomPearls\DataPearlHook.cs" />
+    <Compile Include="CustomPearls\SLOracleBehaviorHasMarkHook.cs" />
+    <Compile Include="DevInterface\MapPageHook.cs" />
+    <Compile Include="DevInterface\MapRenderOutputHook.cs" />
+    <Compile Include="Mod\CustomWorldStructs.cs" />
+    <Compile Include="Music\ProceduralMusicInstructionsHook.cs" />
+    <Compile Include="WaterGateHook.cs" />
+    <Compile Include="HUDs\MapHook.cs" />
     <Compile Include="CustomMenu\MenuIllustrationHook.cs" />
     <Compile Include="CustomMenu\MenuSceneHook.cs" />
+    <Compile Include="Mod\CRExtras.cs" />
     <Compile Include="Mod\CustomWorldMod.cs" />
     <Compile Include="Mod\CustomWorldOption.cs" />
     <Compile Include="Mod\CustomWorldScript.cs" />
     <Compile Include="CustomMenu\MainMenuHook.cs" />
     <Compile Include="CustomMenu\MultiplayerMenuHook.cs" />
-    <Compile Include="MusicPieceHook.cs" />
+    <Compile Include="Music\MusicPieceHook.cs" />
     <Compile Include="OverWorldHook.cs" />
     <Compile Include="PlayerProgressionHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
