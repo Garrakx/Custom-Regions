@@ -39,8 +39,8 @@ namespace CustomRegions
                         {
                             CustomWorldMod.Log($"Spawning albino jetfish [{ID}] in [{self.region.name}] from [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
                             return 10;
-                            break;
                         }
+                        break;
                     }
                 }
             }
