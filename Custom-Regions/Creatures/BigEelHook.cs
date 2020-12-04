@@ -13,6 +13,9 @@ namespace CustomRegions.Creatures
             On.BigEel.ctor += BigEel_ctor;
         }
 
+        /// <summary>
+        /// Checks if the region has albino leviathans configured
+        /// </summary>
         private static void BigEel_ctor(On.BigEel.orig_ctor orig, BigEel self, AbstractCreature abstractCreature, World world)
         {
             orig(self, abstractCreature, world);
@@ -23,7 +26,7 @@ namespace CustomRegions.Creatures
                 {
                     if (CustomWorldMod.availableRegions[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
                     {
-                        CustomWorldMod.Log($"Albino leviathan in [{world.region.name}]");
+                        //CustomWorldMod.Log($"Albino leviathan in [{world.region.name}]");
                         if (config.albinoLevi)
                         {
                             self.albino = true;

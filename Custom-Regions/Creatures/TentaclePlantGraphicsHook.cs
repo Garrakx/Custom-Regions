@@ -16,6 +16,11 @@ namespace CustomRegions.Creatures
             On.TentaclePlantGraphics.ApplyPalette += TentaclePlantGraphics_ApplyPalette;
         }
 
+        private static Color[] customColor;
+
+        /// <summary>
+        /// Stores in a static variable the custom color of Tentacle plants, if configured. 
+        /// </summary>
         private static void TentaclePlantGraphics_ctor(On.TentaclePlantGraphics.orig_ctor orig, TentaclePlantGraphics self, PhysicalObject ow)
         {
             orig(self, ow);
@@ -33,21 +38,23 @@ namespace CustomRegions.Creatures
                         if (!config.kelpVanilla)
                         {
                             customColor = new Color[self.danglers.Length];
-                            
                             CustomWorldMod.Log($"Spawning tentacle plant with custom color in [{world.region.name}] from [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
                             for (int i = 0; i < customColor.Length; i++)
                             {
                                 HSLColor hsl = CRExtras.RGB2HSL(config.kelpColor ?? new Color());
-                                customColor[i] = Custom.HSL2RGB(Mathf.Lerp(hsl.hue*0.9f, hsl.hue * 1.1f, Mathf.Pow(self.danglerProps[i, 0], 1.6f)), Mathf.Lerp(hsl.saturation, 0.35f, self.danglerProps[i, 0]), Mathf.Lerp(hsl.lightness, 0.35f, self.danglerProps[i, 0]));
+                                customColor[i] = Custom.HSL2RGB(
+                                    Mathf.Lerp(hsl.hue * 0.8f, hsl.hue * 1.2f, Mathf.Pow(self.danglerProps[i, 0], 1.6f)),
+                                    Mathf.Lerp(hsl.saturation, 0.4f, self.danglerProps[i, 0]),
+                                    Mathf.Lerp(hsl.lightness, 0.4f, self.danglerProps[i, 0])
+                                    );
                             }
                         }
-                            break;
+                        break;
                     }
                 }
             }
         }
 
-        private static Color[] customColor;
 
         private static void TentaclePlantGraphics_ApplyPalette(On.TentaclePlantGraphics.orig_ApplyPalette orig, TentaclePlantGraphics self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
         {

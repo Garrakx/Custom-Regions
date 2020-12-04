@@ -13,6 +13,9 @@ namespace CustomRegions.Creatures
             On.DaddyLongLegs.ctor += DaddyLongLegs_ctor;
         }
 
+        /// <summary>
+        /// Checks if the region has colored BLLs/DLLs configured
+        /// </summary>
         private static void DaddyLongLegs_ctor(On.DaddyLongLegs.orig_ctor orig, DaddyLongLegs self, AbstractCreature abstractCreature, World world)
         {
             orig(self, abstractCreature, world);
@@ -26,7 +29,7 @@ namespace CustomRegions.Creatures
                     {
                         if (!config.bllVanilla)
                         {
-                            CustomWorldMod.Log($"Spawning custom DDL/BLL in [{world.region.name}] from [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
+                            //CustomWorldMod.Log($"Spawning custom DDL/BLL in [{world.region.name}] from [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
                             self.colorClass = true;
                             self.effectColor = config.bllColor ?? new UnityEngine.Color(0, 0, 1);
                             self.eyeColor = self.effectColor;
