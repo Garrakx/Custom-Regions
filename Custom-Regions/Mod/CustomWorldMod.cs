@@ -51,16 +51,15 @@ namespace CustomRegions.Mod
         public CustomWorldMod()
         {
             ModID = "Custom Regions Mod";
-            Version = "0.6." + version;
+            Version = "0.7." + version;
             author = "Garrakx";
         }
 
         // Code for AutoUpdate support
-        // Should be put in the main PartialityMod class.
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 36;
+        public int version = 37;
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
@@ -231,7 +230,8 @@ namespace CustomRegions.Mod
                 Log($"Extending SceneID enum ... [{string.Join(", ", debug.ToArray())}]");
 
 
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Log("Error extending SceneID enum " + e, true);
             }
@@ -295,7 +295,7 @@ namespace CustomRegions.Mod
             Log(test);
             if (throwException)
             {
-                Debug.LogError("[CustomRegions] "+test);
+                Debug.LogError("[CustomRegions] " + test);
             }
         }
 
@@ -350,7 +350,7 @@ namespace CustomRegions.Mod
                     }
 
                     List<string> savedRegions = new List<string>();
-                    foreach(RegionInformation info in regionInfoInSaveSlot[saveSlot])
+                    foreach (RegionInformation info in regionInfoInSaveSlot[saveSlot])
                     {
                         savedRegions.Add(info.regionID);
                         string savedsum = info.checksum;
@@ -372,9 +372,9 @@ namespace CustomRegions.Mod
                     saveProblems[saveSlot].extraRegions = loadedRegions.Keys.Except(savedRegions).ToList();
 
 
-                    if (savedRegions.Count != loadedRegions.Count || 
-                        (saveProblems[saveSlot].missingRegions != null && saveProblems[saveSlot].missingRegions.Count != 0) || 
-                        (saveProblems[saveSlot].extraRegions != null && saveProblems[saveSlot].extraRegions.Count != 0) )
+                    if (savedRegions.Count != loadedRegions.Count ||
+                        (saveProblems[saveSlot].missingRegions != null && saveProblems[saveSlot].missingRegions.Count != 0) ||
+                        (saveProblems[saveSlot].extraRegions != null && saveProblems[saveSlot].extraRegions.Count != 0))
                     {
                         saveProblems[saveSlot].installedRegions = true;
                     }
@@ -399,7 +399,7 @@ namespace CustomRegions.Mod
                 string saveFileName = Custom.RootFolderDirectory() + CustomWorldMod.regionSavePath + $"CRsav_{saveSlot + 1}.txt";
 
 
-                if(!File.Exists(Custom.RootFolderDirectory() + "UserData"+Path.DirectorySeparatorChar+ ((saveSlot != 0) ? ("sav_" + (saveSlot + 1)) : "sav") + ".txt"))
+                if (!File.Exists(Custom.RootFolderDirectory() + "UserData" + Path.DirectorySeparatorChar + ((saveSlot != 0) ? ("sav_" + (saveSlot + 1)) : "sav") + ".txt"))
                 {
                     File.Delete(saveFileName);
                     Log($"Deleting {saveFileName} since vanilla save is empty");
@@ -471,7 +471,7 @@ namespace CustomRegions.Mod
                 }
                 else
                 {
-                    Log($"SaveSlot [{saveSlot+1}] does not have CR information");
+                    Log($"SaveSlot [{saveSlot + 1}] does not have CR information");
                 }
             }
         }
@@ -508,7 +508,6 @@ namespace CustomRegions.Mod
         }
 
 
-      
         /// <summary>
         /// Returns a List from WorldData
         /// </summary>
@@ -627,9 +626,7 @@ namespace CustomRegions.Mod
 
                 }
 
-                
-
-                RegionInformation regionInformation = new RegionInformation(string.Empty, string.Empty, "No description", 
+                RegionInformation regionInformation = new RegionInformation(string.Empty, string.Empty, "No description",
                     true, loadOrder, string.Empty, -1, new DirectoryInfo(dir).Name, string.Empty, new Dictionary<string, float>(), new Dictionary<string, RegionConfiguration>());
 
 
@@ -638,7 +635,7 @@ namespace CustomRegions.Mod
                 {
                     dictionary = File.ReadAllText(pathOfRegionInfo).dictionaryFromJson();
                 }
-                catch (Exception e) 
+                catch (Exception e)
                 {
                     Log($"CORRUPTED JSON FILE -- DELETING [{pathOfRegionInfo}] - [{e}]", true);
                     File.Delete(dir + Path.DirectorySeparatorChar + "regionInfo.json");
@@ -652,7 +649,7 @@ namespace CustomRegions.Mod
                     FromDictionaryToRegionInfo(dictionary, ref regionInformation);
 
                     Log($"Description for ({regionInformation.regionName}) is: [{regionInformation.description}]");
-                  //  string oldDescription = regionInformation.description;
+                    //  string oldDescription = regionInformation.description;
                     if (regionInformation.description.Equals("N / A") || regionInformation.description.Equals(string.Empty))
                     {
                         regionInformation.description = "No description";
@@ -700,7 +697,7 @@ namespace CustomRegions.Mod
                         Log($"New checksum for {regionInformation.regionName} [{newChecksum}]");
                         regionInformation.checksum = newChecksum;
                     }
-                    if(!newDescr.Equals(string.Empty) && !newDescr.Equals(regionInformation.description))
+                    if (!newDescr.Equals(string.Empty) && !newDescr.Equals(regionInformation.description))
                     {
                         Log($"New description for {regionInformation.regionName} [{newDescr}]");
                         regionInformation.description = newDescr;
@@ -712,7 +709,7 @@ namespace CustomRegions.Mod
                     }
 
                     // Write new info
-                    if ((!newDescr.Equals(string.Empty)&&regionInformation.description.Equals("No description")) || !newChecksum.Equals(string.Empty) || !newUrl.Equals(string.Empty))
+                    if ((!newDescr.Equals(string.Empty) && regionInformation.description.Equals("No description")) || !newChecksum.Equals(string.Empty) || !newUrl.Equals(string.Empty))
                     {
                         Log($"Updating regionInfo for {regionInformation.regionName}");
                         File.Delete(dir + Path.DirectorySeparatorChar + "regionInfo.json");
@@ -749,7 +746,7 @@ namespace CustomRegions.Mod
                 }
 
                 Log("-------");
-            } 
+            }
 
             foreach (KeyValuePair<string, RegionInformation> element in notSortedDictionary.OrderBy(d => d.Value.loadOrder))
             {
@@ -776,6 +773,7 @@ namespace CustomRegions.Mod
                 regionInformation.regionName = (string)GetValueDictionary("regionName", dictionary);
             }
 
+            // WHAT THE FRICC IS THIS
             if (dictionary.ContainsKey("activated"))
             {
                 regionInformation.activated = dictionary["activated"].ToString().ToLower().Contains("true");
@@ -790,6 +788,7 @@ namespace CustomRegions.Mod
             {
                 regionInformation.checksum = (string)GetValueDictionary("checksum", dictionary);
             }
+
             if (GetValueDictionary("url", dictionary) != null)
             {
                 regionInformation.url = (string)GetValueDictionary("url", dictionary);
@@ -816,6 +815,7 @@ namespace CustomRegions.Mod
                 }
                 catch (Exception) { regionConfiguration.kelpColor = null; }
             }
+
             if (GetValueDictionary("brother_color", dictionary) != null)
             {
                 try
@@ -879,6 +879,7 @@ namespace CustomRegions.Mod
                         pearlColor = OptionalUI.OpColorPicker.HexToColor(lineDivided[2]);
                     }
                     catch (Exception) { Log($"Pearl missing color from {regionID}", true); }
+
                     try
                     {
                         secondaryColor = OptionalUI.OpColorPicker.HexToColor(lineDivided[3]);
@@ -923,13 +924,12 @@ namespace CustomRegions.Mod
             }
         }
 
-        // Only will apply to new regions added
         public static void LoadVariations(string dir, RegionInformation regionInfo)
         {
             string pathToRegionsDir = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar;
             foreach (string regionDir in Directory.GetDirectories(pathToRegionsDir))
             {
-                string pathConfig = regionDir +Path.DirectorySeparatorChar+ "CustomConfig.json";
+                string pathConfig = regionDir + Path.DirectorySeparatorChar + "CustomConfig.json";
                 // Load configuration
                 if (File.Exists(pathConfig))
                 {
@@ -943,8 +943,8 @@ namespace CustomRegions.Mod
                     }
                     catch (Exception e)
                     {
-                        Log($"CORRUPTED JSON FILE -- DELETING [{pathConfig}] - [{e}]", true);
-                        File.Delete(pathConfig);
+                        Log($"CORRUPTED JSON FILE [{pathConfig}] - [{e}]", true);
+                        //File.Delete(pathConfig);
                         return;
                     }
 
@@ -958,9 +958,9 @@ namespace CustomRegions.Mod
                         regionConfiguration.regionID = new DirectoryInfo(regionDir).Name;
 
                         // Load region information
-                            CustomWorldMod.Log($"Adding configuration for region [{regionConfiguration.regionID}] from [{regionInfo.regionName}] - " +
-                            $"AlbinoLev [{regionConfiguration.albinoLevi}] AlbinoJet [{regionConfiguration.albinoJet}] " +
-                            $"KelpColor [{!regionConfiguration.kelpVanilla}] BLLColor [{!regionConfiguration.bllVanilla}]");
+                        CustomWorldMod.Log($"Adding configuration for region [{regionConfiguration.regionID}] from [{regionInfo.regionName}] - " +
+                        $"AlbinoLev [{regionConfiguration.albinoLevi}] AlbinoJet [{regionConfiguration.albinoJet}] " +
+                        $"KelpColor [{!regionConfiguration.kelpVanilla}] BLLColor [{!regionConfiguration.bllVanilla}]");
 
                         if (regionInfo.regionID != string.Empty)
                         {
@@ -1046,24 +1046,24 @@ namespace CustomRegions.Mod
             return infoSerial;
         }
 
-        
+
 
         public static void WriteRegionInfoJSONFile(string dirPath, string regionID, string description, string regionName, bool activated, int loadOrder, string url, string checksum)
         {
             // Create a file to write to.
             using (StreamWriter sw = File.CreateText(dirPath + Path.DirectorySeparatorChar + "regionInfo.json"))
             {
-                 sw.WriteLine("{\n"
-                     + "   \"regionID\":  \"" + regionID + "\", \n"
-                     + "   \"description\":  \"" + description + "\", \n"
+                sw.WriteLine("{\n"
+                    + "   \"regionID\":  \"" + regionID + "\", \n"
+                    + "   \"description\":  \"" + description + "\", \n"
 
-                     + "   \"regionName\":  \"" + regionName + "\", \n"
-                     + "   \"activated\":  " + activated.ToString().ToLower() + ", \n"
-                     + "   \"loadOrder\": " + loadOrder + ", \n"
+                    + "   \"regionName\":  \"" + regionName + "\", \n"
+                    + "   \"activated\":  " + activated.ToString().ToLower() + ", \n"
+                    + "   \"loadOrder\": " + loadOrder + ", \n"
 
-                     + "   \"url\":  \"" + url + "\", \n"
-                     + "   \"checksum\":  \"" + checksum + "\" \n"
-                     + "}");
+                    + "   \"url\":  \"" + url + "\", \n"
+                    + "   \"checksum\":  \"" + checksum + "\" \n"
+                    + "}");
                 /*
                 sw.WriteLine(new Dictionary<string, object>() { 
                     { "regionID", regionID },
@@ -1078,7 +1078,7 @@ namespace CustomRegions.Mod
             }
         }
 
-        public static void WriteRegionConfigJSONFile(string dirPath, bool leviAlbino, bool jetfishAlbino,  
+        public static void WriteRegionConfigJSONFile(string dirPath, bool leviAlbino, bool jetfishAlbino,
             string shortcutColor, string kelpColor, string bllColor)
         {
             using (StreamWriter sw = File.CreateText(dirPath + Path.DirectorySeparatorChar + "regionConfiguration.json"))
@@ -1098,7 +1098,7 @@ namespace CustomRegions.Mod
 
         internal static void DownloadThumbs()
         {
-            
+
             Dictionary<string, string> thumbInfo = new Dictionary<string, string>();
             foreach (KeyValuePair<string, RegionInformation> entry in CustomWorldMod.availableRegions)
             {
@@ -1109,13 +1109,13 @@ namespace CustomRegions.Mod
                 }
             }
 
-            if (ThumbnailDownloader.instance == null) 
+            if (ThumbnailDownloader.instance == null)
             {
                 ThumbnailDownloader.Create(thumbInfo);
             }
 
             //thumbnailDownloader = new ThumbnailDownloader(thumbInfo);
-            
+
 
             /*
             string filePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath +
