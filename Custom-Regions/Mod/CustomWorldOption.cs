@@ -337,7 +337,7 @@ namespace CustomRegions.Mod
             {
                 saveSlot = CustomWorldMod.rainWorldInstance.options.saveSlot;
             }
-            catch (Exception) { }
+            catch (Exception e) { CustomWorldMod.Log("Crashed on config " + e, true); }
 
             OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), $"Analyze Save Slot {saveSlot + 1}", FLabelAlignment.Center, true);
             Tabs[tab].AddItems(labelID);
@@ -352,10 +352,14 @@ namespace CustomRegions.Mod
 
             Tabs[tab].AddItems(errorLabel);
 
-            if (!CustomWorldMod.saveProblems[saveSlot].AnyProblems)
+            try
             {
-                return;
+                if (!CustomWorldMod.saveProblems[saveSlot].AnyProblems)
+                {
+                    return;
+                }
             }
+            catch (Exception e) { CustomWorldMod.Log("Crashed on config " + e, true); return; }
 
             errorLabel.text = "If your save is working fine you can ignore these errors";
 
