@@ -18,7 +18,7 @@
   * [ART DE RÉGION](#index6.3)
   * [PORTES ÉLECTRIQUES](#index6.4)
   * [PERLES DE DONNÉES PERSONNALISÉES (sans code)](#index6.5)
-  * [VIGNETTES](# index6.6)
+  * [VIGNETTES](#index6.6)
   * [ALBINOS / CRÉATURES COLORÉES (sans code)](#index6.7)
 * [Problèmes connus](#index7)
 * [Crédits](#index8)
