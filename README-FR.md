@@ -218,7 +218,7 @@ CR ajoute la possibilité d'ajouter des perles de données personnalisées sans 
 ### <a name="index6.7"></a>ALBINOS / CRÉATURES COLORÉES
 
 * Configurez si une région doit faire apparaître des créatures albinos (léviathan / jetfish) ou la couleur du Monstre Varech ou du Papa / Frère Longues Jambes.
-* Téléchargez [ce fichier](https://github.com/Garrakx/Custom-Regions/blob/master/Example%20Config%20Files/CustomConfig.json) et placez-le à côté du fichier world_XX.txt de la région que vous souhaitez configurer `Rain World\Mods\CustomResources\"Your Region"\World\Regions\"RegionInitials"\`(si vous souhaitez configurer une région originale, créez simplement un dossier vide avec les initiales de la région et placez-y le fichier).
+* Téléchargez [ce fichier](https://github.com/Garrakx/Custom-Regions/blob/master/Example%20Config%20Files/CustomConfig.json) et placez-le à côté du fichier world_XX.txt de la région que vous souhaitez configurer `Rain World\Mods\CustomResources\"Votre Région"\World\Regions\"InitialesDeLaRégion"\`(si vous souhaitez configurer une région originale, créez simplement un dossier vide avec les initiales de la région et placez-y le fichier).
 * Vous devez mettre la couleur au format hexadécimal (00FF00).
 * Laisser une chaîne vide ("") à côté de la couleur signifie que la créature utilisera sa couleur originale.
 
