@@ -47,12 +47,14 @@ namespace CustomRegions.Mod
         public static CustomWorldScript script;
         public static CustomWorldConfig config;
         public static CustomWorldOption customWorldOption;
+        public static string versionCR = "";
 
         public CustomWorldMod()
         {
             ModID = "Custom Regions Mod";
             Version = "0.7." + version;
             author = "Garrakx";
+            versionCR = $"v0.7.{version}"; 
         }
 
         // Code for AutoUpdate support
@@ -175,8 +177,6 @@ namespace CustomRegions.Mod
         public static ThumbnailDownloader thumbnailDownloader;
 
 
-
-
         /// <summary>
         /// Method used for translating with Config Machine
         /// </summary>
@@ -184,7 +184,7 @@ namespace CustomRegions.Mod
         {
             if (customWorldOption != null)
             {
-                return customWorldOption.Translate(orig);
+                //return customWorldOption.Translate(orig);
             }
             return orig;
         }
@@ -249,7 +249,7 @@ namespace CustomRegions.Mod
         {
             using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + "customWorldLog.txt"))
             {
-                sw.WriteLine("############################################\n Custom World Log \n");
+                sw.WriteLine($"############################################\n Custom World Log {versionCR} \n");
             }
         }
 
@@ -292,11 +292,11 @@ namespace CustomRegions.Mod
         /// </summary>
         public static void Log(string test, bool throwException)
         {
-            Log(test);
             if (throwException)
             {
                 Debug.LogError("[CustomRegions] " + test);
             }
+            Log("[ERROR] " + test);
         }
 
         /// <summary>
@@ -606,18 +606,21 @@ namespace CustomRegions.Mod
                             }
 
                         }
+                    }
 
-                        if (regionID == string.Empty)
+                    // If no ID found, generate one...
+                    if (regionID == string.Empty)
+                    {
+                        // If a customRegion does not add new regions, obtain regionID from capital letters.
+                        foreach (char letters in regionName)
                         {
-                            // If a customRegion does not add new regions, obtain regionID from capital letters.
-                            foreach (char letters in regionName)
+                            if (char.IsUpper(letters))
                             {
-                                if (char.IsUpper(letters))
-                                {
-                                    regionID += letters;
-                                }
+                                regionID += letters;
                             }
+                            if(regionID.Length == 2) { break; }
                         }
+                        CustomWorldMod.Log($"Generated regionID since it was empty... [{regionID}]");
                     }
 
                     checksum = CustomWorldMod.GenerateRegionCheckSum(dir);
@@ -811,7 +814,13 @@ namespace CustomRegions.Mod
             {
                 try
                 {
-                    regionConfiguration.kelpColor = OptionalUI.OpColorPicker.HexToColor((string)GetValueDictionary("monster_kelp_color", dictionary));
+                    string color = (string)GetValueDictionary("monster_kelp_color", dictionary);
+                    if(color.Contains("#"))
+                    {
+                        color = color.Replace("#", "");
+                        CustomWorldMod.Log($"Removed # from color [{color}]");
+                    }
+                    regionConfiguration.kelpColor = OptionalUI.OpColorPicker.HexToColor(color);
                 }
                 catch (Exception) { regionConfiguration.kelpColor = null; }
             }
@@ -820,7 +829,13 @@ namespace CustomRegions.Mod
             {
                 try
                 {
-                    regionConfiguration.bllColor = OptionalUI.OpColorPicker.HexToColor((string)GetValueDictionary("brother_color", dictionary));
+                    string color = (string)GetValueDictionary("brother_color", dictionary);
+                    if (color.Contains("#"))
+                    {
+                        color = color.Replace("#", "");
+                        CustomWorldMod.Log($"Removed # from color [{color}]");
+                    }
+                    regionConfiguration.bllColor = OptionalUI.OpColorPicker.HexToColor(color);
                 }
                 catch (Exception) { regionConfiguration.bllColor = null; }
             }
@@ -959,8 +974,8 @@ namespace CustomRegions.Mod
 
                         // Load region information
                         CustomWorldMod.Log($"Adding configuration for region [{regionConfiguration.regionID}] from [{regionInfo.regionName}] - " +
-                        $"AlbinoLev [{regionConfiguration.albinoLevi}] AlbinoJet [{regionConfiguration.albinoJet}] " +
-                        $"KelpColor [{!regionConfiguration.kelpVanilla}] BLLColor [{!regionConfiguration.bllVanilla}]");
+                        $"Albino Leviathan [{regionConfiguration.albinoLevi}] Albino JetFish [{regionConfiguration.albinoJet}] " +
+                        $"Kelp Color [{regionConfiguration.kelpColor}] BLL color [{regionConfiguration.bllColor}]");
 
                         if (regionInfo.regionID != string.Empty)
                         {
