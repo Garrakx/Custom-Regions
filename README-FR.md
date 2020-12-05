@@ -136,6 +136,9 @@ END ROOMS
 * En plus du fichier "`positions.txt`" pour l'art de la région, vous devrez inclure un "`depths.txt`" pour positionner la profondeur de votre art. Suivez le même ordre que "`positions.txt`".
 * Vous pouvez inclure autant de calques que vous le souhaitez pour l'art de la région.
 * Vous devrez probablement ajuster à nouveau les positions de l'art de la région.
+* Vous pouvez maintenant déplacer les calques en maintenant `N` et en cliquant avec la souris.
+* Pour enregistrer les couches, appuyez simplement sur `B`.
+* De plus, vous pouvez modifier le fichier texte des positions pendant que le jeu est ouvert et appuyer sur `R` pour voir les changements.
 
 ### <a name="index6.4"></a>PORTES ÉLECTRIQUES
 * Pour ajouter une porte électrique, créez un nouveau fichier .txt dans le dossier `Gates` de votre mod (à côté de `locks.txt`) et appelez-le `electricGates.txt`. En suivant le même format que `locks.txt`, écrivez tous les noms des portes qui doivent être électriques suivis de la hauteur de la barre de chargement:
