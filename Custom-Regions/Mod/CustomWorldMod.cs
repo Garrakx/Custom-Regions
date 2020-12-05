@@ -9,15 +9,15 @@ using System.Security;
 using System.Runtime.CompilerServices;
 using System.Security.Permissions;
 using System.Linq;
-using On.ScavTradeInstruction;
-using Partiality;
-using PastebinMachine.EnumExtender;
-using System.Collections;
-using System.ComponentModel;
-using System.Security.Cryptography;
 using System.Text;
 using Menu;
 using static CustomRegions.Mod.CustomWorldStructs;
+using CustomRegions.CustomPearls;
+using CustomRegions.Creatures;
+using CustomRegions.Music;
+using CustomRegions.DevInterface;
+using CustomRegions.CustomMenu;
+using PastebinMachine.EnumExtender;
 
 
 // Delete Publicity Stunt requirement by pastebee
@@ -44,9 +44,10 @@ namespace CustomRegions.Mod
 
     public class CustomWorldMod : PartialityMod
     {
-        public static CustomWorldScript script;
+        //public static CustomWorldScript script;
         public static CustomWorldConfig config;
         public static CustomWorldOption customWorldOption;
+        public static CustomWorldMod mod;
         public static string versionCR = "";
 
         public CustomWorldMod()
@@ -73,13 +74,75 @@ namespace CustomRegions.Mod
         {
             base.OnEnable();
 
+            config = default;
+            /*
             GameObject gameObject = new GameObject();
             script = gameObject.AddComponent<CustomWorldScript>();
             CustomWorldScript.mod = this;
+            */
 
-            config = default;
+            CustomWorldMod.CreateCustomWorldLog();
+            CustomWorldMod.CreateCustomWorldFolders();
 
-            script.Initialize();
+            // Load from file
+            CustomWorldMod.analyzingLog = string.Empty;
+
+            MapHook.ApplyHook();
+            RegionGateHook.ApplyHooks();
+            RegionHook.ApplyHook();
+            RoomSettingsHook.ApplyHook();
+            WorldHook.ApplyHook();
+            WorldLoaderHook.ApplyHooks();
+            OverWorldHook.ApplyHooks();
+            PlayerProgressionHook.ApplyHooks();
+
+            // Pearl
+            DataPearlHook.ApplyHooks();
+            SLOracleBehaviorHasMarkHook.ApplyHooks();
+
+            // Rain world instance
+            RainWorldHook.ApplyHooks();
+
+            // Custom Palette
+            RoomCameraHook.ApplyHook();
+
+
+            // Electric gate
+            RoomHook.ApplyHooks();
+            WaterGateHook.ApplyHooks();
+
+            // Custom Decal
+            CustomDecalHook.ApplyHook();
+
+            // Scene
+            FastTravelScreenHook.ApplyHooks();
+            MainMenuHook.ApplyHooks();
+            MenuSceneHook.ApplyHook();
+            MenuIllustrationHook.ApplyHook();
+            SlugcatSelectMenuHook.ApplyHooks();
+
+            // DevInterface
+            MapPageHook.ApplyHooks();
+            MapRenderOutputHook.ApplyHooks();
+
+            // Arena
+            MultiplayerMenuHook.ApplyHook();
+            ArenaCreatureSpawnerHook.ApplyHook();
+
+            // WinState - achievement
+            WinStateHook.ApplyHook();
+
+            SaveStateHook.ApplyHook();
+
+            // MusicPiece
+            MusicPieceHook.ApplyHooks();
+            ProceduralMusicInstructionsHook.ApplyHooks();
+
+            BigEelHook.ApplyHooks();
+            TentaclePlantGraphicsHook.ApplyHooks();
+            DaddyLongLegsHook.ApplyHooks();
+
+            //script.Initialize();
 
         }
 
@@ -899,10 +962,9 @@ namespace CustomRegions.Mod
                     {
                         secondaryColor = OptionalUI.OpColorPicker.HexToColor(lineDivided[3]);
                     }
-                    catch (Exception) { Log($"Pearl missing highlighted from {regionID}"); }
+                    catch (Exception) { Log($"Pearl missing highlighted color from {regionID}"); }
 
                     CustomWorldMod.Log($"Added new pearl [{pearlName} / {fileNumber} / {pearlColor}]");
-                    //regionInformation.customPearls.Add(pearlName, new CustomPearl(fileNumber, pearlColor));
 
                     CustomWorldMod.customPearls.Add(pearlName, new CustomPearl(pearlName, fileNumber, pearlColor, secondaryColor, regionID));
 

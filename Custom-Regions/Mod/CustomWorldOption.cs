@@ -16,9 +16,10 @@ namespace CustomRegions.Mod
     public class CustomWorldOption : OptionInterface
     {
 
-        public CustomWorldOption() : base(CustomWorldScript.mod)
+        public CustomWorldOption() : base(CustomWorldMod.mod)
         {
-            mod = CustomWorldScript.mod;
+            //mod = CustomWorldScript.mod;
+
         }
 
         public override bool Configuable()

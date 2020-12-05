@@ -31,18 +31,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Rain World References\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="ConfigMachine, Version=1.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ConfigMachine, Version=1.4.4.3, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Rain World References\Config Machine 1.4\ConfigMachine.dll</HintPath>
+      <HintPath>C:\Rain World References\ConfigMachine.dll</HintPath>
     </Reference>
     <Reference Include="EnumExtender">
       <HintPath>C:\Rain World References\EnumExtender.dll</HintPath>
-    </Reference>
-    <Reference Include="HOOKS-Assembly-CSharp">
-      <HintPath>C:\Rain World References\HOOKS-Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod, Version=18.6.0.33005, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -52,8 +50,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Rain World References\MonoMod.RuntimeDetour.dll</HintPath>
     </Reference>
-    <Reference Include="Partiality">
+    <Reference Include="Partiality, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Rain World References\Partiality.dll</HintPath>
+    </Reference>
+    <Reference Include="public-HOOKS-Assembly-CSharp">
+      <HintPath>C:\Rain World References\public-HOOKS-Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,7 +63,8 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine">
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Rain World References\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -85,7 +88,6 @@
     <Compile Include="Mod\CRExtras.cs" />
     <Compile Include="Mod\CustomWorldMod.cs" />
     <Compile Include="Mod\CustomWorldOption.cs" />
-    <Compile Include="Mod\CustomWorldScript.cs" />
     <Compile Include="CustomMenu\MainMenuHook.cs" />
     <Compile Include="CustomMenu\MultiplayerMenuHook.cs" />
     <Compile Include="Music\MusicPieceHook.cs" />

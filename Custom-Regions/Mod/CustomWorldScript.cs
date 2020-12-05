@@ -16,7 +16,7 @@ namespace CustomRegions.Mod
 
         public void Initialize()
         {
-            CustomWorldMod.script = this;
+            //CustomWorldMod.script = this;
 
             CustomWorldMod.CreateCustomWorldLog();
             CustomWorldMod.CreateCustomWorldFolders();
