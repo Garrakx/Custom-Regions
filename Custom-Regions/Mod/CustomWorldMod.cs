@@ -62,7 +62,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 37;
+        public int version = 38;
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
@@ -105,7 +105,6 @@ namespace CustomRegions.Mod
 
             // Custom Palette
             RoomCameraHook.ApplyHook();
-
 
             // Electric gate
             RoomHook.ApplyHooks();
@@ -1004,6 +1003,11 @@ namespace CustomRegions.Mod
         public static void LoadVariations(string dir, RegionInformation regionInfo)
         {
             string pathToRegionsDir = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar;
+            if (!Directory.Exists(pathToRegionsDir))
+            {
+                Log($"Region [{regionInfo.regionName}] doesn't have Regions folder");
+                return;
+            }
             foreach (string regionDir in Directory.GetDirectories(pathToRegionsDir))
             {
                 string pathConfig = regionDir + Path.DirectorySeparatorChar + "CustomConfig.json";
