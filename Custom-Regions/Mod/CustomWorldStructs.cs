@@ -53,9 +53,10 @@ namespace CustomRegions.Mod
             public Color? kelpColor;
             public bool bllVanilla;
             public Color? bllColor;
+            public float blackSalamanderChance;
 
             public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, 
-                bool kelpVanilla, Color? kelpColor, bool bllVanilla, Color? bllColor)
+                bool kelpVanilla, Color? kelpColor, bool bllVanilla, Color? bllColor, float blackSalamanderChance)
             {
                 this.regionID = regionID;
                 this.albinoLevi = albinoLevi;
@@ -64,6 +65,7 @@ namespace CustomRegions.Mod
                 this.kelpColor = kelpColor;
                 this.bllVanilla = bllVanilla;
                 this.bllColor = bllColor;
+                this.blackSalamanderChance = blackSalamanderChance;
             }
         }
 

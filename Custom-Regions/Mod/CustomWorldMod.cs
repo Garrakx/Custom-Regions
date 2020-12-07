@@ -55,7 +55,7 @@ namespace CustomRegions.Mod
             ModID = "Custom Regions Mod";
             Version = "0.7." + version;
             author = "Garrakx";
-            versionCR = $"v0.7.{version}"; 
+            versionCR = $"v0.7.{version}";
         }
 
         // Code for AutoUpdate support
@@ -140,6 +140,7 @@ namespace CustomRegions.Mod
             BigEelHook.ApplyHooks();
             TentaclePlantGraphicsHook.ApplyHooks();
             DaddyLongLegsHook.ApplyHooks();
+            LizardGraphicsHook.ApplyHooks();
 
             //script.Initialize();
 
@@ -680,7 +681,7 @@ namespace CustomRegions.Mod
                             {
                                 regionID += letters;
                             }
-                            if(regionID.Length == 2) { break; }
+                            if (regionID.Length == 2) { break; }
                         }
                         CustomWorldMod.Log($"Generated regionID since it was empty... [{regionID}]");
                     }
@@ -725,7 +726,7 @@ namespace CustomRegions.Mod
 
                     if (regionInformation.regionName.ToLower().Contains("aether ridge") || regionInformation.regionID.Equals("AR"))
                     {
-                        newDescr = "Aether Ridge is derelict desalination rig to the north of Sky Islands. Includes over 200 new rooms, six new arenas, and more.";
+                        newDescr = "Aether Ridge is a derelict desalination rig to the north of Sky Islands. Includes over 200 new rooms, six new arenas, and more.";
                         newUrl = "http://www.raindb.net/previews/aether.png";
                     }
                     else if (regionInformation.regionName.ToLower().Contains("badlands") || regionInformation.regionID.Equals("BL"))
@@ -752,6 +753,11 @@ namespace CustomRegions.Mod
                     {
                         newDescr = "A new game+ style mod that reorganizes the game's regions, trying to rekindle the feelings of when you first got lost in Rain World.";
                         newUrl = "http://www.raindb.net/previews/master.png";
+                    }
+                    else if (regionInformation.regionName.ToLower().Contains("underbelly"))
+                    {
+                        newDescr = "A dark and damp region connecting Outskirts, Shoreline and Farm arrays.";
+                        newUrl = "http://www.raindb.net/previews/underbelly.png";
                     }
 
 
@@ -877,7 +883,7 @@ namespace CustomRegions.Mod
                 try
                 {
                     string color = (string)GetValueDictionary("monster_kelp_color", dictionary);
-                    if(color.Contains("#"))
+                    if (color.Contains("#"))
                     {
                         color = color.Replace("#", "");
                         CustomWorldMod.Log($"Removed # from color [{color}]");
@@ -900,6 +906,10 @@ namespace CustomRegions.Mod
                     regionConfiguration.bllColor = OptionalUI.OpColorPicker.HexToColor(color);
                 }
                 catch (Exception) { regionConfiguration.bllColor = null; }
+            }
+            if (GetValueDictionary("black_salamander_chance", dictionary) != null)
+            {
+                regionConfiguration.blackSalamanderChance = int.Parse((string)GetValueDictionary("black_salamander_chance", dictionary));
             }
         }
 
@@ -1015,7 +1025,7 @@ namespace CustomRegions.Mod
                 if (File.Exists(pathConfig))
                 {
                     Log($"Loading variation config for region [{new DirectoryInfo(regionDir).Name}] from [{regionInfo.regionName}]");
-                    RegionConfiguration regionConfiguration = new RegionConfiguration(null, false, false, false, null, false, null);
+                    RegionConfiguration regionConfiguration = new RegionConfiguration(null, false, false, false, null, false, null, -1);
 
                     Dictionary<string, object> dictionary = null;
                     try
@@ -1041,7 +1051,9 @@ namespace CustomRegions.Mod
                         // Load region information
                         CustomWorldMod.Log($"Adding configuration for region [{regionConfiguration.regionID}] from [{regionInfo.regionName}] - " +
                         $"Albino Leviathan [{regionConfiguration.albinoLevi}] Albino JetFish [{regionConfiguration.albinoJet}] " +
-                        $"Kelp Color [{regionConfiguration.kelpColor}] BLL color [{regionConfiguration.bllColor}]");
+                        $"Kelp Color [{regionConfiguration.kelpColor.Value.r},{regionConfiguration.kelpColor.Value.g}, {regionConfiguration.kelpColor.Value.b}]" +
+                        $" BLL color [{regionConfiguration.bllColor.Value.r},{regionConfiguration.bllColor.Value.g}, {regionConfiguration.bllColor.Value.b}] " +
+                        $"Black Salamander chance [{regionConfiguration.blackSalamanderChance * 100f}%]");
 
                         if (regionInfo.regionID != string.Empty)
                         {
