@@ -30,15 +30,15 @@ namespace CustomRegions.Creatures
             if (world != null)
             {
                 //CustomWorldMod.Log($"Region Name [{self.region.name}]");
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
                 {
                     //CustomWorldMod.Log($"Checking in [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
-                    if (CustomWorldMod.availableRegions[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedRegionPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
                     {
                         if (!config.kelpVanilla)
                         {
                             customColor = new Color[self.danglers.Length];
-                            CustomWorldMod.Log($"Spawning tentacle plant with custom color in [{world.region.name}] from [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
+                            CustomWorldMod.Log($"Spawning tentacle plant with custom color in [{world.region.name}] from [{CustomWorldMod.installedRegionPacks[keyValues.Key].name}]");
                             for (int i = 0; i < customColor.Length; i++)
                             {
                                 HSLColor hsl = CRExtras.RGB2HSL(config.kelpColor ?? new Color());

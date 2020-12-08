@@ -30,7 +30,7 @@ namespace CustomRegions
         {
             orig(self, name, firstRoomIndex, regionNumber);
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
             {
                 //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading custom properties for {keyValues.Key}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
@@ -153,7 +153,7 @@ namespace CustomRegions
             //if (!enabled) { return orig(self); }
             bool customRegion = false;
             int totalRooms = 0;
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
             {
                 //CustomWorldMod.CustomWorldLog($"Custom Regions: Counting total rooms for {keyValues.Value} in {name}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;

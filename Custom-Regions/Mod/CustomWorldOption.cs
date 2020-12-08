@@ -92,7 +92,7 @@ namespace CustomRegions.Mod
 
 
             //How Many Options
-            int numberOfOptions = CustomWorldMod.availableRegions.Count;
+            int numberOfOptions = CustomWorldMod.installedRegionPacks.Count;
 
             if (numberOfOptions < 1)
             {
@@ -123,7 +123,7 @@ namespace CustomRegions.Mod
 
             for (int i = 0; i < numberOfOptions; i++)
             {
-                bool activated = CustomWorldMod.availableRegions.ElementAt(i).Value.activated;
+                bool activated = CustomWorldMod.installedRegionPacks.ElementAt(i).Value.activated;
                 Color colorEnabled = activated ? new Color((206f / 255f), 1f, (206f / 255f)) : new Color((108f / 255f), 0.001f, 0.001f);
 
                 /*
@@ -146,7 +146,7 @@ namespace CustomRegions.Mod
 
                 OpLabel labelRegionName = new OpLabel(rectPos + new Vector2(thumbSize.x + spacing, 140), labelSize, "", FLabelAlignment.Left)
                 {
-                    text = (i + 1).ToString() + ") " + CustomWorldMod.availableRegions.ElementAt(i).Value.regionName,
+                    text = (i + 1).ToString() + ") " + CustomWorldMod.installedRegionPacks.ElementAt(i).Value.name,
                     color = colorEnabled// new Color((108f / 255f), 0.001f, 0.001f)
                 };
                 //Debug.Log(labelBox.text);
@@ -156,7 +156,7 @@ namespace CustomRegions.Mod
 
 
                 string filePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath +
-                    CustomWorldMod.availableRegions.ElementAt(i).Value.folderName + Path.DirectorySeparatorChar + "thumb.png";
+                    CustomWorldMod.installedRegionPacks.ElementAt(i).Value.folderName + Path.DirectorySeparatorChar + "thumb.png";
 
                 Texture2D oldTex = new Texture2D((int)thumbSize.x, (int)thumbSize.y);
                 if (File.Exists(filePath))
@@ -198,7 +198,7 @@ namespace CustomRegions.Mod
                 OpLabel labelDesc = new OpLabel(rectPos + new Vector2(spacing + thumbSize.x, (rectSize.y - descripSize.y - labelSize.y)), descripSize, "", FLabelAlignment.Left)
                 {
                     autoWrap = true,
-                    text = CustomWorldMod.availableRegions.ElementAt(i).Value.description,
+                    text = CustomWorldMod.installedRegionPacks.ElementAt(i).Value.description,
                     color = colorEnabled//new Color((108f / 255f), 0.001f, 0.001f)
                 };
                 //Tabs[tab].AddItems(labelDesc);
@@ -230,7 +230,7 @@ namespace CustomRegions.Mod
 
 
             //How Many Options
-            int numberOfOptions = CustomWorldMod.availableRegions.Count;
+            int numberOfOptions = CustomWorldMod.installedRegionPacks.Count;
 
             if (numberOfOptions < 1)
             {
@@ -264,7 +264,7 @@ namespace CustomRegions.Mod
 
             for (int i = numberOfOptions - 1; i >= 0; i--)
             {
-                bool activated = CustomWorldMod.availableRegions.ElementAt(i).Value.activated;
+                bool activated = CustomWorldMod.installedRegionPacks.ElementAt(i).Value.activated;
                 Color colorEnabled = activated ? new Color((206f / 255f), 1f, (206f / 255f)) : new Color((108f / 255f), 0.001f, 0.001f);
 
                 OpRect rectOption = new OpRect(rectPos, rectSize, 0.3f)
@@ -283,7 +283,7 @@ namespace CustomRegions.Mod
 
                 OpLabel labelBox = new OpLabel(rectPos + new Vector2(20, rectSize.y * 0.30f), labelSize, "", FLabelAlignment.Left)
                 {
-                    text = CustomWorldMod.availableRegions.ElementAt(i).Value.regionName + ": ",
+                    text = CustomWorldMod.installedRegionPacks.ElementAt(i).Value.name + ": ",
                     color = colorEnabled// new Color((108f / 255f), 0.001f, 0.001f)
                 };
                 //Debug.Log(labelBox.text);
@@ -300,7 +300,7 @@ namespace CustomRegions.Mod
                 OpLabel labelDesc = new OpLabel(rectPos + new Vector2(20 + labelBox.text.Length * 7f, rectSize.y * 0.30f), descripSize, "", FLabelAlignment.Left)
                 {
                     autoWrap = true,
-                    text = CustomWorldMod.availableRegions.ElementAt(i).Value.description,
+                    text = CustomWorldMod.installedRegionPacks.ElementAt(i).Value.description,
                     color = colorEnabled//new Color((108f / 255f), 0.001f, 0.001f)
                 };
                 //Tabs[tab].AddItems(labelDesc);
@@ -388,13 +388,13 @@ namespace CustomRegions.Mod
             {
                 string temp2 = string.Empty;
                 List<string> expectedOrder = new List<string>();
-                foreach (RegionInformation info in CustomWorldMod.regionInfoInSaveSlot[saveSlot])
+                foreach (RegionPack info in CustomWorldMod.packInfoInSaveSlot[saveSlot])
                 {
-                    expectedOrder.Add(info.regionID);
+                    expectedOrder.Add(info.name);
                 }
                 temp2 += "- You have changed the order in which regions are loaded:\n";
                 temp2 += $"Expected order [{string.Join(", ", expectedOrder.ToArray())}]\n";
-                temp2 += $"Installed order [{string.Join(", ", CustomWorldMod.loadedRegions.Keys.ToArray())}]\n\n";
+                temp2 += $"Installed order [{string.Join(", ", CustomWorldMod.loadedRegionPacks.Keys.ToArray())}]\n\n";
                 problems.Add(temp2);
             }
 

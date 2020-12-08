@@ -91,7 +91,7 @@ namespace CustomRegions
                 if (!flag2)
                 {
                     text2 = Regex.Split(text, "_")[0];
-                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
                     {
                         string customDirectory = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + text2;
                         //string customDirectory2 = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(text, "_")[1];
@@ -162,7 +162,7 @@ namespace CustomRegions
             int num = self.regions[self.regions.Length - 1].firstRoomIndex;
             int regionNumber = self.regions[self.regions.Length - 1].regionNumber + 1;
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
             {
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions";
 

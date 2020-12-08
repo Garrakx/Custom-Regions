@@ -37,7 +37,7 @@ namespace CustomRegions
                 // Rain World\Mods\CustomResources\Aether Ridge\Assets\Futile\Resources\Decals
 
 
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
                 {
                     char dash = Path.DirectorySeparatorChar;
                     string customPath = $"{Custom.RootFolderDirectory()}{CustomWorldMod.resourcePath}{keyValues.Value}{dash}Assets{dash}Futile{dash}Resources{dash}Decals{dash}{fileName}.png";

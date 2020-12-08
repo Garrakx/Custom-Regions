@@ -88,7 +88,7 @@ namespace CustomRegions.CustomMenu
             List<string> order = (List<string>)orig.Method.Invoke(orig.Target, new object[] { });
             /* <3 SLIME CUBED <3 */
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
             {
                 if (!order.Contains(keyValues.Key))
                 {
@@ -109,7 +109,7 @@ namespace CustomRegions.CustomMenu
 
             //CustomWorldMod.sceneCustomID = string.Empty;
             MenuScene.SceneID ID = MenuScene.SceneID.Empty;
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
             {
                 if (keyValues.Key.Equals(regionName))
                 {

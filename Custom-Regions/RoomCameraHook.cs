@@ -130,7 +130,7 @@ namespace CustomRegions
                     pal = int.Parse(Regex.Split(trimmedUrl, ".png")[0]);
                     string regionName = string.Empty;
                     //CustomWorldMod.Log($"WWW trimmed path [{trimmedUrl}] Searching for palette [{pal}]");
-                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
                     {
 
                         regionName = keyValues.Value;

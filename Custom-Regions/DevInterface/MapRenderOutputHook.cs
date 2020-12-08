@@ -26,7 +26,7 @@ namespace CustomRegions.DevInterface
             //if (!File.Exists(pathToRegion))
             //{
                 // From a Custom Region
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
                 {
                     customFilePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
                         "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.owner.game.world.name;

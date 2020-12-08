@@ -44,7 +44,7 @@ namespace CustomRegions
                 File.Delete(saveFileName);
                 try
                 {
-                    CustomWorldMod.regionInfoInSaveSlot[self.rainWorld.options.saveSlot].Clear();
+                    CustomWorldMod.packInfoInSaveSlot[self.rainWorld.options.saveSlot].Clear();
                 } catch (Exception) { }
 
                 CustomWorldMod.Log("Deleted CR save");
@@ -64,10 +64,9 @@ namespace CustomRegions
                 //dictionaryString += $"{ string.Join(", ", new List<string>(CustomWorldMod.loadedRegions.Values).ToArray())}" + "}";
                 //saveRegionData += $"{CustomWorldMod.saveDividerA}REGIONLIST{string.Join(",",CustomWorldMod.loadedRegions.Keys.ToArray())}{CustomWorldMod.saveDividerA}";
 
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
                 {
-                    RegionInformation regionInfo;
-                    if (CustomWorldMod.availableRegions.TryGetValue(keyValues.Key, out regionInfo))
+                    if (CustomWorldMod.installedRegionPacks.TryGetValue(keyValues.Key, out RegionPack regionInfo))
                     {
                         saveRegionData += CustomWorldMod.SerializeRegionInfo(regionInfo);
                     }    

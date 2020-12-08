@@ -66,7 +66,7 @@ namespace CustomRegions.CustomMenu
 
                     //text
 
-                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
                     {
                         CustomWorldMod.Log($"Custom Regions: WWWW trimmed path [{path}]");
 
@@ -88,7 +88,7 @@ namespace CustomRegions.CustomMenu
         {
             orig(self, manager);
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
             {
                 string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels";
                 if (Directory.Exists(path))

@@ -27,7 +27,7 @@ namespace CustomRegions.Music
         {
             if (!self.readyToPlay)
 			{
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
                 {
                     if (self.source.clip == null)
                     {

@@ -79,7 +79,7 @@ namespace CustomRegions.CustomMenu
                         if (label is MenuLabel && label == self.regionLabel && (label as MenuLabel).text.Length < 3)
                         {
                             string fullRegionName = "N / A";
-                            CustomWorldMod.loadedRegions.TryGetValue(text2, out fullRegionName);
+                            CustomWorldMod.loadedRegionPacks.TryGetValue(text2, out fullRegionName);
                             CustomWorldMod.Log("Custom Regions: text " + text2);
                             if (fullRegionName != null)
                             {

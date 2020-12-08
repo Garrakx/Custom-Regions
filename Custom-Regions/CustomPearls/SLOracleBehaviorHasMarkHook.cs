@@ -51,7 +51,7 @@ namespace CustomRegions.CustomPearls
 
                                             if((item as DataPearl).AbstractPearl.dataPearlType == dataPearlType)
                                             {
-                                                CustomWorldMod.Log($"Loading custom pearl...[{pearls.Key}] from [{pearls.Value.regionID}]");
+                                                CustomWorldMod.Log($"Loading custom pearl...[{pearls.Key}] from [{pearls.Value.packName}]");
                                                 foundPearl = true;
                                                 if (self.currentConversation != null)
                                                 {
@@ -114,7 +114,7 @@ namespace CustomRegions.CustomPearls
                 {
                     foundPearl = true;
                     self.PearlIntro();
-                    LoadCustomEventsFromFile(pearls.Value.ID, CustomWorldMod.loadedRegions[pearls.Value.regionID], self);
+                    LoadCustomEventsFromFile(pearls.Value.ID, CustomWorldMod.loadedRegionPacks[pearls.Value.packName], self);
                 }
 
             }

@@ -32,11 +32,11 @@ namespace CustomRegions
             }
             */
             CustomWorldMod.Log("Water gate created, checking if it should be electric...");
-            foreach(KeyValuePair<string, string> regions in CustomWorldMod.loadedRegions)
+            foreach(KeyValuePair<string, string> regions in CustomWorldMod.loadedRegionPacks)
             {
-                if (CustomWorldMod.availableRegions[regions.Key].electricGates != null)
+                if (CustomWorldMod.installedRegionPacks[regions.Key].electricGates != null)
                 {
-                    if(CustomWorldMod.availableRegions[regions.Key].electricGates.ContainsKey(room.abstractRoom.name))
+                    if(CustomWorldMod.installedRegionPacks[regions.Key].electricGates.ContainsKey(room.abstractRoom.name))
                     {
                         CustomWorldMod.Log($"This gate [{room.abstractRoom.name}] should be electric gate, returning...");
                         return;
@@ -49,7 +49,7 @@ namespace CustomRegions
 
         private static void ElectricGate_ctor(On.ElectricGate.orig_ctor orig, ElectricGate self, Room room)
         {
-            foreach (KeyValuePair<string, RegionInformation> entries in CustomWorldMod.availableRegions)
+            foreach (KeyValuePair<string, RegionPack> entries in CustomWorldMod.installedRegionPacks)
             {
                 if (!entries.Value.activated || entries.Value.electricGates == null || entries.Value.electricGates.Count == 0)
                 {

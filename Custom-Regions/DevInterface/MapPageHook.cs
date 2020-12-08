@@ -21,7 +21,7 @@ namespace CustomRegions.DevInterface
         private static void MapPage_SaveMapConfig(On.DevInterface.MapPage.orig_SaveMapConfig orig, MapPage self)
         {
 			string customFilePath = string.Empty;
-			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
 			{
 				customFilePath = Custom.RootFolderDirectory() + 
 					CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
@@ -42,7 +42,7 @@ namespace CustomRegions.DevInterface
         private static void MapPage_LoadMapConfig(On.DevInterface.MapPage.orig_LoadMapConfig orig, MapPage self)
         {
             string customFilePath = string.Empty;
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
             {
 				customFilePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
 					"World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +					self.owner.game.world.name;

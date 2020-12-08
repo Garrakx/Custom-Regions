@@ -12,37 +12,52 @@ namespace CustomRegions.Mod
         /// Struct with information of available regions 
         /// [regionID, regionName, description, activated, checksum, loadOrder(Default is 100)]
         /// </summary>
-        public struct RegionInformation
+        public struct RegionPack
         {
-            public string regionID;
-            public string regionName;
-            public int regionNumber;
+            public string name;
             public string description;
             public bool activated;
             public string checksum;
-            public int loadOrder;
             public string folderName;
             public string url;
             public Dictionary<string, float> electricGates;
             public Dictionary<string, RegionConfiguration> regionConfig;
+            public List<string> regions;
+            public int loadOrder;
+            public int loadNumber;
 
-            public RegionInformation(string regionID, string regionName, string description, bool activated,
-                int loadOrder, string checksum, int regionNumber, string folderName, string url,
-                Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig)
+            public RegionPack(string name, string description, bool activated, string checksum, string folderName, string url, 
+                Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig, List<string> regions, int loadOrder, int packNumber)
             {
-                this.regionID = regionID;
-                this.regionName = regionName;
+                this.name = name;
                 this.description = description;
                 this.activated = activated;
                 this.checksum = checksum;
-                this.loadOrder = loadOrder;
-                this.regionNumber = regionNumber;
                 this.folderName = folderName;
                 this.url = url;
                 this.electricGates = electricGates;
                 this.regionConfig = regionConfig;
+                this.regions = regions;
+                this.loadOrder = loadOrder;
+                this.loadNumber = packNumber;
             }
         }
+
+        /*
+        public struct CustomRegion
+        {
+            public string regionID;
+            public int loadOrder;
+            public int regionNumber;
+
+            public CustomRegion(string regionID, int loadOrder, int regionNumber)
+            {
+                this.regionID = regionID;
+                this.loadOrder = loadOrder;
+                this.regionNumber = regionNumber;
+            }
+        }
+        */
 
         public struct RegionConfiguration
         {
@@ -157,15 +172,15 @@ namespace CustomRegions.Mod
             public int ID;
             public Color color;
             public Color? secondaryColor;
-            public string regionID;
+            public string packName;
 
-            public CustomPearl(string name, int iD, Color color, Color? secondaryColor, string regionID)
+            public CustomPearl(string name, int iD, Color color, Color? secondaryColor, string packName)
             {
                 this.name = name;
                 this.ID = iD;
                 this.color = color;
                 this.secondaryColor = secondaryColor;
-                this.regionID = regionID;
+                this.packName = packName;
             }
         }
     }

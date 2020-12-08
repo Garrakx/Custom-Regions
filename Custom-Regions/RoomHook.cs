@@ -85,16 +85,16 @@ namespace CustomRegions
                         }
                     }
                     */
-                    foreach (KeyValuePair<string, string> regions in CustomWorldMod.loadedRegions)
+                    foreach (KeyValuePair<string, string> regions in CustomWorldMod.loadedRegionPacks)
                     {
-                        if (CustomWorldMod.availableRegions[regions.Key].electricGates != null)
+                        if (CustomWorldMod.installedRegionPacks[regions.Key].electricGates != null)
                         {
-                            if (CustomWorldMod.availableRegions[regions.Key].electricGates.ContainsKey(self.abstractRoom.name))
+                            if (CustomWorldMod.installedRegionPacks[regions.Key].electricGates.ContainsKey(self.abstractRoom.name))
                             {
                                 (obj as WaterGate).Destroy();
                                 CustomWorldMod.Log($"Added electric gate [{self.abstractRoom.name}] from [{regions.Value}]");
                                 self.regionGate = new ElectricGate(self);
-                                (self.regionGate as ElectricGate).meterHeight = CustomWorldMod.availableRegions[regions.Key].electricGates[self.abstractRoom.name];
+                                (self.regionGate as ElectricGate).meterHeight = CustomWorldMod.installedRegionPacks[regions.Key].electricGates[self.abstractRoom.name];
                                 obj = self.regionGate;
                                 break;
                             }

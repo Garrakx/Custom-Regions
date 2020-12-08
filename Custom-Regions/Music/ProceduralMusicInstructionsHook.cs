@@ -21,7 +21,7 @@ namespace CustomRegions.Music
 		{
             orig(self, name);
 
-			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
 			{
 				string pathToProceduralText = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 				pathToProceduralText += "Assets" + Path.DirectorySeparatorChar + "Futile" +

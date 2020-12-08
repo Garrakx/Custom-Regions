@@ -121,7 +121,7 @@ namespace CustomRegions.CustomMenu
             }
 
             string regionValue;
-            CustomWorldMod.loadedRegions.TryGetValue(regionID, out regionValue);
+            CustomWorldMod.loadedRegionPacks.TryGetValue(regionID, out regionValue);
             string path = CustomWorldMod.resourcePath + regionValue + Path.DirectorySeparatorChar;
             string titleFolderName = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Illustrations";
             if (self.menu.ID == ProcessManager.ProcessID.FastTravelScreen || self.menu.ID == ProcessManager.ProcessID.RegionsOverviewScreen)
@@ -195,7 +195,7 @@ namespace CustomRegions.CustomMenu
                 string regionName = string.Empty;
                 try
                 {
-                    regionName = CustomWorldMod.loadedRegions[regionID]; ;
+                    regionName = CustomWorldMod.loadedRegionPacks[regionID]; ;
                 }
                 catch (Exception e) { CustomWorldMod.Log($"Error finding regionName [{self.sceneID}] {e}", true); return; }
 

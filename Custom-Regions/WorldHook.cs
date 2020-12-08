@@ -30,14 +30,14 @@ namespace CustomRegions
             if (self != null && ID.spawner >= 0)
             {
                 //CustomWorldMod.Log($"Region Name [{self.region.name}]");
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
                 {
                     //CustomWorldMod.Log($"Checking in [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
-                    if (CustomWorldMod.availableRegions[keyValues.Key].regionConfig.TryGetValue(self.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedRegionPacks[keyValues.Key].regionConfig.TryGetValue(self.region.name, out CustomWorldStructs.RegionConfiguration config))
                     {
                         if (config.albinoJet)
                         {
-                            CustomWorldMod.Log($"Spawning albino jetfish [{ID}] in [{self.region.name}] from [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
+                            CustomWorldMod.Log($"Spawning albino jetfish [{ID}] in [{self.region.name}] from [{CustomWorldMod.installedRegionPacks[keyValues.Key].name}]");
                             return 10;
                         }
                         break;
@@ -97,7 +97,7 @@ namespace CustomRegions
             bool loadedProperties = false;
             string[] array;
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
             {
                 string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
@@ -139,7 +139,7 @@ namespace CustomRegions
                     break;
                 }
             }
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
             {
                 string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 

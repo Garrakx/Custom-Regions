@@ -25,7 +25,7 @@ namespace CustomRegions.CustomMenu
             {
                 string menuRegion = self.manager.rainWorld.progression.miscProgressionData.menuRegion;
                 CustomWorldMod.sceneCustomID = string.Empty;
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
                 {
                     if (keyValues.Key.Equals(menuRegion))
                     {

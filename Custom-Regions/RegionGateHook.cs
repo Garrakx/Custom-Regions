@@ -26,7 +26,7 @@ namespace CustomRegions
         {
             orig(self, room);
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
             {
                 //CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;

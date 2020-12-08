@@ -18,7 +18,8 @@ using CustomRegions.Music;
 using CustomRegions.DevInterface;
 using CustomRegions.CustomMenu;
 using PastebinMachine.EnumExtender;
-
+using System.Security.Cryptography;
+using System.Collections.Specialized;
 
 // Delete Publicity Stunt requirement by pastebee
 [assembly: IgnoresAccessChecksTo("Assembly-CSharp")]
@@ -172,16 +173,28 @@ namespace CustomRegions.Mod
             return new string[] { "CC", "DS", "HI", "GW", "SI", "SU", "SH", "SL", "LF", "UW", "SB", "SS" };
         }
 
+        /// <summary>
+        /// Dictionary with all installed region packs, where the Key is the region pack name and the value is a struct with its information.
+        /// </summary>
+        public static Dictionary<string, RegionPack> installedRegionPacks;
 
         /// <summary>
-        /// Dictionary with activated regions, where the Key is the region ID and the value is the name.
+        /// List containing activated custom region
         /// </summary>
-        public static Dictionary<string, string> loadedRegions;
+        public static List<string> activeModdedRegions;
+
+        // public static List<string>
+
+        /// <summary>
+        /// Dictionary with activated region packs, where the Key is the region pack name and the value is the folder.
+        /// </summary>
+        public static Dictionary<string, string> loadedRegionPacks;
 
         /// <summary>
         /// Dictionary with all installed regions, where the Key is the region ID and the value is a struct with its information.
         /// </summary>
-        public static Dictionary<string, RegionInformation> availableRegions;
+        //public static Dictionary<string, RegionPack> availableRegions;
+
 
         /// <summary>
         /// Dictionary with all installed regions, where the Key is the region ID and the value is a struct with its configuration.
@@ -220,9 +233,9 @@ namespace CustomRegions.Mod
         protected static int numberOfVanillaRegions = 11;
 
         /// <summary>
-        /// Array of lists containing loaded regions info for each saveslot
+        /// Array of lists containing loaded packs info for each saveslot
         /// </summary>
-        public static List<RegionInformation>[] regionInfoInSaveSlot;
+        public static List<RegionPack>[] packInfoInSaveSlot;
 
         /// <summary>
         /// Array of SaveProblems for each saveslot
@@ -258,33 +271,43 @@ namespace CustomRegions.Mod
         /// </summary>
         public static void BuildModRegionsDictionary()
         {
+            CustomWorldMod.activeModdedRegions = new List<string>();
+
             // Only load activate regions from CustomWorldMod.availableRegions
             Dictionary<string, string> dictionary = new Dictionary<string, string>();
-            Dictionary<string, RegionInformation> updatedEntry = new Dictionary<string, RegionInformation>();
-            foreach (KeyValuePair<string, RegionInformation> entry in CustomWorldMod.availableRegions)
-            {
-                int regionNumber = 11;
+            Dictionary<string, RegionPack> installedPacksUpdated = new Dictionary<string, RegionPack>();
 
+            foreach (KeyValuePair<string, RegionPack> regionPack in CustomWorldMod.installedRegionPacks)
+            {
+                //int regionNumber = 11;
+                int packNumber = 0;
                 try
                 {
-                    if (entry.Value.activated)
+                    if (regionPack.Value.activated)
                     {
-                        RegionInformation infoRegionUpdated = entry.Value;
-                        infoRegionUpdated.regionNumber = regionNumber;
-
-                        updatedEntry.Add(infoRegionUpdated.regionID, infoRegionUpdated);
-                        regionNumber++;
-
-                        dictionary.Add(entry.Value.regionID, entry.Value.folderName);
-                        EnumExtender.AddDeclaration(typeof(MenuScene.SceneID), "Landscape_" + entry.Value.regionID);
+                        RegionPack regionPackUpdate = regionPack.Value;
+                        //foreach (KeyValuePair<string, CustomRegion> newRegion in infoRegionUpdated.newRegions)
+                        foreach (string newRegion in regionPackUpdate.regions)
+                        {
+                            //infoRegionUpdated.newRegions[newRegion.Key].regionNumber = regionNumber;
+                            //regionNumber++;
+                            CustomWorldMod.activeModdedRegions.Add(newRegion);
+                            EnumExtender.AddDeclaration(typeof(MenuScene.SceneID), "Landscape_" + newRegion);
+                        }
+                        regionPackUpdate.loadNumber = packNumber;
+                        dictionary.Add(regionPack.Key, regionPack.Value.folderName);
+                        installedPacksUpdated.Add(regionPack.Key, regionPackUpdate);
+                        packNumber++;
                     }
                     else
                     {
-                        updatedEntry.Add(entry.Key, entry.Value);
+                        installedPacksUpdated.Add(regionPack.Key, regionPack.Value);
                     }
+                    
                 }
-                catch (Exception e) { CustomWorldMod.Log($"Custom Regions: Error while trying to add customRegion: {e}"); }
+                catch (Exception e) { CustomWorldMod.Log($"Error while trying to add customRegion: {e}", true); }
             }
+
             try
             {
                 EnumExtender.ExtendEnumsAgain();
@@ -292,17 +315,17 @@ namespace CustomRegions.Mod
                 List<string> debug = new List<string>((string[])array);
                 Log($"Extending SceneID enum ... [{string.Join(", ", debug.ToArray())}]");
 
-
             }
             catch (Exception e)
             {
                 Log("Error extending SceneID enum " + e, true);
             }
 
-            CustomWorldMod.availableRegions = updatedEntry;
-            CustomWorldMod.loadedRegions = dictionary;
+            CustomWorldMod.installedRegionPacks = installedPacksUpdated;
+            CustomWorldMod.loadedRegionPacks = dictionary;
 
-            CustomWorldMod.Log($"Activated regions [{string.Join(", ", new List<string>(CustomWorldMod.loadedRegions.Values).ToArray())}]");
+            CustomWorldMod.Log($"Activated region packs [{string.Join(", ", new List<string>(CustomWorldMod.loadedRegionPacks.Keys).ToArray())}]");
+            CustomWorldMod.Log($"New Custom Regions added by Region Packs [{string.Join(", ", activeModdedRegions.ToArray())}]");
         }
 
         /// <summary>
@@ -379,7 +402,7 @@ namespace CustomRegions.Mod
             }
             catch (Exception) { }
 
-            CustomWorldMod.LoadAvailableRegions();
+            CustomWorldMod.LoadInstalledPacks();
 
             CustomWorldMod.BuildModRegionsDictionary();
 
@@ -395,34 +418,34 @@ namespace CustomRegions.Mod
         {
             saveProblems = new SaveProblems[3];
             // foreach(List<RegionInformation> infoSave in regionInfoInSaveSlot)
-            if (regionInfoInSaveSlot == null)
+            if (packInfoInSaveSlot == null)
             {
                 return;
             }
 
-            for (int saveSlot = 0; saveSlot < regionInfoInSaveSlot.Length; saveSlot++)
+            for (int saveSlot = 0; saveSlot < packInfoInSaveSlot.Length; saveSlot++)
             {
                 try
                 {
                     saveProblems[saveSlot] = new SaveProblems(false, false, new List<string>(), new List<string>(), new List<string>());
 
-                    if (regionInfoInSaveSlot[saveSlot] == null)
+                    if (packInfoInSaveSlot[saveSlot] == null)
                     {
                         CustomWorldMod.Log($"No installed info for save slot [{saveSlot}]");
                         continue;
                     }
 
-                    List<string> savedRegions = new List<string>();
-                    foreach (RegionInformation info in regionInfoInSaveSlot[saveSlot])
+                    List<string> savedPacks = new List<string>();
+                    foreach (RegionPack info in packInfoInSaveSlot[saveSlot])
                     {
-                        savedRegions.Add(info.regionID);
+                        savedPacks.Add(info.name);
                         string savedsum = info.checksum;
-                        if (!savedsum.Equals(availableRegions[info.regionID].checksum))
+                        if (!savedsum.Equals(installedRegionPacks[info.name].checksum))
                         {
-                            saveProblems[saveSlot].checkSum.Add(info.regionID);
+                            saveProblems[saveSlot].checkSum.Add(info.name);
                         }
 
-                        if (info.regionNumber != availableRegions[info.regionID].regionNumber)
+                        if (info.loadNumber != installedRegionPacks[info.name].loadNumber)
                         {
                             saveProblems[saveSlot].loadOrder = true;
                         }
@@ -431,11 +454,11 @@ namespace CustomRegions.Mod
 
 
                     // Compare installed regions
-                    saveProblems[saveSlot].missingRegions = savedRegions.Except(loadedRegions.Keys).ToList();
-                    saveProblems[saveSlot].extraRegions = loadedRegions.Keys.Except(savedRegions).ToList();
+                    saveProblems[saveSlot].missingRegions = savedPacks.Except(loadedRegionPacks.Keys).ToList();
+                    saveProblems[saveSlot].extraRegions = loadedRegionPacks.Keys.Except(savedPacks).ToList();
 
 
-                    if (savedRegions.Count != loadedRegions.Count ||
+                    if (savedPacks.Count != loadedRegionPacks.Count ||
                         (saveProblems[saveSlot].missingRegions != null && saveProblems[saveSlot].missingRegions.Count != 0) ||
                         (saveProblems[saveSlot].extraRegions != null && saveProblems[saveSlot].extraRegions.Count != 0))
                     {
@@ -455,7 +478,7 @@ namespace CustomRegions.Mod
         /// </summary>
         public static void ReadSaveAnalyzerFiles()
         {
-            regionInfoInSaveSlot = new List<RegionInformation>[3];
+            packInfoInSaveSlot = new List<RegionPack>[3];
             for (int saveSlot = 0; saveSlot < 3; saveSlot++)
             {
 
@@ -471,7 +494,7 @@ namespace CustomRegions.Mod
 
                 if (File.Exists(saveFileName))
                 {
-                    regionInfoInSaveSlot[saveSlot] = new List<RegionInformation>();
+                    packInfoInSaveSlot[saveSlot] = new List<RegionPack>();
                     string allText = File.ReadAllText(saveFileName);
                     string sum = allText.Substring(0, 32);
                     allText = allText.Substring(32, allText.Length - 32);
@@ -509,11 +532,14 @@ namespace CustomRegions.Mod
                                     }
                                 }
 
-                                string regionID = Regex.Split(minedLines.Find(x => x.Contains("REGID")), "<REGID>")[1];
+                                string name = Regex.Split(minedLines.Find(x => x.Contains("REGID")), "<REGID>")[1];
                                 string checkSum = Regex.Split(minedLines.Find(x => x.Contains("SUM")), "<SUM>")[1];
-                                int regionNumber = int.Parse(Regex.Split(minedLines.Find(x => x.Contains("ORDER")), "<ORDER>")[1]);
+                                int packNumber = int.Parse(Regex.Split(minedLines.Find(x => x.Contains("ORDER")), "<ORDER>")[1]);
 
-                                regionInfoInSaveSlot[saveSlot].Add(new RegionInformation(regionID, null, null, true, -20, checkSum, regionNumber, null, null, null, null));
+                                packInfoInSaveSlot[saveSlot].Add(new RegionPack(name, null, true, checkSum, null, null, null, null, null, -20, packNumber)); 
+                                    
+                                    
+                                    //(regionID, null, null, true, -20, checkSum, regionNumber, null, null, null, null));
 
                             }
                         }
@@ -547,24 +573,31 @@ namespace CustomRegions.Mod
         /// <returns>returns string[] regionsID</returns>
         public static string[] AddModdedRegions(string[] regionNames)
         {
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> regionPack in CustomWorldMod.loadedRegionPacks)
             {
                 //CustomWorldMod.CustomWorldLog($"Custom Regions: PlayerProgression, loading new regions");
-                string regionToAdd = keyValues.Key;
-                bool shouldAdd = true;
 
-                for (int i = 0; i < regionNames.Length; i++)
+                foreach (string customRegion in CustomWorldMod.installedRegionPacks[regionPack.Key].regions)
                 {
-                    if (regionToAdd.Equals(regionNames[i]))
+                    string regionToAdd = customRegion;
+                    /*
+                    bool shouldAdd = true;
+                    for (int i = 0; i < regionNames.Length; i++)
                     {
-                        shouldAdd = false;
+                        if (regionToAdd.Equals(regionNames[i]))
+                        {
+                            shouldAdd = false;
+                        }
                     }
-                }
-                if (shouldAdd)
-                {
-                    Array.Resize(ref regionNames, regionNames.Length + 1);
-                    regionNames[regionNames.Length - 1] = keyValues.Key;
-                    CustomWorldMod.Log($"Custom Regions: Added new region to regionNames [{regionToAdd}] from [{keyValues.Value}].");
+                    */
+
+                    //if (shouldAdd)
+                    if (!regionNames.Contains(regionToAdd))
+                    {
+                        Array.Resize(ref regionNames, regionNames.Length + 1);
+                        regionNames[regionNames.Length - 1] = regionToAdd;
+                        CustomWorldMod.Log($"Custom Regions: Added new region to regionNames [{regionToAdd}] from [{regionToAdd}].");
+                    }
                 }
             }
             return regionNames;
@@ -585,231 +618,213 @@ namespace CustomRegions.Mod
             return updatedList;
         }
 
-
-        public static object GetValueDictionary(string key, Dictionary<string, object> dictionary)
-        {
-            object value = null;
-            if (dictionary.ContainsKey(key))
-            {
-                value = dictionary[key];
-            }
-            return value;
-        }
-
         /// <summary>
         /// Builds available regions and manages json files
         /// </summary>
-        public static void LoadAvailableRegions()
+        public static void LoadInstalledPacks()
         {
-            CustomWorldMod.availableRegions = new Dictionary<string, RegionInformation>();
             CustomWorldMod.customPearls = new Dictionary<string, CustomPearl>();
-            //CustomWorldMod.configurationRegions = new Dictionary<string, RegionConfiguration>();
 
             string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath;
-            Dictionary<string, RegionInformation> notSortedDictionary = new Dictionary<string, RegionInformation>();
+
+            Dictionary<string, RegionPack> unsortedPacks = new Dictionary<string, RegionPack>();
+
             // For each Region Mod Installed
             foreach (string dir in Directory.GetDirectories(path))
             {
                 Log($"#Loading [{dir}]");
 
+                // For upgrading to regionpack
                 string pathOfRegionInfo = dir + Path.DirectorySeparatorChar + "regionInfo.json";
 
-                // Region Information
-                string regionID = string.Empty;
-                string regionName = string.Empty;
-                string description = "No description";
-                bool activated = true;
-                string checksum = string.Empty;
-                string url = string.Empty;
-                int loadOrder = 100;
-                // File does not exist, generate regionInfo.json
-                if (!File.Exists(pathOfRegionInfo))
+                // JSON with all information
+                string pathOfPackInfo = dir + Path.DirectorySeparatorChar + "packInfo.json";
+
+                // Region Pack
+                RegionPack pack = new RegionPack("", "", false, "", new DirectoryInfo(dir).Name, "",
+                    new Dictionary<string, float>(),
+                    new Dictionary<string, RegionConfiguration>(),
+                    new List<string>(), -1, -1);
+
+                // Creating pack info ...
+                if (!File.Exists(pathOfPackInfo))
                 {
                     // Region Name
-                    regionName = new DirectoryInfo(dir).Name;
+                    pack.name = new DirectoryInfo(dir).Name;
+                    string regionID = string.Empty;
 
-                    // If upgrading from old CR version
-                    if (File.Exists(dir + Path.DirectorySeparatorChar + "regionID.txt"))
+                    // Upgrade to packInfo.json
+                    if (File.Exists(pathOfRegionInfo))
+                    {
+                        Dictionary<string, object> regionInfoDictionary = null;
+                        try
+                        {
+                            regionInfoDictionary = File.ReadAllText(pathOfRegionInfo).dictionaryFromJson();
+                        }
+                        catch (Exception)
+                        {
+                            Log($"Corrupted regionInfo.json ... deleting", true);
+                            File.Delete(pathOfRegionInfo);
+                        }
+                        if (regionInfoDictionary != null)
+                        {
+                            UpgradeToRegionPack(regionInfoDictionary, ref pack, dir);
+                            File.Delete(pathOfRegionInfo);
+                        }
+                    }
+                    // Upgrading from ancient CR version
+                    else if (File.Exists(dir + Path.DirectorySeparatorChar + "regionID.txt"))
                     {
                         regionID = File.ReadAllText(dir + Path.DirectorySeparatorChar + "regionID.txt");
                         regionID = regionID.ToUpper();
 
-                        activated = true;
-
                         File.Delete(dir + Path.DirectorySeparatorChar + "regionID.txt");
                         CustomWorldMod.Log($"Custom Regions: Updating regionID from old CR version... Obtained regionID [{regionID}]");
                     }
-
-                    // regionID.txt did not exist or was empty
-                    if (regionID == string.Empty)
+                    else
                     {
-                        string regionsPath = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions";
-                        CustomWorldMod.Log($"Custom Regions: Empty regionID, obtaining from [{regionsPath}]. Valid [{Directory.Exists(regionsPath)}]");
-
-                        if (Directory.Exists(regionsPath))
-                        {
-                            // Try to get regionID
-                            foreach (string regionsDir in Directory.GetDirectories(regionsPath))
-                            {
-                                regionID = Path.GetFileNameWithoutExtension(regionsDir);
-                                foreach (string vanillaRegion in CustomWorldMod.VanillaRegions())
-                                {
-                                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Comparing [{regionID}] with [{vanillaRegion}]");
-                                    if (regionsDir.Contains(vanillaRegion))
-                                    {
-                                        regionID = string.Empty;
-                                        break;
-                                    }
-                                }
-
-                                if (regionID != string.Empty)
-                                {
-                                    break;
-                                }
-                            }
-
-                        }
+                        pack.activated = true;
+                        pack.checksum = CustomWorldMod.GenerateRegionCheckSum(dir);
                     }
 
-                    // If no ID found, generate one...
-                    if (regionID == string.Empty)
-                    {
-                        // If a customRegion does not add new regions, obtain regionID from capital letters.
-                        foreach (char letters in regionName)
-                        {
-                            if (char.IsUpper(letters))
-                            {
-                                regionID += letters;
-                            }
-                            if (regionID.Length == 2) { break; }
-                        }
-                        CustomWorldMod.Log($"Generated regionID since it was empty... [{regionID}]");
-                    }
-
-                    checksum = CustomWorldMod.GenerateRegionCheckSum(dir);
-
-                    WriteRegionInfoJSONFile(dir, regionID, description, regionName, activated, loadOrder, url, checksum);
-
+                    SerializePackInfoJSON(pathOfPackInfo, ref pack);
                 }
-
-                RegionInformation regionInformation = new RegionInformation(string.Empty, string.Empty, "No description",
-                    true, loadOrder, string.Empty, -1, new DirectoryInfo(dir).Name, string.Empty, new Dictionary<string, float>(), new Dictionary<string, RegionConfiguration>());
-
 
                 Dictionary<string, object> dictionary = null;
                 try
                 {
-                    dictionary = File.ReadAllText(pathOfRegionInfo).dictionaryFromJson();
+                    dictionary = File.ReadAllText(pathOfPackInfo).dictionaryFromJson();
                 }
                 catch (Exception e)
                 {
-                    Log($"CORRUPTED JSON FILE -- DELETING [{pathOfRegionInfo}] - [{e}]", true);
-                    File.Delete(dir + Path.DirectorySeparatorChar + "regionInfo.json");
-                    WriteRegionInfoJSONFile(dir, regionInformation.regionID, regionInformation.description, regionInformation.regionName, regionInformation.activated, regionInformation.loadOrder, regionInformation.url, regionInformation.checksum);
+                    Log($"CORRUPTED JSON FILE -- DELETING [{pathOfPackInfo}] - [{e}]", true);
+                    File.Delete(pathOfPackInfo);
+                    SerializePackInfoJSON(pathOfPackInfo, ref pack);
                 }
 
-                //List<string> jsonFields = new List<string>(){ "regionID", "description", "regionName", "activated","loadOrder", "checksum", "url"};
                 if (dictionary != null)
                 {
-
-                    FromDictionaryToRegionInfo(dictionary, ref regionInformation);
-
-                    Log($"Description for ({regionInformation.regionName}) is: [{regionInformation.description}]");
-                    //  string oldDescription = regionInformation.description;
-                    if (regionInformation.description.Equals("N / A") || regionInformation.description.Equals(string.Empty))
-                    {
-                        regionInformation.description = "No description";
-                    }
-
-                    string newDescr = string.Empty;
-                    string newUrl = string.Empty;
-
-                    if (regionInformation.regionName.ToLower().Contains("aether ridge") || regionInformation.regionID.Equals("AR"))
-                    {
-                        newDescr = "Aether Ridge is a derelict desalination rig to the north of Sky Islands. Includes over 200 new rooms, six new arenas, and more.";
-                        newUrl = "http://www.raindb.net/previews/aether.png";
-                    }
-                    else if (regionInformation.regionName.ToLower().Contains("badlands") || regionInformation.regionID.Equals("BL"))
-                    {
-                        newDescr = "The Badlands is a region connecting Farm Arrays and Garbage Wastes. It features many secrets and unlockables, including three new arenas.";
-                        newUrl = "http://www.raindb.net/previews/badlands.png";
-                    }
-                    else if (regionInformation.regionName.ToLower().Contains("root") || regionInformation.regionID.Equals("TR"))
-                    {
-                        newDescr = "A new region expanding on Subterranean, and The Exterior, with all new rooms. Made to give exploration focused players more Rain World to discover.";
-                        newUrl = "http://www.raindb.net/previews/root2.png";
-                    }
-                    else if (regionInformation.regionName.ToLower().Contains("side house"))
-                    {
-                        newDescr = "Adds a new region connecting Shoreline, 5P, and Depths. An amalgamation of many of the game's unused rooms. Also includes a couple custom unlockable maps for arena mode.";
-                        newUrl = "http://www.raindb.net/previews/sidehouse_preview.png";
-                    }
-                    else if (regionInformation.regionName.ToLower().Contains("swamplands"))
-                    {
-                        newDescr = "A new swampy region that connects Garbage Wastes and Shoreline.";
-                        newUrl = "http://www.raindb.net/previews/swamp.png";
-                    }
-                    else if (regionInformation.regionName.ToLower().Contains("master quest"))
-                    {
-                        newDescr = "A new game+ style mod that reorganizes the game's regions, trying to rekindle the feelings of when you first got lost in Rain World.";
-                        newUrl = "http://www.raindb.net/previews/master.png";
-                    }
-                    else if (regionInformation.regionName.ToLower().Contains("underbelly"))
-                    {
-                        newDescr = "A dark and damp region connecting Outskirts, Shoreline and Farm arrays.";
-                        newUrl = "http://www.raindb.net/previews/underbelly.png";
-                    }
-
-
-                    // Checksum handler
-                    string newChecksum = CustomWorldMod.GenerateRegionCheckSum(dir);
-                    if (!newChecksum.Equals(string.Empty) && !newChecksum.Equals(regionInformation.checksum))
-                    {
-                        Log($"New checksum for {regionInformation.regionName} [{newChecksum}]");
-                        regionInformation.checksum = newChecksum;
-                    }
-                    if (!newDescr.Equals(string.Empty) && !newDescr.Equals(regionInformation.description))
-                    {
-                        Log($"New description for {regionInformation.regionName} [{newDescr}]");
-                        regionInformation.description = newDescr;
-                    }
-                    if (!newUrl.Equals(string.Empty) && !newUrl.Equals(regionInformation.url))
-                    {
-                        Log($"New url for {regionInformation.regionName} [{newUrl}]");
-                        regionInformation.url = newUrl;
-                    }
-
-                    // Write new info
-                    if ((!newDescr.Equals(string.Empty) && regionInformation.description.Equals("No description")) || !newChecksum.Equals(string.Empty) || !newUrl.Equals(string.Empty))
-                    {
-                        Log($"Updating regionInfo for {regionInformation.regionName}");
-                        File.Delete(dir + Path.DirectorySeparatorChar + "regionInfo.json");
-                        WriteRegionInfoJSONFile(dir, regionInformation.regionID, regionInformation.description, regionInformation.regionName, regionInformation.activated, regionInformation.loadOrder, regionInformation.url, regionInformation.checksum);
-
-                    }
-
-                    // Load region information
-                    CustomWorldMod.Log($"Adding available region [{regionInformation.regionID}]. Activated [{regionInformation.activated}]. Folder name [{regionInformation.folderName}]");
-                    if (regionInformation.regionID != string.Empty)
-                    {
-                        try
-                        {
-                            notSortedDictionary.Add(regionInformation.regionID, regionInformation);
-                        }
-                        catch (Exception dic) { CustomWorldMod.Log($"Custom Regions: Error in adding [{regionInformation.regionID}] => {dic}"); };
-                    }
-
-                    if (!Directory.Exists(Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + regionInformation.folderName))
-                    {
-                        CustomWorldMod.Log($"CR could not find folder [{regionInformation.folderName}] from region [{regionInformation.regionID}]. Try removing any dots from the folder names and reloading.", true);
-                    }
+                    FromDictionaryToPackInfo(dictionary, ref pack);
                 }
 
-                if (regionInformation.activated)
+                if (pack.name.Equals(string.Empty))
                 {
-                    LoadCustomPearls(dir, regionInformation.regionID);
-                    LoadElectricGates(dir, regionInformation);
-                    LoadVariations(dir, regionInformation);
+                    pack.name = new DirectoryInfo(dir).Name;
+                }
+
+                Log($"Description for ({pack.name}) is: [{pack.description}]");
+
+                if (pack.description.Equals("N / A") || pack.description.Equals(string.Empty))
+                {
+                    pack.description = "No description";
+                }
+
+                string newDescr = string.Empty;
+                string newUrl = string.Empty;
+
+                if (pack.name.ToLower().Contains("aether"))
+                {
+                    newDescr = "Aether Ridge is a derelict desalination rig to the north of Sky Islands. Includes over 200 new rooms, six new arenas, and more.";
+                    newUrl = "http://www.raindb.net/previews/aether.png";
+                }
+                else if (pack.name.ToLower().Contains("badlands"))
+                {
+                    newDescr = "The Badlands is a region connecting Farm Arrays and Garbage Wastes. It features many secrets and unlockables, including three new arenas.";
+                    newUrl = "http://www.raindb.net/previews/badlands.png";
+                }
+                else if (pack.name.ToLower().Contains("root"))
+                {
+                    newDescr = "A new region expanding on Subterranean, and The Exterior, with all new rooms. Made to give exploration focused players more Rain World to discover.";
+                    newUrl = "http://www.raindb.net/previews/root2.png";
+                }
+                else if (pack.name.ToLower().Contains("side house"))
+                {
+                    newDescr = "Adds a new region connecting Shoreline, 5P, and Depths. An amalgamation of many of the game's unused rooms. Also includes a couple custom unlockable maps for arena mode.";
+                    newUrl = "http://www.raindb.net/previews/sidehouse_preview.png";
+                }
+                else if (pack.name.ToLower().Contains("swamplands"))
+                {
+                    newDescr = "A new swampy region that connects Garbage Wastes and Shoreline.";
+                    newUrl = "http://www.raindb.net/previews/swamp.png";
+                }
+                else if (pack.name.ToLower().Contains("master quest"))
+                {
+                    newDescr = "A new game+ style mod that reorganizes the game's regions, trying to rekindle the feelings of when you first got lost in Rain World.";
+                    newUrl = "http://www.raindb.net/previews/master.png";
+                }
+                else if (pack.name.ToLower().Contains("underbelly"))
+                {
+                    newDescr = "A dark and damp region connecting Outskirts, Shoreline and Farm arrays.";
+                    newUrl = "http://www.raindb.net/previews/underbelly.png";
+                }
+
+
+                // Checksum handler
+                string newChecksum = CustomWorldMod.GenerateRegionCheckSum(dir);
+                if (!newChecksum.Equals(string.Empty) && !newChecksum.Equals(pack.checksum))
+                {
+                    Log($"New checksum for {pack.name} [{newChecksum}]");
+                    pack.checksum = newChecksum;
+                }
+                if (!newDescr.Equals(string.Empty) && !newDescr.Equals(pack.description))
+                {
+                    Log($"New description for {pack.name} [{newDescr}]");
+                    pack.description = newDescr;
+                }
+                if (!newUrl.Equals(string.Empty) && !newUrl.Equals(pack.url))
+                {
+                    Log($"New url for {pack.name} [{newUrl}]");
+                    pack.url = newUrl;
+                }
+
+                // Write new info
+                if ((!newDescr.Equals(string.Empty) && pack.description.Equals("No description")) || !newChecksum.Equals(string.Empty) || !newUrl.Equals(string.Empty))
+                {
+                    Log($"Updating packInfo for {pack.name}");
+                    File.Delete(pathOfPackInfo);
+                    SerializePackInfoJSON(pathOfPackInfo, ref pack);
+
+                }
+
+                /*
+                // Load region information
+                CustomWorldMod.Log($"Adding available region [{pack.regionID}]. Activated [{pack.activated}]. Folder name [{pack.folderName}]");
+                if (pack.regionID != string.Empty)
+                {
+                    try
+                    {
+                        notSortedDictionary.Add(pack.regionID, pack);
+                    }
+                    catch (Exception dic) { CustomWorldMod.Log($"Custom Regions: Error in adding [{pack.regionID}] => {dic}"); };
+                }
+                */
+
+                // Load region pack
+                CustomWorldMod.Log($"Adding available region pack [{pack.name}]. Activated [{pack.activated}]. Folder name [{pack.folderName}]");
+                if (pack.name != string.Empty)
+                {
+                    try
+                    {
+                        unsortedPacks.Add(pack.name, pack);
+                    }
+                    catch (Exception dic) { CustomWorldMod.Log($"Custom Regions: Error in adding [{pack.name}] => {dic}"); };
+                }
+                else
+                {
+                    Log($"Pack name ({pack.name}) or folder ({pack.folderName}) was empty! Fatal Error", true);
+                }
+
+                if (!Directory.Exists(Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + pack.folderName))
+                {
+                    CustomWorldMod.Log($"CR could not find folder [{pack.folderName}] from region [{pack.name}]. Try removing any dots from the folder names and reloading.", true);
+                }
+
+
+                if (pack.activated)
+                {
+                    LoadCustomPearls(dir, pack.name);
+                    LoadElectricGates(dir, pack);
+                    LoadVariations(dir, pack);
                 }
                 else
                 {
@@ -819,70 +834,97 @@ namespace CustomRegions.Mod
                 Log("-------");
             }
 
-            foreach (KeyValuePair<string, RegionInformation> element in notSortedDictionary.OrderBy(d => d.Value.loadOrder))
+            //installedRegionPacks
+            CustomWorldMod.installedRegionPacks = new Dictionary<string, RegionPack>();
+            foreach (KeyValuePair<string, RegionPack> pack in unsortedPacks.OrderBy(x => x.Value.loadOrder))
             {
-                //element.Value.regionNumber = regionNumber;
-                CustomWorldMod.availableRegions.Add(element.Key, element.Value);
+                if(!pack.Key.Equals(""))
+                {
+                    CustomWorldMod.installedRegionPacks.Add(pack.Key, pack.Value);
+                }
+                else
+                {
+                    Log($"Error loading region", true);
+                }
             }
+
+            Log($"Ordered installed region packs [{string.Join(", ", installedRegionPacks.Keys.ToArray())}]");
         }
 
-        private static void FromDictionaryToRegionInfo(Dictionary<string, object> dictionary, ref RegionInformation regionInformation)
+
+        private static void FromDictionaryToPackInfo(Dictionary<string, object> json, ref RegionPack pack)
         {
-            if (GetValueDictionary("regionID", dictionary) != null)
+            //   regionInformation = JsonConvert.DeserializeObject <Dictionary<string, string>>(dictionary);
+
+            Dictionary<string, object> packDictionary = json;
+
+            if (packDictionary.TryGetValue("regionPackName", out object value) && value != null)
             {
-                regionInformation.regionID = (string)GetValueDictionary("regionID", dictionary);
+                pack.name = value.ToString();
+            }
+            if (packDictionary.TryGetValue("description", out value) && value != null)//(GetValueDictionary("description", packDictionary) != null)
+            {
+                pack.description = value.ToString();
+            }
+            if (packDictionary.TryGetValue("activated", out value) && value != null)
+            {
+                pack.activated = bool.Parse(value.ToString());//value.ToString().ToLower().Contains("true");
+                //pack.activated = bool.Parse((string)value);
+                //pack.activated = (bool)value;
+            }
+            if (packDictionary.TryGetValue("checksum", out value) && value != null)
+            {
+                pack.checksum = value.ToString();
+            }
+            if (packDictionary.TryGetValue("url", out value) && value != null)
+            {
+                pack.url = value.ToString();
+            }
+            if (packDictionary.TryGetValue("loadOrder", out value) && value != null)
+            {
+                pack.loadOrder = int.Parse(value.ToString());
+            }
+            if (packDictionary.TryGetValue("regions", out value) && value != null)
+            {
+                string regions = value.ToString();
+                string[] array = Regex.Split(regions, ",");
+                foreach (string ID in array)
+                {
+                    if (!ID.Equals(string.Empty))
+                    {
+                        if (!pack.regions.Contains(ID.Replace(" ", "")))
+                        {
+                            pack.regions.Add(ID.Replace(" ", ""));
+                        }
+                        else
+                        {
+                            Log($"Duplicate region loaded from regionInfo.json [{pack.name}]", true);
+                        }
+                    }
+                }
             }
 
-            if (GetValueDictionary("description", dictionary) != null)
-            {
 
-                regionInformation.description = (string)GetValueDictionary("description", dictionary);
-            }
-
-            if (GetValueDictionary("regionName", dictionary) != null)
-            {
-                regionInformation.regionName = (string)GetValueDictionary("regionName", dictionary);
-            }
-
-            // WHAT THE FRICC IS THIS
-            if (dictionary.ContainsKey("activated"))
-            {
-                regionInformation.activated = dictionary["activated"].ToString().ToLower().Contains("true");
-            }
-
-            if (GetValueDictionary("loadOrder", dictionary) != null)
-            {
-                regionInformation.loadOrder = int.Parse(GetValueDictionary("loadOrder", dictionary).ToString());
-            }
-
-            if (GetValueDictionary("checksum", dictionary) != null)
-            {
-                regionInformation.checksum = (string)GetValueDictionary("checksum", dictionary);
-            }
-
-            if (GetValueDictionary("url", dictionary) != null)
-            {
-                regionInformation.url = (string)GetValueDictionary("url", dictionary);
-            }
         }
+
 
         public static void FromDictionaryToRegionConfig(Dictionary<string, object> dictionary, ref RegionConfiguration regionConfiguration)
         {
-            if (GetValueDictionary("albino_leviathan", dictionary) != null)
+            if (dictionary.TryGetValue("albino_leviathan", out object value) && value != null)
             {
-                regionConfiguration.albinoLevi = bool.Parse((string)GetValueDictionary("albino_leviathan", dictionary));
+                regionConfiguration.albinoLevi = bool.Parse(value.ToString());
             }
 
-            if (GetValueDictionary("albino_jetfish", dictionary) != null)
+            if (dictionary.TryGetValue("albino_jetfish", out value) && value != null)
             {
-                regionConfiguration.albinoJet = bool.Parse((string)GetValueDictionary("albino_jetfish", dictionary));
+                regionConfiguration.albinoJet = bool.Parse(value.ToString());
             }
 
-            if (GetValueDictionary("monster_kelp_color", dictionary) != null)
+            if (dictionary.TryGetValue("monster_kelp_color", out value) && value != null)
             {
                 try
                 {
-                    string color = (string)GetValueDictionary("monster_kelp_color", dictionary);
+                    string color = value.ToString();
                     if (color.Contains("#"))
                     {
                         color = color.Replace("#", "");
@@ -893,11 +935,11 @@ namespace CustomRegions.Mod
                 catch (Exception) { regionConfiguration.kelpColor = null; }
             }
 
-            if (GetValueDictionary("brother_color", dictionary) != null)
+            if (dictionary.TryGetValue("brother_color", out value) && value != null)
             {
                 try
                 {
-                    string color = (string)GetValueDictionary("brother_color", dictionary);
+                    string color = value.ToString();
                     if (color.Contains("#"))
                     {
                         color = color.Replace("#", "");
@@ -907,13 +949,14 @@ namespace CustomRegions.Mod
                 }
                 catch (Exception) { regionConfiguration.bllColor = null; }
             }
-            if (GetValueDictionary("black_salamander_chance", dictionary) != null)
+
+            if (dictionary.TryGetValue("black_salamander_chance", out value) && value != null)
             {
-                regionConfiguration.blackSalamanderChance = int.Parse((string)GetValueDictionary("black_salamander_chance", dictionary));
+                regionConfiguration.blackSalamanderChance = int.Parse(value.ToString());
             }
         }
 
-        public static void LoadElectricGates(string dir, RegionInformation regionInfo)
+        public static void LoadElectricGates(string dir, RegionPack pack)
         {
             // Add electric gates
             string pathToElectricGates = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "electricGates.txt";
@@ -925,20 +968,20 @@ namespace CustomRegions.Mod
                     string gateName = Regex.Split(electricGates[i], " : ")[0];
                     float meterHeigh = float.Parse(Regex.Split(electricGates[i], " : ")[1]);
 
-                    Log($"Added new gate electric gate [{gateName}] from [{regionInfo.regionID}]. Meter height [{meterHeigh}]");
-                    regionInfo.electricGates.Add(gateName, meterHeigh);
+                    Log($"Added new gate electric gate [{gateName}] from [{pack.name}]. Meter height [{meterHeigh}]");
+                    pack.electricGates.Add(gateName, meterHeigh);
                 }
             }
 
         }
 
-        public static void LoadCustomPearls(string dir, string regionID)
+        public static void LoadCustomPearls(string dir, string regionName)
         {
             // Add Custom Pearls
             string pathToPearls = dir + Path.DirectorySeparatorChar + "Assets" + Path.DirectorySeparatorChar + "pearlData.txt";
             if (File.Exists(pathToPearls))
             {
-                Log($"Loading pearl data for {regionID}");
+                Log($"Loading pearl data for {regionName}");
                 string[] customPearlsLines = File.ReadAllLines(pathToPearls);
                 for (int i = 0; i < customPearlsLines.Length; i++)
                 {
@@ -953,7 +996,7 @@ namespace CustomRegions.Mod
                     try
                     {
                         fileNumber = int.Parse(lineDivided[0]);
-                        pearlName = $"{regionID}_{lineDivided[1]}";
+                        pearlName = $"{regionName}_{lineDivided[1]}";
                     }
                     catch (Exception e)
                     {
@@ -965,17 +1008,17 @@ namespace CustomRegions.Mod
                     {
                         pearlColor = OptionalUI.OpColorPicker.HexToColor(lineDivided[2]);
                     }
-                    catch (Exception) { Log($"Pearl missing color from {regionID}", true); }
+                    catch (Exception) { Log($"Pearl missing color from {regionName}", true); }
 
                     try
                     {
                         secondaryColor = OptionalUI.OpColorPicker.HexToColor(lineDivided[3]);
                     }
-                    catch (Exception) { Log($"Pearl missing highlighted color from {regionID}"); }
+                    catch (Exception) { Log($"Pearl missing highlighted color from {regionName}"); }
 
                     CustomWorldMod.Log($"Added new pearl [{pearlName} / {fileNumber} / {pearlColor}]");
 
-                    CustomWorldMod.customPearls.Add(pearlName, new CustomPearl(pearlName, fileNumber, pearlColor, secondaryColor, regionID));
+                    CustomWorldMod.customPearls.Add(pearlName, new CustomPearl(pearlName, fileNumber, pearlColor, secondaryColor, regionName));
 
                     // Extend PearlTypeEnum
                     EnumExtender.AddDeclaration(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearlName);
@@ -987,6 +1030,7 @@ namespace CustomRegions.Mod
             }
 
             // Encrypt text files
+            Log($"Creating conversation files for {regionName}...");
             for (int j = 0; j < Enum.GetNames(typeof(InGameTranslator.LanguageID)).Length; j++)
             {
                 for (int k = 1; k <= 57; k++)
@@ -996,11 +1040,10 @@ namespace CustomRegions.Mod
 
                     if (File.Exists(pathToConvo))
                     {
-                        Log($"Creating conversation files for {regionID}...");
                         string convoLines = File.ReadAllText(pathToConvo, Encoding.Default);
                         if (convoLines[0] == '0' && Regex.Split(convoLines, Environment.NewLine).Length > 1)
                         {
-                            Log($"Encrypting file [{Path.GetFileNameWithoutExtension(pathToConvo)}] from [{regionID}]. [{Regex.Split(convoLines, Environment.NewLine).Length}]");
+                            Log($"Encrypting file [{Path.GetFileNameWithoutExtension(pathToConvo)}] from [{regionName}]. [{Regex.Split(convoLines, Environment.NewLine).Length}]");
                             string text4 = Custom.xorEncrypt(convoLines, 54 + k + j * 7);
                             text4 = '1' + text4.Remove(0, 1);
                             File.WriteAllText(pathToConvo, text4);
@@ -1010,12 +1053,12 @@ namespace CustomRegions.Mod
             }
         }
 
-        public static void LoadVariations(string dir, RegionInformation regionInfo)
+        public static void LoadVariations(string dir, RegionPack packInfo)
         {
             string pathToRegionsDir = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar;
             if (!Directory.Exists(pathToRegionsDir))
             {
-                Log($"Region [{regionInfo.regionName}] doesn't have Regions folder");
+                Log($"Region [{packInfo.name}] doesn't have Regions folder");
                 return;
             }
             foreach (string regionDir in Directory.GetDirectories(pathToRegionsDir))
@@ -1024,7 +1067,7 @@ namespace CustomRegions.Mod
                 // Load configuration
                 if (File.Exists(pathConfig))
                 {
-                    Log($"Loading variation config for region [{new DirectoryInfo(regionDir).Name}] from [{regionInfo.regionName}]");
+                    Log($"Loading variation config for region [{new DirectoryInfo(regionDir).Name}] from [{packInfo.name}]");
                     RegionConfiguration regionConfiguration = new RegionConfiguration(null, false, false, false, null, false, null, -1);
 
                     Dictionary<string, object> dictionary = null;
@@ -1044,22 +1087,25 @@ namespace CustomRegions.Mod
                     {
 
                         FromDictionaryToRegionConfig(dictionary, ref regionConfiguration);
-                        regionConfiguration.kelpVanilla = regionConfiguration.kelpColor == null;
-                        regionConfiguration.bllVanilla = regionConfiguration.bllColor == null;
+                        try
+                        {
+                            regionConfiguration.kelpVanilla = regionConfiguration.kelpColor == null;
+                            regionConfiguration.bllVanilla = regionConfiguration.bllColor == null;
+                        } catch (Exception e) { Log($"Exception loading variation [{e}]", true); }
                         regionConfiguration.regionID = new DirectoryInfo(regionDir).Name;
 
                         // Load region information
-                        CustomWorldMod.Log($"Adding configuration for region [{regionConfiguration.regionID}] from [{regionInfo.regionName}] - " +
+                        CustomWorldMod.Log($"Adding configuration for region [{regionConfiguration.regionID}] from [{packInfo.name}]");/* - " +
                         $"Albino Leviathan [{regionConfiguration.albinoLevi}] Albino JetFish [{regionConfiguration.albinoJet}] " +
                         $"Kelp Color [{regionConfiguration.kelpColor.Value.r},{regionConfiguration.kelpColor.Value.g}, {regionConfiguration.kelpColor.Value.b}]" +
                         $" BLL color [{regionConfiguration.bllColor.Value.r},{regionConfiguration.bllColor.Value.g}, {regionConfiguration.bllColor.Value.b}] " +
                         $"Black Salamander chance [{regionConfiguration.blackSalamanderChance * 100f}%]");
-
-                        if (regionInfo.regionID != string.Empty)
+                        */
+                        if (packInfo.name != string.Empty)
                         {
                             try
                             {
-                                regionInfo.regionConfig.Add(regionConfiguration.regionID, regionConfiguration);
+                                packInfo.regionConfig.Add(regionConfiguration.regionID, regionConfiguration);
                             }
                             catch (Exception dic) { CustomWorldMod.Log($"Custom Regions: Error in adding config [{regionConfiguration.regionID}] => {dic}"); };
                         }
@@ -1104,11 +1150,11 @@ namespace CustomRegions.Mod
         {
             string dictionaryString = "Custom Regions: New save, Custom Regions Information \n";
             dictionaryString += "<progCRdivA>";
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
             {
                 dictionaryString += $"<progCRdivB>{keyValues.Key}" +
-                    $"<progCRdivB>{CustomWorldMod.availableRegions[keyValues.Key].regionNumber}" +
-                    $"<progCRdivB>{CustomWorldMod.availableRegions[keyValues.Key].checksum}";
+                    $"<progCRdivB>{CustomWorldMod.installedRegionPacks[keyValues.Key].loadNumber}" +
+                    $"<progCRdivB>{CustomWorldMod.installedRegionPacks[keyValues.Key].checksum}";
             }
             dictionaryString += "<progCRdivA>";
             dictionaryString = dictionaryString.TrimEnd(',', ' ') + "";
@@ -1117,20 +1163,20 @@ namespace CustomRegions.Mod
         }
 
 
-        public static string SerializeRegionInfo(RegionInformation regionInfo)
+        public static string SerializeRegionInfo(RegionPack packInfo)
         {
 
             string infoSerial = string.Empty;
 
             // Start Region ID
-            infoSerial += $"{saveDividerA}<REGID>{regionInfo.regionID}";
+            infoSerial += $"{saveDividerA}<REGID>{packInfo.name}";
 
             /*------ CHECKSUM --------*/
-            infoSerial += $"{saveDividerB}<SUM>{regionInfo.checksum}{saveDividerB}";
+            infoSerial += $"{saveDividerB}<SUM>{packInfo.checksum}{saveDividerB}";
             /*------ CHECKSUM --------*/
 
             /*------ ORDER --------*/
-            infoSerial += $"{saveDividerB}<ORDER>{regionInfo.regionNumber}{saveDividerB}";
+            infoSerial += $"{saveDividerB}<ORDER>{packInfo.loadNumber}{saveDividerB}";
             /*------ ORDER --------*/
 
             // End Region ID
@@ -1139,37 +1185,39 @@ namespace CustomRegions.Mod
             return infoSerial;
         }
 
-
-
-        public static void WriteRegionInfoJSONFile(string dirPath, string regionID, string description, string regionName, bool activated, int loadOrder, string url, string checksum)
+        private static void SerializePackInfoJSON(string dir, ref RegionPack pack)
         {
-            // Create a file to write to.
-            using (StreamWriter sw = File.CreateText(dirPath + Path.DirectorySeparatorChar + "regionInfo.json"))
+            using (StreamWriter sw = File.CreateText(dir))
             {
-                sw.WriteLine("{\n"
-                    + "   \"regionID\":  \"" + regionID + "\", \n"
-                    + "   \"description\":  \"" + description + "\", \n"
-
-                    + "   \"regionName\":  \"" + regionName + "\", \n"
-                    + "   \"activated\":  " + activated.ToString().ToLower() + ", \n"
-                    + "   \"loadOrder\": " + loadOrder + ", \n"
-
-                    + "   \"url\":  \"" + url + "\", \n"
-                    + "   \"checksum\":  \"" + checksum + "\" \n"
-                    + "}");
+                string json = "{\n" +
+                     "   \"regionPackName\": \"" + pack.name + "\", \n" +
+                     "   \"description\": \"" + pack.description + "\", \n" +
+                     "   \"activated\": " + pack.activated.ToString().ToLower() + ", \n" +
+                     "   \"loadOrder\": " + pack.loadOrder + ", \n" +
+                     "   \"regions\": \"" + string.Join(", ", pack.regions.ToArray()) + "\", \n" +
+                     "   \"url\": \"" + pack.url + "\", \n" +
+                     "   \"checksum\": \"" + pack.checksum + "\" \n" +
+                     "}";
                 /*
-                sw.WriteLine(new Dictionary<string, object>() { 
-                    { "regionID", regionID },
-                    { "description", description },
-                    { "regionName", regionName },
-                    { "activated", activated.ToString().ToLower() },
-                    { "loadOrder", loadOrder },
-                    { "url", url },
-                    { "checksum", checksum }
-
-                }.toJson());*/
+                                int i = 1;
+                                foreach (KeyValuePair<string, CustomRegion> keyValues in pack.newRegions)
+                                {
+                                    CustomRegion region = keyValues.Value;
+                                    json += ",\n " +
+                                        $"\"region{i}\": " + "{\n" +
+                                        "   \"regionID\": \"" + region.regionID + "\", \n" +
+                                        "   \"loadOrder\": \"" + region.loadOrder + "\" \n" +
+                                         "}";
+                                    i++;
+                                }
+                                json += "\n}";
+                */
+                sw.WriteLine(json);
             }
         }
+
+
+
 
         public static void WriteRegionConfigJSONFile(string dirPath, bool leviAlbino, bool jetfishAlbino,
             string shortcutColor, string kelpColor, string bllColor)
@@ -1189,16 +1237,74 @@ namespace CustomRegions.Mod
             }
         }
 
+
+
+        public static void UpgradeToRegionPack(Dictionary<string, object> regionInfoDictionary, ref RegionPack pack, string dir)
+        {
+            List<string> obtainedInfo = new List<string>();
+
+            if (regionInfoDictionary.TryGetValue("regionName", out object value) && value != null)
+            {
+                pack.name = value.ToString();
+                obtainedInfo.Add($"PackName: {pack.name}");
+            }
+            if (regionInfoDictionary.TryGetValue("regionID", out value) && value != null)
+            {
+                string pathToWorldXX = dir + Path.DirectorySeparatorChar +
+                    "World" + Path.DirectorySeparatorChar + "Regions" +
+                    Path.DirectorySeparatorChar + value.ToString() + Path.DirectorySeparatorChar + "world_" + value.ToString() + ".txt";
+
+                if (File.Exists(pathToWorldXX))
+                {
+                    pack.regions.Add(value.ToString());
+                    //Log($"Trying to upgrade to regionPack.json, pack [{pack.name}] Adding custom region [{value.ToString()}]");
+                    obtainedInfo.Add($"CustomRegion(s): {value.ToString()}");
+                }
+                else
+                {
+                    Log($"Trying to upgrade to regionPack.json, pack [{pack.name}] does not have custom region. Path [{pathToWorldXX}]");
+                }
+            }
+            if (regionInfoDictionary.TryGetValue("loadOrder", out value) && value != null)
+            {
+                pack.loadOrder = int.Parse(value.ToString());
+                obtainedInfo.Add($"LoadOrder: {pack.loadOrder}");
+            }
+            if (regionInfoDictionary.TryGetValue("description", out value) && value != null)
+            {
+                pack.description = value.ToString();
+                obtainedInfo.Add($"Description: {pack.description.Substring(0, 15)}...");
+            }
+            if (regionInfoDictionary.TryGetValue("activated", out value) && value != null)
+            {
+                pack.activated = bool.Parse(value.ToString());
+                obtainedInfo.Add($"Activated: {pack.activated}");
+            }
+            if (regionInfoDictionary.TryGetValue("checksum", out value) && value != null)
+            {
+                pack.checksum = value.ToString();
+                obtainedInfo.Add($"Checksum: {pack.checksum}");
+            }
+            if (regionInfoDictionary.TryGetValue("url", out value) && value != null)
+            {
+                pack.url = value.ToString();
+                obtainedInfo.Add($"URL: {pack.url}");
+            }
+            Log($"Upgrade to regionPack.json. Information parsed: [{string.Join(", ", obtainedInfo.ToArray())}]");
+        }
+
         internal static void DownloadThumbs()
         {
-
             Dictionary<string, string> thumbInfo = new Dictionary<string, string>();
-            foreach (KeyValuePair<string, RegionInformation> entry in CustomWorldMod.availableRegions)
+            foreach (KeyValuePair<string, RegionPack> entry in CustomWorldMod.installedRegionPacks)
             {
                 if (entry.Value.url != string.Empty && !File.Exists(Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + entry.Value.folderName + Path.DirectorySeparatorChar + "thumb.png"))
                 {
-                    Log($"new thumb {entry.Value.folderName} - {entry.Value.url}");
-                    thumbInfo.Add(entry.Value.folderName, entry.Value.url);
+                    try
+                    {
+                        Log($"new thumb {entry.Value.folderName} - {entry.Value.url}");
+                        thumbInfo.Add(entry.Value.folderName, entry.Value.url);
+                    } catch (Exception e) {Log($"Error queuing thumbs [{e}] [{entry.Value.url}]", true); }
                 }
             }
 

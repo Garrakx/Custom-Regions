@@ -38,7 +38,7 @@ namespace CustomRegions
                 {
                     //CustomWorldMod.CustomWorldLog($"Custom Regions: Finding custom room settings template [{filePath}]");
 
-                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
                     {
                         string newPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + filePath;
 
