@@ -1,0 +1,37 @@
+[
+    {
+       "pack":"Aether Ridge",
+       "ID":"AR",
+       "description":"Aether Ridge is a derelict desalination rig to the north of Sky Islands. Includes over 200 new rooms, six new arenas, and more. Fully compatible with The Root and Badlands.",
+       "author":"Kaeporo",
+       "thumb":"http://www.raindb.net/previews/aether.png"
+    },
+    {
+       "pack":"The Root",
+       "ID":"TR",
+       "description":"A new region expanding on Subterranean, and The Exterior, with all new rooms. Made to give exploration focused players more Rain World to discover.",
+       "author":"Willburd",
+       "thumb":"http://www.raindb.net/previews/root2.png"
+    },
+    {
+       "pack":"Badlands",
+       "ID":"BL",
+       "description":"The Badlands is a region connecting Farm Arrays and Garbage Wastes. It features many secrets and unlockables, including three new arenas..",
+       "author":"Fiiiiish",
+       "thumb":"http://www.raindb.net/previews/badlands.png"
+    },
+    {
+       "pack":"Underbelly",
+       "ID":"UB",
+       "description":"A dark and damp region connecting Outskirts, Shoreline and Farm arrays.",
+       "author":"CarrotPudding",
+       "thumb":"http://www.raindb.net/previews/underbelly.png"
+    },
+    {
+       "pack":"Swamplands",
+       "ID":"SP",
+       "description":"A new swampy region that connects Garbage Wastes and Shoreline",
+       "author":"Fishswallower",
+       "thumb":"http://www.raindb.net/previews/swamp.png"
+    }
+ ]
