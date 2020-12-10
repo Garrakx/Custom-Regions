@@ -27,7 +27,7 @@
 
 1) Téléchargez et installez la dernière version de Partiality Launcher depuis [la section "Tools" de RainDB](http://www.raindb.net/).
 2) Téléchargez la dernière version CR depuis [ici](https://github.com/Garrakx/Custom-Regions/releases/).
-3) Appliquez **tous** (`CustomRegions.dll`, `EnumExtender.dll`, `ConfigMachine.dll`, and finally `CustomAssets.dll`(if you want custom music)) dans le fichier [TÉLÉCHARGEZ_CECI_Custom-Regions-vX.X.zip](https://github.com/Garrakx/Custom-Regions/releases/). Vous recevrez automatiquement les mises à jour.
+3) Appliquez **tous** (`CustomRegions.dll`, `EnumExtender.dll`, `ConfigMachine.dll`, and finally `CustomAssets.dll`(if you want custom music)) dans le fichier [DOWNLOAD_THIS_Custom-Regions-vX.X.zip](https://github.com/Garrakx/Custom-Regions/releases/). Vous recevrez automatiquement les mises à jour.
 
 ### <a name="index2"></a>Installer une région
 
