@@ -349,3 +349,9 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 Custom-Regions/Custom-Regions.csproj
+*.csproj
+RegionPackDownloader/Program.cs
+RegionPackDownloader/FileDownloader.cs
+Custom-Regions/Custom-Regions.csproj
+Custom-Regions/Custom-Regions.sln
+Custom-Regions/Properties/AssemblyInfo.cs
