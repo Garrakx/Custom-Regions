@@ -1,12 +1,8 @@
 ﻿using RWCustom;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using CustomRegions.Mod;
-using UnityEngine;
 
 
 namespace CustomRegions
@@ -26,7 +22,7 @@ namespace CustomRegions
         {
             orig(self, room);
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 //CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;

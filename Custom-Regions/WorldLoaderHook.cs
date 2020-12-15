@@ -4,9 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using UnityEngine;
 using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions
@@ -136,7 +134,7 @@ namespace CustomRegions
                             newConnections.Add("DISCONNECTED");
                             performedOperation = true;
                         }
-                        CustomWorldMod.Log($"Custom Regions: ERROR! Added compability to [{newRoom}]! It has less connections than vanilla! [{roomConnectionsToBeReplaced}]");
+                        CustomWorldMod.Log($"Added compability to [{newRoom}]! It has less connections than vanilla! [{roomConnectionsToBeReplaced}]", true);
                         CustomWorldMod.Log($"Custom Regions: Converted to [{string.Join(", ", newConnections.ToArray())}]");
                     }
 
@@ -743,10 +741,8 @@ namespace CustomRegions
         /// <returns>returns path to room</returns>
         private static string WorldLoader_FindRoomFileDirectory(On.WorldLoader.orig_FindRoomFileDirectory orig, string roomName, bool includeRootDirectory)
         {
-            //if (!enabled) { return orig(roomName, includeRootDirectory); }
-
             string result = "";
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 string pathToCustomFolder = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
@@ -880,7 +876,7 @@ namespace CustomRegions
             }
 
             bool foundAnyCustomRegion = false;
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 //CustomWorldMod.CustomWorldLog($"Custom Regions: Reading world_{self.worldName}.txt from {keyValues.Value}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
@@ -995,7 +991,7 @@ namespace CustomRegions
 
             if (lines.Count < 2)
             {
-                CustomWorldMod.Log("Custom Regions: ERROR! Lines.Count < 2");
+                CustomWorldMod.Log("Lines.Count < 2", true);
                 return self.lines;
             }
 

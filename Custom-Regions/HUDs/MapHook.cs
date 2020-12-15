@@ -1,11 +1,8 @@
 ﻿using CustomRegions.Mod;
 using HUD;
 using RWCustom;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -27,7 +24,7 @@ namespace CustomRegions
         {
             if (self.www == null && self.mapTexture == null)
             {
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
                     string pathToCustomFolder = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
                     string test = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +
@@ -55,7 +52,7 @@ namespace CustomRegions
             orig(self);
 
             //self.mapConnections = new List<Map.OnMapConnection>();
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 string pathToCustomFolder = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
                 string test = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CustomRegions.CustomMenu;
+﻿using System.Collections.Generic;
 using CustomRegions.Mod;
-using UnityEngine;
 
 namespace CustomRegions
 {
@@ -56,7 +51,7 @@ namespace CustomRegions
             WinState.EndgameTracker endgameTracker = null;
             if (ID == WinState.EndgameID.Traveller)
             {
-                endgameTracker = new WinState.BoolArrayTracker(ID, 12 + CustomWorldMod.loadedRegionPacks.Count);
+                endgameTracker = new WinState.BoolArrayTracker(ID, 12 + CustomWorldMod.activatedPacks.Count);
 
                 if (endgameTracker != null && endgameTrackers != null)
                 {

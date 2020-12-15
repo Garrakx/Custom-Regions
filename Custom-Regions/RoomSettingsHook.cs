@@ -2,9 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 using RWCustom;
 using System.Text.RegularExpressions;
 
@@ -38,7 +35,7 @@ namespace CustomRegions
                 {
                     //CustomWorldMod.CustomWorldLog($"Custom Regions: Finding custom room settings template [{filePath}]");
 
-                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                     {
                         string newPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + filePath;
 
@@ -57,6 +54,9 @@ namespace CustomRegions
             else
             {
                 //CustomWorldMod.Log($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
+                // Calling FindRoomFileDirectory will find the custom one
+                //self.filePath = FindVanillaRoom(self.name, false) + "_Settings.txt";
+
             }
 
             try

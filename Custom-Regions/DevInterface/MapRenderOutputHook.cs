@@ -1,10 +1,7 @@
 ﻿using CustomRegions.Mod;
 using RWCustom;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using DevInterface;
 
 namespace CustomRegions.DevInterface
@@ -26,7 +23,7 @@ namespace CustomRegions.DevInterface
             //if (!File.Exists(pathToRegion))
             //{
                 // From a Custom Region
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
                     customFilePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
                         "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.owner.game.world.name;

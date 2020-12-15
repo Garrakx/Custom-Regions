@@ -1,8 +1,6 @@
 ﻿using CustomRegions.Mod;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions.CustomPearls

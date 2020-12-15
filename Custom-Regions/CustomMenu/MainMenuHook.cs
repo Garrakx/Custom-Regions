@@ -1,9 +1,5 @@
 ﻿using CustomRegions.Mod;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 
 namespace CustomRegions.CustomMenu
 {
@@ -11,7 +7,7 @@ namespace CustomRegions.CustomMenu
     {
         public static void ApplyHooks()
         {
-            On.Menu.MainMenu.BackgroundScene += MainMenu_BackgroundScene;
+            //On.Menu.MainMenu.BackgroundScene += MainMenu_BackgroundScene;
         }
 
 
@@ -24,13 +20,11 @@ namespace CustomRegions.CustomMenu
             if (self.manager.rainWorld.progression.miscProgressionData.menuRegion != null)
             {
                 string menuRegion = self.manager.rainWorld.progression.miscProgressionData.menuRegion;
-                CustomWorldMod.sceneCustomID = string.Empty;
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
                     if (keyValues.Key.Equals(menuRegion))
                     {
                         CustomWorldMod.Log($"Custom Regions: TitleSceneID {menuRegion}");
-                        CustomWorldMod.sceneCustomID = menuRegion;
                     }
 
                 }

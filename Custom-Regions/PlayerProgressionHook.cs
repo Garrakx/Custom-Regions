@@ -2,13 +2,8 @@
 using RWCustom;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using UnityEngine;
 using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions
@@ -64,9 +59,9 @@ namespace CustomRegions
                 //dictionaryString += $"{ string.Join(", ", new List<string>(CustomWorldMod.loadedRegions.Values).ToArray())}" + "}";
                 //saveRegionData += $"{CustomWorldMod.saveDividerA}REGIONLIST{string.Join(",",CustomWorldMod.loadedRegions.Keys.ToArray())}{CustomWorldMod.saveDividerA}";
 
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
-                    if (CustomWorldMod.installedRegionPacks.TryGetValue(keyValues.Key, out RegionPack regionInfo))
+                    if (CustomWorldMod.installedPacks.TryGetValue(keyValues.Key, out RegionPack regionInfo))
                     {
                         saveRegionData += CustomWorldMod.SerializeRegionInfo(regionInfo);
                     }    

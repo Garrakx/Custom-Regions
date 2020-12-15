@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using CustomRegions.Mod;
 using DevInterface;
 using RWCustom;
@@ -21,7 +18,7 @@ namespace CustomRegions.DevInterface
         private static void MapPage_SaveMapConfig(On.DevInterface.MapPage.orig_SaveMapConfig orig, MapPage self)
         {
 			string customFilePath = string.Empty;
-			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
 			{
 				customFilePath = Custom.RootFolderDirectory() + 
 					CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
@@ -42,7 +39,7 @@ namespace CustomRegions.DevInterface
         private static void MapPage_LoadMapConfig(On.DevInterface.MapPage.orig_LoadMapConfig orig, MapPage self)
         {
             string customFilePath = string.Empty;
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
 				customFilePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
 					"World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +					self.owner.game.world.name;
@@ -225,21 +222,6 @@ namespace CustomRegions.DevInterface
 			}
 			if (list.Count > 0)
 			{
-				/*
-				string text3 = string.Concat(new object[]
-				{
-					Custom.RootFolderDirectory(),
-					"World",
-					Path.DirectorySeparatorChar,
-					"Regions",
-					Path.DirectorySeparatorChar,
-					self.owner.game.world.name,
-					Path.DirectorySeparatorChar,
-					"Properties.txt"
-				});
-				*/
-				//string customPropertiesFilePath
-
 				string[] array = File.ReadAllLines(customPropertiesFilePath);
 				using (StreamWriter streamWriter2 = File.CreateText(customPropertiesFilePath))
 				{

@@ -1,11 +1,8 @@
 ﻿using CustomRegions.Mod;
 using Menu;
-using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -37,7 +34,8 @@ namespace CustomRegions.CustomMenu
             try
             {
                 orig(self);
-            } catch(Exception e)
+            }
+            catch (Exception e)
             {
                 CustomWorldMod.Log($"(Expected behaviour) Failed to save position.txt, using custom folder [Vanilla error - {e}]");
                 string regionID = self.depthIllustrations[0].fileName.Substring(0, 2);
@@ -100,9 +98,9 @@ namespace CustomRegions.CustomMenu
                              posVector.x = float.Parse(positions[number].Split(new string[] { ",", " " }, StringSplitOptions.RemoveEmptyEntries)[0]);
                              posVector.y = float.Parse(positions[number].Split(new string[] { ",", " " }, StringSplitOptions.RemoveEmptyEntries)[1]);
                          }*/
-                        
-                        
-                       
+
+
+
 
                         //self.AddIllustration(new MenuDepthIllustration(self.menu, self, self.sceneFolder, $"{name}", posVector, 4 + number, MenuDepthIllustration.MenuShader.Normal));
                         CustomWorldMod.Log($"Custom Regions: Loading MenuDepthIllustration - Name [{name}] - Position[{posVector}]");
@@ -121,7 +119,7 @@ namespace CustomRegions.CustomMenu
             }
 
             string regionValue;
-            CustomWorldMod.loadedRegionPacks.TryGetValue(regionID, out regionValue);
+            CustomWorldMod.activatedPacks.TryGetValue(regionID, out regionValue);
             string path = CustomWorldMod.resourcePath + regionValue + Path.DirectorySeparatorChar;
             string titleFolderName = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Illustrations";
             if (self.menu.ID == ProcessManager.ProcessID.FastTravelScreen || self.menu.ID == ProcessManager.ProcessID.RegionsOverviewScreen)
@@ -169,10 +167,10 @@ namespace CustomRegions.CustomMenu
 
         private static void MenuScene_BuildScene(On.Menu.MenuScene.orig_BuildScene orig, Menu.MenuScene self)
         {
-           /* if(self.sceneID == EnumExt_extendedSceneID.CustomSceneID)
-            {
-                self.sceneID = MenuScene.SceneID.MainMenu;
-            }*/
+            /* if(self.sceneID == EnumExt_extendedSceneID.CustomSceneID)
+             {
+                 self.sceneID = MenuScene.SceneID.MainMenu;
+             }*/
             orig(self);
 
             //ID = (MenuScene.SceneID)Enum.Parse(typeof(MenuScene.SceneID), regionName);
@@ -190,12 +188,13 @@ namespace CustomRegions.CustomMenu
                 try
                 {
                     regionID = Regex.Split(self.sceneID.ToString(), "Landscape_")[1];
-                } catch (Exception e) { CustomWorldMod.Log($"Error trimming regionID [{self.sceneID}] {e}", true); return; }
+                }
+                catch (Exception e) { CustomWorldMod.Log($"Error trimming regionID [{self.sceneID}] {e}", true); return; }
 
                 string regionName = string.Empty;
                 try
                 {
-                    regionName = CustomWorldMod.loadedRegionPacks[regionID]; ;
+                    regionName = CustomWorldMod.activatedPacks[regionID]; ;
                 }
                 catch (Exception e) { CustomWorldMod.Log($"Error finding regionName [{self.sceneID}] {e}", true); return; }
 

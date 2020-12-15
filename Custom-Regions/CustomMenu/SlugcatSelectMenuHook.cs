@@ -1,10 +1,7 @@
 ﻿using CustomRegions.Mod;
 using Menu;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using UnityEngine;
 
 namespace CustomRegions.CustomMenu
@@ -79,7 +76,7 @@ namespace CustomRegions.CustomMenu
                         if (label is MenuLabel && label == self.regionLabel && (label as MenuLabel).text.Length < 3)
                         {
                             string fullRegionName = "N / A";
-                            CustomWorldMod.loadedRegionPacks.TryGetValue(text2, out fullRegionName);
+                            CustomWorldMod.activatedPacks.TryGetValue(text2, out fullRegionName);
                             CustomWorldMod.Log("Custom Regions: text " + text2);
                             if (fullRegionName != null)
                             {

@@ -1,8 +1,5 @@
 ﻿using CustomRegions.Mod;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CustomRegions.Creatures
 {
@@ -13,6 +10,9 @@ namespace CustomRegions.Creatures
             On.LizardGraphics.ctor += LizardGraphics_ctor;
         }
 
+        /// <summary>
+        /// Adjust chance of spawning black salamanders
+        /// </summary>
         private static void LizardGraphics_ctor(On.LizardGraphics.orig_ctor orig, LizardGraphics self, PhysicalObject ow)
         {
             orig(self, ow);
@@ -20,13 +20,12 @@ namespace CustomRegions.Creatures
             World world = ow.abstractPhysicalObject.world;
             if (world != null)
             {
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
-                    if (CustomWorldMod.installedRegionPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
                     {
                         if (config.blackSalamanderChance >= 0)
                         {
-                            //CustomWorldMod.Log($"Spawning tentacle plant with custom color in [{world.region.name}] from [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
                             int seed = UnityEngine.Random.seed;
                             UnityEngine.Random.seed = self.lizard.abstractCreature.ID.RandomSeed;
                             self.blackSalamander = (UnityEngine.Random.value < config.blackSalamanderChance);

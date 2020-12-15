@@ -1,8 +1,5 @@
 ﻿using CustomRegions.Mod;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CustomRegions.Creatures
 {
@@ -22,10 +19,10 @@ namespace CustomRegions.Creatures
             if (world != null)
             {
                 //CustomWorldMod.Log($"Region Name [{self.region.name}]");
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
                     //CustomWorldMod.Log($"Checking in [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
-                    if (CustomWorldMod.installedRegionPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
                     {
                         if (!config.bllVanilla)
                         {

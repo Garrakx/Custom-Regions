@@ -1,8 +1,5 @@
 ﻿using CustomRegions.Mod;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions
@@ -32,11 +29,11 @@ namespace CustomRegions
             }
             */
             CustomWorldMod.Log("Water gate created, checking if it should be electric...");
-            foreach(KeyValuePair<string, string> regions in CustomWorldMod.loadedRegionPacks)
+            foreach(KeyValuePair<string, string> regions in CustomWorldMod.activatedPacks)
             {
-                if (CustomWorldMod.installedRegionPacks[regions.Key].electricGates != null)
+                if (CustomWorldMod.installedPacks[regions.Key].electricGates != null)
                 {
-                    if(CustomWorldMod.installedRegionPacks[regions.Key].electricGates.ContainsKey(room.abstractRoom.name))
+                    if(CustomWorldMod.installedPacks[regions.Key].electricGates.ContainsKey(room.abstractRoom.name))
                     {
                         CustomWorldMod.Log($"This gate [{room.abstractRoom.name}] should be electric gate, returning...");
                         return;
@@ -49,7 +46,7 @@ namespace CustomRegions
 
         private static void ElectricGate_ctor(On.ElectricGate.orig_ctor orig, ElectricGate self, Room room)
         {
-            foreach (KeyValuePair<string, RegionPack> entries in CustomWorldMod.installedRegionPacks)
+            foreach (KeyValuePair<string, RegionPack> entries in CustomWorldMod.installedPacks)
             {
                 if (!entries.Value.activated || entries.Value.electricGates == null || entries.Value.electricGates.Count == 0)
                 {

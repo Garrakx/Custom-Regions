@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using CustomRegions.Mod;
 
 namespace CustomRegions
@@ -85,16 +81,16 @@ namespace CustomRegions
                         }
                     }
                     */
-                    foreach (KeyValuePair<string, string> regions in CustomWorldMod.loadedRegionPacks)
+                    foreach (KeyValuePair<string, string> regions in CustomWorldMod.activatedPacks)
                     {
-                        if (CustomWorldMod.installedRegionPacks[regions.Key].electricGates != null)
+                        if (CustomWorldMod.installedPacks[regions.Key].electricGates != null)
                         {
-                            if (CustomWorldMod.installedRegionPacks[regions.Key].electricGates.ContainsKey(self.abstractRoom.name))
+                            if (CustomWorldMod.installedPacks[regions.Key].electricGates.ContainsKey(self.abstractRoom.name))
                             {
                                 (obj as WaterGate).Destroy();
                                 CustomWorldMod.Log($"Added electric gate [{self.abstractRoom.name}] from [{regions.Value}]");
                                 self.regionGate = new ElectricGate(self);
-                                (self.regionGate as ElectricGate).meterHeight = CustomWorldMod.installedRegionPacks[regions.Key].electricGates[self.abstractRoom.name];
+                                (self.regionGate as ElectricGate).meterHeight = CustomWorldMod.installedPacks[regions.Key].electricGates[self.abstractRoom.name];
                                 obj = self.regionGate;
                                 break;
                             }
