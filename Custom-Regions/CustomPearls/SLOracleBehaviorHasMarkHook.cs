@@ -3,7 +3,6 @@ using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -12,9 +11,7 @@ using static CustomRegions.Mod.CustomWorldStructs;
 namespace CustomRegions.CustomPearls
 {
 
-
-
-	static class SLOracleBehaviorHasMarkHook
+    static class SLOracleBehaviorHasMarkHook
     {
         public static void ApplyHooks()
         {
@@ -27,78 +24,65 @@ namespace CustomRegions.CustomPearls
         private static void SLOracleBehaviorHasMark_GrabObject(On.SLOracleBehaviorHasMark.orig_GrabObject orig, SLOracleBehaviorHasMark self, PhysicalObject item)
         {
             bool foundPearl = false;
-            if (!(item is SSOracleSwarmer))
+            if (!(item is SSOracleSwarmer) && !self.State.HaveIAlreadyDescribedThisItem(item.abstractPhysicalObject.ID))
             {
-                if (!self.State.HaveIAlreadyDescribedThisItem(item.abstractPhysicalObject.ID))
+                if (item is DataPearl)
                 {
-                    if (item is DataPearl)
+                    CustomWorldMod.Log($"Moon grabbed pearl: {(item as DataPearl).AbstractPearl.dataPearlType}");
+                    if ((item as DataPearl).AbstractPearl.dataPearlType != DataPearl.AbstractDataPearl.DataPearlType.Misc &&
+                        ((item as DataPearl).AbstractPearl.dataPearlType != DataPearl.AbstractDataPearl.DataPearlType.Misc2) &&
+                        ((item as DataPearl).AbstractPearl.dataPearlType != DataPearl.AbstractDataPearl.DataPearlType.PebblesPearl))
                     {
-                        CustomWorldMod.Log($"Moon grabbed pearl: {(item as DataPearl).AbstractPearl.dataPearlType}");
-                        if ((item as DataPearl).AbstractPearl.dataPearlType != DataPearl.AbstractDataPearl.DataPearlType.Misc)
+
+                        if (!self.State.significantPearls[(int)(item as DataPearl).AbstractPearl.dataPearlType])
                         {
-                            if ((item as DataPearl).AbstractPearl.dataPearlType != DataPearl.AbstractDataPearl.DataPearlType.Misc2)
+                            foreach (KeyValuePair<string, CustomPearl> pearls in CustomWorldMod.customPearls)
                             {
-                                if ((item as DataPearl).AbstractPearl.dataPearlType != DataPearl.AbstractDataPearl.DataPearlType.PebblesPearl)
+                                if (foundPearl) { break; }
+
+                                DataPearl.AbstractDataPearl.DataPearlType dataPearlType = (DataPearl.AbstractDataPearl.DataPearlType)
+                                            Enum.Parse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearls.Key);
+
+                                if ((item as DataPearl).AbstractPearl.dataPearlType == dataPearlType)
                                 {
-                                    if (!self.State.significantPearls[(int)(item as DataPearl).AbstractPearl.dataPearlType])
+                                    CustomWorldMod.Log($"Loading custom pearl...[{pearls.Key}] from [{pearls.Value.packName}]");
+                                    foundPearl = true;
+                                    if (self.currentConversation != null)
                                     {
-                                        foreach (KeyValuePair<string, CustomPearl> pearls in CustomWorldMod.customPearls)
-                                        {
-                                            if (foundPearl) { break; }
-
-                                            DataPearl.AbstractDataPearl.DataPearlType dataPearlType = (DataPearl.AbstractDataPearl.DataPearlType)
-                                                        Enum.Parse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearls.Key);
-
-                                            if((item as DataPearl).AbstractPearl.dataPearlType == dataPearlType)
-                                            {
-                                                CustomWorldMod.Log($"Loading custom pearl...[{pearls.Key}] from [{pearls.Value.packName}]");
-                                                foundPearl = true;
-                                                if (self.currentConversation != null)
-                                                {
-                                                    self.currentConversation.Interrupt("...", 0);
-                                                    self.currentConversation.Destroy();
-                                                    self.currentConversation = null;
-                                                }
-                                                Conversation.ID id = Conversation.ID.None;
-                                                try
-                                                {
-                                                    id = (Conversation.ID)Enum.Parse(typeof(Conversation.ID), "Moon_" + pearls.Key);
-                                                } 
-                                                catch (Exception e)
-                                                {
-                                                    CustomWorldMod.Log($"Conversation not found for [{pearls.Key}] + {e}");
-                                                }
-
-                                                self.currentConversation = new SLOracleBehaviorHasMark.MoonConversation(id, self, SLOracleBehaviorHasMark.MiscItemType.NA);
-                                                self.State.significantPearls[(int)(item as DataPearl).AbstractPearl.dataPearlType] = true;
-                                                self.State.totalPearlsBrought++;
-
-                                                Debug.Log("pearls brought up: " + self.State.totalPearlsBrought);
-                                            }
-                                        }
+                                        self.currentConversation.Interrupt("...", 0);
+                                        self.currentConversation.Destroy();
+                                        self.currentConversation = null;
                                     }
-                                    else
+                                    Conversation.ID id = Conversation.ID.None;
+                                    try
                                     {
-                                        if( foundPearl)
-                                        {
-                                            self.AlreadyDiscussedItem(true);
-                                        }
+                                        id = (Conversation.ID)Enum.Parse(typeof(Conversation.ID), "Moon_" + pearls.Key);
                                     }
+                                    catch (Exception e)
+                                    {
+                                        CustomWorldMod.Log($"Conversation not found for [{pearls.Key}] + {e}");
+                                    }
+
+                                    self.currentConversation = new SLOracleBehaviorHasMark.MoonConversation(id, self, SLOracleBehaviorHasMark.MiscItemType.NA);
+                                    self.State.significantPearls[(int)(item as DataPearl).AbstractPearl.dataPearlType] = true;
+                                    self.State.totalPearlsBrought++;
+
+                                    Debug.Log("pearls brought up: " + self.State.totalPearlsBrought);
                                 }
-
                             }
-
                         }
-
-                    }
-                    if (foundPearl)
-                    {
-                        self.State.totalItemsBrought++;
-                        self.State.AddItemToAlreadyTalkedAbout(item.abstractPhysicalObject.ID);
+                        else if (foundPearl)
+                        {
+                            self.AlreadyDiscussedItem(true);
+                        }
                     }
                 }
+                if (foundPearl)
+                {
+                    self.State.totalItemsBrought++;
+                    self.State.AddItemToAlreadyTalkedAbout(item.abstractPhysicalObject.ID);
+                }
             }
-
             orig(self, item);
         }
 
@@ -114,7 +98,7 @@ namespace CustomRegions.CustomPearls
                 {
                     foundPearl = true;
                     self.PearlIntro();
-                    LoadCustomEventsFromFile(pearls.Value.ID, CustomWorldMod.loadedRegionPacks[pearls.Value.packName], self);
+                    LoadCustomEventsFromFile(pearls.Value.ID, CustomWorldMod.activatedPacks[pearls.Value.packName], self);
                 }
 
             }
