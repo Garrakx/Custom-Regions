@@ -43,7 +43,7 @@
        "author":"DOGGO",
        "thumbURL":"http://www.raindb.net/previews/mast.png",
        "packURL":"https://www.mediafire.com/file/1ynsjbj6bipbz8a/The_Mast.zip/file",
-       "requeriments": "Requires The Mast.dll and BLThing.dll",
+       "requirements": "Requires The Mast.dll and BLThing.dll",
        "version": "1.0.1"
     }
  ]
