@@ -36,16 +36,16 @@ namespace CustomRegions.CustomPearls
 
                         if (!self.State.significantPearls[(int)(item as DataPearl).AbstractPearl.dataPearlType])
                         {
-                            foreach (KeyValuePair<string, CustomPearl> pearls in CustomWorldMod.customPearls)
+                            foreach (KeyValuePair<int, CustomPearl> pearls in CustomWorldMod.customPearls)
                             {
                                 if (foundPearl) { break; }
 
                                 DataPearl.AbstractDataPearl.DataPearlType dataPearlType = (DataPearl.AbstractDataPearl.DataPearlType)
-                                            Enum.Parse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearls.Key);
+                                            Enum.Parse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearls.Value.name);
 
                                 if ((item as DataPearl).AbstractPearl.dataPearlType == dataPearlType)
                                 {
-                                    CustomWorldMod.Log($"Loading custom pearl...[{pearls.Key}] from [{pearls.Value.packName}]");
+                                    CustomWorldMod.Log($"Loading custom pearl...[{pearls.Value.name}] from [{pearls.Value.packName}]");
                                     foundPearl = true;
                                     if (self.currentConversation != null)
                                     {
@@ -56,11 +56,11 @@ namespace CustomRegions.CustomPearls
                                     Conversation.ID id = Conversation.ID.None;
                                     try
                                     {
-                                        id = (Conversation.ID)Enum.Parse(typeof(Conversation.ID), "Moon_" + pearls.Key);
+                                        id = (Conversation.ID)Enum.Parse(typeof(Conversation.ID), "Moon_" + pearls.Value.name);
                                     }
                                     catch (Exception e)
                                     {
-                                        CustomWorldMod.Log($"Conversation not found for [{pearls.Key}] + {e}");
+                                        CustomWorldMod.Log($"Conversation not found for [{pearls.Value.name}] + {e}");
                                     }
 
                                     self.currentConversation = new SLOracleBehaviorHasMark.MoonConversation(id, self, SLOracleBehaviorHasMark.MiscItemType.NA);
@@ -89,7 +89,7 @@ namespace CustomRegions.CustomPearls
         private static void MoonConversation_AddEvents(On.SLOracleBehaviorHasMark.MoonConversation.orig_AddEvents orig, SLOracleBehaviorHasMark.MoonConversation self)
         {
             bool foundPearl = false;
-            foreach (KeyValuePair<string, CustomPearl> pearls in CustomWorldMod.customPearls)
+            foreach (KeyValuePair<int, CustomPearl> pearls in CustomWorldMod.customPearls)
             {
                 if (foundPearl) { break; }
 
