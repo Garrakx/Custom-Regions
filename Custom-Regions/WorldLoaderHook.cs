@@ -210,7 +210,7 @@ namespace CustomRegions
 
                     if (noDisconnectedPipes/*!errorLog.ToUpper().Contains("DISCONNECTED") && !errorLog.ToUpper().Contains("DISCONNECT")*/)
                     {
-                        string errorLog = $"#Found possible incompatible room [{roomToBeReplacedName} : {string.Join(", ", newConnections.ToArray())}] from [{modID}] and [{roomConnectionsToBeReplaced}] from [{oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}]. \\n If [{roomConnectionsToBeReplaced}] is from the vanilla game everything is fine. Otherwise you might be missing compatibility patch.";
+                        string errorLog = $"#Found possible incompatible room [{roomToBeReplacedName} : {string.Join(", ", newConnections.ToArray())}] from [{modID}] and [{roomConnectionsToBeReplaced}] from [{oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}]. \n If [{roomConnectionsToBeReplaced}] is from the vanilla game everything is fine. Otherwise you might be missing compatibility patch.";
                         CustomWorldMod.analyzingLog += errorLog + "\n\n";
                         CustomWorldMod.Log("Custom Regions: ERROR! " + errorLog);
                         UnityEngine.Debug.LogError(errorLog);
@@ -801,9 +801,9 @@ namespace CustomRegions
         }
 
         /// <summary>
-        /// Could be used for merging algorithm
+        /// Used for mergin algorithm
         /// </summary>
-        private static MergeStatus status;
+        private static MergeStatus status = (MergeStatus)5;
 
         /// <summary>
         /// Reads and loads all the world_XX.txt files found in all the custom worlds.
@@ -824,7 +824,7 @@ namespace CustomRegions
             if (self.lines.Count > 0)
             {
                 // Fill ROOMS with vanilla rooms
-                //CustomWorldMod.CustomWorldLog("Custom Regions: Found vanilla rooms");
+                CustomWorldMod.Log("Custom Regions: Found vanilla room, filling lines");
                 bool startRooms = false;
                 bool startCreatures = false;
                 bool startBats = false;
@@ -903,6 +903,10 @@ namespace CustomRegions
                     foundAnyCustomRegion = true;
                     //self.lines = new List<string>();
                     string[] array = File.ReadAllLines(test);
+                    if(!array.Contains("ROOMS") && !array.Contains("CREATURES") && !array.Contains("BLOCKAGES"))
+                    {
+                        CustomWorldMod.Log($"RegionPack [{keyValues.Key}] has corrupted world_{self.worldName}.txt file: Missing any ROOMS/CREATURES/BLOCKAGES delimiters", true);
+                    }
                     for (int i = 0; i < array.Length; i++)
                     {
                         if (array[i].Length > 1 && array[i].Substring(0, 2) != "//")
@@ -942,17 +946,18 @@ namespace CustomRegions
                                 }
                                 else if (array[i] == "CREATURES")
                                 {
-                                    status++;
+                                    status = MergeStatus.CREATURES;
                                 }
                                 else if (array[i] == "BAT MIGRATION BLOCKAGES")
                                 {
-                                    status++;
+                                    status = MergeStatus.BATS;
                                 }
                                 else if (array[i] != "END ROOMS" && array[i] != "END CREATURES" && array[i] != "END BAT MIGRATION BLOCKAGES")
                                 {
                                     switch (status)
                                     {
                                         case MergeStatus.ROOMS:
+                                            // MERGE ROOMS
                                             ROOMS = AddNewRoom(array[i], ROOMS, keyValues.Key);
                                             break;
                                         case MergeStatus.CREATURES:
@@ -970,6 +975,7 @@ namespace CustomRegions
                             }
                         }
                     }
+
                     //break;
                 }
 
@@ -1085,10 +1091,12 @@ namespace CustomRegions
                 self.lines = GetWorldLines(self);
 
             }
+            /*
             else
             {
                 //CustomWorldMod.CustomWorldLog($"Custom Worlds: Next Activity was not init, was {self.activity}");
             }
+            */
 
             if (self.faultyExits == null)
             {
