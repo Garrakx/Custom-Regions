@@ -17,7 +17,6 @@ namespace CustomRegions.CustomPearls
         {
             On.SLOracleBehaviorHasMark.GrabObject += SLOracleBehaviorHasMark_GrabObject;
             On.SLOracleBehaviorHasMark.MoonConversation.AddEvents += MoonConversation_AddEvents;
-
         }
 
 
@@ -71,16 +70,19 @@ namespace CustomRegions.CustomPearls
                                 }
                             }
                         }
+                        /*
                         else if (foundPearl)
                         {
                             self.AlreadyDiscussedItem(true);
                         }
+                        */
                     }
                 }
                 if (foundPearl)
                 {
                     self.State.totalItemsBrought++;
                     self.State.AddItemToAlreadyTalkedAbout(item.abstractPhysicalObject.ID);
+                    return;
                 }
             }
             orig(self, item);
@@ -119,14 +121,16 @@ namespace CustomRegions.CustomPearls
                 CustomWorldMod.Log("NOT FOUND " + convoPath);
                 return;
             }
-            string text2 = File.ReadAllText(convoPath, Encoding.UTF8);
+            string text2 = File.ReadAllText(convoPath, Encoding.Default);
             if (text2[0] == '0')
             {
-                Debug.LogError("Tried to encrypt custom text");
+                //Debug.LogError("Tried to encrypt custom text");
                 //Conversation.EncryptAllDialogue();
+                CustomWorldMod.EncryptCustomDialogue(Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + customRegion + div, customRegion);
             }
             else
             {
+                CustomWorldMod.Log($"Decrypting file [{fileName}] from [{customRegion}] in [{CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage}]");
                 text2 = Custom.xorEncrypt(text2, (int)(54 + fileName + (int)CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage * 7));
             }
             string[] array = Regex.Split(text2, Environment.NewLine);
@@ -159,6 +163,10 @@ namespace CustomRegions.CustomPearls
                         }
                     }
 
+                }
+                else
+                {
+                    CustomWorldMod.Log($"Corrupted dialogue file...[{Regex.Split(array[0], " - ")[1]}]", true);
                 }
             }
             catch

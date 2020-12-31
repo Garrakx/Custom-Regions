@@ -51,7 +51,7 @@ namespace CustomRegions
             WinState.EndgameTracker endgameTracker = null;
             if (ID == WinState.EndgameID.Traveller)
             {
-                int slots = CustomWorldMod.VanillaRegions().Length + CustomWorldMod.activeModdedRegions.Count;
+                int slots = CustomWorldMod.numberOfVanillaRegions + CustomWorldMod.activeModdedRegions.Count;
                 endgameTracker = new WinState.BoolArrayTracker(ID, slots);
 
                 if (endgameTracker != null && endgameTrackers != null)

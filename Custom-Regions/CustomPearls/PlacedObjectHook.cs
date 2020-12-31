@@ -15,6 +15,20 @@ namespace CustomRegions.CustomPearls
         {
             On.PlacedObject.DataPearlData.FromString += DataPearlData_FromString;
             On.PlacedObject.DataPearlData.ToString += DataPearlData_ToString;
+
+            On.PlacedObject.FromString += PlacedObject_FromString;
+        }
+
+        private static void PlacedObject_FromString(On.PlacedObject.orig_FromString orig, PlacedObject self, string[] s)
+        {
+            try
+            {
+                orig(self, s);
+            }
+            catch (Exception e)
+            {
+                CustomWorldMod.Log("Error loading placed objects " + e, true);
+            }
         }
 
         private static string DataPearlData_ToString(On.PlacedObject.DataPearlData.orig_ToString orig, PlacedObject.DataPearlData self)

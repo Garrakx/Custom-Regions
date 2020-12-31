@@ -89,11 +89,11 @@ namespace CustomRegions.CustomMenu
             List<string> order = (List<string>)orig.Method.Invoke(orig.Target, new object[] { });
             /* <3 SLIME CUBED <3 */
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
+            foreach (string regID in CustomWorldMod.activeModdedRegions)
             {
-                if (!order.Contains(keyValues.Key))
+                if (!order.Contains(regID))
                 {
-                    order.Add(keyValues.Key);
+                    order.Add(regID);
                 }
             }
             CustomWorldMod.Log($"GETREGIONORDER SANITY CHECK ~ [{string.Join(", ", order.ToArray())}]");
