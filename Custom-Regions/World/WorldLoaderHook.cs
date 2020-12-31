@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using static CustomRegions.Mod.CustomWorldStructs;
 
-namespace CustomRegions
+namespace CustomRegions.CWorld
 {
 
     // This code comes from EasyModPack by topicular

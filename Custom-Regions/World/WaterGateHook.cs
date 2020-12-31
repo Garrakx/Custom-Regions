@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using static CustomRegions.Mod.CustomWorldStructs;
 
-namespace CustomRegions
+namespace CustomRegions.CWorld
 {
     static class WaterGateHook
     {

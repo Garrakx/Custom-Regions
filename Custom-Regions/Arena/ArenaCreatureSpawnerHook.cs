@@ -6,7 +6,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace CustomRegions
+namespace CustomRegions.Arena
 {
     public static class ArenaCreatureSpawnerHook
     {
