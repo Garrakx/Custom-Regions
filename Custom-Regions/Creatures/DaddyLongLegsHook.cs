@@ -16,7 +16,7 @@ namespace CustomRegions.Creatures
         private static void DaddyLongLegs_ctor(On.DaddyLongLegs.orig_ctor orig, DaddyLongLegs self, AbstractCreature abstractCreature, World world)
         {
             orig(self, abstractCreature, world);
-            if (world != null)
+            if (world != null && !world.singleRoomWorld)
             {
                 //CustomWorldMod.Log($"Region Name [{self.region.name}]");
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)

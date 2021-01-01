@@ -24,7 +24,7 @@ namespace CustomRegions.Creatures
 
             customColor = null;
             World world = ow.abstractPhysicalObject.world;
-            if (world != null)
+            if (world != null && !world.singleRoomWorld && world.region != null)
             {
                 //CustomWorldMod.Log($"Region Name [{self.region.name}]");
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)

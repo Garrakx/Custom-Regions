@@ -17,7 +17,7 @@ namespace CustomRegions.Creatures
         {
             orig(self, abstractCreature, world);
 
-            if (world.region != null)
+            if (world != null && !world.singleRoomWorld && world.region != null)
             {
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {

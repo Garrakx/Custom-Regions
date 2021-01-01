@@ -18,7 +18,7 @@ namespace CustomRegions.Creatures
             orig(self, ow);
 
             World world = ow.abstractPhysicalObject.world;
-            if (world != null)
+            if (world != null && !world.singleRoomWorld && world.region != null)
             {
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
