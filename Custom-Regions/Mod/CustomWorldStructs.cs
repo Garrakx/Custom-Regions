@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace CustomRegions.Mod
@@ -16,30 +13,76 @@ namespace CustomRegions.Mod
         {
             public string name;
             public string description;
+            public string author;
             public bool activated;
             public string checksum;
             public string folderName;
-            public string url;
+            public string thumbUrl;
             public Dictionary<string, float> electricGates;
             public Dictionary<string, RegionConfiguration> regionConfig;
             public List<string> regions;
             public int loadOrder;
             public int loadNumber;
+            public string version;
+            public string packUrl;
+            public string requirements;
 
-            public RegionPack(string name, string description, bool activated, string checksum, string folderName, string url, 
-                Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig, List<string> regions, int loadOrder, int packNumber)
+            public RegionPack(string name, string description, string author, bool activated, string checksum, string folderName, string url, 
+                Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig, List<string> regions, int loadOrder, 
+                int packNumber, string version, string packUrl, string requirements)
             {
                 this.name = name;
                 this.description = description;
+                this.author = author;
                 this.activated = activated;
                 this.checksum = checksum;
                 this.folderName = folderName;
-                this.url = url;
+                this.thumbUrl = url;
                 this.electricGates = electricGates;
                 this.regionConfig = regionConfig;
                 this.regions = regions;
                 this.loadOrder = loadOrder;
                 this.loadNumber = packNumber;
+                this.version = version;
+                this.packUrl = packUrl;
+                this.requirements = requirements;
+            }
+            public RegionPack(string folderName)
+            {
+                this.name = "";
+                this.description = "";
+                this.author = "";
+                this.activated = false;
+                this.checksum = "";
+                this.folderName = folderName;
+                this.thumbUrl = "";
+                this.electricGates = new Dictionary<string, float>();
+                this.regionConfig = new Dictionary<string, RegionConfiguration>();
+                this.regions = new List<string>();
+                this.loadOrder = int.MaxValue;
+                this.loadNumber = int.MaxValue;
+                this.version = "1.0";
+                this.packUrl = "";
+                this.requirements = "";
+            }
+
+            public RegionPack(string name, string checkSum, int packNumber)
+            {
+                this.name = name;
+                this.description = null;
+                this.author = null;
+                this.activated = false;
+                this.checksum = checkSum;
+                this.folderName = null;
+                this.thumbUrl = null;
+                this.electricGates = null;
+                this.regionConfig = null;
+                this.regions = null;
+                this.loadOrder = int.MaxValue;
+                this.loadNumber = packNumber;
+                this.version = null;
+                this.packUrl = null;
+                this.requirements = null;
             }
         }
 
