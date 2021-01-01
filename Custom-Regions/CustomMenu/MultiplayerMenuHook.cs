@@ -4,8 +4,6 @@ using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 
@@ -13,19 +11,14 @@ namespace CustomRegions.CustomMenu
 {
     static class MultiplayerMenuHook
     {
-
-        public delegate void orig_WWW_ctor(WWW self, string url);
-
         public static void ApplyHook()
         {
             On.Menu.MultiplayerMenu.ctor += MultiplayerMenu_ctor;
-
-            // Thumbnail
-            IDetour hookWWWctor = new Hook(typeof(WWW).GetConstructor(new Type[] { typeof(string) }), typeof(MultiplayerMenuHook).GetMethod("WWW_ctor"));
         }
 
-
-        public static void WWW_ctor(orig_WWW_ctor orig, WWW self, string url)
+       // Thumbnail
+       // THIS IS CALLED IN WWWCTOR
+        public static void MultiplayerMenuUrl(ref string url)
         {
             if (url.Contains("file:///" + Custom.RootFolderDirectory() + "Levels") && url.Contains("_1.png"))
             {
@@ -58,15 +51,12 @@ namespace CustomRegions.CustomMenu
                     path = path.Substring(found + stringToRemove.Length);
                     //text, "_Thumb.png"
 
-
                     //Remove after text
                     found = path.IndexOf("_");
                     if (found > 0)
                     { path = path.Substring(0, found); ; }
 
-                    //text
-
-                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                     {
                         CustomWorldMod.Log($"Custom Regions: WWWW trimmed path [{path}]");
 
@@ -80,15 +70,17 @@ namespace CustomRegions.CustomMenu
                 }
 
             }
-
-            orig(self, url);
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
         private static void MultiplayerMenu_ctor(On.Menu.MultiplayerMenu.orig_ctor orig, Menu.MultiplayerMenu self, ProcessManager manager)
         {
             orig(self, manager);
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegionPacks)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels";
                 if (Directory.Exists(path))
@@ -99,11 +91,11 @@ namespace CustomRegions.CustomMenu
 
                     for (int i = 0; i < files.Length; i++)
                     {
-                        if (files[i].Substring(files[i].Length - 4, 4) == ".txt" && files[i].Substring(files[i].Length - 13, 13) != "_Settings.txt" && files[i].Substring(files[i].Length - 10, 10) != "_Arena.txt")
+                        if (files[i].Substring(files[i].Length - 4, 4) == ".txt" && files[i].Substring(files[i].Length - 13, 13) != "_Settings.txt" && files[i].Substring(files[i].Length - 10, 10) != "_Arena.txt" && !files[i].Contains(CustomWorldMod.customUnlocksFileName) )
                         {
                             string[] array = files[i].Substring(0, files[i].Length - 4).Split(new char[]
                             {
-                        Path.DirectorySeparatorChar
+                                Path.DirectorySeparatorChar
                             });
                             self.allLevels.Add(array[array.Length - 1]);
                         }

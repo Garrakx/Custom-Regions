@@ -24,11 +24,6 @@ namespace CustomRegions
         {
             MultiplayerMenuHook.MultiplayerMenuUrl(ref url);
 
-            //RoomCameraHook.RoomCameraUrl(ref url);
-
-            //CustomDecalHook.DecalsUrl(ref url);
-
-
             if (url.Contains("file:///") && url.Contains("Resources") && url.Contains(".png"))
             {
                 //CustomWorldMod.Log("Transforming URL " + url);

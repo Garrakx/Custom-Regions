@@ -14,6 +14,9 @@ namespace CustomRegions
 
         public static void ApplyHooks()
         {
+            // Debug
+            //On.PlayerProgression.ctor += PlayerProgression_ctor;
+
             On.PlayerProgression.LoadProgression += PlayerProgression_LoadProgression;
             On.PlayerProgression.InitiateProgression += PlayerProgression_InitiateProgression;
 

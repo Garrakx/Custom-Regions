@@ -1,6 +1,5 @@
-﻿using CompletelyOptional;
+﻿
 using DevInterface;
-using OptionalUI;
 using RWCustom;
 using System;
 using System.Collections;
@@ -18,7 +17,6 @@ using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions.Mod
 {
-
     public abstract class CustomRegionScript
     {
         public bool readyToDelete;

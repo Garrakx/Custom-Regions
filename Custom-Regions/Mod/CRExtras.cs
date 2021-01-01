@@ -1,24 +1,15 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using System.Threading;
-using Partiality.Modloader;
 using System.IO;
-using System.Security.Policy;
-using RWCustom;
-using System.Runtime.CompilerServices;
 
 namespace CustomRegions.Mod
 {
     public static class CRExtras
     {
+        // Source: https://www.programmingalgorithms.com/algorithm/rgb-to-hsl/
         public static HSLColor RGB2HSL(Color color)
         {
-            // Source: https://www.programmingalgorithms.com/algorithm/rgb-to-hsl/
-
             HSLColor hsl;
 
             float r = color.r;
@@ -70,124 +61,23 @@ namespace CustomRegions.Mod
             return hsl;
 
         }
+        public static void CopyTo(this Stream input, Stream output)
+        {
+            byte[] buffer = new byte[16 * 1024]; // Fairly arbitrary size
+            int bytesRead;
+
+            while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, bytesRead);
+            }
+        }
     }
 
-    public class ThumbnailDownloader : MonoBehaviour
-    {
-        public static ThumbnailDownloader instance;
-
-        int currentThumb;
-        WWW www;
-        bool next;
-        string path;
-        private List<string> regionFolders;
-        public bool readyToDelete;
-        private List<string> urls;
-        //  string filePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + CustomWorldMod.availableRegions.ElementAt(i).Value.folderName + Path.DirectorySeparatorChar + "thumb.png";
-        public void Init(Dictionary<string, string> thumbInfo)
-        {
-            if (thumbInfo == null || thumbInfo.Count < 1)
-            {
-                //CustomWorldMod.Log("Error creating thumbnail downloader, thumbnail not found", true);
-                this.readyToDelete = true;
-                return;
-            }
-
-            currentThumb = 0;
-            this.regionFolders = thumbInfo.Keys.ToList();
-            this.urls = thumbInfo.Values.ToList();
-
-            this.path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + regionFolders[currentThumb] + Path.DirectorySeparatorChar + "thumb.png";
-            this.www = new WWW(urls[currentThumb]);
-            this.readyToDelete = false;
-            this.next = false;
-
-            //this.filename = filename;
-        }
-
-        public static void Create(Dictionary<string, string> thumbInfo)
-        {
-            GameObject gObject = new GameObject("Thumbdownloader");
-            gObject.AddComponent<ThumbnailDownloader>();
-            DontDestroyOnLoad(gObject);
-
-            instance.Init(thumbInfo);
-        }
-
-        public void Awake()
-        {
-            instance = this;
-        }
-
-        public void Update()
-        {
-
-            if (urls == null || currentThumb >= this.urls.Count  || regionFolders == null || readyToDelete)
-            {
-                this.Clear();
-                readyToDelete = true;
-                return;
-            }
-
-            if (www == null || string.IsNullOrEmpty(www.error))
-            {
-                if (www.isDone && !next)
-                {
-
-                    CustomWorldMod.Log($"Dowloading thumb[{currentThumb}].. path [{path}]");
-                    Texture2D tex;
-                    tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
-                    www.LoadImageIntoTexture(tex);
-                    tex.Apply();
-                    byte[] file = tex.EncodeToPNG();
-                    File.WriteAllBytes(path, file);
-                    CustomWorldMod.Log("Thumb downloaded " + path);
-
-
-                    next = true;
-                    currentThumb++;
-                }
-                else
-                {
-                    this.path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + regionFolders[currentThumb] + Path.DirectorySeparatorChar + "thumb.png";
-                    this.www = new WWW(urls[currentThumb]);
-                    next = false;
-                }
-            }
-            else
-            {
-                readyToDelete = true;
-                CustomWorldMod.Log(www.error, true);
-            }
-        }
-
-        public void Clear()
-        {
-            try
-            {
-                this.regionFolders.Clear();
-            } catch (Exception) { }
-            try
-            {
-                this.urls.Clear();
-            }
-            catch (Exception) { }
-        }
-        /*
-        internal void Create()
-        {
-            GameObject gObject = new GameObject("Thumbdownloader");
-            gObject.AddComponent<ThumbnailDownloader>();
-            DontDestroyOnLoad(gObject);
-        }
-        */
-    }
-
-
-    // Only works on ARGB32, RGB24 and Alpha8 textures that are marked readable
+    
 
     // SOURCE: http://wiki.unity3d.com/index.php/TextureScale#Usage
     // AUTHOR: Eric Haines (Eric5h5)
+    // Only works on ARGB32, RGB24 and Alpha8 textures that are marked readable
     public class TextureScale
     {
         public class ThreadData
