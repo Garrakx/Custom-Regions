@@ -25,7 +25,7 @@ namespace CustomRegions.Mod
         public int ID;
         public CustomRegionScript()
         {
-            this.ID = (int)(UnityEngine.Random.value * 1000f);
+            this.ID = (int)(UnityEngine.Random.Range(1, int.MaxValue));
         }
 
         public virtual void Init() { CustomWorldMod.Log($"Init [{this.name}] [{this.ID}]"); }
@@ -58,7 +58,8 @@ namespace CustomRegions.Mod
         private bool movedDependencies;
         private bool errorGrabbingPack;
         private List<string> dependenciesName;
-        private OpSimpleButton downloadButton;
+
+        public OpSimpleButton downloadButton;
 
         public const int OK = 0;
         public const int ERROR = -1;
@@ -336,10 +337,10 @@ namespace CustomRegions.Mod
 
         public ExeUpdater(string hashUrl, string fileURL)
         {
+            this.name = "ExecutableUpdater";
             this.Init();
             downloading = false;
             hashing = false;
-            this.name = "ExecutableUpdater";
             this.hashUrl = hashUrl;
             this.fileURL = fileURL;
             this.needsDownload = false;
