@@ -315,8 +315,8 @@ CR adds the ability to add custom data pearls without any code, and even include
 2. Inside `Rain World\Mods\CustomResources\"your region name"\Assets\pearlData.txt`, you must indicate the pearls you want to create following this structure (make sure to follow it exactly, with all the spaces):
 
 	```
-	1 : first_pearl_name : mainColorInHex : highlightColorInHex(optional)
-	2 : another_pearl_name : mainColorHex2
+	1 : first_pearl_name : mainColorInHex : highlightColorInHex
+	2 : another_pearl_name : mainColorHex2 : highlightColorInHex
 	3 ...
 	```
 
@@ -358,6 +358,8 @@ CR adds the ability to add custom data pearls without any code, and even include
 * Leaving an empty string ("") next to the color means to use vanilla.
 * Black salamander chance is a number between 0-1 (i.e: `0.3`) and determines the chance a salamander to spawn as its black variance. 1 will mean a 100% change (all salamanders will be black).
 
+### <a name="colors"></a>ARENA UNLOCKS
+// todo
 
 ### <a name="issues"></a>Known issues
 
