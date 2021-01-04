@@ -1,5 +1,6 @@
 ﻿
 using DevInterface;
+using OptionalUI;
 using RWCustom;
 using System;
 using System.Collections;
@@ -27,9 +28,7 @@ namespace CustomRegions.Mod
             this.ID = (int)(UnityEngine.Random.value * 1000f);
         }
 
-        public static void Create() { }
-
-        public void Init() { CustomWorldMod.Log($"Init [{this.name}] [{this.ID}]"); }
+        public virtual void Init() { CustomWorldMod.Log($"Init [{this.name}] [{this.ID}]"); }
 
         public virtual void Clear() { CustomWorldMod.Log($"Clearing [{this.name}] [{this.ID}]"); }
 
@@ -46,19 +45,21 @@ namespace CustomRegions.Mod
     /// </summary>
     public class PackDownloader : CustomRegionScript
     {
-        Process process;
-        private StringBuilder captureOutput;
         public string stringStatus;
-        internal static readonly string progressDivider = "<progDivider>";
-        internal static readonly string downloadDivider = "<downStat>";
-        internal static readonly string unzipDivider = "<zipStat>";
-        internal static readonly string finishedDivider = "<finStat>";
         public string packName;
         public float progress;
+
+        private Process process;
+        private StringBuilder captureOutput;
+        private static readonly string progressDivider = "<progDivider>";
+        private static readonly string downloadDivider = "<downStat>";
+        private static readonly string unzipDivider = "<zipStat>";
+        private static readonly string finishedDivider = "<finStat>";
         private bool movedDependencies;
-        List<string> dependenciesName;
         private bool errorGrabbingPack;
-        internal OpSimpleButton downloadButton;
+        private List<string> dependenciesName;
+        private OpSimpleButton downloadButton;
+
         public const int OK = 0;
         public const int ERROR = -1;
         // File to unzip does not exist
@@ -83,9 +84,8 @@ namespace CustomRegions.Mod
         }
 
 
-
         /// <summary>
-        /// Arguments: {url}{divider}\{packName}\ where divider is <div>
+        /// Arguments: {url}{divider}\{packName}\{divider}\{RW process ID} where divider is <div>
         /// </summary>
         public PackDownloader(string arguments, string packName)
         {
@@ -99,10 +99,11 @@ namespace CustomRegions.Mod
             if (!File.Exists(executableName))
             {
                 CustomWorldMod.Log($"Missing RegionDownloader.exe [{executableName}]", true);
-                return;
             }
-            this.Init(arguments, executableName);
-            //CustomWorldMod.scripts.Add(this);
+            else
+            {
+                this.Init(arguments, executableName);
+            }
         }
 
         public override void Clear()
@@ -126,7 +127,7 @@ namespace CustomRegions.Mod
                     stringStatus = "Done";
                     PopUp(false);
                 }
-                else if(errorGrabbingPack)
+                else if (errorGrabbingPack)
                 {
                     stringStatus = "Retry";
                     PopUp(true);
@@ -142,44 +143,14 @@ namespace CustomRegions.Mod
             {
                 downloadButton.text = stringStatus;
             }
-
-
         }
 
 
         private void PopUp(bool error)
         {
-            OpTab tab = ConfigMenu.currentInterface.Tabs.First(x => x.name.Equals("Browse RainDB"));
+            OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => x.name.Equals("Browse RainDB"));
             if (OptionInterface.IsConfigScreen && (tab != null) && !tab.isHidden)
             {
-                /*
-                int spacing = 30;
-                Vector2 buttonSize = new Vector2(70, 35);
-                Vector2 rectSize = new Vector2(420, 135 + buttonSize.y);
-                Vector2 rectPos = new Vector2(300- rectSize.x/2f, 300- rectSize.y/2);
-                Vector2 labelSize = rectSize - new Vector2(spacing, spacing + buttonSize.y + spacing);
-                OpRect restartPop = new OpRect(rectPos, rectSize, 0.9f);
-                string labelText = $"[{this.packName}] requires additional mods to function:\n\n";
-                labelText += $"The required files [{string.Join(", ", dependenciesName.ToArray())}] have been downloaded";
-                if (CustomWorldMod.usingBepinex)
-                {
-                    labelText += $" to BepInEx's plugins folder. \nPlease restart the game to apply the changes.";
-                }
-                else
-                {
-                    labelText += $"to Partiality's Mods folder. \nPlease close the game and apply them using the Partiality Launcher.";
-                }
-                //text += $" \nDependencies installed: [{string.Join(", ", dependenciesName.ToArray())}]";
-
-                OpLabelLong label = new OpLabelLong(new Vector2(rectPos.x + spacing/2, rectPos.y + buttonSize.y+spacing), labelSize, "", true, FLabelAlignment.Center)
-                {
-                    text = labelText,
-                    verticalAlignment = OpLabel.LabelVAlignment.Top
-                };
-
-                OpSimpleButton closeGameButton = new OpSimpleButton(new Vector2(rectPos.x + (rectSize.x - buttonSize.x)/2f, rectPos.y + spacing/2f), buttonSize, "close_game", "Exit game");
-                tab.AddItems(restartPop, label, closeGameButton);
-                */
                 string labelText = "N/A";
                 string buttonText = "ERROR";
                 string signal = "";
@@ -201,7 +172,7 @@ namespace CustomRegions.Mod
                 else
                 {
                     labelText = $"Error while downloading [{this.packName}]\n\n";
-                    if(File.Exists(CustomWorldMod.exeDownloaderLocation))
+                    if (File.Exists(CustomWorldMod.exeDownloaderLocation))
                     {
                         labelText += "Please try again.\n";
                     }
@@ -223,29 +194,43 @@ namespace CustomRegions.Mod
             {
                 string[] dependenciesFullPath = Directory.GetFiles(pathToDependencies);
                 Log($"Found dependencies [{string.Join(", ", dependenciesFullPath)}] for [{this.packName}]");
-                if(CustomWorldMod.usingBepinex)
+                string pathToMoveDependencies;
+                if (CustomWorldMod.usingBepinex)
                 {
-                    string pathToPlugins = Custom.RootFolderDirectory() + @"BepInEx/plugins/";
-                    foreach(string dependency in dependenciesFullPath)
-                    {
-                        string dependencyName = new FileInfo(dependency).Name;
-                        this.dependenciesName.Add(dependencyName);
-                        try
-                        {
-                            File.Move(dependency, pathToPlugins + dependencyName);
-                            movedDependencies = true;
-                        }
-                        catch (Exception e)
-                        {
-                            CustomWorldMod.Log($"Error moving dependency [{dependencyName}] {e}");
-                        }
-                    }
+                    pathToMoveDependencies = Custom.RootFolderDirectory() + @"BepInEx/plugins/";
                 }
                 else
                 {
-                    string pathToMods = Custom.RootFolderDirectory() + @"Mods/";
-
+                    pathToMoveDependencies = Custom.RootFolderDirectory() + @"Mods/";
                 }
+
+                foreach (string dependency in dependenciesFullPath)
+                {
+                    string dependencyName = new FileInfo(dependency).Name;
+                    this.dependenciesName.Add(dependencyName);
+                    try
+                    {
+                        File.Move(dependency, pathToMoveDependencies + dependencyName);
+                        movedDependencies = true;
+                    }
+                    catch (Exception e)
+                    {
+                        CustomWorldMod.Log($"Error moving dependency [{dependencyName}] {e}");
+                    }
+                }
+
+
+                /* Should CRS delete PackDepencencies folder? */
+                /*
+                if (movedDependencies)
+                {
+                    try
+                    {
+                        Directory.Delete(pathToDependencies);
+                    }
+                    catch (Exception e) { CustomWorldMod.Log($"Error deleting dependency folder [{pathToDependencies}] {e}"); }
+                }
+                */
             }
         }
 
@@ -258,9 +243,9 @@ namespace CustomRegions.Mod
             processStartInfo.UseShellExecute = false;
             processStartInfo.ErrorDialog = false;
             processStartInfo.CreateNoWindow = false;
-            //processStartInfo.RedirectStandardError = true;
             processStartInfo.RedirectStandardInput = true;
             processStartInfo.RedirectStandardOutput = true;
+            //processStartInfo.RedirectStandardError = true;
 
 
             // Start the process
@@ -271,8 +256,6 @@ namespace CustomRegions.Mod
 
             captureOutput = new StringBuilder();
             process.OutputDataReceived += Process_OutputDataReceived;
-
-            //process.WaitForExit();
         }
 
         private void Process_OutputDataReceived(object sender, DataReceivedEventArgs outLine)
@@ -353,10 +336,10 @@ namespace CustomRegions.Mod
 
         public ExeUpdater(string hashUrl, string fileURL)
         {
+            this.Init();
             downloading = false;
             hashing = false;
             this.name = "ExecutableUpdater";
-            this.Init();
             this.hashUrl = hashUrl;
             this.fileURL = fileURL;
             this.needsDownload = false;
@@ -391,7 +374,7 @@ namespace CustomRegions.Mod
         public override void Update()
         {
             base.Update();
-            if(!string.IsNullOrEmpty(www.error)) 
+            if (!string.IsNullOrEmpty(www.error))
             {
                 Log(www.error, true);
                 readyToDelete = true;
@@ -421,13 +404,15 @@ namespace CustomRegions.Mod
                         downloading = true;
                         readyToDelete = true;
                     }
-                   
+
                 }
                 // Get online file
-                else if(!downloading)
+                else if (!downloading)
                 {
                     downloading = true;
                     this.fileBytes = www.bytes;
+
+                    // File needs to be updated or downloaded
                     if (needsDownload)
                     {
                         string downloadedHash;
@@ -439,8 +424,10 @@ namespace CustomRegions.Mod
                                 Log($"Current exe hash [{currentHash}]");
                             }
                         }
+                        // Download was correct
                         if (downloadedHash.Equals(onlineHash))
                         {
+                            // Delete old exectuable
                             if (needsUpdate && File.Exists(CustomWorldMod.exeDownloaderLocation))
                             {
                                 try
@@ -450,6 +437,7 @@ namespace CustomRegions.Mod
                                 }
                                 catch (Exception e) { Log("Error deleting exe " + e, true); }
                             }
+                            // Save downloaded executable
                             try
                             {
                                 File.WriteAllBytes(CustomWorldMod.exeDownloaderLocation, fileBytes);
@@ -497,9 +485,8 @@ namespace CustomRegions.Mod
             this.refreshedConfigScreen = false;
             this.name = "ThumbnailDownloader";
             this.Init(thumbInfo, ref thumbOutput);
-            //CustomWorldMod.scripts.Add(this);
         }
-        
+
         public void Init(Dictionary<string, string> thumbInfo, ref Dictionary<string, byte[]> thumbOutput)
         {
             base.Init();
@@ -575,7 +562,7 @@ namespace CustomRegions.Mod
                 refreshedConfigScreen = true;
                 try
                 {
-                    ConfigMenu.ResetCurrentConfig();
+                    CompletelyOptional.ConfigMenu.ResetCurrentConfig();
                 }
                 catch (Exception e)
                 {
@@ -593,7 +580,7 @@ namespace CustomRegions.Mod
             try
             {
                 if (this.urls != null)
-                    this.urls.Clear();
+                { this.urls.Clear(); }
             }
             catch (Exception e) { Log(e.Message, true); }
         }

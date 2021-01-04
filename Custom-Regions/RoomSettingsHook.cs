@@ -51,13 +51,14 @@ namespace CustomRegions
                 }
 
             }
+            /*
             else
             {
                 //CustomWorldMod.Log($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
                 // Calling FindRoomFileDirectory will find the custom one
                 //self.filePath = FindVanillaRoom(self.name, false) + "_Settings.txt";
-
             }
+            */
 
             try
             {

@@ -41,8 +41,6 @@ namespace CustomRegions
                     }
                 }
             }
-
-
             orig(self, url);
         }
     }
