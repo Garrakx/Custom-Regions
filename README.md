@@ -42,7 +42,7 @@ A region pack (or just pack) is a mod that contains one or more modded regions, 
 In terms of compatibility, any region pack made with the outdated method of mergin with the vanilla files will work with CRS. On the other hand, making a region pack specifically brings improvements that were not possible before.
 * **What's a region?**  
 Yes, I know this is obvious but let's go over the definition: a region is a recopilation of rooms, separated by gates, which has a two-letter acronym, and it's own `world_XX.txt` file. A region pack can include several regions.
-* <a name="browser"></a>**The in-game pack browser**
+* <a name="browser"></a>**The in-game pack browser**  
 New in the latest updates, CRS adds an in-game region pack browser that let's you install region packs with just one click without even closing the game. If a pack is marked "unavailable", it means the author has not contacted me (Garrakx) to make the necessary arrangements to make their pack available, so let them know.
 * **How to run the mod in offline mode**  
 If you don't want the online features of CRS (pack downloader, pack infor fetcher, thumb downloader...) you can place a empty text file called `offline.txt` in your resource folder (`Mods\CustomResources\`).
