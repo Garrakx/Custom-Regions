@@ -79,7 +79,7 @@ namespace CustomRegions.CWorld
                 CustomWorldMod.Log($"Custom Regions: Trying to merge [{roomConnectionsToBeReplaced}]");
 
                 // Extract room name from line to be merged / replaced
-                string roomToBeReplacedName = roomConnectionsToBeReplaced.Substring(0, roomConnectionsToBeReplaced.IndexOf(" "));
+                string roomToBeReplacedName = roomConnectionsToBeReplaced.Substring(0, roomConnectionsToBeReplaced.IndexOf(" : "));
 
                 // Check if the room to be merged / replaced is vanilla
                 bool isVanilla = oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).vanilla;
@@ -188,12 +188,12 @@ namespace CustomRegions.CWorld
                 }
 
 
-                CustomWorldMod.Log($"Custom Regions: Analized old room [{roomConnectionsToBeReplaced}]. Added by a mod? [{isVanilla}]. NewRoomConnections [{string.Join(", ", newConnections.ToArray())}]. IsBeingReplaced [{isRoomBeingReplaced}]. No Empty Pipes [{noDisconnectedPipes}]");
 
-                if (roomConnectionsToBeReplaced.ToUpper().Contains("DISCONNECTED") && roomConnectionsToBeReplaced.ToUpper().Contains("DISCONNECT"))
+                if (roomConnectionsToBeReplaced.ToUpper().Contains("DISCONNECTED") || roomConnectionsToBeReplaced.ToUpper().Contains("DISCONNECT"))
                 {
                     noDisconnectedPipes = true;
                 }
+                CustomWorldMod.Log($"Custom Regions: Analized old room [{roomConnectionsToBeReplaced}]. Added by a mod? [{isVanilla}]. NewRoomConnections [{string.Join(", ", newConnections.ToArray())}]. IsBeingReplaced [{isRoomBeingReplaced}]. No Empty Pipes [{noDisconnectedPipes}]");
 
                 // No empty pipes but room needs to be replaced. Whole line will be replaced
                 if (isVanilla)
@@ -207,13 +207,12 @@ namespace CustomRegions.CWorld
                 }
                 else if (!performedOperation)
                 {
-
                     if (noDisconnectedPipes/*!errorLog.ToUpper().Contains("DISCONNECTED") && !errorLog.ToUpper().Contains("DISCONNECT")*/)
                     {
-                        string errorLog = $"#Found possible incompatible room [{roomToBeReplacedName} : {string.Join(", ", newConnections.ToArray())}] from [{modID}] and [{roomConnectionsToBeReplaced}] from [{oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}]. \n If [{roomConnectionsToBeReplaced}] is from the vanilla game everything is fine. Otherwise you might be missing compatibility patch.";
+                        string errorLog = $"#Found possible incompatible room [{roomToBeReplacedName} : {string.Join(", ", oldConnections.ToArray())}] from [{modID}] and [{roomConnectionsToBeReplaced}] from [{oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}]. \n  If [{roomConnectionsToBeReplaced}] is from the vanilla game everything is fine. Otherwise you might be missing compatibility patch.";
                         CustomWorldMod.analyzingLog += errorLog + "\n\n";
-                        CustomWorldMod.Log("Custom Regions: ERROR! " + errorLog);
-                        UnityEngine.Debug.LogError(errorLog);
+                        CustomWorldMod.Log(errorLog, true);
+                        //UnityEngine.Debug.LogError(errorLog);
                         //UnityEngine.Debug.LogError($"Found two incompatible region mods: {modID} <-> {oldList.Find(x => x.data.Equals(roomConnectionsToBeReplaced)).modID}");
                     }
                 }
