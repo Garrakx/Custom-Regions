@@ -28,7 +28,6 @@ namespace CustomRegions
                     {
                         string[] array = Regex.Split(objString, "<oA>");
                         int hash = int.Parse(array[5]);
-                        CustomWorldMod.Log($"Loading datapearl. hash [{hash}]");
                         if (CustomWorldMod.customPearls.ContainsKey(hash))
                         {
                             CustomWorldMod.customPearls.TryGetValue(hash, out CustomWorldStructs.CustomPearl customPearl);
@@ -36,6 +35,10 @@ namespace CustomRegions
                             DataPearl.AbstractDataPearl.DataPearlType type = (DataPearl.AbstractDataPearl.DataPearlType)Enum.Parse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearlName);
                             CustomWorldMod.Log($"Loaded custom pearl [{type.ToString()}] Hash [{hash}]");
                             dataPearl.dataPearlType = type;
+                        }
+                        else if (hash > 0x25)
+                        {
+                            CustomWorldMod.Log($"Error loading data pearl (AbsPhysObj). You are missing dataPearls.txt or your pack needs to be updated", true);
                         }
 
                     }
