@@ -89,7 +89,7 @@ namespace CustomRegions.CWorld
         /// </summary>
         private static void World_LoadMapConfig(On.World.orig_LoadMapConfig orig, World self, int slugcatNumber)
         {
-
+            orig(self, slugcatNumber);
             bool loadedMapConfig = false;
             bool loadedProperties = false;
             string[] array;
@@ -218,13 +218,13 @@ namespace CustomRegions.CWorld
                     self.abstractRooms[num2].mapPos -= b;
                 }
             }
-
+            /*
             // YOU MUST INCLUDE BOTH PROPERTIES AND MAP CONFIG TO MAKE CHANGES TO VANILLA
             if (!(loadedMapConfig && loadedProperties))
             {
-                CustomWorldMod.Log($"You are missing either the mapconfig or properties file to make changes to vanilla. Loaded MapConfig [{loadedMapConfig}]. Loaded Properties [{loadedProperties}]", true);
-                orig(self, slugcatNumber);
+                CustomWorldMod.Log($"You are missing either the mapconfig or properties file to make changes to vanilla. Loaded MapConfig [{loadedMapConfig}]. Loaded Properties [{loadedProperties}]");
             }
+            */;
         }
     }
 }
