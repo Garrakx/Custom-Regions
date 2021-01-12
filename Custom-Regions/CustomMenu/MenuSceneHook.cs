@@ -3,6 +3,7 @@ using Menu;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -194,7 +195,8 @@ namespace CustomRegions.CustomMenu
                 string regionName = string.Empty;
                 try
                 {
-                    regionName = CustomWorldMod.activatedPacks[regionID]; ;
+                    // This might be slow
+                    regionName = CustomWorldMod.installedPacks.FirstOrDefault(x=>x.Value.regions.Contains(regionID)).Key; 
                 }
                 catch (Exception e) { CustomWorldMod.Log($"Error finding regionName [{self.sceneID}] {e}", true); return; }
 

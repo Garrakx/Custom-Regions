@@ -110,24 +110,18 @@ namespace CustomRegions.CustomMenu
 
             //CustomWorldMod.sceneCustomID = string.Empty;
             MenuScene.SceneID ID = MenuScene.SceneID.Empty;
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
-            {
-                if (keyValues.Key.Equals(regionName))
-                {
-                    CustomWorldMod.Log($"Custom Regions: TitleSceneID {regionName}");
-                    try
-                    {
-                        ID = (MenuScene.SceneID)Enum.Parse(typeof(MenuScene.SceneID), $"Landscape_{regionName}");
 
-                    }
-                    catch (Exception e)
-                    {
-                        CustomWorldMod.Log($"Enum not found [{e}]");
-                    }
-                    break;
-                }
+            CustomWorldMod.Log($"Custom Regions: TitleSceneID {regionName}");
+            try
+            {
+                ID = (MenuScene.SceneID)Enum.Parse(typeof(MenuScene.SceneID), $"Landscape_{regionName}");
 
             }
+            catch (Exception e)
+            {
+                CustomWorldMod.Log($"Enum not found [{e}]");
+            }
+
 
             if (orig(self, regionName) == Menu.MenuScene.SceneID.Empty && ID != MenuScene.SceneID.Empty)
             {
