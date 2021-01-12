@@ -1,12 +1,11 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Custom-Regions")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Custom-Regions-Support")]
+[assembly: AssemblyDescription("Modded regions support for Rain World")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Garrakx")]
 [assembly: AssemblyProduct("Custom-Regions")]
@@ -32,5 +31,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.7.37.0")]
-[assembly: AssemblyFileVersion("0.7.37.0")]
+[assembly: AssemblyVersion("0.8.40")]
+[assembly: AssemblyFileVersion("0.8.40")]

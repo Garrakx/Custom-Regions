@@ -243,7 +243,7 @@ namespace CustomRegions.Mod
             ProcessStartInfo processStartInfo = new ProcessStartInfo(executableName, arguments);
             processStartInfo.UseShellExecute = false;
             processStartInfo.ErrorDialog = false;
-            processStartInfo.CreateNoWindow = false;
+            processStartInfo.CreateNoWindow = true;
             processStartInfo.RedirectStandardInput = true;
             processStartInfo.RedirectStandardOutput = true;
             //processStartInfo.RedirectStandardError = true;
@@ -422,12 +422,13 @@ namespace CustomRegions.Mod
                             using (var stream = new MemoryStream(this.fileBytes))
                             {
                                 downloadedHash = BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
-                                Log($"Current exe hash [{currentHash}]");
+                                Log($"Current exe hash [{downloadedHash}]");
                             }
                         }
                         // Download was correct
                         if (downloadedHash.Equals(onlineHash))
                         {
+                            Log($"Exectuable download was correct :D");
                             // Delete old exectuable
                             if (needsUpdate && File.Exists(CustomWorldMod.exeDownloaderLocation))
                             {

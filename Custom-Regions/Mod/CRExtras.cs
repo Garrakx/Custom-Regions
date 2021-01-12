@@ -61,6 +61,7 @@ namespace CustomRegions.Mod
             return hsl;
 
         }
+
         public static void CopyTo(this Stream input, Stream output)
         {
             byte[] buffer = new byte[16 * 1024]; // Fairly arbitrary size
@@ -71,9 +72,26 @@ namespace CustomRegions.Mod
                 output.Write(buffer, 0, bytesRead);
             }
         }
-    }
 
-    
+        public static void TrimString(ref string reference, float targetPixel, string endSequence)
+        {
+            if (OptionalUI.LabelTest.GetWidth(reference, false) > targetPixel)
+            {
+                reference = reference.Remove(reference.Length - 1);
+                TrimString(ref reference, targetPixel, endSequence);
+            }
+        }
+
+
+        public static void TryPlayMenuSound(SoundID soundID)
+        {
+            try
+            {
+                (CustomWorldMod.rainWorldInstance.processManager.currentMainLoop as Menu.Menu).PlaySound(soundID);
+            }
+            catch (Exception e) { CustomWorldMod.Log("Exception " + e, true); }
+        }
+    }
 
     // SOURCE: http://wiki.unity3d.com/index.php/TextureScale#Usage
     // AUTHOR: Eric Haines (Eric5h5)

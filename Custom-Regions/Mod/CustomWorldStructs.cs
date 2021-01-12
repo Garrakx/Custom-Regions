@@ -133,20 +133,30 @@ namespace CustomRegions.Mod
         /// </summary>
         public struct WorldDataLine
         {
-            public string data;
+            public string line;
+            public string roomName;
+            public string connections;
+            public string endingString;
             public bool vanilla;
-            public string modID;
-            public WorldDataLine(string data, bool vanilla)
+            public string packName;
+
+            public WorldDataLine(string line, string roomName, string connections, string endingString, bool vanilla, string modID)
             {
-                this.data = data;
+                this.line = line;
+                this.roomName = roomName;
+                this.connections = connections;
+                this.endingString = endingString;
                 this.vanilla = vanilla;
-                this.modID = string.Empty;
+                this.packName = modID;
             }
-            public WorldDataLine(string data, bool vanilla, string modID)
+            public WorldDataLine(string line, bool vanilla)
             {
-                this.data = data;
+                this.line = line;
+                this.roomName = null;
+                this.connections = null;
+                this.endingString = null;
                 this.vanilla = vanilla;
-                this.modID = modID;
+                this.packName = null;
             }
         }
 

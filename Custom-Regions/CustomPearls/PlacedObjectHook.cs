@@ -58,16 +58,14 @@ namespace CustomRegions.CustomPearls
                 orig(self, s);
             } 
             catch (Exception e) { CustomWorldMod.Log("Fatal Error: "+e, true); }
-
             string[] array = Regex.Split(s, "~");
             try
             {
                 if (array.Length >= 5)
                 {
                     int hash = int.Parse(array[4]);
-                    if (CustomWorldMod.customPearls.ContainsKey(hash))
+                    if (CustomWorldMod.customPearls.TryGetValue(hash, out CustomWorldStructs.CustomPearl customPearl))
                     {
-                        CustomWorldMod.customPearls.TryGetValue(hash, out CustomWorldStructs.CustomPearl customPearl);
                         string pearlName = customPearl.name;
                         DataPearl.AbstractDataPearl.DataPearlType type = (DataPearl.AbstractDataPearl.DataPearlType)Enum.Parse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearlName);
                         CustomWorldMod.Log($"Loaded custom pearl [{type.ToString()}] Hash [{hash}]");
