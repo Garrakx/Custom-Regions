@@ -359,3 +359,8 @@ RegionPackDownloader/695022452471758938.ico
 RegionPackDownloader/ConsolePackHandler.cs
 RegionPackDownloader/Properties/launchSettings.json
 RegionPackDownloader/HttpClientDownloadWithProgress.cs
+<<<<<<< Updated upstream
+=======
+Custom-Regions/Custom-Regions.sln
+Custom-Regions/Custom-Regions.csproj
+>>>>>>> Stashed changes

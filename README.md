@@ -360,6 +360,7 @@ CR adds the ability to add custom data pearls without any code, and even include
 
 ### <a name="colors"></a>ARENA UNLOCKS
 // todo
+=======
 
 ### <a name="issues"></a>Known issues
 
@@ -369,4 +370,4 @@ CR adds the ability to add custom data pearls without any code, and even include
 
 ### <a name="credits"></a>Credits
 
- Please be patient with bugs and errors. Thanks to LeeMoriya for helping and suggestions. Thanks to Thalber and LB Gamer for the translations. Thanks Slime_Cubed for the idea of using a separate process to download the packs. Thanks to carrotpudding for testing.
+ Please be patient with bugs and errors. Thanks to LeeMoriya for helping and suggestions. Thanks to Thalber and LB Gamer for the translations. Thanks Slime_Cubed for the idea of using a separate process to download the packs. Thanks to carrotpudding, LB Gamer, Precipitator, Stereo and laura for testing.
