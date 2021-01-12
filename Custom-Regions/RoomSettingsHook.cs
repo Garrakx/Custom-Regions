@@ -18,6 +18,16 @@ namespace CustomRegions
 
             // Debug
             On.RoomSettings.Save += RoomSettings_Save;
+            //On.RoomSettings.LoadPlacedObjects += RoomSettings_LoadPlacedObjects;
+        }
+
+        private static void RoomSettings_LoadPlacedObjects(On.RoomSettings.orig_LoadPlacedObjects orig, RoomSettings self, string[] s, int playerChar)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            orig(self, s, playerChar);
+            watch.Stop();
+            var elapsedMs = watch.ElapsedTicks;
+            CustomWorldMod.Log($"Vanilla Room Settings time [{elapsedMs}]");
         }
 
         private static void RoomSettings_Save(On.RoomSettings.orig_Save orig, RoomSettings self)
