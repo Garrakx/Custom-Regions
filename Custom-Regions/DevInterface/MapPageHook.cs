@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CustomRegions.Mod;
 using DevInterface;
 using RWCustom;
@@ -39,19 +40,26 @@ namespace CustomRegions.DevInterface
         private static void MapPage_LoadMapConfig(On.DevInterface.MapPage.orig_LoadMapConfig orig, MapPage self)
         {
             string customFilePath = string.Empty;
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
+
+			// Iterate backwards, leaving the first activated region as filePath, but loading the info from the rest.
+            for (int i = CustomWorldMod.activatedPacks.Count-1; i >= 0; i--)
             {
+				KeyValuePair<string, string> keyValues = CustomWorldMod.activatedPacks.ElementAt(i);
 				customFilePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
 					"World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +					self.owner.game.world.name;
 
                 if (Directory.Exists(customFilePath))
                 {
-                    self.filePath = customFilePath + Path.DirectorySeparatorChar + "map_" + self.owner.game.world.name + ".txt"; 
-					CustomWorldMod.Log($"[DEV] New map filepath for [{keyValues.Value}]");
-					break;
-                }
+                    string mapPath = customFilePath + Path.DirectorySeparatorChar + "map_" + self.owner.game.world.name + ".txt"; 
+					if (File.Exists(mapPath))
+					{
+						CustomWorldMod.Log($"[DEV] New map filepath for [{keyValues.Value}]");
+						self.filePath = mapPath;
+						orig(self);
+					}
+				}
             }
-            orig(self);
+            
         }
         public static void SaveCustomMapConfig(MapPage self, string customPropertiesFilePath)
         {
