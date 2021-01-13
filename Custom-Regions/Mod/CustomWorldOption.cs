@@ -79,8 +79,6 @@ namespace CustomRegions.Mod
                 }
             }
             catch (Exception e) { CustomWorldMod.Log("Error getting downloadButton " + e, true); }
-
-
         }
 
         public override void Signal(UItrigger trigger, string signal)
@@ -251,7 +249,7 @@ namespace CustomRegions.Mod
                     update = raindb && !activated && pack.checksum != null && pack.checksum != string.Empty && !pack.checksum.Equals(CustomWorldMod.installedPacks[pack.name].checksum);
                 }
                 catch { CustomWorldMod.Log("Error checking the checksum for updates"); }
-                Color colorEdge = activated ? Custom.HSL2RGB(UnityEngine.Random.Range(0.1f,0.75f), 0.4f, 0.75f) : new Color((108f / 255f), 0.001f, 0.001f);
+                Color colorEdge = activated ? Color.white : new Color((108f / 255f), 0.001f, 0.001f);
                 Color colorInverse = Color.white;
                 /*
                 if (raindb)
@@ -362,9 +360,16 @@ namespace CustomRegions.Mod
                     hslColors.Clear();
 
                     colorInverse = Color.Lerp(Custom.HSL2RGB((medianHue + 0.5f) % 1f, averageSat, averageLight), Color.white, 0.175f);
-                    if ( (activated || raindb) && (medianHue > 0.1f && medianHue < 0.9f) )
+                    if ( (activated || raindb)  )
                     {
-                        colorEdge = Color.Lerp(Custom.HSL2RGB(medianHue, averageSat, averageLight), Color.white, 0.175f);
+                        if ((medianHue > 0.1f && medianHue < 0.9f))
+                        {
+                            colorEdge = Color.Lerp(Custom.HSL2RGB(medianHue, averageSat, averageLight), Color.white, 0.175f);
+                        }
+                        else
+                        {
+                            colorEdge = Custom.HSL2RGB(UnityEngine.Random.Range(0.1f, 0.75f), 0.4f, 0.75f);
+                        }
                     }
 
                     newTex.SetPixels(convertedImage);
@@ -579,6 +584,10 @@ namespace CustomRegions.Mod
             if (errorLog.Equals(string.Empty))
             {
                 errorLog = "After running loading the game once, any problems will show here.";
+            }
+            else
+            {
+                errorTabWarning = true;
             }
 
             OpLabel errorLabel = new OpLabelLong(new Vector2(25, 540), new Vector2(550, 20), "", true, FLabelAlignment.Center)
