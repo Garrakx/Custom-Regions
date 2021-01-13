@@ -64,7 +64,7 @@ namespace CustomRegions
                 if (!foundTemplate && File.Exists(Custom.RootFolderDirectory() + filePath))
                 {
                     self.filePath = Custom.RootFolderDirectory() + filePath;
-                    //CustomWorldMod.Log($"Using vanilla template at [{self.filePath}] since custom was not found");
+                    CustomWorldMod.Log($"Using vanilla template at [{self.filePath}] since custom was not found", false, CustomWorldMod.DebugLevel.FULL);
                 }
 
             }

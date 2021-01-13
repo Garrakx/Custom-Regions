@@ -33,6 +33,30 @@ namespace CustomRegions.CWorld
             // DEBUG
             //On.WorldLoader.MappingRooms += WorldLoader_MappingRooms;
             On.WorldLoader.Update += WorldLoader_Update;
+            On.WorldLoader.CreatingAbstractRooms += WorldLoader_CreatingAbstractRooms;
+            On.WorldLoader.LoadAbstractRoom += WorldLoader_LoadAbstractRoom;
+        }
+
+        private static System.Diagnostics.Stopwatch absRoomLoadWatch = null;
+        private static void WorldLoader_LoadAbstractRoom(On.WorldLoader.orig_LoadAbstractRoom orig, World world, string roomName, AbstractRoom room, RainWorldGame.SetupValues setupValues)
+        {
+            absRoomLoadWatch.Reset();
+            absRoomLoadWatch.Start();
+            orig(world, roomName, room, setupValues);
+            absRoomLoadWatch.Stop();
+            /*
+            DateTime date = new DateTime(absRoomWatch.ElapsedTicks);
+            CustomWorldMod.Log($"[WorldLoader]: Loading AbstractRoom [{roomName}]. Time Elapsed [{date.ToString("s.ffff")}s]", false, CustomWorldMod.DebugLevel.FULL);
+            */
+        }
+
+        private static void WorldLoader_CreatingAbstractRooms(On.WorldLoader.orig_CreatingAbstractRooms orig, WorldLoader self)
+        {
+            absRoomLoadWatch.Start();
+            orig(self);
+            absRoomLoadWatch.Stop();
+            DateTime date = new DateTime(absRoomLoadWatch.ElapsedTicks);
+            CustomWorldMod.Log($"[WorldLoader]: AbstractRoom [{self.roomAdder[self.cntr][0]}]. Time Elapsed [{date.ToString("s.ffff")}s]", false, CustomWorldMod.DebugLevel.FULL);
         }
 
         private static WorldLoader.Activity activity = WorldLoader.Activity.Finished;
@@ -46,7 +70,7 @@ namespace CustomRegions.CWorld
                 if (activityWatch != null)
                 {
                     DateTime date = new DateTime(activityWatch.ElapsedTicks);
-                    CustomWorldMod.Log($"[WorldLoader]: World [{self.worldName}] Activity [{activity}]. Time Elapsed [{date.ToString("s.ffff")}s]");
+                    CustomWorldMod.Log($"[WorldLoader]: World [{self.worldName}] Activity [{activity}]. Time Elapsed [{date.ToString("s.ffff")}s]", false, CustomWorldMod.DebugLevel.FULL);
                 }
                 activity = self.activity;
                 activityWatch = new System.Diagnostics.Stopwatch();
@@ -58,7 +82,7 @@ namespace CustomRegions.CWorld
             if (self.Finished)
             {
                 DateTime date2 = new DateTime(worldLoaderWatch.ElapsedTicks);
-                CustomWorldMod.Log($"[WorldLoader]: Finished loading world [{self.worldName}]. Total time Elapsed [{date2.ToString("m:s.ffff")}s]");
+                CustomWorldMod.Log($"[WorldLoader]: Finished loading world [{self.worldName}]. Total time Elapsed [{date2.ToString("s.ffff")}s]", false, CustomWorldMod.DebugLevel.RELEASE);
             }
         }
 
@@ -75,7 +99,7 @@ namespace CustomRegions.CWorld
             if (!oldLine.Equals(default(WorldDataLine)))
             {
                 // Connection exited already, skipping...
-                //CustomWorldMod.Log("Connection already existed, skipping...");
+                //CustomWorldMod.Log("Connection already existed, skipping...", false, CustomWorldMod.DebugLevel.FULL);
                 return oldLines;
             }
             ///-------------------------------------------------------------------------------------///
@@ -299,7 +323,7 @@ namespace CustomRegions.CWorld
                     if (index == -1)
                     {
                         oldLines.Add(newWorldDataLine.Value);
-                        //CustomWorldMod.Log($"Final action: add new line [{newWorldDataLine.Value.line}]");
+                        CustomWorldMod.Log($"Final action: add new line [{newWorldDataLine.Value.line}]", false, CustomWorldMod.DebugLevel.MEDIUM);
                     }
                     else
                     {
@@ -429,7 +453,7 @@ namespace CustomRegions.CWorld
             bool lineage = false;
             string roomNameNewLine = string.Empty;
 
-            //CustomWorldMod.Log($"Custom Regions: Adding new creature spawn [{newCreatureLine}]]");
+            CustomWorldMod.Log($"Custom Regions: Adding new creature spawn [{newCreatureLine}]]", false, CustomWorldMod.DebugLevel.FULL);
 
             if (newCreatureLine.Contains("OFFSCREEN"))
             {
@@ -573,7 +597,7 @@ namespace CustomRegions.CWorld
                             {
                                 if (oldLines.connectedDens.Length <= i || oldLines.connectedDens[i] == null)
                                 {
-                                    //CustomWorldMod.Log($"[CREATURESMERGING]: Empty pipe, filling with [{newLines.connectedDens[i]}]"); ;
+                                    CustomWorldMod.Log($"[CREATURESMERGING]: Empty pipe, filling with [{newLines.connectedDens[i]}]", false, CustomWorldMod.DebugLevel.FULL);
                                     shouldAdd = true;
                                 }
                                 else if (isVanilla)
@@ -758,7 +782,8 @@ namespace CustomRegions.CWorld
              catch (Exception e) { CustomWorldMod.CustomWorldLog($"Custom Reginons: Error ar WorldLoaderCtor [{e}]"); }
              */
             worldLoaderWatch = new Stopwatch();
-            
+            absRoomLoadWatch = new Stopwatch();
+
             string pathRegion = string.Concat(new object[]
             {
                 Custom.RootFolderDirectory(),

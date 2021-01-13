@@ -43,7 +43,6 @@ namespace CustomRegions.CustomMenu
                 if (!File.Exists(path))
                 {
                     //CustomWorldMod.CustomWorldLog($"Custom Regions: File does not exist [{path}]");
-                    //CustomWorldMod.Log($"Custom Regions: Loading arena image from [{keyValues.Key}]");
 
                     //Remove Custom.RootFolderDirectory(), "Levels", Path.DirectorySeparatorChar,
                     stringToRemove = Custom.RootFolderDirectory() + "Levels" + Path.DirectorySeparatorChar;
@@ -54,7 +53,7 @@ namespace CustomRegions.CustomMenu
                     //Remove after text
                     found = path.IndexOf("_");
                     if (found > 0)
-                    { path = path.Substring(0, found); ; }
+                    { path = path.Substring(0, found); }
 
                     foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                     {

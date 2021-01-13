@@ -234,22 +234,10 @@ namespace CustomRegions.Mod
 
         public static bool OfflineMode { get; set; } = File.Exists(Custom.RootFolderDirectory() + resourcePath + "offline.txt");
 
-        /*
-        /// <summary>
-        /// Script that downloads thumbnails
-        /// </summary>
-        public static ThumbnailDownloader thumbnailDownloader;
+        
+        public enum DebugLevel {RELEASE, MEDIUM, FULL}
 
-        /// <summary>
-        /// Script that fetchs packs information
-        /// </summary>
-        public static PackFetcher packFetcher;
-        /// <summary>
-        /// Script that downloads region packs
-        /// </summary>
-        public static PackDownloader packDownloader;
-        */
-
+        public const DebugLevel debugLevel = DebugLevel.MEDIUM;
 
         /// <summary>
         /// Method used for translating with Config Machine
@@ -404,7 +392,7 @@ namespace CustomRegions.Mod
         /// <summary>
         /// Appends the provided string to the log. If log file doesn't exist, create it.
         /// </summary>
-        public static void Log(string test)
+        public static void Log(string logText)
         {
             if (!File.Exists(Custom.RootFolderDirectory() + "customWorldLog.txt"))
             {
@@ -415,7 +403,7 @@ namespace CustomRegions.Mod
             {
                 using (StreamWriter file = new StreamWriter(Custom.RootFolderDirectory() + "customWorldLog.txt", true))
                 {
-                    file.WriteLine(test);
+                    file.WriteLine(logText);
                 }
             }
             catch (Exception e)
@@ -427,14 +415,22 @@ namespace CustomRegions.Mod
         /// <summary>
         /// Appends the provided string to the log. If log file doesn't exist, create it. Bool indicates if you want to log into exceptionlog as well
         /// </summary>
-        public static void Log(string test, bool throwException)
+        public static void Log(string logText, bool throwException)
         {
             if (throwException)
             {
-                Debug.LogError("[CustomRegions] " + test);
-                test = "[ERROR] " + test;
+                Debug.LogError("[CustomRegions] " + logText);
+                logText = "[ERROR] " + logText;
             }
-            Log(test);
+            Log(logText);
+        }
+
+        public static void Log(string logText, bool throwException, DebugLevel minDebugLevel)
+        {
+            if (minDebugLevel <= CustomWorldMod.debugLevel)
+            {
+                Log(logText, throwException);
+            }
         }
 
         /// <summary>
@@ -1386,12 +1382,19 @@ namespace CustomRegions.Mod
                         }
                         try
                         {
-                            CustomWorldMod.levelUnlocks.Add(levelNames[j], unlockID);
-                            CustomWorldMod.Log($"Added new level unlock: [{levelNames[j]}-{unlockID}]");
+                            if (!CustomWorldMod.levelUnlocks.ContainsKey(levelNames[j]))
+                            {
+                                CustomWorldMod.levelUnlocks.Add($"{levelNames[j]}", unlockID);
+                                CustomWorldMod.Log($"Added new level unlock: [{levelNames[j]}-{unlockID}]");
+                            }
+                            else
+                            {
+                                CustomWorldMod.Log($"Duplicated arena name from two packs! [{levelNames[j]}]", true);
+                            }
                         }
                         catch (Exception e)
                         {
-                            CustomWorldMod.Log($"Error loading level unlock ID [{e}]", true);
+                            CustomWorldMod.Log($"Error adding level unlock ID [{levelNames[j]}] [{e}]", true);
                         }
                     }
 
@@ -1596,10 +1599,10 @@ namespace CustomRegions.Mod
             foreach (KeyValuePair<string, RegionPack> entry in CustomWorldMod.installedPacks)
             {
                 string thumbPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + entry.Value.folderName + Path.DirectorySeparatorChar + "thumb.png";
-                Log("Thumbnail path " + thumbPath);
+                Log("Thumbnail path " + thumbPath, false, DebugLevel.FULL);
                 if (File.Exists(thumbPath))
                 {
-                    Log($"Loading local thumb for [{entry.Value.name}] - {entry.Value.thumbUrl} (Folder [{thumbPath}])");
+                    Log($"Loading local thumb for [{entry.Value.name}] - {entry.Value.thumbUrl} (Folder [{thumbPath}])", false, DebugLevel.MEDIUM);
                     byte[] fileData;
                     fileData = File.ReadAllBytes(thumbPath);
                     downloadedThumbnails.Add(entry.Value.name, fileData);
@@ -1610,7 +1613,7 @@ namespace CustomRegions.Mod
                     {
                         try
                         {
-                            Log($"Queue thumb for [{entry.Value.name}] - {entry.Value.thumbUrl} (Folder [{thumbPath}])");
+                            Log($"Queue thumb for [{entry.Value.name}] - {entry.Value.thumbUrl} (Folder [{thumbPath}])", false, DebugLevel.MEDIUM);
                             thumbInfo.Add(entry.Value.name, entry.Value.thumbUrl);
                         }
                         catch (Exception e) { Log($"Error queuing thumbs [{e}] [{entry.Value.thumbUrl}]", true); }
@@ -1626,7 +1629,7 @@ namespace CustomRegions.Mod
                 {
                     try
                     {
-                        Log($"Queue raindb thumb {entry.Value.name} - {entry.Value.thumbUrl}");
+                        Log($"Queue raindb thumb {entry.Value.name} - {entry.Value.thumbUrl}", false, DebugLevel.MEDIUM);
                         thumbInfo.Add(entry.Value.name, entry.Value.thumbUrl);
                     }
                     catch (Exception e) { Log($"Error queuing thumbs [{e}] [{entry.Value.thumbUrl}]", true); }
