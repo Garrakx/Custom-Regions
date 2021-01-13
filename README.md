@@ -1,27 +1,29 @@
 
-# [PRE-RELEASE] Custom-Regions
+# [PRE-RELEASE] Custom Regions Support
 
 ## Lets you install and browse region packs without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms
 
-![Custom Regions!]()
+![Custom Regions!](./Images/CRS_thumb.jpg)  
+  
 (soon)[Spanish guide here
-<img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/flag-spain_1f1ea-1f1f8.png" alt="drawing" width="40"/>]()
+<img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/flag-spain_1f1ea-1f1f8.png" alt="drawing" width="40"/>](link)
 
-[Russian guide here 
+(outdated)[Russian guide here 
 <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="40"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-RU.md)
 
-[French guide here 
+(outdated)[French guide here 
 <img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="40"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-FR.md)
 
 ## <a name="index"></a>Index
+
 1) [Introduction and FAQ](#FAQ)
 2) [Installing the CRS Mod](index1)
 3) [Installing a Region Pack](#index2)
 4) [Uninstalling a Region Pack](#index3)
-4) [CRS Pack Screen](#browser)
-5) [How does it work?](#index4)
-6) [Region merging](#index5)
-7) [For modders:](#index6)
+5) [CRS Pack Screen](#browser)
+6) [How does it work?](#index4)
+7) [Region merging](#index5)
+8) [For modders:](#index6)
     * [FOLDER STRUCTURE](#folder)
     * [COMPATIBILITY BETWEEN TWO PACKS](#compatibility)
     * [PUBLISH YOUR PACK](#publish)
@@ -31,13 +33,14 @@
     * [THUMBNAILS](#thumb)
     * [ALBINO / COLORED CREATURES](#colors)
     * [ARENA UNLOCKS](#arenaUnlock)
-8) [Known issues](#issues)
-9) [Credits](#credits)
+9) [Known issues](#issues)
+10) [Credits](#credits)
+11) [Changelog](#changelog)
 
 ### <a name="FAQ"></a>Introduction and FAQ
 
 * **What's Custom Regions Mod?**  
-Custom Regions Support (Custom Regions Mod or CRS) main goal is to install custom modded regions without altering the game files. This means that the installation is more straightforward and uninstallation is now possible. Additionally, CRS tries to merge region packs so you can install multiple at the same time.
+Custom Regions Support (aka `Custom Regions Mod` or simply `CRS`) main goal is to install custom modded regions without altering the game files. This means that the installation is more straightforward and uninstallation is now possible. Additionally, CRS tries to merge region packs so you can install multiple at the same time.
 * **What's a region pack?**  
 A region pack (or just pack) is a mod that contains one or more modded regions, or alternativly, just modifications to vanilla regions. This means you a pack could add two new regions to the game, and also modify the existing vanilla regions.
 In terms of compatibility, any region pack made with the outdated method of merging with the vanilla files will work with CRS. On the other hand, making a region pack specifically brings improvements that were not possible before.
@@ -63,11 +66,11 @@ This file contains information about the region pack. After you have made any mo
 In recent versions of CRS, the `regionInfo.json` file was upgraded to `packInfo.json`. The purpose is the same, just a change of name to unify the naming of region packs. If you are coming from a version that used the old file, it should get upgraded automatically.
 * <a name="corrupted"></a>**Corrupted saves**  
 After you change any room connections, you change the order in which the packs are loaded or you activate / deactivate any region packs, your file will be corrupted. In the best case scenario, creature dens and objets will be misplaced. In the worst case, you will not be able to load the game at all. To fix this, you have to reset progress of the save slot from the options menu.
-// RESET PROGRESS PIC
+![Reset progress option](./Images/reset_progress_button.png))
 * **Can I use CRS with a modified Rain World install? (merged regions)**  
 Short answer: no.
 Long answer: Maybe. Currently, CRS expects to have a clean installation, so things might not work as expected when you have merged region files. It is recommended that you verify your game files before using CRS.
-* **What's the hash pearl data?**  
+* <a name="hashPearls"></a>**What's the hash pearl data?**  
 CRS and other mods use Enum Extender to add new Data Pearls. However, the integer assigned to each enum depends on the system and which regions you have installed. Unfortunately, Rain World saves the pearl data ID as an integer. This means that, for example, installing a new region can cause the pearls to be shifted while loading (instead of loading The Mast pearls, the game might load Underbelly pearls). Furthermore, I could not save the pearl name as a string because this would mean that a person using the pack without CRS would crash its game (because it was expecting and integer and not a string, and the vanilla game doesn't handle this error). The solution to this was creating a hash value of the pearl name (which is an integer), and using it as an identifier to load the pearl. This hash is saved into a file because generating it from the same string on different system not always results in the same value. Any region packs distributed before this update (without the hash) will need to remove all data pearls (using devtools) and place them again, following the updated instructions below.
 * **What's RegionDownloader.exe?**  
 For technical reasons, the downloading and unzipping process is done by a separate program. If you don't want to use this program, just run CRS in offline mode (see above).
@@ -123,6 +126,10 @@ Inside the Config Machine's screen (acessed through the game's options menu) you
    1) Current installed packs: Tells you which region packs are currently installed, in which order and if they are activated / deactivated.
    2) Installation / save analyzer: This is used to give you some information about your save and your installation. It should be used only as a guide since its information might not be accurate.
    3) RainDB Browser: An online browser that displays available region packs. [More info](#browser)
+
+	Accesing the config screen
+
+![Accesing the config screen menu](./Images/config_screen_location.png)
 
 ### <a name="index4"></a>How does it work?
 
@@ -380,3 +387,41 @@ CR adds the ability to add custom data pearls without any code, and even include
 ### <a name="credits"></a>Credits
 
  Please be patient with bugs and errors. Thanks to LeeMoriya for helping and suggestions. Thanks to Thalber and LB Gamer for the translations. Thanks Slime_Cubed for the idea of using a separate process to download the packs. Thanks to carrotpudding, LB Gamer, Precipitator, Stereo and laura for testing.
+
+### <a name="changelog"></a>Changelog
+
+#### [0.8.40] - January 2021
+
+#### Changes
+
+* Upgraded from `regionInfo.json` to `packInfo.json`.
+* Custom/modded regions are now called region packs.
+* You can configure the Black Salamander spawn chance. [More info](#colors)
+* Overhauled the region pack screen.
+* Region packs can now be downloaded and installed in-game.
+* Custom Decals can now be selected from Devtools.
+* Added custom resource loading to WWW ctor hook.
+* Added Multiplayer Unlocks.
+* Added extra multiplayer items to campaign (VultureMaks, Oversser carcasses, reliable rocks...).
+* Packs with no regions will not longer count torwards the Wanderer Achievement.
+* DataPearls type are stored as hash, recovered when loaded (higlight color in pearls is no longer optional) # DATAPEARLS NEED TO BE SAVED AGAIN. [More info](#hashPearls).
+
+#### Fixes
+
+* Optimized and fixed dataPearls Conversation: Output if the region needs to be updated, Moon won't tell you that she has already read some pearls.
+* Fixed crash when a region pack did not have `Regions` folder.
+* Fixed a bug where not including ROOMS tag would prevent from loading creatures or bat blockages.
+* Fixed a bug in which region gates requeriments wouldn't load.
+* Fixed a crash with custom variations.
+* Fixed devtools map tab (again)
+* Fixed a crash with FastTravel screen.
+
+#### Technical
+
+* CRS will trim pack label on pack screen when too long.
+* CRS detects which modloader you are using.
+* CustomAssets is no longer required.
+* Rewritten merging algorithm: more stable, faster and more reliable.
+* Pack name will show in slugcat selection screen.
+* Added debug levels for log output (internal).
+* Changed name conventions, remove unnecesary `using`, added comments.
