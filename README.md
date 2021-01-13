@@ -30,6 +30,7 @@
     * [CUSTOM DATA PEARLS](#pearls)
     * [THUMBNAILS](#thumb)
     * [ALBINO / COLORED CREATURES](#colors)
+    * [ARENA UNLOCKS](#arenaUnlock)
 8) [Known issues](#issues)
 9) [Credits](#credits)
 
@@ -39,7 +40,7 @@
 Custom Regions Support (Custom Regions Mod or CRS) main goal is to install custom modded regions without altering the game files. This means that the installation is more straightforward and uninstallation is now possible. Additionally, CRS tries to merge region packs so you can install multiple at the same time.
 * **What's a region pack?**  
 A region pack (or just pack) is a mod that contains one or more modded regions, or alternativly, just modifications to vanilla regions. This means you a pack could add two new regions to the game, and also modify the existing vanilla regions.
-In terms of compatibility, any region pack made with the outdated method of mergin with the vanilla files will work with CRS. On the other hand, making a region pack specifically brings improvements that were not possible before.
+In terms of compatibility, any region pack made with the outdated method of merging with the vanilla files will work with CRS. On the other hand, making a region pack specifically brings improvements that were not possible before.
 * **What's a region?**  
 Yes, I know this is obvious but let's go over the definition: a region is a recopilation of rooms, separated by gates, which has a two-letter acronym, and it's own `world_XX.txt` file. A region pack can include several regions.
 * <a name="browser"></a>**The in-game pack browser**  
@@ -57,8 +58,8 @@ This file contains information about the region pack. After you have made any mo
   * <u>`thumbURL`</u>: Link to a png file which will be used in the CRS overview screen (the config screen). [More info](#index6.6).
   * <u>`version`</u>: The version of the pack. CRS will add "v" before what appears here, so `"1.5"`will be shown as `v1.5`.
   * <u>`requirements`</u>: A written description of any additional dll requirements this pack needs. `"Requires BetterRainbows.dll and ColoredLight.dll."`
-  * <u>`checksum`</u>: Unique string of characters and numbers generated from all the `Properties.txt` and `world_xx.txt` files. This means that if any of these files is altered or deleted, or if you add new files, the checksum will change. It is used to see if the region pack has received any modifications. If empty, CRS will generate a new one with the current files.
-* <a name="regionInfo"></a>**Difference between`packInfo.json` and `regionInfo.json`**  
+  * <u>`checksum`</u>: Unique string of characters and numbers generated from all the `Properties.txt` and `world_xx.txt` files. This means that if any of these files is altered or deleted, or if you add new files, the checksum will change. It is used to see if the region pack has received any modifications. This field is updated everytime you reload/refresh the region packs.
+* <a name="regionInfo"></a>**Difference between `packInfo.json` and `regionInfo.json`**  
 In recent versions of CRS, the `regionInfo.json` file was upgraded to `packInfo.json`. The purpose is the same, just a change of name to unify the naming of region packs. If you are coming from a version that used the old file, it should get upgraded automatically.
 * <a name="corrupted"></a>**Corrupted saves**  
 After you change any room connections, you change the order in which the packs are loaded or you activate / deactivate any region packs, your file will be corrupted. In the best case scenario, creature dens and objets will be misplaced. In the worst case, you will not be able to load the game at all. To fix this, you have to reset progress of the save slot from the options menu.
@@ -70,8 +71,10 @@ Long answer: Maybe. Currently, CRS expects to have a clean installation, so thin
 CRS and other mods use Enum Extender to add new Data Pearls. However, the integer assigned to each enum depends on the system and which regions you have installed. Unfortunately, Rain World saves the pearl data ID as an integer. This means that, for example, installing a new region can cause the pearls to be shifted while loading (instead of loading The Mast pearls, the game might load Underbelly pearls). Furthermore, I could not save the pearl name as a string because this would mean that a person using the pack without CRS would crash its game (because it was expecting and integer and not a string, and the vanilla game doesn't handle this error). The solution to this was creating a hash value of the pearl name (which is an integer), and using it as an identifier to load the pearl. This hash is saved into a file because generating it from the same string on different system not always results in the same value. Any region packs distributed before this update (without the hash) will need to remove all data pearls (using devtools) and place them again, following the updated instructions below.
 * **What's RegionDownloader.exe?**  
 For technical reasons, the downloading and unzipping process is done by a separate program. If you don't want to use this program, just run CRS in offline mode (see above).
-* **What's `(packName).crpack'?**  
+* **What's `(packName).crpack`?**  
 This is a temporal file used by the RegionDownloader.exe. You can change the extension to .zip and open it, you will see it is just the zipped pack. You can safely delete this file if you want to.
+* **Why is the tab blinking?**
+If it is the browser tab, it means you have an updated available for a pack. If it is the analyzer tab, it means it found an error.
 
 ### <a name="index1"></a>Installing the CRS Mod
 
@@ -167,7 +170,7 @@ CRS loads multiple region packs from an external browser, and merges them in run
 ### <a name="index5"></a> Connection merging
 
 The mod will try to merge all the region packs so they are compatible:
-![Mergin visualized](https://cdn.discordapp.com/attachments/473881110695378964/670463211060985866/unknown.png)  
+![Merging visualized](https://cdn.discordapp.com/attachments/473881110695378964/670463211060985866/unknown.png)  
 If the world_XX.txt file of Mod 1 looks like:
 
 ```json
@@ -358,9 +361,15 @@ CR adds the ability to add custom data pearls without any code, and even include
 * Leaving an empty string ("") next to the color means to use vanilla.
 * Black salamander chance is a number between 0-1 (i.e: `0.3`) and determines the chance a salamander to spawn as its black variance. 1 will mean a 100% change (all salamanders will be black).
 
-### <a name="colors"></a>ARENA UNLOCKS
-// todo
-=======
+### <a name="arenaUnlock"></a>ARENA UNLOCKS
+
+1. Create a file called `customUnlocks.txt` and place it inside your `/PackFolder/Levels/` next to all the arenas.
+2. Inside this file, you must put the region acronym in which the arena will be unlocked, followed by all the arenas that will be unlocked.
+	Example:
+	```
+	RW : Mycelium, Tower
+	```
+3. Place the Arena unlock object from devtools in the region you indicated.
 
 ### <a name="issues"></a>Known issues
 
