@@ -8,8 +8,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Modded regions support for Rain World")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Garrakx")]
-[assembly: AssemblyProduct("Custom-Regions")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyProduct("Custom-Regions-Support")]
+[assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -20,7 +20,7 @@ namespace CustomRegions
                 bool usingBepinex = false;
                 foreach (System.Reflection.Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    if (assembly.GetName().Name.Equals("BepInEx.MonoMod.Loader") || assembly.GetName().Name.Equals("BepInEx"))
+                    if (assembly.GetName().Name.Equals("BepInEx.MonoMod.Loader") || assembly.GetName().Name.Contains("BepInEx"))
                     {
                         usingBepinex = true;
                         break;
