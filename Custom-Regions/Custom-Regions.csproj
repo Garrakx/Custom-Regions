@@ -55,10 +55,15 @@
   <!--Nothing need be done if your references are already in 'C:\Rain World References' though.-->
   <Import Condition="Exists('user.targets')" Project="user.targets" />
   <ItemGroup>
-    <Reference Include="$(ReferencePath)\Assembly-CSharp.dll" />
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>$(ReferencePath)\Assembly-CSharp.dll</HintPath>
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
+    <Reference Include="HOOKS-Assembly-CSharp">
+      <HintPath>$(ReferencePath)\HOOKS-Assembly-CSharp.dll</HintPath>
+    </Reference>
     <Reference Include="$(ReferencePath)\ConfigMachine.dll" />
     <Reference Include="$(ReferencePath)\EnumExtender.dll" />
-    <Reference Include="$(ReferencePath)\HOOKS-Assembly-CSharp.dll" />
     <Reference Include="$(ReferencePath)\UnityEngine.dll" />
     <Reference Include="lib\MonoMod.exe" />
     <Reference Include="lib\MonoMod.RuntimeDetour.dll" />
