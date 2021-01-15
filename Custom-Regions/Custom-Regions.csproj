@@ -61,13 +61,24 @@
     </Reference>
     <Reference Include="HOOKS-Assembly-CSharp">
       <HintPath>$(ReferencePath)\HOOKS-Assembly-CSharp.dll</HintPath>
+      <SpecificVersion>false</SpecificVersion>
     </Reference>
-    <Reference Include="$(ReferencePath)\ConfigMachine.dll" />
-    <Reference Include="$(ReferencePath)\EnumExtender.dll" />
+    <Reference Include="$(ReferencePath)\ConfigMachine.dll">
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
+    <Reference Include="$(ReferencePath)\EnumExtender.dll">
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
+    <Reference Include="lib\MonoMod.exe">
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
+    <Reference Include="lib\MonoMod.RuntimeDetour.dll">
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
+    <Reference Include="lib\Partiality.dll">
+      <SpecificVersion>false</SpecificVersion>
+    </Reference>
     <Reference Include="$(ReferencePath)\UnityEngine.dll" />
-    <Reference Include="lib\MonoMod.exe" />
-    <Reference Include="lib\MonoMod.RuntimeDetour.dll" />
-    <Reference Include="lib\Partiality.dll" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
