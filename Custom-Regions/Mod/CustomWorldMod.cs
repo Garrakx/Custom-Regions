@@ -237,7 +237,7 @@ namespace CustomRegions.Mod
         
         public enum DebugLevel {RELEASE, MEDIUM, FULL}
 
-        public const DebugLevel debugLevel = DebugLevel.MEDIUM;
+        public const DebugLevel debugLevel = DebugLevel.FULL;
 
         /// <summary>
         /// Method used for translating with Config Machine
@@ -288,7 +288,6 @@ namespace CustomRegions.Mod
                             try
                             {
                                 EnumExtender.AddDeclaration(typeof(MenuScene.SceneID), "Landscape_" + newRegion);
-                                EnumExtender.AddDeclaration(typeof(MultiplayerUnlocks.LevelUnlockID), newRegion);
                             }
                             catch (Exception e)
                             {
@@ -310,6 +309,14 @@ namespace CustomRegions.Mod
                 catch (Exception e) { CustomWorldMod.Log($"Error while trying to add customRegion: {e}", true); }
             }
 
+            // Add declaration of LevelUnlockIDs
+            var disctinctIDs = CustomWorldMod.levelUnlocks.Values.Distinct();
+            foreach (string unlockID in disctinctIDs)
+            {
+                EnumExtender.AddDeclaration(typeof(MultiplayerUnlocks.LevelUnlockID), unlockID);
+                CustomWorldMod.Log($"Adding declaration LevelUnlockID [{unlockID}]", false, DebugLevel.FULL);
+            }
+
             try
             {
                 EnumExtender.ExtendEnumsAgain();
@@ -320,7 +327,7 @@ namespace CustomRegions.Mod
                 Log($"Extending SceneID enum ... [{string.Join(", ", debug.ToArray())}]");
 
                 string[] names2 = Enum.GetNames(typeof(MultiplayerUnlocks.LevelUnlockID));
-                names2 = names2.Skip(names2.Length - CustomWorldMod.activeModdedRegions.Count).ToArray();
+                names2 = names2.Skip(names2.Length - disctinctIDs.ToList().Count).ToArray();
                 List<string> debug2 = new List<string>(names2);
                 Log($"Extending LevelUnlockID enum ... [{string.Join(", ", debug2.ToArray())}]");
 
@@ -1304,12 +1311,8 @@ namespace CustomRegions.Mod
                         regionConfiguration.regionID = new DirectoryInfo(regionDir).Name;
 
                         // Load region information
-                        CustomWorldMod.Log($"Adding configuration for region [{regionConfiguration.regionID}] from [{packInfo.name}]");/* - " +
-                        $"Albino Leviathan [{regionConfiguration.albinoLevi}] Albino JetFish [{regionConfiguration.albinoJet}] " +
-                        $"Kelp Color [{regionConfiguration.kelpColor.Value.r},{regionConfiguration.kelpColor.Value.g}, {regionConfiguration.kelpColor.Value.b}]" +
-                        $" BLL color [{regionConfiguration.bllColor.Value.r},{regionConfiguration.bllColor.Value.g}, {regionConfiguration.bllColor.Value.b}] " +
-                        $"Black Salamander chance [{regionConfiguration.blackSalamanderChance * 100f}%]");
-                        */
+                        CustomWorldMod.Log($"Adding configuration for region [{regionConfiguration.regionID}] from [{packInfo.name}]");
+                        
                         if (packInfo.name != string.Empty)
                         {
                             try
@@ -1399,7 +1402,6 @@ namespace CustomRegions.Mod
                     }
 
                 }
-
             }
             else
             {
@@ -1494,27 +1496,11 @@ namespace CustomRegions.Mod
                      "   \"requirements\": \"" + pack.requirements + "\", \n" +
                      "   \"checksum\": \"" + pack.checksum + "\" \n" +
                      "}";
-                /*
-                                int i = 1;
-                                foreach (KeyValuePair<string, CustomRegion> keyValues in pack.newRegions)
-                                {
-                                    CustomRegion region = keyValues.Value;
-                                    json += ",\n " +
-                                        $"\"region{i}\": " + "{\n" +
-                                        "   \"regionID\": \"" + region.regionID + "\", \n" +
-                                        "   \"loadOrder\": \"" + region.loadOrder + "\" \n" +
-                                         "}";
-                                    i++;
-                                }
-                                json += "\n}";
-                */
                 sw.WriteLine(json);
             }
         }
 
-
-
-
+        // Unused
         public static void WriteRegionConfigJSONFile(string dirPath, bool leviAlbino, bool jetfishAlbino,
             string shortcutColor, string kelpColor, string bllColor, int blackSalChance)
         {
@@ -1537,7 +1523,12 @@ namespace CustomRegions.Mod
         }
 
 
-
+        /// <summary>
+        /// Upgrades from old regionInfo.json to packInfo.json
+        /// </summary>
+        /// <param name="regionInfoDictionary"></param>
+        /// <param name="pack"></param>
+        /// <param name="dir"></param>
         public static void UpgradeToRegionPack(Dictionary<string, object> regionInfoDictionary, ref RegionPack pack, string dir)
         {
             List<string> obtainedInfo = new List<string>();
