@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CustomRegions</RootNamespace>
-    <AssemblyName>CustomRegions</AssemblyName>
+    <AssemblyName>CustomRegionsSupport</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -33,29 +33,31 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Rain World References\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\References\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="ConfigMachine, Version=1.4.4.3, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ConfigMachine, Version=1.4.4.4, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Rain World References\ConfigMachine.dll</HintPath>
+      <HintPath>..\References\ConfigMachine.dll</HintPath>
     </Reference>
-    <Reference Include="EnumExtender">
-      <HintPath>C:\Rain World References\EnumExtender.dll</HintPath>
+    <Reference Include="EnumExtender, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\EnumExtender.dll</HintPath>
     </Reference>
     <Reference Include="MonoMod, Version=18.6.0.33005, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Rain World References\MonoMod.exe</HintPath>
+      <HintPath>..\References\MonoMod.exe</HintPath>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour, Version=18.6.0.33006, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Rain World References\MonoMod.RuntimeDetour.dll</HintPath>
+      <HintPath>..\References\MonoMod.RuntimeDetour.dll</HintPath>
     </Reference>
     <Reference Include="Partiality, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Rain World References\Partiality.dll</HintPath>
+      <HintPath>..\References\Partiality.dll</HintPath>
     </Reference>
-    <Reference Include="public-HOOKS-Assembly-CSharp">
-      <HintPath>C:\Rain World References\public-HOOKS-Assembly-CSharp.dll</HintPath>
+    <Reference Include="public-HOOKS-Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\public-HOOKS-Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -65,47 +67,57 @@
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Rain World References\UnityEngine.dll</HintPath>
+      <HintPath>..\References\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArenaCreatureSpawnerHook.cs" />
+    <Compile Include="Arena\ArenaCreatureSpawnerHook.cs" />
+    <Compile Include="Arena\MultiplayerUnlocksHook.cs" />
     <Compile Include="Creatures\BigEelHook.cs" />
     <Compile Include="Creatures\DaddyLongLegsHook.cs" />
     <Compile Include="Creatures\LizardGraphicsHook.cs" />
     <Compile Include="Creatures\TentaclePlantGraphicsHook.cs" />
-    <Compile Include="CustomDecalHook.cs" />
     <Compile Include="CustomMenu\FastTravelScreenHook.cs" />
     <Compile Include="CustomPearls\DataPearlHook.cs" />
+    <Compile Include="CustomPearls\PlacedObjectHook.cs" />
     <Compile Include="CustomPearls\SLOracleBehaviorHasMarkHook.cs" />
+    <Compile Include="DevInterface\CustomDecalRepresentationHook.cs" />
     <Compile Include="DevInterface\MapPageHook.cs" />
     <Compile Include="DevInterface\MapRenderOutputHook.cs" />
+    <Compile Include="EnumExtender.cs" />
+    <Compile Include="MainLoopProcessHook.cs" />
+    <Compile Include="Mod\ApplyAllHooks.cs" />
     <Compile Include="Mod\CustomWorldStructs.cs" />
+    <Compile Include="Mod\Scripts.cs" />
     <Compile Include="Music\ProceduralMusicInstructionsHook.cs" />
-    <Compile Include="WaterGateHook.cs" />
+    <Compile Include="World\RegionStateHook.cs" />
+    <Compile Include="World\WaterGateHook.cs" />
     <Compile Include="HUDs\MapHook.cs" />
     <Compile Include="CustomMenu\MenuIllustrationHook.cs" />
     <Compile Include="CustomMenu\MenuSceneHook.cs" />
     <Compile Include="Mod\CRExtras.cs" />
     <Compile Include="Mod\CustomWorldMod.cs" />
     <Compile Include="Mod\CustomWorldOption.cs" />
-    <Compile Include="CustomMenu\MainMenuHook.cs" />
     <Compile Include="CustomMenu\MultiplayerMenuHook.cs" />
     <Compile Include="Music\MusicPieceHook.cs" />
-    <Compile Include="OverWorldHook.cs" />
+    <Compile Include="World\OverWorldHook.cs" />
     <Compile Include="PlayerProgressionHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RainWorldHook.cs" />
-    <Compile Include="RegionGateHook.cs" />
-    <Compile Include="RegionHook.cs" />
+    <Compile Include="World\RegionGateHook.cs" />
+    <Compile Include="World\RegionHook.cs" />
     <Compile Include="RoomCameraHook.cs" />
     <Compile Include="RoomHook.cs" />
     <Compile Include="RoomSettingsHook.cs" />
     <Compile Include="CustomMenu\SlugcatSelectMenuHook.cs" />
     <Compile Include="SaveStateHook.cs" />
     <Compile Include="WinStateHook.cs" />
-    <Compile Include="WorldHook.cs" />
-    <Compile Include="WorldLoaderHook.cs" />
+    <Compile Include="World\WorldHook.cs" />
+    <Compile Include="World\WorldLoaderHook.cs" />
+    <Compile Include="WWWHook.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>call "$(SolutionDir)..\References\build.bat"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -17,10 +17,10 @@
 ## <a name="index"></a>Index
 
 1) [Introduction and FAQ](#FAQ)
-2) [Installing the CRS Mod](index1)
+2) [Installing the CRS Mod](#index1)
 3) [Installing a Region Pack](#index2)
 4) [Uninstalling a Region Pack](#index3)
-5) [CRS Pack Screen](#browser)
+5) [CRS Pack Screen](#browserScreen)
 6) [How does it work?](#index4)
 7) [Region merging](#index5)
 8) [For modders:](#index6)
@@ -58,7 +58,7 @@ This file contains information about the region pack. After you have made any mo
   * <u>`activated`</u>: Whether the pack is activated or not.
   * <u>`loadOrder`</u>: It determines (relatively to other packs) the order in which this region pack will be loaded. 
   * <u>`regions`</u>: Two-letter acronym of the **new** (not present in vanilla) regions that this pack includes, separated by commas. For example: `"GA, MH"`. **Note:** your pack might not include any new regions if it is only meant to modify the vanilla regions.
-  * <u>`thumbURL`</u>: Link to a png file which will be used in the CRS overview screen (the config screen). [More info](#index6.6).
+  * <u>`thumbURL`</u>: Link to a png file which will be used in the CRS overview screen (the config screen). [More info](#browser).
   * <u>`version`</u>: The version of the pack. CRS will add "v" before what appears here, so `"1.5"`will be shown as `v1.5`.
   * <u>`requirements`</u>: A written description of any additional dll requirements this pack needs. `"Requires BetterRainbows.dll and ColoredLight.dll."`
   * <u>`checksum`</u>: Unique string of characters and numbers generated from all the `Properties.txt` and `world_xx.txt` files. This means that if any of these files is altered or deleted, or if you add new files, the checksum will change. It is used to see if the region pack has received any modifications. This field is updated everytime you reload/refresh the region packs.
@@ -66,7 +66,7 @@ This file contains information about the region pack. After you have made any mo
 In recent versions of CRS, the `regionInfo.json` file was upgraded to `packInfo.json`. The purpose is the same, just a change of name to unify the naming of region packs. If you are coming from a version that used the old file, it should get upgraded automatically.
 * <a name="corrupted"></a>**Corrupted saves**  
 After you change any room connections, you change the order in which the packs are loaded or you activate / deactivate any region packs, your file will be corrupted. In the best case scenario, creature dens and objets will be misplaced. In the worst case, you will not be able to load the game at all. To fix this, you have to reset progress of the save slot from the options menu.
-![Reset progress option](./Images/reset_progress_button.png))
+![Reset progress option](./Images/reset_progress_button.png)
 * **Can I use CRS with a modified Rain World install? (merged regions)**  
 Short answer: no.
 Long answer: Maybe. Currently, CRS expects to have a clean installation, so things might not work as expected when you have merged region files. It is recommended that you verify your game files before using CRS.
@@ -120,7 +120,7 @@ Option a). Go to `Rain World\Mods\CustomResources\Your Region\packInfo.json` and
 
 Option b). Delete the folder created in step 2 (`i.e. Rain World\Mods\CustomResources\Underbelly`)
 
-### <a name="browser"></a>CRS Pack Screen
+### <a name="browserScreen"></a>CRS Pack Screen
 Inside the Config Machine's screen (acessed through the game's options menu) you will find the Pack Browser viewer. This menu has 3 tabs:
 
    1) Current installed packs: Tells you which region packs are currently installed, in which order and if they are activated / deactivated.
@@ -295,7 +295,7 @@ CRS will fetch and update the local description, thumbnail and author from the f
 	```
 	
 4) If your pack requires additional .dll files, place them in the `PackDependencies` folder. CRS will automatically move them to either plugin folder (if the user is using BepInEx) or to the Mods folder.
-5) Upload your file to [mediafire.com](https://www.mediafire.com/) (a free acount is required). For technical reasons, Mediafire is the only site that was compatible.
+5) Upload your file to [mediafire.com](https://www.mediafire.com/) (a free account is required). For technical reasons, Mediafire is the only site that was compatible.
 6) Contact me with the download link (i.e. `https://www.mediafire.com/file/abunchofcharacters/RegionPackName.zip/file`) and the checksum you wrote down.
 
 ### <a name="art"></a>REGION ART
@@ -371,12 +371,15 @@ CR adds the ability to add custom data pearls without any code, and even include
 ### <a name="arenaUnlock"></a>ARENA UNLOCKS
 
 1. Create a file called `customUnlocks.txt` and place it inside your `/PackFolder/Levels/` next to all the arenas.
-2. Inside this file, you must put the region acronym in which the arena will be unlocked, followed by all the arenas that will be unlocked.
+2. Inside this file, you must put an identifier for the unlock, followed by all the arenas that will be unlocked.
 	Example:
 	```
-	RW : Mycelium, Tower
+	RW1 : Mycelium, Tower
+	RW2 : Arena2, Arena3, Arena4
 	```
-3. Place the Arena unlock object from devtools in the region you indicated.
+3. Place the Arena unlock object(s) from devtools.
+
+Note: you can have multiple unlocks per region.
 
 ### <a name="issues"></a>Known issues
 
@@ -386,7 +389,7 @@ CR adds the ability to add custom data pearls without any code, and even include
 
 ### <a name="credits"></a>Credits
 
- Please be patient with bugs and errors. Thanks to LeeMoriya for helping and suggestions. Thanks to Thalber and LB Gamer for the translations. Thanks Slime_Cubed for the idea of using a separate process to download the packs. Thanks to carrotpudding, LB Gamer, Precipitator, Stereo and laura for testing.
+ Please be patient with bugs and errors. Thanks to LeeMoriya for helping and suggestions. Thanks to Thalber and LB Gamer for the translations. Thanks Slime_Cubed for the idea of using a separate process to download the packs. Thanks to carrotpudding, LB Gamer, Precipitator, Stereo and laura for testing. Thanks dual curly potato noodles for suggestions on how to make the repo more collaboration friendly.
 
 ### <a name="changelog"></a>Changelog
 
@@ -404,7 +407,7 @@ CR adds the ability to add custom data pearls without any code, and even include
 * Added Multiplayer Unlocks.
 * Added extra multiplayer items to campaign (VultureMaks, Oversser carcasses, reliable rocks...).
 * Packs with no regions will not longer count torwards the Wanderer Achievement.
-* DataPearls type are stored as hash, recovered when loaded (higlight color in pearls is no longer optional) # DATAPEARLS NEED TO BE SAVED AGAIN. [More info](#hashPearls).
+* DataPearls type are stored as hash, recovered when loaded (highlight color in pearls is no longer optional) # DATAPEARLS NEED TO BE SAVED AGAIN. [More info](#hashPearls).
 
 #### Fixes
 

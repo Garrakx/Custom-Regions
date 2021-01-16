@@ -364,3 +364,6 @@ RegionPackDownloader/HttpClientDownloadWithProgress.cs
 Custom-Regions/Custom-Regions.sln
 Custom-Regions/Custom-Regions.csproj
 >>>>>>> Stashed changes
+References/*
+!References/README.md
+changes.txt
