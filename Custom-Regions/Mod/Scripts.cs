@@ -32,7 +32,7 @@ namespace CustomRegions.Mod
 
         public virtual void Clear() { CustomWorldMod.Log($"Clearing [{this.name}] [{this.ID}]"); }
 
-        public virtual void Log(string log, bool error) { CustomWorldMod.Log($"[{this.name}] {log}", error); }
+        public virtual void Log(string log, bool error) { CustomWorldMod.Log($"[{this.name}] {log}", error, CustomWorldMod.DebugLevel.MEDIUM); }
 
         public virtual void Log(string log) { Log(log, false); }
 
