@@ -317,7 +317,8 @@ namespace CustomRegions.Mod
                     Texture2D newTex = new Texture2D(oldTex.width, oldTex.height, TextureFormat.RGBA32, false);
                     Color[] convertedImage = oldTex.GetPixels();
                     List<HSLColor> hslColors = new List<HSLColor>();
-                    for (int c = 0; c < convertedImage.Length; c++)
+                    int numberOfPixels = convertedImage.Length;
+                    for (int c = 0; c < numberOfPixels; c++)
                     {
                         // Change opacity if not active
                         if (!activated && !raindb)
@@ -325,7 +326,7 @@ namespace CustomRegions.Mod
                             convertedImage[c].a *= 0.65f;
                         }
                         HSLColor hslColor = CRExtras.RGB2HSL(convertedImage[c]);
-                        if (hslColor.saturation > 0.15f && hslColor.lightness > 0.3 && hslColor.lightness < 0.9f)
+                        if (hslColor.saturation > 0.25 && hslColor.lightness > 0.25 && hslColor.lightness < 0.75f)
                         {
                             hslColors.Add(hslColor);
                         }
@@ -348,29 +349,34 @@ namespace CustomRegions.Mod
                     var sortedColors = hslColors.OrderBy(x => x.hue);
                     if (half != 0 && half < sortedColors.Count())
                     {
-                        if ((hslColors.Count % 2) == 0)
+                        try
                         {
-                            medianHue = (sortedColors.ElementAt(half).hue + sortedColors.ElementAt((half - 1) / 2).hue);
-                        }
-                        else
-                        {
-                            medianHue = sortedColors.ElementAt(half).hue;
-                        }
+                            if ((hslColors.Count % 2) == 0)
+                            {
+                                medianHue = (sortedColors.ElementAt(half).hue + sortedColors.ElementAt(half - 1).hue) / 2;
+                            }
+                            else
+                            {
+                                medianHue = sortedColors.ElementAt(half).hue;
+                            }
+                        } catch (Exception e) { CustomWorldMod.Log($"Cannot calculate median hue [{e}] for [{pack.name}]", true); }
                     }
-                    hslColors.Clear();
 
                     colorInverse = Color.Lerp(Custom.HSL2RGB((medianHue + 0.5f) % 1f, averageSat, averageLight), Color.white, 0.175f);
                     if ( (activated || raindb)  )
                     {
-                        if ((medianHue > 0.1f && medianHue < 0.9f))
+                        if (averageSat > 0.15f)
                         {
-                            colorEdge = Color.Lerp(Custom.HSL2RGB(medianHue, averageSat, averageLight), Color.white, 0.175f);
+                            colorEdge = Color.Lerp(Custom.HSL2RGB(medianHue, averageSat, Mathf.Lerp(averageLight, 0.6f, 0.5f)), Color.white, 0.175f);
                         }
                         else
                         {
                             colorEdge = Custom.HSL2RGB(UnityEngine.Random.Range(0.1f, 0.75f), 0.4f, 0.75f);
                         }
+                        CustomWorldMod.Log($"Color for [{pack.name}] - MedianHue [{medianHue}] averageSat [{averageSat}] averagelight [{averageLight}] - Number of pixels [{numberOfPixels}] " +
+                                $"Colors [{hslColors.Count()}]", false, CustomWorldMod.DebugLevel.FULL);
                     }
+                    hslColors.Clear();
 
                     newTex.SetPixels(convertedImage);
                     newTex.Apply();
