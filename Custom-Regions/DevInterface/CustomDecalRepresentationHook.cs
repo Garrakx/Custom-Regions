@@ -36,6 +36,10 @@ namespace CustomRegions.DevInterface
                     if (customDecalFiles == null) { customDecalFiles = new List<string>(); }
                     foreach(FileInfo file in directoryInfo.GetFiles())
                     {
+                        if (!file.Name.Contains(".png"))
+                        {
+                            continue;
+                        }
                         string decalName = file.Name.Substring(0, file.Name.IndexOf(".png"));
                         if (!file.Name.Contains("meta") && !customDecalFiles.Contains(decalName) && !self.decalFiles.Contains(decalName)) 
                         {
