@@ -65,7 +65,7 @@ This file contains information about the region pack. After you have made any mo
 * <a name="regionInfo"></a>**Difference between `packInfo.json` and `regionInfo.json`**  
 In recent versions of CRS, the `regionInfo.json` file was upgraded to `packInfo.json`. The purpose is the same, just a change of name to unify the naming of region packs. If you are coming from a version that used the old file, it should get upgraded automatically.
 * <a name="corrupted"></a>**Corrupted saves**  
-After you change any room connections, you change the order in which the packs are loaded or you activate / deactivate any region packs, your file will be corrupted. In the best case scenario, creature dens and objets will be misplaced. In the worst case, you will not be able to load the game at all. To fix this, you have to reset progress of the save slot from the options menu.
+After you change any room connections, you change the order in which the packs are loaded or you activate / deactivate any region packs, your file will be corrupted. In the best case scenario, creature dens and objets will be misplaced. In the worst case, you will not be able to load the game at all. To fix this, you have to reset progress of the save slot from the options menu.  
 ![Reset progress option](./Images/reset_progress_button.png)
 * **Can I use CRS with a modified Rain World install? (merged regions)**  
 Short answer: no.
