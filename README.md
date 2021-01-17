@@ -2,7 +2,7 @@
 # [PRE-RELEASE] Custom Regions Support
 
 ## Lets you install and browse region packs without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms
-
+![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)  ![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)  
 ![Custom Regions!](./Images/CRS_thumb.jpg)  
   
 (soon)[Spanish guide here
