@@ -81,7 +81,7 @@ namespace CustomRegions
                     }
                     else
                     {
-                        CustomWorldMod.Log($"Error loading settings file for [{self.name}] - [{regularRoomPath}]");
+                        CustomWorldMod.Log($"Missing settings file for [{self.name}] - [{regularRoomPath}]", false, CustomWorldMod.DebugLevel.FULL);
                     }
                     /*
                     try

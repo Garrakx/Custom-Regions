@@ -109,10 +109,10 @@ namespace CustomRegions.Mod
                 }
                 int spacing = 25;
 
-                Vector2 rectSize = new Vector2(475, 30);
+                Vector2 rectSize = new Vector2(500-spacing, 30);
                 OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfNews)));
-                Vector2 rectPos = new Vector2(spacing, mainScroll.contentSize - rectSize.y - spacing);
-                Vector2 labelSize = new Vector2(rectSize.x - 2 * spacing, rectSize.y - 2 * spacing);
+                Vector2 rectPos = new Vector2(spacing/2, mainScroll.contentSize - rectSize.y - spacing);
+                Vector2 labelSize = new Vector2(rectSize.x - spacing, rectSize.y - 2 * spacing);
                 Tabs[tab].AddItems(mainScroll);
 
                 for (int i = 0; i < numberOfNews; i++)
