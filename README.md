@@ -1,6 +1,6 @@
 
 # Custom Regions Support
-
+***
 ## Lets you install and browse region packs without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms
 [![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)](https://twitter.com/garrakx)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/)
 ![Custom Regions!](./Images/CRS_thumb.jpg)  
@@ -29,6 +29,7 @@ Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3
 9) [Known issues](#issues)
 10) [Credits](#credits)
 11) [Changelog](#changelog)
+***
 
 ### <a name="FAQ"></a>Introduction and FAQ
 
@@ -72,6 +73,7 @@ This is a temporal file used by the RegionDownloader.exe. You can change the ext
 * **Why is the tab blinking?**
 If it is the browser tab, it means you have an updated available for a pack. If it is the analyzer tab, it means it found an error.
 
+***
 ### <a name="index1"></a>Installing the CRS Mod
 
 1) BEFORE USING ANY MODS, MAKE A BACK UP OF YOUR SAVES (located in the `Rain World\UserData` folder)
@@ -80,6 +82,7 @@ If it is the browser tab, it means you have an updated available for a pack. If 
 4) Apply **all** (`CustomRegions.dll`, `EnumExtender.dll`, and finally `ConfigMachine.dll`) mods inside [DOWNLOAD_THIS_Custom-Regions-vX.X.zip](https://github.com/Garrakx/Custom-Regions/releases/) file. You will receive updates automatically. (Note: CustomAssets.dll is no longer required).
 5) You are done!
 
+***
 ### <a name="index2"></a>Installing a Region Pack
 
  ***Attention:** Most instructions from the modded regions are outdated. If you want to use Custom Regions Mod, you should follow these instructions.*
@@ -107,12 +110,14 @@ If you want to install a Region Pack using the in-game browser, just click the d
 
 6) If you go to the config screen aka CRS pack overview, you can see the order in which pack are loaded and if they are enabled (disabled regions will appear with a dark thumbnail, in red, and a "disabled" label).
 
+***
 ### <a name="index3"></a>Uninstalling a Region Pack (two options, pick one)
 
 Option a). Go to `Rain World\Mods\CustomResources\Your Region\packInfo.json` and set activated to false.
 
 Option b). Delete the folder created in step 2 (`i.e. Rain World\Mods\CustomResources\Underbelly`)
 
+***
 ### <a name="browserScreen"></a>CRS Pack Screen
 Inside the Config Machine's screen (acessed through the game's options menu) you will find the Pack Browser viewer. This menu has 3 tabs:
 
@@ -124,6 +129,7 @@ Inside the Config Machine's screen (acessed through the game's options menu) you
 
 ![Accesing the config screen menu](./Images/config_screen_location.png)
 
+***
 ### <a name="index4"></a>How does it work?
 
 Before CRS, the only way of installing region packs was by merging the modded files with the vanilla installation, altering the game files. This resulted in poor compatibility between region packs, and the only way of uninstalling packs was reinstalling the whole game.
@@ -167,6 +173,7 @@ CRS loads multiple region packs from an external browser, and merges them in run
 	CRS has overwritten the ROOM1, ROOM3 and ROOM4 connections, and added the new one SHELTER1.
 3) **Important:** After a vanilla connection has been merged, any following packs will try to merge instead of overwriting it. In the example above, we can see that the connection of ROOM5 was not altered by the first region pack, so it is still considered vanilla. This means that if the second region pack modifies it, it will overwrite it. On the other hand, if the second pack tries to modify the ROOM3 connections, since it was altered by the first pack, it is no longer considered vanilla so it will be merged instead of overwritten.
 
+***
 ### <a name="index5"></a> Connection merging
 
 The mod will try to merge all the region packs so they are compatible:
@@ -196,6 +203,7 @@ C: A
 D: A
 ```
 
+***
 ### <a name="index6"></a>Useful information for modders
 
 * CR will compare each room connection. If your room connection is being compared to a vanilla connection (i.e. it is the first one to load or the only one installed), it will replace completly the vanilla connection with the modded one.
@@ -374,16 +382,19 @@ CR adds the ability to add custom data pearls without any code, and even include
 
 Note: you can have multiple unlocks per region.
 
+***
 ### <a name="issues"></a>Known issues
 
 * Due to Rain World savefile system, you need to clear you save slot if you uninstall / install new regions, or change the load order.
 * When using the in-game pack downloader, it is normal for it to fail a couple of times. Just retry until it succeeds.
 * The in-game map sometimes doesn't work.
 
+***
 ### <a name="credits"></a>Credits
 
  Please be patient with bugs and errors. Thanks to LeeMoriya for helping and suggestions. Thanks to Thalber and LB Gamer for the translations. Thanks Slime_Cubed for the idea of using a separate process to download the packs. Thanks to carrotpudding, LB Gamer, Precipitator, Stereo and laura for testing. Thanks dual curly potato noodles for suggestions on how to make the repo more collaboration friendly.
 
+***
 ### <a name="changelog"></a>Changelog
 
 #### [0.8.40] - January 2021
