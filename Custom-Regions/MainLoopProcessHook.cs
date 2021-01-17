@@ -16,17 +16,18 @@ namespace CustomRegions
             //foreach(CustomRegionScript script in CustomWorldMod.scripts)
             for (int i = CustomWorldMod.scripts.Count - 1; i >= 0; i--)
             {
-                CustomRegionScript script = CustomWorldMod.scripts[i];
+                CustomWorldScript script = CustomWorldMod.scripts[i];
                 {
                     if (script != null)
                     {
                         if (script.readyToDelete)
                         {
                             script.Clear();
-                            CustomWorldMod.Log($"Destroying script [{script.name}]");
+                            //CustomWorldMod.Log($"Destroying script [{script.name}]");
                             //UnityEngine.Object.Destroy(script);
                             CustomWorldMod.scripts.Remove(script);
                             script = null;
+                            CustomWorldMod.Log($"Scripts count [{CustomWorldMod.scripts.Count}]");
                         }
                         else
                         {

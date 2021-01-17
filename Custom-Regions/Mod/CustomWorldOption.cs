@@ -4,8 +4,10 @@ using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using static CustomRegions.Mod.CustomWorldStructs;
 
@@ -29,7 +31,7 @@ namespace CustomRegions.Mod
             updateAvailableTabWarning = false;
             errorTabWarning = false;
 
-            Tabs = new OpTab[3];
+            Tabs = new OpTab[4];
             Tabs[0] = new OpTab("Main Tab");
             MainTabRedux(0);
 
@@ -38,11 +40,99 @@ namespace CustomRegions.Mod
 
             Tabs[2] = new OpTab("Browse RainDB");
             PackBrowser(2);
+
+            Tabs[3] = new OpTab("News");
+            NewsTab(3);
+        }
+
+        private void NewsTab(int tab)
+        {
+            // Header
+            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), $"News Feed".ToUpper(), FLabelAlignment.Center, true);
+            Tabs[tab].AddItems(labelID);
+
+            OpLabel labelDsc = new OpLabel(new Vector2(100f, 540), new Vector2(400f, 20f), $"Latest news for CRS", FLabelAlignment.Center, false);
+            Tabs[tab].AddItems(labelDsc);
+
+            List<UIelement> news = new List<UIelement>();
+            if (File.Exists(Custom.RootFolderDirectory() + "customNewsLog.txt")) 
+            {
+                DateTime current = DateTime.UtcNow.Date;
+                CustomWorldMod.Log($"Reading news feed, current time [{current.ToString("dd/MM/yyyy")}]");
+                string[] lines = File.ReadAllLines(Custom.RootFolderDirectory() + "customNewsLog.txt");
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].Contains(News.IGNORE) || lines[i].Equals(string.Empty)) { continue; }
+                    bool bigText = false;
+                    string lastUpdate = string.Empty;
+                    TimeSpan diff;
+                    if (lines[i].Contains(News.DATE)) 
+                    {
+                        if (!updatedNews)
+                        {
+                            try
+                            {
+                                DateTime newsDate = DateTime.ParseExact(lines[i].Replace(News.DATE, ""), "dd/MM/yyyy", null);
+                                diff = current - newsDate;
+                                lastUpdate = newsDate.ToShortDateString();
+                                CustomWorldMod.Log($"News date [{lastUpdate}], difference [{diff.TotalDays}]");
+                                if (Math.Abs(diff.TotalDays) < 7)
+                                {
+                                    updatedNews = true;
+                                }
+
+                            }
+                            catch (Exception e) { CustomWorldMod.Log($"Error reading the date time in news feed [{lines[i].Replace(News.DATE, "")}] - [{e}]", true); }
+                        }
+                        continue;
+                    }
+                    if (lines[i].Contains(News.BIGTEXT)) { bigText = true; lines[i] = lines[i].Replace(News.BIGTEXT, ""); }
+
+                    if(bigText)
+                    {
+                        news.Add(new OpLabel(default(Vector2), default(Vector2), lines[i], FLabelAlignment.Center, true));
+                    }
+                    else
+                    {
+                        news.Add(new OpLabelLong(default(Vector2), default(Vector2), lines[i], true, FLabelAlignment.Left));
+                    }
+                }
+
+                //How Many Options
+                int numberOfNews = news.Count;
+
+                if (numberOfNews < 1)
+                {
+                    OpLabel label2 = new OpLabel(new Vector2(100f, 350), new Vector2(400f, 20f), "No news found.", FLabelAlignment.Center, false);
+                    Tabs[tab].AddItems(label2);
+                    return;
+                }
+                int spacing = 25;
+
+                Vector2 rectSize = new Vector2(475, 30);
+                OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfNews)));
+                Vector2 rectPos = new Vector2(spacing, mainScroll.contentSize - rectSize.y - spacing);
+                Vector2 labelSize = new Vector2(rectSize.x - 2 * spacing, rectSize.y - 2 * spacing);
+                Tabs[tab].AddItems(mainScroll);
+
+                for (int i = 0; i < numberOfNews; i++)
+                {
+
+                    UIelement label = news[i];
+                    label.pos = rectPos + new Vector2(spacing, spacing);
+                    label.size = labelSize;
+
+                    mainScroll.AddItems(label);
+                    rectPos.y -= rectSize.y + spacing;
+
+                }
+            }
         }
 
         static List<UIelement> currentWindowPopUp = null;
         private bool updateAvailableTabWarning;
         private bool errorTabWarning;
+        private bool updatedNews = false;
 
         float counter = 0;
         public override void Update(float dt)
@@ -76,6 +166,12 @@ namespace CustomRegions.Mod
                         }
                     }
 
+                }
+
+                if (updatedNews)
+                {
+                    OpTab news = Tabs.First(x => x.name.ToLower().Contains("news"));
+                    news.color = Color.Lerp(Color.white, Color.blue, 0.5f * (0.65f - Mathf.Sin(counter + Mathf.PI)));
                 }
             }
             catch (Exception e) { CustomWorldMod.Log("Error getting downloadButton " + e, true); }

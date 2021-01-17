@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 namespace CustomRegions.Mod
@@ -235,6 +238,26 @@ namespace CustomRegions.Mod
                 this.secondaryColor = secondaryColor;
                 this.packName = packName;
             }
+        }
+
+        public struct News
+        {
+            public const string IGNORE = "[ignr]";
+            public const string BIGTEXT = "[bgTxT]";
+            public const string DATE = "[dte]";
+
+            /*
+            public DateTime date;
+            public string text;
+            public string type;
+
+            public News(DateTime date, string text, string type)
+            {
+                this.date = date;
+                this.text = text;
+                this.type = type;
+            }
+            */
         }
     }
 }

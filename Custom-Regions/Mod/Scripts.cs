@@ -18,12 +18,12 @@ using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions.Mod
 {
-    public abstract class CustomRegionScript
+    public abstract class CustomWorldScript
     {
         public bool readyToDelete;
         public string name;
         public int ID;
-        public CustomRegionScript()
+        public CustomWorldScript()
         {
             this.ID = (int)(UnityEngine.Random.Range(1, int.MaxValue));
         }
@@ -43,7 +43,7 @@ namespace CustomRegions.Mod
     /// <summary>
     /// Script to launch Console that downloads regions 
     /// </summary>
-    public class PackDownloader : CustomRegionScript
+    public class PackDownloader : CustomWorldScript
     {
         public string stringStatus;
         public string packName;
@@ -322,7 +322,7 @@ namespace CustomRegions.Mod
         */
     }
 
-    public class ExeUpdater : CustomRegionScript
+    public class ExeUpdater : CustomWorldScript
     {
         bool needsUpdate;
         bool needsDownload;
@@ -471,9 +471,8 @@ namespace CustomRegions.Mod
     /// <summary>
     /// Script to download missing thumbnails
     /// </summary>
-    public class ThumbnailDownloader : CustomRegionScript
+    public class ThumbnailDownloader : CustomWorldScript
     {
-
         int currentThumb;
         WWW www;
         bool next;
@@ -588,7 +587,7 @@ namespace CustomRegions.Mod
         }
     }
 
-    public class PackFetcher : CustomRegionScript
+    public class PackFetcher : CustomWorldScript
     {
         WWW www;
         //public Dictionary<string, RegionPack> packs;
@@ -674,6 +673,64 @@ namespace CustomRegions.Mod
             }
             catch (Exception e) { Log(e.Message, true); }
             */
+        }
+    }
+
+    public class NewsFetcher : CustomWorldScript
+    {
+        WWW www;
+        bool ready;
+        string url;
+
+        public NewsFetcher(string url)
+        {
+            this.name = "NewsFetcher";
+            this.Init();
+            ready = false;
+            this.url = url;
+            this.www = new WWW(this.url);
+        }
+
+        public override void Clear()
+        {
+            base.Clear();
+            this.www.Dispose();
+        }
+
+
+        public override void Log(string log, bool error)
+        {
+            base.Log(log, error);
+        }
+
+        public override void Log(string log)
+        {
+            base.Log(log);
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            if (url == null || readyToDelete)
+            {
+                readyToDelete = true;
+                return;
+            }
+            if (!string.IsNullOrEmpty(www.error))
+            {
+                Log(www.error, true);
+                readyToDelete = true;
+            }
+            else if (www.isDone && !ready)
+            {
+                ready = true;
+                using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + "customNewsLog.txt"))
+                {
+                    sw.WriteLine($"{CustomWorldStructs.News.IGNORE}Custom News Log {CustomWorldMod.versionCR} \n");
+                    sw.WriteLine(www.text);
+                    readyToDelete = true;
+                }
+            }
         }
     }
 
