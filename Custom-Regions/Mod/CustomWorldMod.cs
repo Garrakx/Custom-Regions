@@ -106,13 +106,13 @@ namespace CustomRegions.Mod
             Hooks.ApplyAllHooks();
 
             // Create exe updater
-            if (scripts.FindAll(x => x is ExeUpdater).Count == 0) 
+            if (scripts.FindAll(x => x is ExeUpdater).Count == 0 && !OfflineMode) 
             { 
                 CustomWorldMod.scripts.Add(new ExeUpdater(CustomWorldMod.hashOnlineUrl, CustomWorldMod.executableUrl));
             }
 
             // Grab news
-            if (scripts.FindAll(x=> x is NewsFetcher).Count == 0)
+            if (scripts.FindAll(x=> x is NewsFetcher).Count == 0 && !OfflineMode)
             {
                 CustomWorldMod.scripts.Add(new NewsFetcher(CustomWorldMod.newsUrl));
             }

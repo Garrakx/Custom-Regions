@@ -40,16 +40,16 @@
 ### <a name="FAQ"></a>Introduction and FAQ
 
 * **What's Custom Regions Mod?**  
-Custom Regions Support (aka `Custom Regions Mod` or simply `CRS`) main goal is to install custom modded regions without altering the game files. This means that the installation is more straightforward and uninstallation is now possible. Additionally, CRS tries to merge region packs so you can install multiple at the same time.
+Custom Regions Support (aka `Custom Regions Mod` or simply `CRS`) main goal is to install custom modded regions without altering the game files. This means that the installation is more straightforward and uninstallation is now possible. Additionally, CRS merges region packs so you can install multiple at the same time.
 * **What's a region pack?**  
-A region pack (or just pack) is a mod that contains one or more modded regions, or alternativly, just modifications to vanilla regions. This means you a pack could add two new regions to the game, and also modify the existing vanilla regions.
+A region pack (or just pack) is a mod that contains one or more modded regions, or alternatively, just modifications to vanilla regions. This means a pack could add two new regions to the game, and also modify the existing vanilla regions.
 In terms of compatibility, any region pack made with the outdated method of merging with the vanilla files will work with CRS. On the other hand, making a region pack specifically brings improvements that were not possible before.
 * **What's a region?**  
 Yes, I know this is obvious but let's go over the definition: a region is a recopilation of rooms, separated by gates, which has a two-letter acronym, and it's own `world_XX.txt` file. A region pack can include several regions.
 * <a name="browser"></a>**The in-game pack browser**  
 New in the latest updates, CRS adds an in-game region pack browser that let's you install region packs with just one click without even closing the game. If a pack is marked "unavailable", it means the author has not contacted me (Garrakx) to make the necessary arrangements to make their pack available, so let them know.
 * **How to run the mod in offline mode**  
-If you don't want the online features of CRS (pack downloader, pack infor fetcher, thumb downloader...) you can place a empty text file called `offline.txt` in your resource folder (`Mods\CustomResources\`).
+If you don't want the online features of CRS (pack downloader, pack info fetcher, thumb downloader...) you can place a empty text file called `offline.txt` in your resource folder (`Mods\CustomResources\`).
 * <a name="packInfo"></a>**What's `packInfo.json`**  
 This file contains information about the region pack. After you have made any modifications, you can restart the game to see the effects or use the `RELOAD`button located in the config screen / pack overview screen.
   * <u>`regionPackName`</u>: Name of the region pack. It's used as an identifier so it should always be the same and it shouldn't include any version numbers. For example:`"Underbelly"` (note: it doesn't have to match any in-game regions)
@@ -91,7 +91,7 @@ If it is the browser tab, it means you have an updated available for a pack. If 
 
  ***Attention:** Most instructions from the modded regions are outdated. If you want to use Custom Regions Mod, you should follow these instructions.*
 
-If you want to install a Region Pack using the in-game browser [click here](#workshop).
+If you want to install a Region Pack using the in-game browser, just click the download button and wait.
 1) Run the game once with CRS installed and activated. If everything went well, you should see a new folder inside Rain World\Mods called "`CustomResources`".
 2) Create a new folder inside Rain World\Mods\CustomResources with the name of your region pack (i.e. `Rain World\Mods\CustomResources\Underbelly`).
 3) Inside this folder (i.e. `Underbelly`) you must place the "`World`", "`Assets`" and / or "`Levels`" folders from the region pack you are installing.
@@ -408,9 +408,15 @@ Note: you can have multiple unlocks per region.
 * Added extra multiplayer items to campaign (VultureMaks, Oversser carcasses, reliable rocks...).
 * Packs with no regions will not longer count torwards the Wanderer Achievement.
 * DataPearls type are stored as hash, recovered when loaded (highlight color in pearls is no longer optional) # DATAPEARLS NEED TO BE SAVED AGAIN. [More info](#hashPearls).
+* Added ability to have multiple unlocks per region
+* Tweaked pack colors
+* Added a news feed
 
 #### Fixes
 
+* Fixed a crash when using partiality (thanks Slime_Cubed)
+* Fixed a bug with custom decals (having a file with didn't contain ".png" would crash the game)
+* Fixed a bug in which the title in the region screen would not load
 * Optimized and fixed dataPearls Conversation: Output if the region needs to be updated, Moon won't tell you that she has already read some pearls.
 * Fixed crash when a region pack did not have `Regions` folder.
 * Fixed a bug where not including ROOMS tag would prevent from loading creatures or bat blockages.
@@ -421,6 +427,7 @@ Note: you can have multiple unlocks per region.
 
 #### Technical
 
+* Add collaboration friendliness
 * CRS will trim pack label on pack screen when too long.
 * CRS detects which modloader you are using.
 * CustomAssets is no longer required.
