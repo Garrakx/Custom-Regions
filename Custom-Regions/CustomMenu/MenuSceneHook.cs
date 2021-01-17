@@ -99,10 +99,6 @@ namespace CustomRegions.CustomMenu
                              posVector.x = float.Parse(positions[number].Split(new string[] { ",", " " }, StringSplitOptions.RemoveEmptyEntries)[0]);
                              posVector.y = float.Parse(positions[number].Split(new string[] { ",", " " }, StringSplitOptions.RemoveEmptyEntries)[1]);
                          }*/
-
-
-
-
                         //self.AddIllustration(new MenuDepthIllustration(self.menu, self, self.sceneFolder, $"{name}", posVector, 4 + number, MenuDepthIllustration.MenuShader.Normal));
                         CustomWorldMod.Log($"Custom Regions: Loading MenuDepthIllustration - Name [{name}] - Position[{posVector}]");
                         illu.Add(new MenuDepthIllustration(self.menu, self, self.sceneFolder, name, posVector, 1f, MenuDepthIllustration.MenuShader.Normal));
@@ -118,17 +114,28 @@ namespace CustomRegions.CustomMenu
                 // Load positions
                 LoadScenePositionSettings(self, sceneFolder, regionID);
             }
-
-            string regionValue;
-            CustomWorldMod.activatedPacks.TryGetValue(regionID, out regionValue);
-            string path = CustomWorldMod.resourcePath + regionValue + Path.DirectorySeparatorChar;
-            string titleFolderName = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Illustrations";
-            if (self.menu.ID == ProcessManager.ProcessID.FastTravelScreen || self.menu.ID == ProcessManager.ProcessID.RegionsOverviewScreen)
+            string packName = "N/A";
+            try
             {
-                CustomWorldMod.Log($"Custom Regions: Adding Title - Name [{$"Title_{regionID}"}], path [{titleFolderName}]");
-                self.AddIllustration(new MenuIllustration(self.menu, self, titleFolderName, $"Title_{regionID}_Shadow", new Vector2(0.01f, 0.01f), true, false));
-                self.AddIllustration(new MenuIllustration(self.menu, self, titleFolderName, $"Title_{regionID}", new Vector2(0.01f, 0.01f), true, false));
-                self.flatIllustrations[self.flatIllustrations.Count - 1].sprite.shader = self.menu.manager.rainWorld.Shaders["MenuText"];
+                 packName = CustomWorldMod.installedPacks.First(x => x.Value.regions.Contains(regionID)).Value.folderName;
+            } catch { }
+
+            string path = CustomWorldMod.resourcePath + packName + Path.DirectorySeparatorChar;
+            string titleFolderName = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Illustrations"+ Path.DirectorySeparatorChar;
+            if (Directory.Exists(titleFolderName))
+            {
+                if (self.menu.ID == ProcessManager.ProcessID.FastTravelScreen || self.menu.ID == ProcessManager.ProcessID.RegionsOverviewScreen)
+                {
+                    CustomWorldMod.Log($"Custom Regions: Adding Title - Name [{$"Title_{regionID}"}], path [{titleFolderName}]");
+                    self.AddIllustration(new MenuIllustration(self.menu, self, titleFolderName, $"Title_{regionID}_Shadow", new Vector2(0.01f, 0.01f), true, false));
+                    self.AddIllustration(new MenuIllustration(self.menu, self, titleFolderName, $"Title_{regionID}", new Vector2(0.01f, 0.01f), true, false));
+                    self.flatIllustrations[self.flatIllustrations.Count - 1].sprite.shader = self.menu.manager.rainWorld.Shaders["MenuText"];
+                }
+            }
+            
+            else
+            {
+                CustomWorldMod.Log($"Error finding Title directory for [{regionID}] - at [{titleFolderName}]", true);
             }
         }
 
