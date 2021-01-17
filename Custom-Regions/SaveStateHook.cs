@@ -14,7 +14,16 @@ namespace CustomRegions
             On.SaveState.LoadGame += SaveState_LoadGame;
 
             // Pearl
-            On.SaveState.AbstractPhysicalObjectFromString += SaveState_AbstractPhysicalObjectFromString;
+            if (CustomWorldMod.usingBepinex)
+            {
+                CustomWorldMod.Log($"Using regular hook for On_SaveState_AbstractPhysicalObjectFromString", false, CustomWorldMod.DebugLevel.MEDIUM);
+                On.SaveState.AbstractPhysicalObjectFromString += SaveState_AbstractPhysicalObjectFromString;
+            }
+            else
+            {
+                CustomWorldMod.Log($"Using Slime_Cubed's fix for On_SaveState_AbstractPhysicalObjectFromString. Consider switching to BepInEx");
+                APOFSFix.On_SaveState_AbstractPhysicalObjectFromString += SaveState_AbstractPhysicalObjectFromString;
+            }
         }
 
         private static AbstractPhysicalObject SaveState_AbstractPhysicalObjectFromString(On.SaveState.orig_AbstractPhysicalObjectFromString orig, World world, string objString)

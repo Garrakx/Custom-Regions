@@ -74,10 +74,28 @@ namespace CustomRegions.Mod
         {
             base.OnEnable();
 
-            //config = default;
+            bool usingBepinex = false;
+            try
+            {
+                foreach (System.Reflection.Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    if (assembly.GetName().Name.Equals("BepInEx.MonoMod.Loader") || assembly.GetName().Name.Contains("BepInEx"))
+                    {
+                        usingBepinex = true;
+                        break;
+                    }
+                }
+                CustomWorldMod.usingBepinex = usingBepinex;
+                CustomWorldMod.Log($"Using BepInEx [{usingBepinex}]");
+            }
+            catch (Exception e)
+            {
+                CustomWorldMod.Log("Error checking the modloaer " + e, true);
+            }
+
 
             // Initialize scripts
-            scripts = new List<CustomRegionScript>();
+            scripts = new List<CustomWorldScript>();
 
             CustomWorldMod.CreateCustomWorldLog();
             CustomWorldMod.CreateCustomWorldFolders();
@@ -91,6 +109,12 @@ namespace CustomRegions.Mod
             if (scripts.FindAll(x => x is ExeUpdater).Count == 0) 
             { 
                 CustomWorldMod.scripts.Add(new ExeUpdater(CustomWorldMod.hashOnlineUrl, CustomWorldMod.executableUrl));
+            }
+
+            // Grab news
+            if (scripts.FindAll(x=> x is NewsFetcher).Count == 0)
+            {
+                CustomWorldMod.scripts.Add(new NewsFetcher(CustomWorldMod.newsUrl));
             }
         }
 
@@ -153,7 +177,7 @@ namespace CustomRegions.Mod
         /// <summary>
         /// List containing Custom Regions scripts
         /// </summary>
-        public static List<CustomRegionScript> scripts;
+        public static List<CustomWorldScript> scripts;
 
         /// <summary>
         /// Dictionary with all installed regions, where the Key is the region ID and the value is a struct with its information.
@@ -190,7 +214,7 @@ namespace CustomRegions.Mod
         public readonly static string packFetcherUrl = @"http://garrakx.pythonanywhere.com/raindb.json";
         public readonly static string hashOnlineUrl = @"http://garrakx.pythonanywhere.com/executable_hash.txt";
         public readonly static string executableUrl = @"http://garrakx.pythonanywhere.com/RegionPackDownloader.exe";
-
+        public readonly static string newsUrl = @"http://garrakx.pythonanywhere.com/news.txt";
 
         /// <summary>
         /// Divider A used for CR save
@@ -237,7 +261,7 @@ namespace CustomRegions.Mod
         
         public enum DebugLevel {RELEASE, MEDIUM, FULL}
 
-        public const DebugLevel debugLevel = DebugLevel.FULL;
+        public const DebugLevel debugLevel = DebugLevel.MEDIUM;
 
         /// <summary>
         /// Method used for translating with Config Machine
