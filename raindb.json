@@ -1,0 +1,49 @@
+[
+    {
+       "regionPackName":"Aether Ridge",
+       "regions":"AR",
+       "description":"Aether Ridge is a derelict desalination rig to the north of Sky Islands. Includes over 200 new rooms, six new arenas, and more. Fully compatible with The Root and Badlands.",
+       "author":"Kaeporo",
+       "thumbURL":"http://www.raindb.net/previews/aether.png",
+       "packURL":"https://www.mediafire.com/file/y0yetm44bxakxp8/Aether_Ridge.zip/file",
+       "version":""
+    },
+    {
+       "regionPackName":"The Root",
+       "regions":"TR",
+       "description":"A new region expanding on Subterranean, and The Exterior, with all new rooms. Made to give exploration focused players more Rain World to discover.",
+       "author":"Willburd",
+       "thumbURL":"http://www.raindb.net/previews/root2.png"
+    },
+    {
+       "regionPackName":"Badlands",
+       "regions":"BL",
+       "description":"The Badlands is a region connecting Farm Arrays and Garbage Wastes. It features many secrets and unlockables, including three new arenas..",
+       "author":"Fiiiiish",
+       "thumbURL":"http://www.raindb.net/previews/badlands.png"
+    },
+    {
+       "regionPackName":"Underbelly",
+       "regions":"UB",
+       "description":"A dark and damp region connecting Outskirts, Shoreline and Farm arrays.",
+       "author":"CarrotPudding",
+       "thumbURL":"http://www.raindb.net/previews/underbelly.png"
+    },
+    {
+       "regionPackName":"Swamplands",
+       "regions":"SP",
+       "description":"A new swampy region that connects Garbage Wastes and Shoreline",
+       "author":"Fishswallower",
+       "thumbURL":"http://www.raindb.net/previews/swamp.png"
+    },
+    {
+       "regionPackName":"The Mast",
+       "regions":"TM",
+       "description":"A region consisting of a large transmission mast in the western area of the world. Adds over 250 new screens and includes creature spawns for all gamemodes, arena unlocks, and some secrets to discover.",
+       "author":"DOGGO",
+       "thumbURL":"http://www.raindb.net/previews/mast.png",
+       "packURL":"https://www.mediafire.com/file/1ynsjbj6bipbz8a/The_Mast.zip/file",
+       "requirements": "Requires The Mast.dll and BLThing.dll",
+       "version": "1.0.1"
+    }
+ ]

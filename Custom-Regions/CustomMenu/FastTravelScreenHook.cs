@@ -4,9 +4,6 @@ using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 
 
 namespace CustomRegions.CustomMenu
@@ -36,6 +33,8 @@ namespace CustomRegions.CustomMenu
                 string shelter = self.currentShelter ?? string.Empty;
                 CustomWorldMod.Log($"Initiate Region switch, called from Fast Travel ctor... [{shelter}]");
                 int num = 0;
+                string pathToVanillaRegions = Custom.RootFolderDirectory() + @"World\Regions\regions.txt";
+                /*
                 string[] array = File.ReadAllLines(string.Concat(new object[]
                 {
                     Custom.RootFolderDirectory(),
@@ -45,6 +44,8 @@ namespace CustomRegions.CustomMenu
                     Path.DirectorySeparatorChar,
                     "regions.txt"
                 }));
+                */
+                string[] array = File.ReadAllLines(pathToVanillaRegions);
 
                 array = CustomWorldMod.AddModdedRegions(array);
 
@@ -88,11 +89,11 @@ namespace CustomRegions.CustomMenu
             List<string> order = (List<string>)orig.Method.Invoke(orig.Target, new object[] { });
             /* <3 SLIME CUBED <3 */
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (string regID in CustomWorldMod.activeModdedRegions)
             {
-                if (!order.Contains(keyValues.Key))
+                if (!order.Contains(regID))
                 {
-                    order.Add(keyValues.Key);
+                    order.Add(regID);
                 }
             }
             CustomWorldMod.Log($"GETREGIONORDER SANITY CHECK ~ [{string.Join(", ", order.ToArray())}]");
@@ -109,24 +110,18 @@ namespace CustomRegions.CustomMenu
 
             //CustomWorldMod.sceneCustomID = string.Empty;
             MenuScene.SceneID ID = MenuScene.SceneID.Empty;
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
-            {
-                if (keyValues.Key.Equals(regionName))
-                {
-                    CustomWorldMod.Log($"Custom Regions: TitleSceneID {regionName}");
-                    try
-                    {
-                        ID = (MenuScene.SceneID)Enum.Parse(typeof(MenuScene.SceneID), $"Landscape_{regionName}");
 
-                    }
-                    catch (Exception e)
-                    {
-                        CustomWorldMod.Log($"Enum not found [{e}]");
-                    }
-                    break;
-                }
+            CustomWorldMod.Log($"Custom Regions: TitleSceneID {regionName}");
+            try
+            {
+                ID = (MenuScene.SceneID)Enum.Parse(typeof(MenuScene.SceneID), $"Landscape_{regionName}");
 
             }
+            catch (Exception e)
+            {
+                CustomWorldMod.Log($"Enum not found [{e}]");
+            }
+
 
             if (orig(self, regionName) == Menu.MenuScene.SceneID.Empty && ID != MenuScene.SceneID.Empty)
             {

@@ -1,33 +1,22 @@
-﻿using RWCustom;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
-using UnityEngine;
+﻿using CustomRegions.Arena;
+using CustomRegions.Creatures;
 using CustomRegions.CustomMenu;
 using CustomRegions.CustomPearls;
+using CustomRegions.CWorld;
 using CustomRegions.DevInterface;
+using CustomRegions.HUDs;
 using CustomRegions.Music;
-using CustomRegions.Creatures;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace CustomRegions.Mod
 {
-    public class CustomWorldScript : MonoBehaviour
+    static class Hooks
     {
-
-        public void Initialize()
+        public static void ApplyAllHooks()
         {
-            CustomWorldMod.script = this;
-
-            CustomWorldMod.CreateCustomWorldLog();
-            CustomWorldMod.CreateCustomWorldFolders();
-            CustomWorldMod.LoadCustomWorldResources();
-
-            CustomWorldMod.DownloadThumbs();
-
-
-            // Load from file
-            CustomWorldMod.analyzingLog = string.Empty;
-
             MapHook.ApplyHook();
             RegionGateHook.ApplyHooks();
             RegionHook.ApplyHook();
@@ -40,6 +29,7 @@ namespace CustomRegions.Mod
             // Pearl
             DataPearlHook.ApplyHooks();
             SLOracleBehaviorHasMarkHook.ApplyHooks();
+            PlacedObjectHook.ApplyHooks();
 
             // Rain world instance
             RainWorldHook.ApplyHooks();
@@ -47,17 +37,18 @@ namespace CustomRegions.Mod
             // Custom Palette
             RoomCameraHook.ApplyHook();
 
-
             // Electric gate
             RoomHook.ApplyHooks();
             WaterGateHook.ApplyHooks();
 
             // Custom Decal
-            CustomDecalHook.ApplyHook();
+            //CustomDecalHook.ApplyHook();
+
+            MainLoopProcessHook.ApplyHooks();
 
             // Scene
             FastTravelScreenHook.ApplyHooks();
-            MainMenuHook.ApplyHooks();
+            //MainMenuHook.ApplyHooks();
             MenuSceneHook.ApplyHook();
             MenuIllustrationHook.ApplyHook();
             SlugcatSelectMenuHook.ApplyHooks();
@@ -65,6 +56,7 @@ namespace CustomRegions.Mod
             // DevInterface
             MapPageHook.ApplyHooks();
             MapRenderOutputHook.ApplyHooks();
+            CustomDecalRepresentationHook.ApplyHooks();
 
             // Arena
             MultiplayerMenuHook.ApplyHook();
@@ -82,29 +74,15 @@ namespace CustomRegions.Mod
             BigEelHook.ApplyHooks();
             TentaclePlantGraphicsHook.ApplyHooks();
             DaddyLongLegsHook.ApplyHooks();
+            LizardGraphicsHook.ApplyHooks();
 
+            // WWW
+            WWWHook.ApplyHooks();
+
+            RegionStateHook.ApplyHooks();
+
+            // Unlocks ID
+            MultiplayerUnlocksHook.ApplyHooks();
         }
-
-
-        public static CustomWorldMod mod;
-        
-        public RainWorld rw;
-        public static ProcessManager pm;
-
-        
-
-
-        public void Update()
-        {
-            
-            if (rw == null)
-            {
-                rw = FindObjectOfType<RainWorld>();
-                pm = rw.processManager;
-            }
-            
-        }
-
     }
-
 }

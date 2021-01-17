@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
-using System.Linq;
-using System.Text;
 using CustomRegions.Mod;
+using UnityEngine;
 
 namespace CustomRegions
 {
@@ -12,19 +10,16 @@ namespace CustomRegions
         public static void ApplyHooks()
         {
             On.Room.AddObject += Room_AddObject;
-
-           // On.Room.Loaded += Room_Loaded;
+            On.Room.Loaded += Room_Loaded;
         }
 
-        
-        // Load VultureMask placed Object
-        /*
         private static void Room_Loaded(On.Room.orig_Loaded orig, Room self)
         {
             if (self.game == null)
             {
                 return;
             }
+
             bool firstTimeRealized = self.abstractRoom.firstTimeRealized;
             orig(self);
 
@@ -34,24 +29,93 @@ namespace CustomRegions
                 {
                     if (self.roomSettings.placedObjects[m].active)
                     {
-                        PlacedObject.Type type = self.roomSettings.placedObjects[m].type;
-                        CustomWorldMod.Log($"Checking if [{type}] is {PlacedObjectHook.EnumExt_PlacedObjectType.VultureMaskSpawn}");
-                        if (type == EnumExt_PlacedObjectType.VultureMaskSpawn)
+                        PlacedObject placedObj = self.roomSettings.placedObjects[m];
+                        //PlacedObject.Type type = placedObj.type;
+                        //CustomWorldMod.Log($"Checking if [{type}] is {EnumExt_PlacedObjectType.VultureMaskSpawn}");
+                        if (placedObj.data is PlacedObject.MultiplayerItemData && UnityEngine.Random.value <= (placedObj.data as PlacedObject.MultiplayerItemData).chance)
                         {
-                            CustomWorldMod.Log("Added abstract vulture mask");
-                            double kingVultChance = 0.01f;
-                            if (self.game.session is StoryGameSession && (self.game.session as StoryGameSession).saveState.saveStateNumber == 2)
-                                { kingVultChance = 0.1f; }
-                            EntityID newID = self.game.GetNewID();
-                            AbstractPhysicalObject item = new VultureMask.AbstractVultureMask(self.world, null, self.GetWorldCoordinate(self.roomSettings.placedObjects[m].pos), 
-                                newID, newID.RandomSeed, UnityEngine.Random.value <= kingVultChance ? true : false);
-                            self.abstractRoom.entities.Add(item);
+                            PlacedObject.MultiplayerItemData.Type typeMulti = (placedObj.data as PlacedObject.MultiplayerItemData).type;
+                            switch (typeMulti)
+                            {
+                                case PlacedObject.MultiplayerItemData.Type.Rock:
+                                   // if ((self.game.session is StoryGameSession) && !(self.game.session as StoryGameSession).saveState.ItemConsumed(self.world, false, self.abstractRoom.index, m))
+                                    {
+                                        CustomWorldMod.Log("Added abstract reliable rock");
+                                        AbstractPhysicalObject obj = new AbstractPhysicalObject(self.world, AbstractPhysicalObject.AbstractObjectType.Rock, null, self.GetWorldCoordinate(placedObj.pos), self.game.GetNewID());
+                                        self.abstractRoom.entities.Add(obj);
+                                    }
+                                    break;
+                                case PlacedObject.MultiplayerItemData.Type.ExplosiveSpear:
+                                    //if ((self.game.session is StoryGameSession) && !(self.game.session as StoryGameSession).saveState.ItemConsumed(self.world, false, self.abstractRoom.index, m))
+                                    {
+                                        CustomWorldMod.Log("Added abstract explosive spear");
+                                        AbstractPhysicalObject obj = new AbstractSpear(self.world, null, self.GetWorldCoordinate(placedObj.pos), self.game.GetNewID(), true);
+                                        self.abstractRoom.entities.Add(obj);
+                                    }
+                                    break;
+                                case PlacedObject.MultiplayerItemData.Type.Spear:
+                                    //if ((self.game.session is StoryGameSession) && !(self.game.session as StoryGameSession).saveState.ItemConsumed(self.world, false, self.abstractRoom.index, m))
+                                    {
+                                        CustomWorldMod.Log("Added abstract spear");
+                                        AbstractPhysicalObject obj = new AbstractSpear(self.world, null, self.GetWorldCoordinate(placedObj.pos), self.game.GetNewID(), false);
+                                        self.abstractRoom.entities.Add(obj);
+                                    }
+                                    break;
+                                case PlacedObject.MultiplayerItemData.Type.Bomb:
+                                   // if ((self.game.session is StoryGameSession) && !(self.game.session as StoryGameSession).saveState.ItemConsumed(self.world, false, self.abstractRoom.index, m))
+                                    {
+                                        CustomWorldMod.Log("Added abstract scavenger bomb");
+                                        AbstractPhysicalObject obj = new AbstractPhysicalObject(self.world, AbstractPhysicalObject.AbstractObjectType.ScavengerBomb, null, self.GetWorldCoordinate(placedObj.pos), self.game.GetNewID());
+                                        self.abstractRoom.entities.Add(obj);
+                                    }
+                                    break;
+                                case PlacedObject.MultiplayerItemData.Type.SporePlant:
+                                    if ((self.game.session is StoryGameSession) && !(self.game.session as StoryGameSession).saveState.ItemConsumed(self.world, false, self.abstractRoom.index, m))
+                                    {
+                                        CustomWorldMod.Log("Added abstract scavenger bomb");
+                                        AbstractPhysicalObject obj = new AbstractPhysicalObject(self.world, AbstractPhysicalObject.AbstractObjectType.SporePlant, null, self.GetWorldCoordinate(placedObj.pos), self.game.GetNewID());
+                                        self.abstractRoom.entities.Add(obj);
+                                    }
+                                    break;
+                                default:
+                                    // Extended enums go here
+                                    if (typeMulti == EnumExt_MultiplayerItemDataType.VultureMaskSpawn || typeMulti == EnumExt_MultiplayerItemDataType.KingVultureMaskSpawn)
+                                    {
+                                        CustomWorldMod.Log($"Added {(typeMulti == EnumExt_MultiplayerItemDataType.KingVultureMaskSpawn ? "king" : "")} vulture mask");
+                                        EntityID newID = self.game.GetNewID();
+                                        AbstractPhysicalObject obj = new VultureMask.AbstractVultureMask(self.world, null, self.GetWorldCoordinate(placedObj.pos),
+                                        newID, newID.RandomSeed, typeMulti == EnumExt_MultiplayerItemDataType.KingVultureMaskSpawn);
+                                        self.abstractRoom.entities.Add(obj);
+                                    }
+                                    else if (typeMulti == EnumExt_MultiplayerItemDataType.OverseerCarcassGreen)
+                                    {
+                                        CustomWorldMod.Log("Added abstract overseer green carcass");
+                                        AbstractPhysicalObject item = new OverseerCarcass.AbstractOverseerCarcass(self.world, null, self.GetWorldCoordinate(placedObj.pos), self.game.GetNewID(), new Color(0.447058827f, 0.9019608f, 0.768627465f), 0);
+                                        self.abstractRoom.entities.Add(item);
+
+                                    }
+                                    else if (typeMulti == EnumExt_MultiplayerItemDataType.OverseerCarcassBlue)
+                                    {
+                                        CustomWorldMod.Log("Added abstract overseer blue carcass");
+                                        AbstractPhysicalObject item = new OverseerCarcass.AbstractOverseerCarcass(self.world, null, self.GetWorldCoordinate(placedObj.pos), self.game.GetNewID(), new Color(0f, 1f, 0f), 2);
+                                        self.abstractRoom.entities.Add(item);
+
+                                    }
+                                    else if (typeMulti == EnumExt_MultiplayerItemDataType.OverseerCarcassYellow)
+                                    {
+                                        CustomWorldMod.Log("Added abstract overseer yellow carcass");
+                                        AbstractPhysicalObject item = new OverseerCarcass.AbstractOverseerCarcass(self.world, null, self.GetWorldCoordinate(placedObj.pos), self.game.GetNewID(), new Color(1f, 0.8f, 0.3f), 3);
+                                        self.abstractRoom.entities.Add(item);
+
+                                    }
+                                    break;
+                            }
                         }
                     }
                 }
             }
         }
-        */
+
 
         private static void Room_AddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
         {
@@ -66,35 +130,16 @@ namespace CustomRegions
                 if (self.abstractRoom.gate)
                 {
                     CustomWorldMod.Log("Water gate created, checking if it should be electric...");
-                    /*
-                    foreach (KeyValuePair<string, CustomWorldMod.RegionInformation> entries in CustomWorldMod.availableRegions)
+                    foreach (KeyValuePair<string, string> regions in CustomWorldMod.activatedPacks)
                     {
-                        if (!entries.Value.activated || entries.Value.electricGates == null || entries.Value.electricGates.Count == 0)
+                        if (CustomWorldMod.installedPacks[regions.Key].electricGates != null)
                         {
-                            continue;
-                        }
-
-                        if (entries.Value.electricGates.ContainsKey(self.abstractRoom.name))
-                        {
-                            (obj as WaterGate).Destroy();
-                            CustomWorldMod.Log($"Added electric gate [{self.abstractRoom.name}] from [{entries.Key}]");
-                            self.regionGate = new ElectricGate(self);
-                            (self.regionGate as ElectricGate).meterHeight = entries.Value.electricGates[self.abstractRoom.name];
-                            obj = self.regionGate;
-                            break;
-                        }
-                    }
-                    */
-                    foreach (KeyValuePair<string, string> regions in CustomWorldMod.loadedRegions)
-                    {
-                        if (CustomWorldMod.availableRegions[regions.Key].electricGates != null)
-                        {
-                            if (CustomWorldMod.availableRegions[regions.Key].electricGates.ContainsKey(self.abstractRoom.name))
+                            if (CustomWorldMod.installedPacks[regions.Key].electricGates.ContainsKey(self.abstractRoom.name))
                             {
                                 (obj as WaterGate).Destroy();
                                 CustomWorldMod.Log($"Added electric gate [{self.abstractRoom.name}] from [{regions.Value}]");
                                 self.regionGate = new ElectricGate(self);
-                                (self.regionGate as ElectricGate).meterHeight = CustomWorldMod.availableRegions[regions.Key].electricGates[self.abstractRoom.name];
+                                (self.regionGate as ElectricGate).meterHeight = CustomWorldMod.installedPacks[regions.Key].electricGates[self.abstractRoom.name];
                                 obj = self.regionGate;
                                 break;
                             }
@@ -105,6 +150,6 @@ namespace CustomRegions
 
             orig(self, obj);
         }
-
     }
 }
+

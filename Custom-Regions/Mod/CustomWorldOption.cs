@@ -1,14 +1,14 @@
 ﻿using CompletelyOptional;
-using Menu;
-using RWCustom;
 using OptionalUI;
+using RWCustom;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+using System.Data;
 using System.IO;
+using System.Linq;
+using System.Reflection.Emit;
+using System.Text.RegularExpressions;
+using UnityEngine;
 using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions.Mod
@@ -16,9 +16,8 @@ namespace CustomRegions.Mod
     public class CustomWorldOption : OptionInterface
     {
 
-        public CustomWorldOption() : base(CustomWorldScript.mod)
+        public CustomWorldOption() : base(CustomWorldMod.mod)
         {
-            mod = CustomWorldScript.mod;
         }
 
         public override bool Configuable()
@@ -29,31 +28,153 @@ namespace CustomRegions.Mod
         public override void Initialize()
         {
             base.Initialize();
-            Tabs = new OpTab[3];
+            updateAvailableTabWarning = false;
+            errorTabWarning = false;
 
+            Tabs = new OpTab[4];
             Tabs[0] = new OpTab("Main Tab");
             MainTabRedux(0);
 
-            Tabs[1] = new OpTab("Save Slot");
-            AnalyseSaveTab(1);
+            Tabs[1] = new OpTab("Analyzer");
+            AnalyserSaveTab(1);
 
-            Tabs[2] = new OpTab("Installation");
-            AnalyseInstallationTab(2);
+            Tabs[2] = new OpTab("Browse RainDB");
+            PackBrowser(2);
+
+            Tabs[3] = new OpTab("News");
+            NewsTab(3);
         }
 
-        public override void Update(float dt)
+        private void NewsTab(int tab)
         {
-            base.Update(dt);
-            if (ThumbnailDownloader.instance != null && ThumbnailDownloader.instance.readyToDelete)
+            // Header
+            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), $"News Feed".ToUpper(), FLabelAlignment.Center, true);
+            Tabs[tab].AddItems(labelID);
+
+            OpLabel labelDsc = new OpLabel(new Vector2(100f, 540), new Vector2(400f, 20f), $"Latest news for CRS", FLabelAlignment.Center, false);
+            Tabs[tab].AddItems(labelDsc);
+
+            List<UIelement> news = new List<UIelement>();
+            if (File.Exists(Custom.RootFolderDirectory() + "customNewsLog.txt")) 
             {
-                ThumbnailDownloader.instance.Clear();
-                ThumbnailDownloader.instance = null;
+                DateTime current = DateTime.UtcNow.Date;
+                CustomWorldMod.Log($"Reading news feed, current time [{current.ToString("dd/MM/yyyy")}]");
+                string[] lines = File.ReadAllLines(Custom.RootFolderDirectory() + "customNewsLog.txt");
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].Contains(News.IGNORE) || lines[i].Equals(string.Empty)) { continue; }
+                    bool bigText = false;
+                    string lastUpdate = string.Empty;
+                    TimeSpan diff;
+                    if (lines[i].Contains(News.DATE)) 
+                    {
+                        if (!updatedNews)
+                        {
+                            try
+                            {
+                                DateTime newsDate = DateTime.ParseExact(lines[i].Replace(News.DATE, ""), "dd/MM/yyyy", null);
+                                diff = current - newsDate;
+                                lastUpdate = newsDate.ToShortDateString();
+                                CustomWorldMod.Log($"News date [{lastUpdate}], difference [{diff.TotalDays}]");
+                                if (Math.Abs(diff.TotalDays) < 7)
+                                {
+                                    updatedNews = true;
+                                }
+
+                            }
+                            catch (Exception e) { CustomWorldMod.Log($"Error reading the date time in news feed [{lines[i].Replace(News.DATE, "")}] - [{e}]", true); }
+                        }
+                        continue;
+                    }
+                    if (lines[i].Contains(News.BIGTEXT)) { bigText = true; lines[i] = lines[i].Replace(News.BIGTEXT, ""); }
+
+                    if(bigText)
+                    {
+                        news.Add(new OpLabel(default(Vector2), default(Vector2), lines[i], FLabelAlignment.Center, true));
+                    }
+                    else
+                    {
+                        news.Add(new OpLabelLong(default(Vector2), default(Vector2), lines[i], true, FLabelAlignment.Left));
+                    }
+                }
+
+                //How Many Options
+                int numberOfNews = news.Count;
+
+                if (numberOfNews < 1)
+                {
+                    OpLabel label2 = new OpLabel(new Vector2(100f, 350), new Vector2(400f, 20f), "No news found.", FLabelAlignment.Center, false);
+                    Tabs[tab].AddItems(label2);
+                    return;
+                }
+                int spacing = 25;
+
+                Vector2 rectSize = new Vector2(500-spacing, 30);
+                OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfNews)));
+                Vector2 rectPos = new Vector2(spacing/2, mainScroll.contentSize - rectSize.y - spacing);
+                Vector2 labelSize = new Vector2(rectSize.x - spacing, rectSize.y - 2 * spacing);
+                Tabs[tab].AddItems(mainScroll);
+
+                for (int i = 0; i < numberOfNews; i++)
+                {
+
+                    UIelement label = news[i];
+                    label.pos = rectPos + new Vector2(spacing, spacing);
+                    label.size = labelSize;
+
+                    mainScroll.AddItems(label);
+                    rectPos.y -= rectSize.y + spacing;
+
+                }
             }
         }
 
-        public override void ConfigOnChange()
+        static List<UIelement> currentWindowPopUp = null;
+        private bool updateAvailableTabWarning;
+        private bool errorTabWarning;
+        private bool updatedNews = false;
+
+        float counter = 0;
+        public override void Update(float dt)
         {
-            base.ConfigOnChange();
+            base.Update(dt);
+            counter += 8f*dt;
+
+            try
+            {
+                if (errorTabWarning)
+                {
+                    OpTab errorTab = Tabs.First(x => x.name.Equals("Analyzer"));
+                    errorTab.color = Color.Lerp(Color.white, Color.red, 0.5f * (0.65f - Mathf.Sin(counter + Mathf.PI)));
+                }
+
+                OpTab raindbTab = Tabs.First(x => x.name.Equals("Browse RainDB"));
+                if (updateAvailableTabWarning)
+                {
+                    //OpTab raindbTab = Tabs.First(x => x.name.Equals("Browse RainDB"));
+                    raindbTab.color = Color.Lerp(Color.white, Color.green, 0.5f * (0.65f - Mathf.Sin(counter + Mathf.PI)));
+                }
+                if (!raindbTab.isHidden && CustomWorldMod.scripts != null)
+                {
+                    PackDownloader script = CustomWorldMod.scripts.Find(x => x is PackDownloader) as PackDownloader;
+                    if (script != null)
+                    {
+                        if (script.downloadButton == null)
+                        {
+                            OpSimpleButton downloadButton = (Tabs.First(x => x.name.Equals("Browse RainDB")).items.Find(x => x is OpSimpleButton button && button.signal.Contains(script.packName)) as OpSimpleButton);
+                            script.downloadButton = downloadButton;
+                        }
+                    }
+
+                }
+
+                if (updatedNews)
+                {
+                    OpTab news = Tabs.First(x => x.name.ToLower().Contains("news"));
+                    news.color = Color.Lerp(Color.white, Color.blue, 0.5f * (0.65f - Mathf.Sin(counter + Mathf.PI)));
+                }
+            }
+            catch (Exception e) { CustomWorldMod.Log("Error getting downloadButton " + e, true); }
         }
 
         public override void Signal(UItrigger trigger, string signal)
@@ -61,258 +182,503 @@ namespace CustomRegions.Mod
             base.Signal(trigger, signal);
             if (signal != null)
             {
-                if (signal.Equals("reloadRegions"))
+                CustomWorldMod.Log($"Received menu signal [{signal}]");
+
+                // Refresh config menu list
+                if (signal.Equals("refresh"))
+                {
+                    ConfigMenu.ResetCurrentConfig();
+                }
+                // Reload pack list
+                else if (signal.Equals("reloadRegions"))
                 {
                     CustomWorldMod.LoadCustomWorldResources();
-                    ConfigMenu.ResetCurrentConfig();
+                }
+                // Downnload a pack X
+                else if (signal.Contains("download") || signal.Contains("update"))
+                {
+                    if (CustomWorldMod.scripts.FindAll(x => x is PackDownloader).Count == 0)
+                    {
+                        // Process ID of Rain World
+                        string ID = System.Diagnostics.Process.GetCurrentProcess().Id.ToString();
+                        // Divider used
+                        string divider = "<div>";
+                        // Name of the pack to download
+                        string packName = signal.Substring(signal.IndexOf("_") + 1);
+                        string url = "";
+
+                        CustomWorldMod.Log($"Download / update signal from [{packName}]");
+
+                        if (CustomWorldMod.rainDbPacks.TryGetValue(packName, out RegionPack toDownload))
+                        {
+                            url = toDownload.packUrl;
+                        }
+
+                        if (url != null && url != string.Empty)
+                        {
+                            string arguments = $"{url}{divider}\"{packName}\"{divider}{ID}{divider}" + @"\" + CustomWorldMod.resourcePath + (signal.Contains("update") ? $"{divider}update" : "");
+                            CustomWorldMod.Log($"Creating pack downloader for [{arguments}]");
+
+                            CustomWorldMod.scripts.Add(new PackDownloader(arguments, packName));
+                            CRExtras.TryPlayMenuSound(SoundID.MENU_Player_Join_Game);
+                        }
+                        else
+                        {
+                            CustomWorldMod.Log($"Error loading pack [{packName}] from raindb pack list", true);
+                        }
+                    }
+                    else
+                    {
+                        CustomWorldMod.Log("Pack downloader in process");
+                        CRExtras.TryPlayMenuSound(SoundID.MENU_Player_Unjoin_Game);
+                    }
+                }
+                // Close the game
+                else if (signal.Equals("close_game"))
+                {
+                    CustomWorldMod.Log("Exiting game...");
+                    Application.Quit();
+                }
+                // Close(hide) pop-up window
+                else if (signal.Equals("close_window"))
+                {
+                    if (currentWindowPopUp != null)
+                    {
+                        OpTab tab = ConfigMenu.currentInterface.Tabs.First(x => x.name.Equals("Browse RainDB"));
+                        if (tab != null)
+                        {
+                            foreach (UIelement item in currentWindowPopUp)
+                            {
+                                try
+                                {
+                                    item.Hide();
+                                }
+                                catch (Exception e) { CustomWorldMod.Log("option " + e, true); }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    CustomWorldMod.Log($"Unknown signal [{signal}]", true);
                 }
             }
         }
 
+        private void PackBrowser(int tab)
+        {
+            // Header
+            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), $"Browse RainDB".ToUpper(), FLabelAlignment.Center, true);
+            Tabs[tab].AddItems(labelID);
+
+            OpLabel labelDsc = new OpLabel(new Vector2(100f, 540), new Vector2(400f, 20f), $"Download region packs from RainDB", FLabelAlignment.Center, false);
+            Tabs[tab].AddItems(labelDsc);
+
+            Tabs[tab].AddItems(new OpSimpleButton(new Vector2(525, 550), new Vector2(60, 30), "reloadRegions", "Refresh"));
+
+            // Create pack list
+            CreateRegionPackList(Tabs[tab], CustomWorldMod.rainDbPacks, CustomWorldMod.downloadedThumbnails, true);
+        }
 
         public void MainTabRedux(int tab)
         {
-
-            //MOD DESCRIPTION
+            // MOD DESCRIPTION
             OpLabel labelID = new OpLabel(new Vector2(50, 560), new Vector2(500, 40f), mod.ModID.ToUpper(), FLabelAlignment.Center, true);
             Tabs[tab].AddItems(labelID);
             OpLabel labelDsc = new OpLabel(new Vector2(100f, 545), new Vector2(400f, 20f), "Support for custom regions.", FLabelAlignment.Center, false);
             Tabs[tab].AddItems(labelDsc);
 
-            //VERSION AND AUTHOR
-            OpLabel labelVersion = new OpLabel(new Vector2(50, 530), new Vector2(200f, 20f), "Version: " + mod.Version, FLabelAlignment.Left, false);
+            // VERSION AND AUTHOR
+            OpLabel labelVersion = new OpLabel(new Vector2(50, 530), new Vector2(200f, 20f), "Version: pre-release" /*+ mod.Version*/, FLabelAlignment.Left, false);
             Tabs[tab].AddItems(labelVersion);
             OpLabel labelAuthor = new OpLabel(new Vector2(430, 560), new Vector2(60, 20f), "by Garrakx", FLabelAlignment.Right, false);
             Tabs[tab].AddItems(labelAuthor);
 
-
-
             Tabs[tab].AddItems(new OpSimpleButton(new Vector2(525, 550), new Vector2(60, 30), "reloadRegions", "Reload"));
 
-
-            //How Many Options
-            int numberOfOptions = CustomWorldMod.availableRegions.Count;
-
-            if (numberOfOptions < 1)
+            OpLabelLong errorLabel = new OpLabelLong(new Vector2(25, 1), new Vector2(500, 15), "", true, FLabelAlignment.Center)
             {
-                OpLabel label2 = new OpLabel(new Vector2(100f, 600), new Vector2(400f, 20f), "No regions available.", FLabelAlignment.Center, false);
-                Tabs[tab].AddItems(label2);
-                return;
-            }
-
-            OpLabel errorLabel = new OpLabelLong(new Vector2(25, 1), new Vector2(500, 15), "", true, FLabelAlignment.Center)
-            {
-                text = "Green means activated, red means deactivated"
+                text = "Any changes made (load order, activating/deactivating) will corrupt the save"
             };
 
             Tabs[tab].AddItems(errorLabel);
+            CreateRegionPackList(Tabs[tab], CustomWorldMod.installedPacks, CustomWorldMod.downloadedThumbnails, false);
+        }
+
+        private void CreateRegionPackList(OpTab tab, Dictionary<string, RegionPack> packs, Dictionary<string, byte[]> thumbnails, bool raindb)
+        {
+            //How Many Options
+            int numberOfOptions = packs.Count;
+
+            if (numberOfOptions < 1)
+            {
+                OpLabel label2 = new OpLabel(new Vector2(100f, 450), new Vector2(400f, 20f), "No regions available.", FLabelAlignment.Center, false);
+                if (raindb && CustomWorldMod.OfflineMode)
+                {
+                    label2.text = "Browsing RainDB is not available in offline mode";
+                }
+                tab.AddItems(label2);
+                return;
+            }
 
             int spacing = 25;
 
+            // SIZES AND POSITIONS OF ALL ELEMENTS //
             Vector2 rectSize = new Vector2(475, 175);
-            OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfOptions)));
-
-            Vector2 descripSize = new Vector2(200, 130);
             Vector2 thumbSize = new Vector2(225, 156);
+            Vector2 buttonDownloadSize = new Vector2(80, 30);
+            Vector2 labelSize = new Vector2(rectSize.x - thumbSize.x - 1.5f * spacing, 25);
+            Vector2 descripSize = new Vector2(rectSize.x - thumbSize.x - 1.5f * spacing, rectSize.y - labelSize.y - buttonDownloadSize.y);
+            OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfOptions)));
             Vector2 rectPos = new Vector2(spacing, mainScroll.contentSize - rectSize.y - spacing);
-            Vector2 labelSize = new Vector2(thumbSize.x, 25);
+            // ---------------------------------- //
 
-
-            Tabs[tab].AddItems(mainScroll);
+            tab.AddItems(mainScroll);
 
             for (int i = 0; i < numberOfOptions; i++)
             {
-                bool activated = CustomWorldMod.availableRegions.ElementAt(i).Value.activated;
-                Color colorEnabled = activated ? new Color((206f / 255f), 1f, (206f / 255f)) : new Color((108f / 255f), 0.001f, 0.001f);
-
+                RegionPack pack = packs.ElementAt(i).Value;
+                bool activated = pack.activated;
+                bool update = false;
+                try
+                {
+                    update = raindb && !activated && pack.checksum != null && pack.checksum != string.Empty && !pack.checksum.Equals(CustomWorldMod.installedPacks[pack.name].checksum);
+                }
+                catch { CustomWorldMod.Log("Error checking the checksum for updates"); }
+                Color colorEdge = activated ? Color.white : new Color((108f / 255f), 0.001f, 0.001f);
+                Color colorInverse = Color.white;
                 /*
-                OpRect relieve = new OpRect(rectPos + new Vector2(15, 15), rectSize, 0.3f);
-                mainScroll.AddItems(relieve);
+                if (raindb)
+                {
+                    colorEdge = Color.white;
+                    try
+                    {
+                        // Online checksum is different from local, needs to be updated.
+                        if (!activated && pack.checksum != null && pack.checksum != string.Empty)
+                        {
+                            update = !pack.checksum.Equals(CustomWorldMod.installedPacks[pack.name].checksum);
+                        }
+                    }
+                    catch { CustomWorldMod.Log("Error checking the checksum for updates"); }
+                }
                 */
-                
+
+                // RECTANGLE
                 OpRect rectOption = new OpRect(rectPos, rectSize, 0.2f)
                 {
-                    doesBump = activated,
-                    colorEdge = colorEnabled//new Color((206f / 255f), 1f, (206f / 255f))
-
+                    doesBump = activated && !pack.packUrl.Equals(string.Empty)
                 };
-                if (!activated)
-                {
-                    rectOption.colorEdge = colorEnabled;//new Color((108f / 255f), 0.001f, 0.001f);
-                }
                 mainScroll.AddItems(rectOption);
+                // ---------------------------------- //
 
 
+                // REGION NAME LABEL
+                string nameText = pack.name;
+                if (!pack.author.Equals(string.Empty))
+                {
+                    nameText += " [by " + pack.author.ToUpper() + "]";
+                }
                 OpLabel labelRegionName = new OpLabel(rectPos + new Vector2(thumbSize.x + spacing, 140), labelSize, "", FLabelAlignment.Left)
                 {
-                    text = (i + 1).ToString() + ") " + CustomWorldMod.availableRegions.ElementAt(i).Value.regionName,
-                    color = colorEnabled// new Color((108f / 255f), 0.001f, 0.001f)
+                    description = nameText
                 };
-                //Debug.Log(labelBox.text);
-                //Tabs[tab].AddItems(labelBox);
-                mainScroll.AddItems(labelRegionName);
 
-
-
-                string filePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath +
-                    CustomWorldMod.availableRegions.ElementAt(i).Value.folderName + Path.DirectorySeparatorChar + "thumb.png";
-
-                Texture2D oldTex = new Texture2D((int)thumbSize.x, (int)thumbSize.y);
-                if (File.Exists(filePath))
+                // Add load order number if local pack
+                if (!raindb)
                 {
-                    byte[] fileData;
-                    fileData = File.ReadAllBytes(filePath);
+                    nameText = (i + 1).ToString() + "] " + nameText;
+                }
+                // Trim in case of overflow
+                CRExtras.TrimString(ref nameText, labelSize.x, "...");
+                labelRegionName.text = nameText;
+                mainScroll.AddItems(labelRegionName);
+                // ---------------------------------- //
 
-                    oldTex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+
+                // DESCRIPTION LABEL
+                OpLabelLong labelDesc = new OpLabelLong(rectPos + new Vector2(spacing + thumbSize.x, (rectSize.y - descripSize.y - labelSize.y - 0.5f * spacing)), descripSize, "", true, FLabelAlignment.Left)
+                {
+                    text = pack.description,
+                    verticalAlignment = OpLabel.LabelVAlignment.Top,
+                    allowOverflow = false
+                };
+                mainScroll.AddItems(labelDesc);
+                // ---------------------------------- //
+
+                if (thumbnails.TryGetValue(pack.name, out byte[] fileData) && fileData.Length > 0)
+                {
+                    Texture2D oldTex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
                     oldTex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
 
                     Texture2D newTex = new Texture2D(oldTex.width, oldTex.height, TextureFormat.RGBA32, false);
                     Color[] convertedImage = oldTex.GetPixels();
-                    if (!activated)
+                    List<HSLColor> hslColors = new List<HSLColor>();
+                    int numberOfPixels = convertedImage.Length;
+                    for (int c = 0; c < numberOfPixels; c++)
                     {
-                        for (int c = 0; c < convertedImage.Length; c++)
+                        // Change opacity if not active
+                        if (!activated && !raindb)
                         {
-                            convertedImage[c].a *= 0.5f;
+                            convertedImage[c].a *= 0.65f;
+                        }
+                        HSLColor hslColor = CRExtras.RGB2HSL(convertedImage[c]);
+                        if (hslColor.saturation > 0.25 && hslColor.lightness > 0.25 && hslColor.lightness < 0.75f)
+                        {
+                            hslColors.Add(hslColor);
                         }
                     }
+                    float averageLight = 0f;
+                    float averageSat = 0f;
+                    float medianHue = 0f;
+
+                    // Calculate average light and sat
+                    if (hslColors.Count > 0)
+                    {
+                        foreach (HSLColor color in hslColors)
+                        {
+                            averageLight += color.lightness / hslColors.Count;
+                            averageSat += color.saturation / hslColors.Count;
+                        }
+                    }
+                    // Calculate median hue
+                    int half = hslColors.Count() / 2;
+                    var sortedColors = hslColors.OrderBy(x => x.hue);
+                    if (half != 0 && half < sortedColors.Count())
+                    {
+                        try
+                        {
+                            if ((hslColors.Count % 2) == 0)
+                            {
+                                medianHue = (sortedColors.ElementAt(half).hue + sortedColors.ElementAt(half - 1).hue) / 2;
+                            }
+                            else
+                            {
+                                medianHue = sortedColors.ElementAt(half).hue;
+                            }
+                        } catch (Exception e) { CustomWorldMod.Log($"Cannot calculate median hue [{e}] for [{pack.name}]", true); }
+                    }
+
+                    colorInverse = Color.Lerp(Custom.HSL2RGB((medianHue + 0.5f) % 1f, averageSat, averageLight), Color.white, 0.175f);
+                    if ( (activated || raindb)  )
+                    {
+                        if (averageSat > 0.15f)
+                        {
+                            colorEdge = Color.Lerp(Custom.HSL2RGB(medianHue, averageSat, Mathf.Lerp(averageLight, 0.6f, 0.5f)), Color.white, 0.175f);
+                        }
+                        else
+                        {
+                            colorEdge = Custom.HSL2RGB(UnityEngine.Random.Range(0.1f, 0.75f), 0.4f, 0.75f);
+                        }
+                        CustomWorldMod.Log($"Color for [{pack.name}] - MedianHue [{medianHue}] averageSat [{averageSat}] averagelight [{averageLight}] - Number of pixels [{numberOfPixels}] " +
+                                $"Colors [{hslColors.Count()}]", false, CustomWorldMod.DebugLevel.FULL);
+                    }
+                    hslColors.Clear();
+
                     newTex.SetPixels(convertedImage);
                     newTex.Apply();
-
-                    TextureScale.Point(newTex, (int)thumbSize.x, (int)thumbSize.y);//(int)thumbSize.x, (int)thumbSize.y );
-
+                    TextureScale.Point(newTex, (int)thumbSize.x, (int)thumbSize.y);
                     oldTex = newTex;
+                    OpImage thumbnail = new OpImage(rectPos + new Vector2((rectSize.y - thumbSize.y) / 2f, (rectSize.y - thumbSize.y) / 2f), oldTex);
+                    mainScroll.AddItems(thumbnail);
+                }
+                else
+                {
+                    // No thumbnail
+                    OpImage thumbnail = new OpImage(rectPos + new Vector2((rectSize.y - thumbSize.y) / 2f, (rectSize.y - thumbSize.y) / 2f), "gateSymbol0");
+                    mainScroll.AddItems(thumbnail);
+                    thumbnail.color = colorEdge;
+                    thumbnail.sprite.x += thumbSize.x / 2 - thumbnail.sprite.width / 2;
                 }
 
-
-                OpImage thumbnail = new OpImage(rectPos + new Vector2((rectSize.y - thumbSize.y) / 2f, (rectSize.y - thumbSize.y) / 2f), oldTex);
-                mainScroll.AddItems(thumbnail);
+                rectOption.colorEdge = colorEdge;
+                labelDesc.color = Color.Lerp(colorEdge, Color.gray, 0.6f);
+                labelRegionName.color = colorEdge;
 
                 /*
-                OpRect thumb = new OpRect(thumbnail.GetPos() + new Vector2(2, 2), thumbSize, 0f);
-                mainScroll.AddItems(thumb);
+                // DIVIDER
+                OpImage divider = new OpImage(rectPos + new Vector2(thumbSize.x + spacing, rectSize.y - spacing * 1.5f), "listDivider");
+                mainScroll.AddItems(divider);
+                divider.sprite.alpha = 0.1f;
+                divider.color = colorEdge;
+                divider.sprite.scaleX = 1.5f;
+                //divider.color = Custom.HSL2RGB(averageHSL[0], averageHSL[1], averageHSL[2]);
                 */
 
-
-                //descripSize.x = rectSize.x - labelRegionName.text.Length * 7f - 2f;
-                OpLabel labelDesc = new OpLabel(rectPos + new Vector2(spacing + thumbSize.x, (rectSize.y - descripSize.y - labelSize.y)), descripSize, "", FLabelAlignment.Left)
+                float iconOffset = 0f;
+                // Custom pearls
+                if (CustomWorldMod.customPearls.Values.Any(x => x.packName.Equals(pack.name)))
                 {
-                    autoWrap = true,
-                    text = CustomWorldMod.availableRegions.ElementAt(i).Value.description,
-                    color = colorEnabled//new Color((108f / 255f), 0.001f, 0.001f)
+                    OpImage requImage = new OpImage(rectPos + new Vector2(thumbSize.x + spacing, spacing / 2f), "ScholarB");
+                    mainScroll.AddItems(requImage);
+                    requImage.description = "Includes custom pearls";
+                    requImage.sprite.color = Color.Lerp(new Color(1f, 0.843f, 0f), Color.white, 0.3f);
+                    iconOffset += requImage.sprite.width + spacing / 2f;
+                }
+                // Requeriments DLL
+                if (!pack.requirements.Equals(string.Empty))
+                {
+                    OpImage requImage = new OpImage(rectPos + new Vector2(thumbSize.x + spacing + iconOffset, spacing / 2f), "Kill_Daddy");
+                    mainScroll.AddItems(requImage);
+                    requImage.description = pack.requirements;
+                    requImage.sprite.color = Color.Lerp(Color.blue, Color.white, 0.2f);
+                    iconOffset += requImage.sprite.width + spacing / 2f;
+                }
+                // Custom Colors
+                if (pack.regionConfig != null && pack.regionConfig.Count > 0)
+                {
+                    OpImage requImage = new OpImage(rectPos + new Vector2(thumbSize.x + spacing + iconOffset, spacing / 2f), "Kill_White_Lizard");
+                    mainScroll.AddItems(requImage);
+                    requImage.description = "Includes custom region variations";
+                    requImage.sprite.color = Color.Lerp(Custom.HSL2RGB(UnityEngine.Random.Range(0f, 1f), 0.6f, 0.6f), Color.white, 0.2f);
+                    iconOffset += requImage.sprite.width + spacing / 2f;
+                }
+
+                Vector2 pos = rectPos + new Vector2(rectSize.x - spacing / 2f - buttonDownloadSize.x, spacing / 2f);
+                OpLabel installed = new OpLabel(pos, new Vector2(80, 30), "", FLabelAlignment.Center, false);
+                OpRect rect = new OpRect(pos, new Vector2(80, 30))
+                {
+                    colorEdge = colorEdge
                 };
-                //Tabs[tab].AddItems(labelDesc);
-                mainScroll.AddItems(labelDesc);
+
+                if (raindb)
+                {
+                    bool unav = false;
+                    if ((activated || update) && !(unav = pack.packUrl.Equals(string.Empty)))
+                    {
+                        string text = update ? "Update" : "Download";
+                        string signal = update ? $"update_{pack.name}" : $"download_{pack.name}";
+
+                        // Download or Update
+                        OpSimpleButton button = new OpSimpleButton(pos, new Vector2(80, 30), signal, text)
+                        {
+                            colorEdge = update ? colorInverse : colorEdge
+                        };
+                        mainScroll.AddItems(button);
+                    }
+                    else
+                    {
+                        string text = unav ? "Unavailable" : "Installed";
+                        // Installed
+                        installed.text = text;
+                        installed.color = Color.Lerp(colorEdge, unav ? Color.red : Color.green, 0.25f);
+                        mainScroll.AddItems(installed, rect);
+                    }
+                }
+                else
+                {
+                    // Version
+                    if (activated)
+                    {
+                        installed.text = $"v{pack.version}";
+                    }
+                    else
+                    {
+                        installed.text = "Disabled";
+                        installed.color = colorEdge;
+                    }
+                    mainScroll.AddItems(installed, rect);
+                }
+
+                /*
+                // Warn about update
+                if (update)
+                {
+                    CustomWorldMod.Log($"Update available for pack [{pack.name}]: Local: [{CustomWorldMod.installedPacks[pack.name].checksum}] vs online [{pack.checksum}]");
+                    if (raindb)
+                    {
+                        // Warn the user
+                        updateAvailableTabWarning = true;
+                        //tab.color = Color.red;
+                    }
+                    else
+                    {
+                        OpLabelLong updateAvailable = new OpLabelLong(rectPos + new Vector2(spacing, spacing), thumbSize - new Vector2(spacing, spacing), "Update available", false, FLabelAlignment.Left)
+                        {
+                            color = Color.red//colorInverse
+                        };
+                        mainScroll.AddItems(updateAvailable);
+                    }
+                }
+                */
+
+                if (update)
+                {
+                    updateAvailableTabWarning = true;
+                }
+                /*
+                OpLabelLong updateAvailable = new OpLabelLong(rectPos + new Vector2(spacing, spacing), thumbSize - new Vector2(spacing, spacing), "Update available", false, FLabelAlignment.Left)
+                {
+                    color = colorInverse
+                };
+                mainScroll.AddItems(updateAvailable);
+                */
 
                 rectPos.y -= rectSize.y + spacing;
-                //rectPos.y -= Mathf.Min((spacing / (numberOfOptions)), 150);
             }
         }
 
-        public void MainTab(int tab)
+        public static void CreateWindowPopUp(string contentText, OpTab tab, string signal, string buttonText, bool error)
         {
-
-            //MOD DESCRIPTION
-            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), mod.ModID.ToUpper(), FLabelAlignment.Center, true);
-            Tabs[tab].AddItems(labelID);
-            OpLabel labelDsc = new OpLabel(new Vector2(100f, 525), new Vector2(400f, 20f), "Support for custom regions.", FLabelAlignment.Center, false);
-            Tabs[tab].AddItems(labelDsc);
-
-            //VERSION AND AUTHOR
-            OpLabel labelVersion = new OpLabel(new Vector2(420, 550), new Vector2(200f, 20f), "Version: " + mod.Version, FLabelAlignment.Left, false);
-            Tabs[tab].AddItems(labelVersion);
-            OpLabel labelAuthor = new OpLabel(new Vector2(270, 545), new Vector2(60, 20f), "by Garrakx", FLabelAlignment.Right, false);
-            Tabs[tab].AddItems(labelAuthor);
-
-
-
-            Tabs[tab].AddItems(new OpSimpleButton(new Vector2(525, 550), new Vector2(60, 30), "reloadRegions", "Reload"));
-
-
-            //How Many Options
-            int numberOfOptions = CustomWorldMod.availableRegions.Count;
-
-            if (numberOfOptions < 1)
-            {
-                OpLabel label2 = new OpLabel(new Vector2(100f, 600), new Vector2(400f, 20f), "No regions available.", FLabelAlignment.Center, false);
-                Tabs[tab].AddItems(label2);
-                return;
-            }
-
-            OpLabel errorLabel = new OpLabelLong(new Vector2(25, 490), new Vector2(575, 20), "", true, FLabelAlignment.Center)
-            {
-                text = "Green means activated, red means deactivated"
-            };
-
-            Tabs[tab].AddItems(errorLabel);
-
-            /*int cumulativeScrollSize = 0;
-            string labelCheck = "";
-            string labelDescri = "";*/
-            //int rectSizeY
-            //cumulativeScrollSize += (int)rectSize.y;
-
+            OpLabelLong label;
+            OpSimpleButton closeGameButton;
+            OpRect restartPop;
+            OpImage cross;
+            CustomWorldMod.Log($"Number of items [{tab.items.Count}]");
             int spacing = 30;
+            Vector2 buttonSize = new Vector2(70, 35);
+            Vector2 rectSize = new Vector2(420, 135 + buttonSize.y);
+            Vector2 rectPos = new Vector2(300 - rectSize.x / 2f, 300 - rectSize.y / 2);
+            Vector2 labelSize = rectSize - new Vector2(spacing, spacing + buttonSize.y + spacing);
+            string labelText = contentText;
+            bool isNull = false;
+            string symbol = error ? "Menu_Symbol_Clear_All" : "Menu_Symbol_CheckBox";
+            Color color = error ? Color.white : Color.red;
 
-            Vector2 rectPos = new Vector2(spacing + 5, spacing);
-            Vector2 rectSize = new Vector2(500, 75);
-            Vector2 labelSize = new Vector2(275, 27);
-            Vector2 descripSize = new Vector2(rectSize.x, 35);
-
-            OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 20), new Vector2(575, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfOptions)));
-            Tabs[tab].AddItems(mainScroll);
-
-            for (int i = numberOfOptions - 1; i >= 0; i--)
+            if (currentWindowPopUp == null)
             {
-                bool activated = CustomWorldMod.availableRegions.ElementAt(i).Value.activated;
-                Color colorEnabled = activated ? new Color((206f / 255f), 1f, (206f / 255f)) : new Color((108f / 255f), 0.001f, 0.001f);
-
-                OpRect rectOption = new OpRect(rectPos, rectSize, 0.3f)
+                isNull = true;
+                currentWindowPopUp = new List<UIelement>();
+            }
+            else
+            {
+                foreach (UIelement item in currentWindowPopUp)
                 {
-                    doesBump = activated,
-                    colorEdge = colorEnabled//new Color((206f / 255f), 1f, (206f / 255f))
-
-                };
-                if (!activated)
-                {
-                    rectOption.colorEdge = colorEnabled;//new Color((108f / 255f), 0.001f, 0.001f);
+                    item.Show();
+                    if (item is OpLabelLong itemTab)
+                    {
+                        itemTab.text = labelText;
+                    }
+                    else if (item is OpImage itemTab4)
+                    {
+                        itemTab4.ChangeElement(symbol);
+                        itemTab4.sprite.color = color;
+                    }
                 }
-                //Tabs[tab].AddItems(rectOption);
-                mainScroll.AddItems(rectOption);
+            }
 
-
-                OpLabel labelBox = new OpLabel(rectPos + new Vector2(20, rectSize.y * 0.30f), labelSize, "", FLabelAlignment.Left)
+            if (isNull)
+            {
+                restartPop = new OpRect(rectPos, rectSize, 0.9f);
+                label = new OpLabelLong(new Vector2(rectPos.x + spacing / 2, rectPos.y + buttonSize.y + spacing), labelSize, "", true, FLabelAlignment.Center)
                 {
-                    text = CustomWorldMod.availableRegions.ElementAt(i).Value.regionName + ": ",
-                    color = colorEnabled// new Color((108f / 255f), 0.001f, 0.001f)
+                    text = labelText,
+                    verticalAlignment = OpLabel.LabelVAlignment.Top
                 };
-                //Debug.Log(labelBox.text);
-                //Tabs[tab].AddItems(labelBox);
-                mainScroll.AddItems(labelBox);
-
-                OpLabel orderLabel = new OpLabel(rectPos + new Vector2(10, rectSize.y * 0.30f), labelSize, "", FLabelAlignment.Left)
-                {
-                    text = (i + 1).ToString()
-                };
-                mainScroll.AddItems(orderLabel);
-
-                descripSize.x = rectSize.x - labelBox.text.Length * 7f - 2f;
-                OpLabel labelDesc = new OpLabel(rectPos + new Vector2(20 + labelBox.text.Length * 7f, rectSize.y * 0.30f), descripSize, "", FLabelAlignment.Left)
-                {
-                    autoWrap = true,
-                    text = CustomWorldMod.availableRegions.ElementAt(i).Value.description,
-                    color = colorEnabled//new Color((108f / 255f), 0.001f, 0.001f)
-                };
-                //Tabs[tab].AddItems(labelDesc);
-                mainScroll.AddItems(labelDesc);
-
-                rectPos.y += rectSize.y + spacing;
-                //rectPos.y -= Mathf.Min((spacing / (numberOfOptions)), 150);
+                closeGameButton = new OpSimpleButton(new Vector2(rectPos.x + (rectSize.x - buttonSize.x) / 2f, rectPos.y + spacing / 2f), buttonSize, signal, buttonText);
+                cross = new OpImage(new Vector2(rectPos.x + spacing / 2f, rectPos.y + rectSize.y - spacing), symbol);
+                cross.sprite.color = Color.white;
+                currentWindowPopUp.Add(cross);
+                currentWindowPopUp.Add(restartPop);
+                currentWindowPopUp.Add(label);
+                currentWindowPopUp.Add(closeGameButton);
+                tab.AddItems(restartPop, label, closeGameButton, cross);
             }
         }
 
-        private void AnalyseInstallationTab(int tab)
+
+        private void AnalyserSaveTab(int tab)
         {
-            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), "Analyze installation", FLabelAlignment.Center, true);
+            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), "Analyzer".ToUpper(), FLabelAlignment.Center, true);
             Tabs[tab].AddItems(labelID);
 
             string errorLog = CustomWorldMod.analyzingLog;
@@ -321,17 +687,18 @@ namespace CustomRegions.Mod
             {
                 errorLog = "After running loading the game once, any problems will show here.";
             }
+            else
+            {
+                errorTabWarning = true;
+            }
 
-            OpLabel errorLabel = new OpLabelLong(new Vector2(25, 500), new Vector2(550, 20), "", true, FLabelAlignment.Center)
+            OpLabel errorLabel = new OpLabelLong(new Vector2(25, 540), new Vector2(550, 20), "", true, FLabelAlignment.Center)
             {
                 text = errorLog
             };
 
             Tabs[tab].AddItems(errorLabel);
-        }
 
-        private void AnalyseSaveTab(int tab)
-        {
             int saveSlot = 0;
             try
             {
@@ -339,13 +706,14 @@ namespace CustomRegions.Mod
             }
             catch (Exception e) { CustomWorldMod.Log("Crashed on config " + e, true); }
 
-            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), $"Analyze Save Slot {saveSlot + 1}", FLabelAlignment.Center, true);
-            Tabs[tab].AddItems(labelID);
+            // SAVE SLOT
+            OpLabel labelID2 = new OpLabel(new Vector2(100f, 320), new Vector2(400f, 40f), $"Analyze Save Slot {saveSlot + 1}".ToUpper(), FLabelAlignment.Center, true);
+            Tabs[tab].AddItems(labelID2);
 
-            OpLabel labelDsc = new OpLabel(new Vector2(100f, 540), new Vector2(400f, 20f), $"Check problems in savelot {saveSlot + 1}", FLabelAlignment.Center, false);
-            Tabs[tab].AddItems(labelDsc);
+            OpLabel labelDsc2 = new OpLabel(new Vector2(100f, 300), new Vector2(400f, 20f), $"Check problems in savelot {saveSlot + 1}", FLabelAlignment.Center, false);
+            Tabs[tab].AddItems(labelDsc2);
 
-            OpLabel errorLabel = new OpLabelLong(new Vector2(25, 500), new Vector2(550, 20), "", true, FLabelAlignment.Center)
+            OpLabel errorLabel2 = new OpLabelLong(new Vector2(25, 200), new Vector2(550, 20), "", true, FLabelAlignment.Center)
             {
                 text = "No problems found in your save :D"
             };
@@ -361,7 +729,7 @@ namespace CustomRegions.Mod
             }
             catch (Exception e) { CustomWorldMod.Log("Crashed on config " + e, true); return; }
 
-            errorLabel.text = "If your save is working fine you can ignore these errors";
+            errorLabel2.text = "If your save is working fine you can ignore these errors";
 
             List<string> problems = new List<string>();
 
@@ -371,90 +739,86 @@ namespace CustomRegions.Mod
                 string temp = string.Empty;
                 if (CustomWorldMod.saveProblems[saveSlot].extraRegions != null && CustomWorldMod.saveProblems[saveSlot].extraRegions.Count > 0)
                 {
-                    temp += "- You have installed / enabled new regions without clearing your save. You will need to uninstall / disable the following regions:\n";
-                    temp += $"Extra Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].extraRegions.ToArray())}]\n\n";
+                    temp = "EXTRA REGIONS\n";
+                    temp += "You have installed / enabled new regions without clearing your save. You will need to uninstall / disable the following regions:\n";
+                    temp += $"\nExtra Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].extraRegions.ToArray())}]";
+                    problems.Add(temp);
                 }
                 if (CustomWorldMod.saveProblems[saveSlot].missingRegions != null && CustomWorldMod.saveProblems[saveSlot].missingRegions.Count > 0)
                 {
-                    temp += "- You have uninstalled / disabled some regions without clearing your save. You will need to install / enable the following regions:\n";
-                    temp += $"Missing Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].missingRegions.ToArray())}]\n\n";
+                    temp = "MISSING REGIONS\n";
+                    temp += "You have uninstalled / disabled some regions without clearing your save. You will need to install / enable the following regions:\n";
+                    temp += $"\nMissing Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].missingRegions.ToArray())}]";
+                    problems.Add(temp);
                 }
-                problems.Add(temp);
             }
-
             // problem with load order
             else if (CustomWorldMod.saveProblems[saveSlot].loadOrder)
             {
-                string temp2 = string.Empty;
                 List<string> expectedOrder = new List<string>();
-                foreach (RegionInformation info in CustomWorldMod.regionInfoInSaveSlot[saveSlot])
+                foreach (RegionPack info in CustomWorldMod.packInfoInSaveSlot[saveSlot])
                 {
-                    expectedOrder.Add(info.regionID);
+                    expectedOrder.Add(info.name);
                 }
-                temp2 += "- You have changed the order in which regions are loaded:\n";
+                string temp2 = "INCORRECT ORDER\n";
+                temp2 += "You have changed the order in which regions are loaded:\n";
                 temp2 += $"Expected order [{string.Join(", ", expectedOrder.ToArray())}]\n";
-                temp2 += $"Installed order [{string.Join(", ", CustomWorldMod.loadedRegions.Keys.ToArray())}]\n\n";
+                temp2 += $"\nInstalled order [{string.Join(", ", CustomWorldMod.activatedPacks.Keys.ToArray())}]";
                 problems.Add(temp2);
             }
 
             // problem with check sum
             if (CustomWorldMod.saveProblems[saveSlot].checkSum != null && CustomWorldMod.saveProblems[saveSlot].checkSum.Count != 0)
             {
-                string temp3 = string.Empty;
-                temp3 += "\n- You have modified the world files of some regions:\n";
-                temp3 += $"Corrupted Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].checkSum.ToArray())}]\n\n";
+                string temp3 = "CORRUPTED FILES\n";
+                temp3 += "\nYou have modified the world files of some regions:\n";
+                temp3 += $"\nCorrupted Regions [{string.Join(", ", CustomWorldMod.saveProblems[saveSlot].checkSum.ToArray())}]";
                 problems.Add(temp3);
             }
 
 
 
+            //How Many Options
+            int numberOfOptions = problems.Count;
 
-            int spacing = 30;
-
-            Vector2 rectPos = new Vector2(spacing + 5, spacing);
-            Vector2 rectSize = new Vector2(500, 75);
-            Vector2 labelSize = new Vector2(480, 27);
-            //Vector2 descripSize = new Vector2(rectSize.x, 35);
-
-            int scrollHeight = (int)(spacing + ((rectSize.y + spacing) * problems.Count));
-
-            OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 20), new Vector2(575, 500), scrollHeight);
-            Tabs[tab].AddItems(mainScroll);
-            for (int i = 0; i < problems.Count; i++)
+            if (numberOfOptions < 1)
             {
+                OpLabel label2 = new OpLabel(new Vector2(100f, 350), new Vector2(400f, 20f), "No regions problems found.", FLabelAlignment.Center, false);
+                Tabs[tab].AddItems(label2);
+                return;
+            }
+            errorTabWarning = true;
+            int spacing = 25;
 
-                OpRect rectOption = new OpRect(rectPos, rectSize, 0.3f)
+            Vector2 rectSize = new Vector2(475, 125);
+            OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 250), (int)(spacing + ((rectSize.y + spacing) * numberOfOptions)));
+            Vector2 rectPos = new Vector2(spacing, mainScroll.contentSize - rectSize.y - spacing);
+            Vector2 labelSize = new Vector2(rectSize.x - 2 * spacing, rectSize.y - 2 * spacing);
+            Tabs[tab].AddItems(mainScroll);
+
+            for (int i = 0; i < numberOfOptions; i++)
+            {
+                Color colorEdge = new Color((108f / 255f), 0.001f, 0.001f);
+
+                OpRect rectOption = new OpRect(rectPos, rectSize, 0.2f)
                 {
-                    colorEdge = new Color((108f / 255f), 0.001f, 0.001f)
-
+                    colorEdge = colorEdge
                 };
 
-                //Tabs[tab].AddItems(rectOption);
                 mainScroll.AddItems(rectOption);
 
-                OpLabel labelBox = new OpLabel(rectPos + new Vector2(20, rectSize.y * 0.30f), labelSize, "", FLabelAlignment.Left)
+                OpLabelLong labelRegionName = new OpLabelLong(rectPos + new Vector2(spacing, spacing), labelSize, "", true, FLabelAlignment.Left)
                 {
                     text = problems[i],
-                    autoWrap = true
+                    color = Color.white,
+                    verticalAlignment = OpLabel.LabelVAlignment.Center
                 };
-                //Debug.Log(labelBox.text);
-                //Tabs[tab].AddItems(labelBox);
-                mainScroll.AddItems(labelBox);
+                mainScroll.AddItems(labelRegionName);
 
+                rectPos.y -= rectSize.y + spacing;
 
-                /*
-                descripSize.x = rectSize.x - labelBox.text.Length * 7f - 2f;
-                OpLabel labelDesc = new OpLabel(rectPos + new Vector2(20 + labelBox.text.Length * 7f, rectSize.y * 0.30f), descripSize, "", FLabelAlignment.Left)
-                {
-                    autoWrap = true,
-                    text = CustomWorldMod.availableRegions.ElementAt(i).Value.description,
-                };
-                */
-                // mainScroll.AddItems(labelDesc);
-
-                rectPos.y += rectSize.y + spacing;
-                //rectPos.y -= Mathf.Min((spacing / (numberOfOptions)), 150);
             }
         }
+
     }
 }

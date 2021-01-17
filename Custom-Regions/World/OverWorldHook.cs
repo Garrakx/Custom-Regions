@@ -4,16 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using UnityEngine;
 
-namespace CustomRegions
+namespace CustomRegions.CWorld
 {
     public static class OverWorldHook
     {
-        public static string textLoadWorld = string.Empty;
-        public static bool singleWorld = false;
+        public static string textLoadWorld = null;
+        public static bool? singleWorld = null;
 
 
         public static void ApplyHooks()
@@ -27,14 +25,17 @@ namespace CustomRegions
         private static void OverWorld_LoadWorld(On.OverWorld.orig_LoadWorld orig, OverWorld self, string worldName, int playerCharacterNumber, bool singleRoomWorld)
         {
             CustomWorldMod.Log($"Custom Regions: Loading world. Worldname [{worldName}], using [{textLoadWorld}]. SingleWorld [{singleWorld}]");
-            orig(self, textLoadWorld, playerCharacterNumber, singleWorld);
+            orig(self, textLoadWorld ?? worldName, playerCharacterNumber, singleWorld ?? singleRoomWorld);
+            // TEST THIS
+            textLoadWorld = null;
+            singleWorld = null;
         }
 
 
         private static void OverWorld_LoadFirstWorld(On.OverWorld.orig_LoadFirstWorld orig, OverWorld self)
         {
-            textLoadWorld = string.Empty;
-            singleWorld = false;
+            textLoadWorld = null;
+            singleWorld = null;
 
             AddMissingRegions(self);
 
@@ -85,13 +86,13 @@ namespace CustomRegions
                 {
                     text2 = Regex.Split(text, "_")[1];
                     flag2 = true;
-                }
+                } 
 
                 // Check custom regions
                 if (!flag2)
                 {
                     text2 = Regex.Split(text, "_")[0];
-                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                    foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                     {
                         string customDirectory = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + text2;
                         //string customDirectory2 = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(text, "_")[1];
@@ -148,7 +149,7 @@ namespace CustomRegions
             string debug = "Custom Region: All regions: {";
             for (int i = 0; i < self.regions.Length; i++)
             {
-                debug += $" {self.regions[i].name},";
+                debug += $" {self.regions[i].name}";
             }
             debug += "}";
 
@@ -161,9 +162,28 @@ namespace CustomRegions
         {
             int num = self.regions[self.regions.Length - 1].firstRoomIndex;
             int regionNumber = self.regions[self.regions.Length - 1].regionNumber + 1;
-
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
+                foreach(string regionToAdd in CustomWorldMod.installedPacks[keyValues.Key].regions)
+                {
+                    bool shouldAdd = true;
+                    for (int i = 0; i < self.regions.Length; i++)
+                    {
+                        if (regionToAdd.Equals(self.regions[i].name))
+                        {
+                            shouldAdd = false;
+                        }
+                    }
+                    if (shouldAdd)
+                    {
+                        Array.Resize(ref self.regions, self.regions.Length + 1);
+                        self.regions[self.regions.Length - 1] = new Region(regionToAdd, num, regionNumber);
+                        CustomWorldMod.Log($"Custom Regions: Added new region [{regionToAdd}] from [{keyValues.Value}]. Number of rooms [{self.regions[self.regions.Length - 1].numberOfRooms}]. Region number [{regionNumber}]");
+                        num += self.regions[self.regions.Length - 1].numberOfRooms;
+                        regionNumber++;
+                    }
+                }
+                /*
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions";
 
                 if (Directory.Exists(path))
@@ -196,6 +216,7 @@ namespace CustomRegions
                         }
                     }
                 }
+                */
             }
         }
 

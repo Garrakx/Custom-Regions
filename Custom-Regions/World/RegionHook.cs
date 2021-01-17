@@ -1,14 +1,10 @@
 ﻿using CustomRegions.Mod;
 using RWCustom;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using UnityEngine;
 
-namespace CustomRegions
+namespace CustomRegions.CWorld
 {
     static class RegionHook
     {
@@ -30,7 +26,7 @@ namespace CustomRegions
         {
             orig(self, name, firstRoomIndex, regionNumber);
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading custom properties for {keyValues.Key}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
@@ -153,7 +149,7 @@ namespace CustomRegions
             //if (!enabled) { return orig(self); }
             bool customRegion = false;
             int totalRooms = 0;
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 //CustomWorldMod.CustomWorldLog($"Custom Regions: Counting total rooms for {keyValues.Value} in {name}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;

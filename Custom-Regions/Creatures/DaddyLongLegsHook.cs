@@ -1,8 +1,5 @@
 ﻿using CustomRegions.Mod;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CustomRegions.Creatures
 {
@@ -19,13 +16,13 @@ namespace CustomRegions.Creatures
         private static void DaddyLongLegs_ctor(On.DaddyLongLegs.orig_ctor orig, DaddyLongLegs self, AbstractCreature abstractCreature, World world)
         {
             orig(self, abstractCreature, world);
-            if (world != null)
+            if (world != null && !world.singleRoomWorld)
             {
                 //CustomWorldMod.Log($"Region Name [{self.region.name}]");
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
                     //CustomWorldMod.Log($"Checking in [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
-                    if (CustomWorldMod.availableRegions[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
                     {
                         if (!config.bllVanilla)
                         {

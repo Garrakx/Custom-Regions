@@ -1,13 +1,9 @@
 ﻿using CustomRegions.Mod;
 using Music;
-using Partiality;
-using Partiality.Modloader;
 using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace CustomRegions.Music
@@ -19,7 +15,7 @@ namespace CustomRegions.Music
             On.Music.MusicPiece.SubTrack.Update += SubTrack_Update;
 
             // Only needed if you don't have CustomAssets
-			//On.Music.MusicPiece.Update += MusicPiece_Update;
+			On.Music.MusicPiece.Update += MusicPiece_Update;
         }
 
         // COULD LOOK FIRST FOR VANILLA TO BE A LITTLE MORE EFFICIENT
@@ -27,7 +23,7 @@ namespace CustomRegions.Music
         {
             if (!self.readyToPlay)
 			{
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
                     if (self.source.clip == null)
                     {

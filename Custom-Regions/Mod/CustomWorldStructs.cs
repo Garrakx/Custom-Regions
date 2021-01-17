@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 namespace CustomRegions.Mod
@@ -12,37 +12,98 @@ namespace CustomRegions.Mod
         /// Struct with information of available regions 
         /// [regionID, regionName, description, activated, checksum, loadOrder(Default is 100)]
         /// </summary>
-        public struct RegionInformation
+        public struct RegionPack
         {
-            public string regionID;
-            public string regionName;
-            public int regionNumber;
+            public string name;
             public string description;
+            public string author;
             public bool activated;
             public string checksum;
-            public int loadOrder;
             public string folderName;
-            public string url;
+            public string thumbUrl;
             public Dictionary<string, float> electricGates;
             public Dictionary<string, RegionConfiguration> regionConfig;
+            public List<string> regions;
+            public int loadOrder;
+            public int loadNumber;
+            public string version;
+            public string packUrl;
+            public string requirements;
 
-            public RegionInformation(string regionID, string regionName, string description, bool activated,
-                int loadOrder, string checksum, int regionNumber, string folderName, string url,
-                Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig)
+            public RegionPack(string name, string description, string author, bool activated, string checksum, string folderName, string url, 
+                Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig, List<string> regions, int loadOrder, 
+                int packNumber, string version, string packUrl, string requirements)
             {
-                this.regionID = regionID;
-                this.regionName = regionName;
+                this.name = name;
                 this.description = description;
+                this.author = author;
                 this.activated = activated;
                 this.checksum = checksum;
-                this.loadOrder = loadOrder;
-                this.regionNumber = regionNumber;
                 this.folderName = folderName;
-                this.url = url;
+                this.thumbUrl = url;
                 this.electricGates = electricGates;
                 this.regionConfig = regionConfig;
+                this.regions = regions;
+                this.loadOrder = loadOrder;
+                this.loadNumber = packNumber;
+                this.version = version;
+                this.packUrl = packUrl;
+                this.requirements = requirements;
+            }
+            public RegionPack(string folderName)
+            {
+                this.name = "";
+                this.description = "";
+                this.author = "";
+                this.activated = false;
+                this.checksum = "";
+                this.folderName = folderName;
+                this.thumbUrl = "";
+                this.electricGates = new Dictionary<string, float>();
+                this.regionConfig = new Dictionary<string, RegionConfiguration>();
+                this.regions = new List<string>();
+                this.loadOrder = int.MaxValue;
+                this.loadNumber = int.MaxValue;
+                this.version = "1.0";
+                this.packUrl = "";
+                this.requirements = "";
+            }
+
+            public RegionPack(string name, string checkSum, int packNumber)
+            {
+                this.name = name;
+                this.description = null;
+                this.author = null;
+                this.activated = false;
+                this.checksum = checkSum;
+                this.folderName = null;
+                this.thumbUrl = null;
+                this.electricGates = null;
+                this.regionConfig = null;
+                this.regions = null;
+                this.loadOrder = int.MaxValue;
+                this.loadNumber = packNumber;
+                this.version = null;
+                this.packUrl = null;
+                this.requirements = null;
             }
         }
+
+        /*
+        public struct CustomRegion
+        {
+            public string regionID;
+            public int loadOrder;
+            public int regionNumber;
+
+            public CustomRegion(string regionID, int loadOrder, int regionNumber)
+            {
+                this.regionID = regionID;
+                this.loadOrder = loadOrder;
+                this.regionNumber = regionNumber;
+            }
+        }
+        */
 
         public struct RegionConfiguration
         {
@@ -53,9 +114,10 @@ namespace CustomRegions.Mod
             public Color? kelpColor;
             public bool bllVanilla;
             public Color? bllColor;
+            public float blackSalamanderChance;
 
             public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, 
-                bool kelpVanilla, Color? kelpColor, bool bllVanilla, Color? bllColor)
+                bool kelpVanilla, Color? kelpColor, bool bllVanilla, Color? bllColor, float blackSalamanderChance)
             {
                 this.regionID = regionID;
                 this.albinoLevi = albinoLevi;
@@ -64,6 +126,7 @@ namespace CustomRegions.Mod
                 this.kelpColor = kelpColor;
                 this.bllVanilla = bllVanilla;
                 this.bllColor = bllColor;
+                this.blackSalamanderChance = blackSalamanderChance;
             }
         }
 
@@ -73,20 +136,30 @@ namespace CustomRegions.Mod
         /// </summary>
         public struct WorldDataLine
         {
-            public string data;
+            public string line;
+            public string roomName;
+            public string connections;
+            public string endingString;
             public bool vanilla;
-            public string modID;
-            public WorldDataLine(string data, bool vanilla)
+            public string packName;
+
+            public WorldDataLine(string line, string roomName, string connections, string endingString, bool vanilla, string modID)
             {
-                this.data = data;
+                this.line = line;
+                this.roomName = roomName;
+                this.connections = connections;
+                this.endingString = endingString;
                 this.vanilla = vanilla;
-                this.modID = string.Empty;
+                this.packName = modID;
             }
-            public WorldDataLine(string data, bool vanilla, string modID)
+            public WorldDataLine(string line, bool vanilla)
             {
-                this.data = data;
+                this.line = line;
+                this.roomName = null;
+                this.connections = null;
+                this.endingString = null;
                 this.vanilla = vanilla;
-                this.modID = modID;
+                this.packName = null;
             }
         }
 
@@ -155,16 +228,36 @@ namespace CustomRegions.Mod
             public int ID;
             public Color color;
             public Color? secondaryColor;
-            public string regionID;
+            public string packName;
 
-            public CustomPearl(string name, int iD, Color color, Color? secondaryColor, string regionID)
+            public CustomPearl(string name, int iD, Color color, Color? secondaryColor, string packName)
             {
                 this.name = name;
                 this.ID = iD;
                 this.color = color;
                 this.secondaryColor = secondaryColor;
-                this.regionID = regionID;
+                this.packName = packName;
             }
+        }
+
+        public struct News
+        {
+            public const string IGNORE = "[ignr]";
+            public const string BIGTEXT = "[bgTxT]";
+            public const string DATE = "[dte]";
+
+            /*
+            public DateTime date;
+            public string text;
+            public string type;
+
+            public News(DateTime date, string text, string type)
+            {
+                this.date = date;
+                this.text = text;
+                this.type = type;
+            }
+            */
         }
     }
 }

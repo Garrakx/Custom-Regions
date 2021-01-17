@@ -1,24 +1,17 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using System.Threading;
-using Partiality.Modloader;
 using System.IO;
-using System.Security.Policy;
-using RWCustom;
-using System.Runtime.CompilerServices;
+using System.Reflection;
+using MonoMod.RuntimeDetour;
 
 namespace CustomRegions.Mod
 {
     public static class CRExtras
     {
+        // Source: https://www.programmingalgorithms.com/algorithm/rgb-to-hsl/
         public static HSLColor RGB2HSL(Color color)
         {
-            // Source: https://www.programmingalgorithms.com/algorithm/rgb-to-hsl/
-
             HSLColor hsl;
 
             float r = color.r;
@@ -70,124 +63,227 @@ namespace CustomRegions.Mod
             return hsl;
 
         }
+
+        public static void CopyTo(this Stream input, Stream output)
+        {
+            byte[] buffer = new byte[16 * 1024]; // Fairly arbitrary size
+            int bytesRead;
+
+            while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, bytesRead);
+            }
+        }
+
+        public static void TrimString(ref string reference, float targetPixel, string endSequence)
+        {
+            if (OptionalUI.LabelTest.GetWidth(reference, false) > targetPixel)
+            {
+                reference = reference.Remove(reference.Length - 1);
+                TrimString(ref reference, targetPixel, endSequence);
+            }
+        }
+
+
+        public static void TryPlayMenuSound(SoundID soundID)
+        {
+            try
+            {
+                (CustomWorldMod.rainWorldInstance.processManager.currentMainLoop as Menu.Menu).PlaySound(soundID);
+            }
+            catch (Exception e) { CustomWorldMod.Log("Exception " + e, true); }
+        }
     }
 
-    public class ThumbnailDownloader : MonoBehaviour
+    /// <summary>
+    /// It uses a normal hook if you have 0 or 1 patch mods, but implements its own hook handler using a NativeDetour if you have more
+    /// Author: Slime_Cubed
+    /// </summary>
+    public static class APOFSFix
     {
-        public static ThumbnailDownloader instance;
+        public static EventInfo redirectHooks;
 
-        int currentThumb;
-        WWW www;
-        bool next;
-        string path;
-        private List<string> regionFolders;
-        public bool readyToDelete;
-        private List<string> urls;
-        //  string filePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + CustomWorldMod.availableRegions.ElementAt(i).Value.folderName + Path.DirectorySeparatorChar + "thumb.png";
-        public void Init(Dictionary<string, string> thumbInfo)
+        private static MethodInfo apofs = apofs = typeof(SaveState).GetMethod("AbstractPhysicalObjectFromString", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+        public static event On.SaveState.hook_AbstractPhysicalObjectFromString On_SaveState_AbstractPhysicalObjectFromString
         {
-            if (thumbInfo == null || thumbInfo.Count < 1)
+            add
             {
-                //CustomWorldMod.Log("Error creating thumbnail downloader, thumbnail not found", true);
-                this.readyToDelete = true;
-                return;
-            }
-
-            currentThumb = 0;
-            this.regionFolders = thumbInfo.Keys.ToList();
-            this.urls = thumbInfo.Values.ToList();
-
-            this.path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + regionFolders[currentThumb] + Path.DirectorySeparatorChar + "thumb.png";
-            this.www = new WWW(urls[currentThumb]);
-            this.readyToDelete = false;
-            this.next = false;
-
-            //this.filename = filename;
-        }
-
-        public static void Create(Dictionary<string, string> thumbInfo)
-        {
-            GameObject gObject = new GameObject("Thumbdownloader");
-            gObject.AddComponent<ThumbnailDownloader>();
-            DontDestroyOnLoad(gObject);
-
-            instance.Init(thumbInfo);
-        }
-
-        public void Awake()
-        {
-            instance = this;
-        }
-
-        public void Update()
-        {
-
-            if (urls == null || currentThumb >= this.urls.Count  || regionFolders == null || readyToDelete)
-            {
-                this.Clear();
-                readyToDelete = true;
-                return;
-            }
-
-            if (www == null || string.IsNullOrEmpty(www.error))
-            {
-                if (www.isDone && !next)
+                if (CountPatches() >= 2)
                 {
+                    if (redirectHooks == null)
+                    {
+                        Debug.Log($"{nameof(APOFSFix)} using custom hook manager from {Assembly.GetExecutingAssembly().FullName}");
+                        foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+                        {
+                            try
+                            {
+                                Type t = asm.GetType(nameof(APOFSFix), false);
+                                if (t == null) continue;
+                                FieldInfo rh = t.GetField(nameof(redirectHooks));
+                                if (rh == null) continue;
+                                rh.SetValue(null, typeof(APOFSFix).GetEvent(nameof(On_SaveState_AbstractPhysicalObjectFromString)));
+                            }
+                            catch (Exception) { }
+                        }
+                    }
 
-                    CustomWorldMod.Log($"Dowloading thumb[{currentThumb}].. path [{path}]");
-                    Texture2D tex;
-                    tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
-                    www.LoadImageIntoTexture(tex);
-                    tex.Apply();
-                    byte[] file = tex.EncodeToPNG();
-                    File.WriteAllBytes(path, file);
-                    CustomWorldMod.Log("Thumb downloaded " + path);
+                    if (redirectHooks.DeclaringType != typeof(APOFSFix))
+                        redirectHooks.AddEventHandler(null, value);
 
+                    if (apofsDetour == null)
+                    {
+                        Debug.Log("Creating native detour for SaveState.AbstractPhysicalObjectFromString...");
+                        apofsDetour = new NativeDetour(apofs, typeof(APOFSFix).GetMethod(nameof(Hook_AbstractPhysicalObjectFromString)));
+                    }
 
-                    next = true;
-                    currentThumb++;
+                    APOFSHook hk = new APOFSHook(value);
+                    if (baseApofsHook != null)
+                        baseApofsHook.last = hk;
+                    hk.next = baseApofsHook;
+                    baseApofsHook = hk;
                 }
                 else
                 {
-                    this.path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + regionFolders[currentThumb] + Path.DirectorySeparatorChar + "thumb.png";
-                    this.www = new WWW(urls[currentThumb]);
-                    next = false;
+                    // A plain hook can be used when no issue is found
+                    On.SaveState.AbstractPhysicalObjectFromString += value;
                 }
             }
-            else
+            remove
             {
-                readyToDelete = true;
-                CustomWorldMod.Log(www.error, true);
+                if (CountPatches() >= 2)
+                {
+                    if (redirectHooks.DeclaringType != typeof(APOFSFix))
+                        redirectHooks.RemoveEventHandler(null, value);
+
+                    APOFSHook hk = baseApofsHook;
+                    while (hk != null)
+                    {
+                        if (hk.target == value)
+                        {
+                            hk.Remove();
+                            break;
+                        }
+                        hk = hk.next;
+                    }
+                }
+                else
+                {
+                    On.SaveState.AbstractPhysicalObjectFromString -= value;
+                }
             }
         }
 
-        public void Clear()
+        // Act as a detour manager
+        private static NativeDetour apofsDetour;
+        private static APOFSHook baseApofsHook;
+
+        public static AbstractPhysicalObject Hook_AbstractPhysicalObjectFromString(World world, string str)
         {
-            try
+            if (baseApofsHook == null) return Orig_AbstractPhysicalObjectFromString(world, str);
+
+            return baseApofsHook.Invoke(world, str);
+        }
+
+        public static AbstractPhysicalObject Orig_AbstractPhysicalObjectFromString(World world, string str)
+        {
+            // Generating a trampoline may cause a segfault
+            apofsDetour.Undo();
+            AbstractPhysicalObject ret = SaveState.AbstractPhysicalObjectFromString(world, str);
+            apofsDetour.Apply();
+            return ret;
+        }
+
+        private class APOFSHook
+        {
+            public On.SaveState.hook_AbstractPhysicalObjectFromString target;
+            public APOFSHook next;
+            public APOFSHook last;
+
+            public APOFSHook(On.SaveState.hook_AbstractPhysicalObjectFromString target)
             {
-                this.regionFolders.Clear();
-            } catch (Exception) { }
-            try
-            {
-                this.urls.Clear();
+                this.target = target;
             }
-            catch (Exception) { }
+
+            public AbstractPhysicalObject Invoke(World world, string str)
+            {
+                // Find the next function down the chain
+                On.SaveState.orig_AbstractPhysicalObjectFromString orig;
+                if (next == null) orig = Orig_AbstractPhysicalObjectFromString;
+                else orig = next.Invoke;
+
+                // Invoke
+                return target(orig, world, str);
+            }
+
+            public void Remove()
+            {
+                if (last == null)
+                    baseApofsHook = next;
+                else
+                    last.next = next;
+
+                if (next != null)
+                    next.last = last;
+            }
         }
-        /*
-        internal void Create()
+
+        public static int patchesApplied = -1;
+        public static int CountPatches()
         {
-            GameObject gObject = new GameObject("Thumbdownloader");
-            gObject.AddComponent<ThumbnailDownloader>();
-            DontDestroyOnLoad(gObject);
+            if (patchesApplied >= 0) return patchesApplied;
+
+            // Check if any other assemblies have performed this check
+            Assembly[] asms = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (Assembly asm in asms)
+            {
+                // Don't throw
+                try
+                {
+                    Type t = asm.GetType(nameof(APOFSFix), false);
+                    if (t == null) continue;
+                    FieldInfo pa = t.GetField(nameof(patchesApplied), BindingFlags.Public | BindingFlags.Static);
+                    if (pa.GetValue(null) is int otherPatchesApplied && otherPatchesApplied >= 0)
+                        return patchesApplied = otherPatchesApplied;
+                }
+                catch (Exception) { }
+            }
+
+            string dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            // This bug only happens in Partiality
+            if (Path.GetFileName(dir) != "Mods")
+                return patchesApplied = 0;
+
+            // Count the number of patches enabled
+            patchesApplied = 0;
+            string[] metas = Directory.GetFiles(dir, "*.modMeta");
+
+            for (int i = 0; i < metas.Length; i++)
+            {
+                bool patch = false;
+                bool enabled = false;
+                string[] lines = File.ReadAllLines(Path.Combine(dir, metas[i]));
+                // Check whether this mod is a patch and is enabled
+                for (int line = 0; line < lines.Length; line++)
+                {
+                    if (lines[line] == "isEnabled: true") enabled = true;
+                    else if (lines[line] == "isPatch: true") patch = true;
+                    else continue;
+                    if (enabled && patch)
+                    {
+                        patchesApplied++;
+                        break;
+                    }
+                }
+            }
+
+            return patchesApplied;
         }
-        */
     }
-
-
-    // Only works on ARGB32, RGB24 and Alpha8 textures that are marked readable
 
     // SOURCE: http://wiki.unity3d.com/index.php/TextureScale#Usage
     // AUTHOR: Eric Haines (Eric5h5)
+    // Only works on ARGB32, RGB24 and Alpha8 textures that are marked readable
     public class TextureScale
     {
         public class ThreadData

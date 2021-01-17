@@ -1,15 +1,11 @@
 ﻿using RWCustom;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using CustomRegions.Mod;
-using UnityEngine;
 
 
-namespace CustomRegions
+namespace CustomRegions.CWorld
 {
     public static class RegionGateHook
     {
@@ -26,9 +22,9 @@ namespace CustomRegions
         {
             orig(self, room);
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                //CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}");
+                CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                 /*
@@ -45,33 +41,32 @@ namespace CustomRegions
                 */
 
                 string path2 = path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "locks.txt";
-
+                bool foundKarma = false;
                 if (File.Exists(path2))
                 {
-
-                    self.karmaGlyphs[0].Destroy();
-                    self.karmaGlyphs[1].Destroy();
-
                     string[] array = File.ReadAllLines(path2);
 
                     for (int i = 0; i < array.Length; i++)
                     {
                         if (Regex.Split(array[i], " : ")[0] == room.abstractRoom.name)
                         {
-                            CustomWorldMod.Log($"Custom Regions: Found custom karmaGate requirement for {keyValues.Key}. Gate [{self.karmaRequirements[0]}/{self.karmaRequirements[1]}]");
+                            self.karmaGlyphs[0].Destroy();
+                            self.karmaGlyphs[1].Destroy();
                             self.karmaRequirements[0] = Custom.IntClamp(int.Parse(Regex.Split(array[i], " : ")[1]) - 1, 0, 4);
                             self.karmaRequirements[1] = Custom.IntClamp(int.Parse(Regex.Split(array[i], " : ")[2]) - 1, 0, 4);
+                            self.karmaGlyphs = new GateKarmaGlyph[2];
+                            for (int j = 0; j < 2; j++)
+                            {
+                                self.karmaGlyphs[j] = new GateKarmaGlyph(j == 1, self, self.karmaRequirements[j]);
+                                room.AddObject(self.karmaGlyphs[j]);
+                            }
+
+                            CustomWorldMod.Log($"Custom Regions: Found custom karmaGate requirement for {keyValues.Key}. Gate [{self.karmaRequirements[0]}/{self.karmaRequirements[1]}]");
+                            foundKarma = true;
                             break;
                         }
                     }
-
-                    self.karmaGlyphs = new GateKarmaGlyph[2];
-                    for (int j = 0; j < 2; j++)
-                    {
-                        self.karmaGlyphs[j] = new GateKarmaGlyph(j == 1, self, self.karmaRequirements[j]);
-                        room.AddObject(self.karmaGlyphs[j]);
-                    }
-                    break;
+                    if (foundKarma) { break; }
                 }
             }
         }

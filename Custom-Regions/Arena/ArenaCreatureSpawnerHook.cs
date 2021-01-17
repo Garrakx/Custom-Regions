@@ -3,12 +3,10 @@ using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace CustomRegions
+namespace CustomRegions.Arena
 {
     public static class ArenaCreatureSpawnerHook
     {
@@ -22,7 +20,7 @@ namespace CustomRegions
 
         private static void ArenaCreatureSpawner_SpawnArenaCreatures(On.ArenaCreatureSpawner.orig_SpawnArenaCreatures orig, RainWorldGame game, ArenaSetup.GameTypeSetup.WildLifeSetting wildLifeSetting, ref List<AbstractCreature> availableCreatures, ref MultiplayerUnlocks unlocks)
         {
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 string settingsPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels" + Path.DirectorySeparatorChar + game.world.GetAbstractRoom(0).name + "_Arena.txt";
                 if (File.Exists(settingsPath))

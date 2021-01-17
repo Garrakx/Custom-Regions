@@ -1,10 +1,7 @@
 ﻿using CustomRegions.Mod;
 using Menu;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using UnityEngine;
 
 namespace CustomRegions.CustomMenu
@@ -61,13 +58,13 @@ namespace CustomRegions.CustomMenu
 
             if (self.saveGameData.shelterName != null && self.saveGameData.shelterName.Length > 2)
             {
-                string text2 = self.saveGameData.shelterName.Substring(0, 2);
+                string regID = self.saveGameData.shelterName.Substring(0, 2);
 
                 bool customRegion = true;
                 List<string> vanillaRegions = CustomWorldMod.VanillaRegions().ToList();
                 for (int i = 0; i < vanillaRegions.Count; i++)
                 {
-                    if (text2 == vanillaRegions[i])
+                    if (regID == vanillaRegions[i])
                     {
                         customRegion = false;
                     }
@@ -79,26 +76,37 @@ namespace CustomRegions.CustomMenu
                         if (label is MenuLabel && label == self.regionLabel && (label as MenuLabel).text.Length < 3)
                         {
                             string fullRegionName = "N / A";
-                            CustomWorldMod.loadedRegions.TryGetValue(text2, out fullRegionName);
-                            CustomWorldMod.Log("Custom Regions: text " + text2);
-                            if (fullRegionName != null)
+                            //CustomWorldMod.activatedPacks.TryGetValue(text2, out fullRegionName);
+                            if (CustomWorldMod.activeModdedRegions.Contains(regID))
                             {
-                                if (fullRegionName.Length > 0)
+                                foreach(KeyValuePair<string, string> entry in CustomWorldMod.activatedPacks)
                                 {
-                                    text2 = fullRegionName;
-
-                                    fullRegionName = string.Concat(new object[]
+                                    if (CustomWorldMod.installedPacks[entry.Key].regions.Contains(regID))
                                     {
-                                text2,
-                            " - ",
-                            menu.Translate("Cycle"),
-                            " ",
-                            (slugcatNumber != 2) ? self.saveGameData.cycle : (RedsIllness.RedsCycles(self.saveGameData.redsExtraCycles) - self.saveGameData.cycle)
-                                    });
+                                        fullRegionName = entry.Value;
+                                        CustomWorldMod.Log($"Displaying region name: [{fullRegionName}]. If you pack contains multiple regions, contact @Garrakx.");
+                                        break;
+                                    }
                                 }
-                            (label as MenuLabel).text = fullRegionName;
-                                break;
                             }
+                                if (fullRegionName != null)
+                                {
+                                    if (fullRegionName.Length > 0)
+                                    {
+                                        regID = fullRegionName;
+
+                                        fullRegionName = string.Concat(new object[]
+                                        {
+                                regID,
+                                " - ",
+                                menu.Translate("Cycle"),
+                                " ",
+                                (slugcatNumber != 2) ? self.saveGameData.cycle : (RedsIllness.RedsCycles(self.saveGameData.redsExtraCycles) - self.saveGameData.cycle)
+                                        });
+                                    }
+                                    (label as MenuLabel).text = fullRegionName;
+                                    break;
+                                }
                         }
                     }
                 }

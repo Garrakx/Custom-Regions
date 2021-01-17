@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using CustomRegions.Mod;
 
 namespace CustomRegions.Creatures
@@ -20,11 +17,11 @@ namespace CustomRegions.Creatures
         {
             orig(self, abstractCreature, world);
 
-            if (world.region != null)
+            if (world != null && !world.singleRoomWorld && world.region != null)
             {
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
-                    if (CustomWorldMod.availableRegions[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
                     {
                         //CustomWorldMod.Log($"Albino leviathan in [{world.region.name}]");
                         if (config.albinoLevi)

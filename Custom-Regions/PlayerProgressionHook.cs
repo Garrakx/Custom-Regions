@@ -2,13 +2,8 @@
 using RWCustom;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using UnityEngine;
 using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions
@@ -19,6 +14,9 @@ namespace CustomRegions
 
         public static void ApplyHooks()
         {
+            // Debug
+            //On.PlayerProgression.ctor += PlayerProgression_ctor;
+
             On.PlayerProgression.LoadProgression += PlayerProgression_LoadProgression;
             On.PlayerProgression.InitiateProgression += PlayerProgression_InitiateProgression;
 
@@ -44,7 +42,7 @@ namespace CustomRegions
                 File.Delete(saveFileName);
                 try
                 {
-                    CustomWorldMod.regionInfoInSaveSlot[self.rainWorld.options.saveSlot].Clear();
+                    CustomWorldMod.packInfoInSaveSlot[self.rainWorld.options.saveSlot].Clear();
                 } catch (Exception) { }
 
                 CustomWorldMod.Log("Deleted CR save");
@@ -64,10 +62,9 @@ namespace CustomRegions
                 //dictionaryString += $"{ string.Join(", ", new List<string>(CustomWorldMod.loadedRegions.Values).ToArray())}" + "}";
                 //saveRegionData += $"{CustomWorldMod.saveDividerA}REGIONLIST{string.Join(",",CustomWorldMod.loadedRegions.Keys.ToArray())}{CustomWorldMod.saveDividerA}";
 
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
-                    RegionInformation regionInfo;
-                    if (CustomWorldMod.availableRegions.TryGetValue(keyValues.Key, out regionInfo))
+                    if (CustomWorldMod.installedPacks.TryGetValue(keyValues.Key, out RegionPack regionInfo))
                     {
                         saveRegionData += CustomWorldMod.SerializeRegionInfo(regionInfo);
                     }    

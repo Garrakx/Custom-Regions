@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using CustomRegions.Mod;
 using Music;
@@ -21,7 +18,7 @@ namespace CustomRegions.Music
 		{
             orig(self, name);
 
-			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
 			{
 				string pathToProceduralText = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 				pathToProceduralText += "Assets" + Path.DirectorySeparatorChar + "Futile" +

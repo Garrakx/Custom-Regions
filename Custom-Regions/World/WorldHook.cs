@@ -2,14 +2,11 @@
 using RWCustom;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace CustomRegions
+namespace CustomRegions.CWorld
 {
     static class WorldHook
     {
@@ -30,14 +27,14 @@ namespace CustomRegions
             if (self != null && ID.spawner >= 0)
             {
                 //CustomWorldMod.Log($"Region Name [{self.region.name}]");
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
                     //CustomWorldMod.Log($"Checking in [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
-                    if (CustomWorldMod.availableRegions[keyValues.Key].regionConfig.TryGetValue(self.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(self.region.name, out CustomWorldStructs.RegionConfiguration config))
                     {
                         if (config.albinoJet)
                         {
-                            CustomWorldMod.Log($"Spawning albino jetfish [{ID}] in [{self.region.name}] from [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
+                            CustomWorldMod.Log($"Spawning albino jetfish [{ID}] in [{self.region.name}] from [{CustomWorldMod.installedPacks[keyValues.Key].name}]");
                             return 10;
                         }
                         break;
@@ -92,12 +89,12 @@ namespace CustomRegions
         /// </summary>
         private static void World_LoadMapConfig(On.World.orig_LoadMapConfig orig, World self, int slugcatNumber)
         {
-
+            orig(self, slugcatNumber);
             bool loadedMapConfig = false;
             bool loadedProperties = false;
             string[] array;
 
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
@@ -139,7 +136,7 @@ namespace CustomRegions
                     break;
                 }
             }
-            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
@@ -221,14 +218,13 @@ namespace CustomRegions
                     self.abstractRooms[num2].mapPos -= b;
                 }
             }
-
-
+            /*
             // YOU MUST INCLUDE BOTH PROPERTIES AND MAP CONFIG TO MAKE CHANGES TO VANILLA
             if (!(loadedMapConfig && loadedProperties))
             {
-                CustomWorldMod.Log($"ERROR! You are missing either the mapconfig or properties file to make changes to vanilla. Loaded MapConfig [{loadedMapConfig}]. Loaded Properties [{loadedProperties}]", true);
-                orig(self, slugcatNumber);
+                CustomWorldMod.Log($"You are missing either the mapconfig or properties file to make changes to vanilla. Loaded MapConfig [{loadedMapConfig}]. Loaded Properties [{loadedProperties}]");
             }
+            */;
         }
     }
 }
