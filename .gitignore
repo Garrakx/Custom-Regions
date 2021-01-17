@@ -348,22 +348,11 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-Custom-Regions/Custom-Regions.csproj
 *.csproj
-RegionPackDownloader/Program.cs
-RegionPackDownloader/FileDownloader.cs
-Custom-Regions/Custom-Regions.csproj
 Custom-Regions/Custom-Regions.sln
 Custom-Regions/Properties/AssemblyInfo.cs
-RegionPackDownloader/695022452471758938.ico
-RegionPackDownloader/ConsolePackHandler.cs
-RegionPackDownloader/Properties/launchSettings.json
-RegionPackDownloader/HttpClientDownloadWithProgress.cs
-<<<<<<< Updated upstream
-=======
-Custom-Regions/Custom-Regions.sln
-Custom-Regions/Custom-Regions.csproj
->>>>>>> Stashed changes
+RegionPackDownloader/*
 References/*
 !References/README.md
 changes.txt
+raind.json
