@@ -244,8 +244,6 @@ ERROR! #Found incompatible room [SB_J01 : SB_Q01, SB_E02, SB_G03, SB_C07] from [
 
 ### <a name="compatibility"></a>HOW TO ADD COMPATIBILITY BETWEEN TWO REGION PACKS THAT MODIFY THE SAME ROOM
 
-* Example of a region that adds a single room to HI (made by LeeMoriya). [Click here](https://discordapp.com/channels/291184728944410624/431534164932689921/759459475328860160)
-
 1) Create a region pack that it is loaded first and modifies a vanilla room by adding new connections:
 	how the *whole* world_HI.txt from the region NewPipes looks (you only need these lines)
 
