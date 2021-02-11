@@ -3,8 +3,8 @@
 ***
 ## Lets you install and browse region packs without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms
 [![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)](https://twitter.com/garrakx)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/)
-![Custom Regions!](./Images/CRS_thumb.jpg)  
-  
+![Custom Regions!](./Images/CRS_thumb.jpg)
+
 Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/flag-spain_1f1ea-1f1f8.png" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-ES.md), [Russian (outdated) <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-RU.md) and [French (outdated) <img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-FR.md)
 
 ## <a name="index"></a>Index
@@ -390,7 +390,7 @@ Note: you can have multiple unlocks per region.
 ***
 ### <a name="credits"></a>Credits
 
- Please be patient with bugs and errors. Thanks to LeeMoriya for helping and suggestions. Thanks to Thalber and LB Gamer for the translations. Thanks Slime_Cubed for the idea of using a separate process to download the packs. Thanks to carrotpudding, LB Gamer, Precipitator, Stereo and laura for testing. Thanks dual curly potato noodles for suggestions on how to make the repo more collaboration friendly.
+Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick](https://classick-ii.tumblr.com/post/634237640578859008/boopbeep) Thanks to LeeMoriya for helping and suggestions. Thanks to Thalber and LB Gamer for the translations. Thanks Slime_Cubed for the idea of using a separate process to download the packs. Thanks to carrotpudding, LB Gamer, Precipitator, Stereo and laura for testing. Thanks dual curly potato noodles for suggestions on how to make the repo more collaboration friendly.
 
 ***
 ### <a name="changelog"></a>Changelog
