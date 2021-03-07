@@ -5,7 +5,7 @@
 [![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)](https://twitter.com/garrakx)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/)
 ![Custom Regions!](./Images/CRS_thumb.jpg)
 
-Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/flag-spain_1f1ea-1f1f8.png" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-ES.md), [Russian (outdated) <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-RU.md) and [French<img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-FR.md)
+Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/flag-spain_1f1ea-1f1f8.png" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-ES.md), [Russian (outdated) <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-RU.md) and [French <img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-FR.md)
 
 ## <a name="index"></a>Index
 
