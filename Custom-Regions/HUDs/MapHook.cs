@@ -15,6 +15,55 @@ namespace CustomRegions.HUDs
         {
             On.HUD.Map.Update += Map_Update;
             On.HUD.Map.LoadConnectionPositions += Map_LoadConnectionPositions;
+
+            On.HUD.Map.MapData.KarmaOfGate += MapData_KarmaOfGate;
+        }
+
+
+        private static int MapData_KarmaOfGate(On.HUD.Map.MapData.orig_KarmaOfGate orig, Map.MapData self, PlayerProgression progression, World initWorld, string roomName)
+        {
+            // Gotta scan it all, progression was loaded on game-start and doesnt account for enabled/disabled regions ?
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
+            {
+                CustomWorldMod.Log($"Custom Regions: Loading KarmaOfGate for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
+                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                string path2 = path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "locks.txt";
+                if (File.Exists(path2))
+                {
+                    string[] array = File.ReadAllLines(path2);
+
+                    for (int i = 0; i < array.Length; i++)
+                    {
+                        string[] array2 = Regex.Split(array[i], " : ");
+                        if (array2[0] == roomName)
+                        {
+                            string req1 = array2[1];
+                            string req2 = array2[2];
+                            int result;
+                            int result2;
+                            result = Custom.IntClamp(int.Parse(req1) - 1, 0, 4);
+                            result2 = Custom.IntClamp(int.Parse(req2) - 1, 0, 4);
+
+                            bool flipped = false;
+                            if (roomName == "GATE_LF_SB" || roomName == "GATE_DS_SB" || roomName == "GATE_HI_CC" || roomName == "GATE_SS_UW")
+                            {
+                                flipped = true;
+                            }
+
+                            CustomWorldMod.Log($"Custom Regions: Found custom KarmaOfGate for {keyValues.Key}. Gate [{result}/{result2}]");
+
+                            string[] namearray = Regex.Split(roomName, "_");
+
+                            if (namearray[1] == initWorld.region.name != flipped)
+                            {
+                                return result;
+                            }
+                            return result2;
+                        }
+                    }
+                }
+            }
+            return orig(self, progression, initWorld, roomName);
         }
 
         /// <summary>
