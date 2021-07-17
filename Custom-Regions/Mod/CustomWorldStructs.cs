@@ -68,7 +68,7 @@ namespace CustomRegions.Mod
                 this.electricGates = new Dictionary<string, float>();
                 this.regionConfig = new Dictionary<string, RegionConfiguration>();
                 this.regions = new List<string>();
-                this.loadOrder = (int)UnityEngine.Random.value*50;
+                this.loadOrder = (int)(UnityEngine.Random.value*500);
                 this.loadNumber = this.loadOrder;
                 this.version = "1.0";
                 this.packUrl = "";
