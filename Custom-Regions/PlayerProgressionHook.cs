@@ -81,63 +81,6 @@ namespace CustomRegions
             orig(self, saveCurrentState, saveMaps, saveMiscProg);
         }
 
-        // Debug
-        /*
-        private static string[] PlayerProgression_GetProgLines(On.PlayerProgression.orig_GetProgLines orig, PlayerProgression self)
-        {
-            tempDictionary = null;
-            string[] progLines = orig(self);
-            string path = Custom.RootFolderDirectory() + "SavedList.txt";
-            for (int i = 0; i < progLines.Length; i++)
-            {
-                string[] array = Regex.Split(progLines[i], "<progDivB>");
-                if (array.Length == 2 && array[0] == "SAVE STATE")
-                {
-                    List<string> saveDataList = array.ToList<string>();
-                    List<string> updatedSaveDataList = saveDataList;
-
-                    foreach (string s in saveDataList)
-                    {
-                        if (!File.Exists(path))
-                        {
-                            using (TextWriter tw = new StreamWriter(path))
-                            {
-                                tw.WriteLine(s);
-                            }
-                        }
-                        else
-                        {
-                            using (StreamWriter tw = File.AppendText(path))
-                            {
-                                tw.WriteLine(s);
-                            }
-                        }
-
-                        if (s.Equals("MAP"))
-                        {
-                            int index = saveDataList.IndexOf(s);
-                            string regionName = string.Empty;
-                            try
-                            {
-                                regionName = saveDataList[index++];
-                            }
-                            catch (Exception e) { CustomWorldMod.CustomWorldLog($"Custom Regions: Exception at fixing savefile {e}"); }
-
-                            if (regionName == string.Empty)
-                                continue;
-
-                            if (!self.regionNames.ToList<string>().Contains(regionName))
-                            {
-                                CustomWorldMod.CustomWorldLog($"Custom Regions: fixing SAVE STATE file. Uninstalled region [{regionName}], clearing saveData...");
-                            }
-                        }
-                    }
-                }
-            }
-            return progLines;
-        }
-        */
-
         public static void UpdateProgresionCRS(PlayerProgression self)
         {
             self.regionNames = CustomWorldMod.AddModdedRegions(self.regionNames);
@@ -163,7 +106,6 @@ namespace CustomRegions
                     CustomWorldMod.Log($"Loaded karmaGate requirement for {keyValues.Key}: [{string.Join(", ", self.karmaLocks)}]", false, CustomWorldMod.DebugLevel.FULL);
                     if (foundKarma) { break; }
                 }
-                CustomWorldMod.Log($"Not found: karmaGate requirement for {keyValues.Key}", true);
             }
         }
 
