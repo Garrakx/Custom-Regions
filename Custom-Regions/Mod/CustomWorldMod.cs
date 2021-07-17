@@ -1553,8 +1553,8 @@ namespace CustomRegions.Mod
                      "   \"regions\": \"" + string.Join(", ", pack.regions.ToArray()) + "\", \n" +
                      "   \"thumbURL\": \"" + pack.thumbUrl + "\", \n" +
                      "   \"version\": \"" + pack.version + "\", \n" +
-                     "   \"requirements\": \"" + pack.requirements + "\", \n"+
-                    "   \"useRegionName\": \"" + pack.useRegionName + "\", \n";
+                     "   \"requirements\": \"" + pack.requirements + "\", \n" +
+                     "   \"useRegionName\": " + pack.useRegionName.ToString().ToLower() + ", \n";
 
                 json += "   \"checksum\": \"" + pack.checksum + "\" \n" + "}";
                 sw.WriteLine(json);
