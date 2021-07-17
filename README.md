@@ -56,6 +56,7 @@ This file contains information about the region pack. After you have made any mo
   * <u>`version`</u>: The version of the pack. CRS will add "v" before what appears here, so `"1.5"`will be shown as `v1.5`.
   * <u>`requirements`</u>: A written description of any additional dll requirements this pack needs. `"Requires BetterRainbows.dll and ColoredLight.dll."`
   * <u>`checksum`</u>: Unique string of characters and numbers generated from all the `Properties.txt` and `world_xx.txt` files. This means that if any of these files is altered or deleted, or if you add new files, the checksum will change. It is used to see if the region pack has received any modifications. This field is updated everytime you reload/refresh the region packs.
+  * (***new***)<u>`useRegionName`</u>: If `true`, the first Subregion from the `Properties.txt` file will be disaplyed in the continue save menu. If `false` (default), the pack name will be displayed instead.
 * <a name="regionInfo"></a>**Difference between `packInfo.json` and `regionInfo.json`**  
 In recent versions of CRS, the `regionInfo.json` file was upgraded to `packInfo.json`. The purpose is the same, just a change of name to unify the naming of region packs. If you are coming from a version that used the old file, it should get upgraded automatically.
 * <a name="corrupted"></a>**Corrupted saves**  
@@ -390,11 +391,25 @@ Note: you can have multiple unlocks per region.
 ***
 ### <a name="credits"></a>Credits
 
-Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick](https://classick-ii.tumblr.com/post/634237640578859008/boopbeep) Thanks to LeeMoriya for helping and suggestions. Thanks to Thalber and LB Gamer for the translations. Thanks Slime_Cubed for the idea of using a separate process to download the packs. Thanks to carrotpudding, LB Gamer, Precipitator, Stereo and laura for testing. Thanks dual curly potato noodles for suggestions on how to make the repo more collaboration friendly.
+Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick](https://classick-ii.tumblr.com/post/634237640578859008/boopbeep) Thanks to `LeeMoriya` for helping and suggestions. Thanks to `Thalber` and `LB Gamer` for the translations. Thanks `Slime_Cubed` for the idea of using a separate process to download the packs. Thanks to `carrotpudding`, `LB Gamer`, `Precipitator`, `Stereo` and `laura` for testing. Thanks `dual curly potato noodles` for suggestions on how to make the repo more collaboration friendly.
 
 ***
 ### <a name="changelog"></a>Changelog
 
+#### [0.8.42] - July 2021
+
+#### Changes
+* New field in `packInfo.json`, **`useRegionName`**. Used to read from the Properties Subregion field in the continue save menu instead of the pack name.
+* Creature merging improved:
+    * Offscreen dens should not get duplicated anymore.
+    * You can remove lines by adding `_REMOVECRS` tag to the line.
+* Load order is now randomly assigned.
+#### Fixes
+* Fixed a parse error when ommiting DISCONNECT in the world merging.
+* Pearl color will not be displayed properly in the map view.
+* CRS should not complain about having a Patch/Patches folder.
+
+***
 #### [0.8.40] - January 2021
 
 #### Changes
