@@ -138,8 +138,7 @@ namespace CustomRegions
         }
         */
 
-
-        private static void PlayerProgression_InitiateProgression(On.PlayerProgression.orig_InitiateProgression orig, PlayerProgression self)
+        public static void UpdateProgresionCRS(PlayerProgression self)
         {
             self.regionNames = CustomWorldMod.AddModdedRegions(self.regionNames);
             if (self.regionNames.Length != self.mapDiscoveryTextures.Length)
@@ -148,18 +147,35 @@ namespace CustomRegions
                 CustomWorldMod.Log($"Custom Regions: Resizing mapDiscovery in PlayerProgression.");
             }
             self.miscProgressionData.discoveredShelters = new List<string>[self.regionNames.Length];
+
+            // Karma locks
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
+            {
+                CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
+                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                string path2 = path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "locks.txt";
+
+                bool foundKarma = false;
+                if (File.Exists(path2))
+                {
+                    string[] array = File.ReadAllLines(path2);
+                    self.karmaLocks = array;
+                    CustomWorldMod.Log($"Loaded karmaGate requirement for {keyValues.Key}: [{string.Join(", ", self.karmaLocks)}]", false, CustomWorldMod.DebugLevel.FULL);
+                    if (foundKarma) { break; }
+                }
+                CustomWorldMod.Log($"Not found: karmaGate requirement for {keyValues.Key}", true);
+            }
+        }
+
+        private static void PlayerProgression_InitiateProgression(On.PlayerProgression.orig_InitiateProgression orig, PlayerProgression self)
+        {
+            UpdateProgresionCRS(self);
             orig(self);
         }
 
         private static void PlayerProgression_LoadProgression(On.PlayerProgression.orig_LoadProgression orig, PlayerProgression self)
         {
-            self.regionNames = CustomWorldMod.AddModdedRegions(self.regionNames);
-            if (self.regionNames.Length != self.mapDiscoveryTextures.Length)
-            {
-                Array.Resize(ref self.mapDiscoveryTextures, self.regionNames.Length);
-                CustomWorldMod.Log($"Custom Regions: Resizing mapDiscovery in PlayerProgression.");
-            }
-            self.miscProgressionData.discoveredShelters = new List<string>[self.regionNames.Length];
+            UpdateProgresionCRS(self);
             orig(self);
         }
 
