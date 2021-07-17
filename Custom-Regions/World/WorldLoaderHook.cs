@@ -99,7 +99,7 @@ namespace CustomRegions.CWorld
             if (!oldLine.Equals(default(WorldDataLine)))
             {
                 // Connection exited already, skipping...
-                //CustomWorldMod.Log("Connection already existed, skipping...", false, CustomWorldMod.DebugLevel.FULL);
+                CustomWorldMod.Log($"Connection already existed, skipping... [{newLine}]", false, CustomWorldMod.DebugLevel.FULL);
                 return oldLines;
             }
             ///-------------------------------------------------------------------------------------///
@@ -135,12 +135,12 @@ namespace CustomRegions.CWorld
             {
                 newRoomName = split[0];
                 newConnections = split[1];
-                try
+                if (newConnections.Contains("DISCONNECT"))
                 {
                     // necessary to avoid overwritting a vanilla room just because it
                     // used disconnect instead of disconnected or vice-versa
                     newConnections.Replace("DISCONNECT", "DISCONNECTED");
-                } catch { }
+                } 
 
                 // Line has ending
                 if (split.Length == 3)
@@ -172,7 +172,10 @@ namespace CustomRegions.CWorld
                     modifiedOldLine = true;
                     CustomWorldMod.Log($"[WorldMerging]: Added new ending [{newEndingString}] ([{newPackName}]) to [{oldLine.roomName}] ([{oldLine.packName}])");
                 }
-                // do nothing
+                else
+                {
+                    // do nothing
+                }
                 
             }
             ///-------------------------------------------------------------------------------------///
@@ -216,7 +219,7 @@ namespace CustomRegions.CWorld
                             modifiedNewLine = true;
                             newConnList.Add("DISCONNECTED");
                         }
-                        CustomWorldMod.Log($"[WorldMerging]: Pack [{newPackName}] omitted DISCONNECT/DISCONNECTED in their lines, added to increase compatibility");
+                        CustomWorldMod.Log($"[WorldMerging]: Pack [{newPackName}] omitted DISCONNECT/DISCONNECTED in their lines, added to increase compatibility -> [{string.Join(", ", newConnList.ToArray())}]");
                     }
 
                     // The mod will replace the old lines since they are vanilla
@@ -229,7 +232,7 @@ namespace CustomRegions.CWorld
                         // Check if there is an ending setting
                         newEndingString = (!newEndingString.Equals(string.Empty)) ? (" : " + newEndingString) : string.Empty;
                         // Rebuild line
-                        updatedNewLine = newRoomName + updatedNewConnections + newEndingString;
+                        updatedNewLine = newRoomName + " : " + updatedNewConnections + newEndingString;
                         
                     }
                     newWorldDataLine = new WorldDataLine(updatedNewLine, newRoomName, updatedNewConnections, newEndingString, false, newPackName);
@@ -427,7 +430,7 @@ namespace CustomRegions.CWorld
             string[] split_rooms = Regex.Split(split[position], ", ");
 
             foreach (string s in split_rooms)
-            {
+            { 
                 if (s.Trim() != "")
                 {
                     connections.Add(s);
@@ -444,7 +447,242 @@ namespace CustomRegions.CWorld
         /// Compares and merges a creatre-line in the existing creature list
         /// TODO-REWRITE
         /// </summary>
-        internal static List<WorldDataLine> AddNewCreature(string newCreatureLine, List<WorldDataLine> oldCreaturesSpawns)
+        /// 
+        internal static List<WorldDataLine> AddNewCreature(string newSpawn, List<WorldDataLine> oldSpawnLines, string newPackName)
+        {
+            //CustomWorldMod.Log($"Analyzing line [{newLine}]");
+
+            ///-------------------------------------------------------------------------------------///
+            // Check if oldSpawn contains new line or is removing a spawn
+            bool removingLine = false;
+            if (newSpawn.Contains(CustomWorldMod.removeWorldLineDiv))
+            {
+                CustomWorldMod.Log($"Removing spawn [{newSpawn}] ...");
+                newSpawn = newSpawn.Replace(CustomWorldMod.removeWorldLineDiv, "");
+                removingLine = true;
+            }
+            WorldDataLine oldSpawnLine = oldSpawnLines.Find(x => x.line.Equals(newSpawn));
+            if (!oldSpawnLine.Equals(default(WorldDataLine)))
+            {
+                if (removingLine)
+                {
+                    oldSpawnLines.Remove(oldSpawnLine);
+                    CustomWorldMod.Log($"Removed spawn [{oldSpawnLine.line}] ...");
+                }
+                else
+                {
+                    // Connection exited already, skipping...
+                    CustomWorldMod.Log($"Spawn already existed, skipping... [{newSpawn}]", false, CustomWorldMod.DebugLevel.FULL);
+                }
+                return oldSpawnLines;
+            }
+            ///-------------------------------------------------------------------------------------///
+
+            bool modifiedNewSpawn = false;
+            bool modifiedOldSpawn = false;
+
+            // If true, lane will be replaced/merged
+            // If false, lane will be added
+            bool replaceOrMerge = false;
+
+            ///-------------------------------------------------------------------------------------///
+            // Pre-processing
+            string[] split = Regex.Split(newSpawn, " : ");
+            string newRoomName = string.Empty;
+            string newSpawns = string.Empty;
+            ///-------------------------------------------------------------------------------------///
+
+
+            // DataLine to add to oldLlist
+            WorldDataLine? newWorldDataLine = null;
+            bool lineage = false;
+            //List<string> logOuput = new List<string>();
+
+            // Corrupted line
+            if (split.Length < 2)
+            {
+                CustomWorldMod.Log($"[WorldMerging]: Corrupted spawn [{newSpawn}] from [{newPackName}]", true);
+                return oldSpawnLines;
+            }
+            else
+            {
+                if (split.Length > 2 && newSpawn.Contains("LINEAGE"))
+                {
+                    CustomWorldMod.Log($"[WorldMerging]: Lineage [{newSpawn}] from [{newPackName}]", true);
+                    newRoomName = split[1];
+                    newSpawns = split[2];
+                    lineage = true;
+                }
+                else
+                {
+                    newRoomName = split[0];
+                    newSpawns = split[1];
+                }
+            }
+
+            // Line that has same room name, but different spawn
+            oldSpawnLine = oldSpawnLines.Find(x => x.roomName.Equals(newRoomName));
+            ///-------------------------------------------------------------------------------------///
+            // pack added a new spawn
+            ///-------------------------------------------------------------------------------------///
+            if (oldSpawnLine.Equals(default(WorldDataLine)))
+            {
+                replaceOrMerge = false;
+                newWorldDataLine = new WorldDataLine(newSpawn, newRoomName, newSpawns, "", lineage, false, newPackName);
+            }
+            ///-------------------------------------------------------------------------------------///
+            // connections are the same, different ending
+            ///-------------------------------------------------------------------------------------///
+            else if (oldSpawnLine.connections.Equals(newSpawns))
+            {
+                // SHOULD NEVER HAPPEN
+            }
+            ///-------------------------------------------------------------------------------------///
+            // Spawn needs merging, since the roomName is the same, but the connections are different
+            ///-------------------------------------------------------------------------------------///
+            else
+            {
+                replaceOrMerge = true;
+                CustomWorldMod.Log($"[CreatureMerging]: Merging/replacing oldSpawn " +
+                    $"[{oldSpawnLine.line}] ({oldSpawnLine.packName}) with [{newSpawn}] ({newPackName})");
+
+                //-----------------------------------------//
+                //          Build new connections
+                //-----------------------------------------//
+
+                // Convert the line strings into Lists so it is easier to manipulate and read
+                List<string> oldConnList = FromConnectionsToList(oldSpawnLine.connections);
+                List<string> newConnList = FromConnectionsToList(newSpawns);
+
+                ///------------------------------------------------------------------------------------------------------------///
+                /// HOW IT WORKS (subject to change)                                
+                /// 
+                /// If the mod is modifying a vanilla spawn, it will replace it completly. 
+                /// 
+                /// If the mod is modifying a spawn that is either modded or modified by another mod, CR will try to merge both.
+                /// 
+                ///------------------------------------------------------------------------------------------------------------///
+
+                // -------------------------------------- //
+                // Replace old spawn since it was vanilla  //
+                // -------------------------------------- //
+                if (oldSpawnLine.vanilla)
+                {
+
+                    // The mod will replace the old lines since they are vanilla
+                    string updatedNewSpawn = newSpawn;
+                    string updatedNewConnections = newSpawns;
+                    if (modifiedNewSpawn)
+                    {
+                        // From list to string separated with comma
+                        updatedNewConnections = string.Join(", ", newConnList.ToArray());
+                        // Rebuild line
+                        updatedNewSpawn = newRoomName + " : " + updatedNewConnections;
+
+                    }
+                    newWorldDataLine = new WorldDataLine(updatedNewSpawn, newRoomName, updatedNewConnections, "", lineage, false, newPackName);
+                }
+                // ------------------------ //
+                // Merge between two packs  //
+                // ------------------------ //
+                else
+                {
+                    for (int j = 0; j < newConnList.Count; j++)
+                    {
+                        for (int i = 0; i < oldConnList.Count; i++)
+                        {
+                            // Connection is the same, skip
+                            if (oldConnList[i].Equals(newConnList[j]))
+                            {
+                                continue;
+                            }
+
+                            // The room to be merged has empty exits, so new mod will use those
+                            if (!oldConnList.Contains(newConnList[j]))
+                            {
+                                CustomWorldMod.Log($"[WorldMerging]: Replaced disconnected [{oldConnList[i]}] with [{newConnList[j]}]");
+                                oldConnList[i] = newConnList[j];
+                                modifiedOldSpawn = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Check if old line contains new line
+                    List<string> connectionsMissing = newConnList.Except(newConnList).ToList();
+
+                    if (modifiedOldSpawn)
+                    {
+                        // From list to string separated with comma
+                        string updatedOldConnections = string.Join(", ", oldConnList.ToArray());
+                        string lineageString = lineage ? "LINEAGE : " : "";
+
+                        // Rebuild line
+                        string updatedOldLine = lineage + oldSpawnLine.roomName + " : " + updatedOldConnections;
+                        newWorldDataLine = new WorldDataLine(updatedOldLine, oldSpawnLine.roomName, updatedOldConnections, "", false, "Merged");
+                    }
+                    // OUCH! TWO PACKS ARE INCOMPATIBLE D:
+                    else
+                    {
+                        // [TODO] Add connections missing to a list to remove any disconnected rooms to avoid crash...
+                        string errorLog = $"#Found possible incompatibility! Existing line: " +
+                            $"[{oldSpawnLine.line}] from [{oldSpawnLine.packName}] and new line [{newSpawn}] from [{newPackName}].\n   " +
+                            $"You might be missing compatibility patch or the two packs are incompatible.";
+                        CustomWorldMod.analyzingLog += errorLog + "\n\n";
+                        CustomWorldMod.Log(errorLog, true);
+                    }
+                }
+            }
+
+            if (newWorldDataLine != null)
+            {
+                ///------------------------------------------------------------------------------------- ///
+                // Added new connection
+                ///------------------------------------------------------------------------------------- ///
+                if (!replaceOrMerge)
+                {
+                    // if (!oldLines.Find(x => x.roomName.Equals(newWorldDataLine.Value.roomName)).Equals(default(WorldDataLine)))
+                    int index = oldSpawnLines.IndexOf(oldSpawnLines.Find(x => x.roomName.Equals(newWorldDataLine.Value.roomName)));
+                    if (index == -1)
+                    {
+                        oldSpawnLines.Add(newWorldDataLine.Value);
+                        CustomWorldMod.Log($"Final action: add new line [{newWorldDataLine.Value.line}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+                    }
+                    else
+                    {
+                        // FATAL ERROR
+                        CustomWorldMod.Log($"[WorldMerging]: Fatal error when merging, line to be added already existed " +
+                            $"[{newWorldDataLine.Value.line}]", true);
+                    }
+                }
+                ///------------------------------------------------------------------------------------- ///
+                // Modified existing connection (replace or merge)
+                ///------------------------------------------------------------------------------------- ///
+                else
+                {
+                    int index = oldSpawnLines.IndexOf(oldSpawnLines.Find(x => x.roomName.Equals(newRoomName)));
+                    if (index != -1)
+                    {
+                        CustomWorldMod.Log($"[WorldMerging]: Updated line [{oldSpawnLines[index].line}] --> [{newWorldDataLine.Value.line}]");
+                        oldSpawnLines[index] = newWorldDataLine.Value;
+                    }
+                    else
+                    {
+                        // FATAL ERROR
+                        CustomWorldMod.Log($"[WorldMerging]: Fatal error when merging, line to be merged didn't exist " +
+                            $"[{newWorldDataLine.Value.line}]", true);
+                    }
+                }
+            }
+            else
+            {
+                // do nothing
+            }
+
+            return oldSpawnLines;
+        }
+
+        internal static List<WorldDataLine> AddNewCreatureOld(string newCreatureLine, List<WorldDataLine> oldCreaturesSpawns)
         {
             bool sameCreatureLine = false;
             string creatureLineBeReplaced = string.Empty;
@@ -455,13 +693,13 @@ namespace CustomRegions.CWorld
 
             CustomWorldMod.Log($"Custom Regions: Adding new creature spawn [{newCreatureLine}]]", false, CustomWorldMod.DebugLevel.FULL);
 
-            if (newCreatureLine.Contains("OFFSCREEN"))
+            /*if (newCreatureLine.Contains("OFFSCREEN"))
             {
                 //creatureLineBeReplaced = newCreatureLine;
                 creatureLineBeReplaced = string.Empty;
-                sameCreatureLine = false;
+                //sameCreatureLine = false;
             }
-            else
+            else*/
             {
 
                 if (newCreatureLine.Contains("LINEAGE"))
@@ -483,6 +721,7 @@ namespace CustomRegions.CWorld
                         // The spawn is exactly the same, skipped
                         sameCreatureLine = true;
                         creatureLineBeReplaced = string.Empty;
+                        CustomWorldMod.Log($"Skipped creature line [{newCreatureLine}] becase it was not new", false, CustomWorldMod.DebugLevel.FULL);
                         break;
                     }
                     else
@@ -512,22 +751,6 @@ namespace CustomRegions.CWorld
                         }
                         // CustomWorldMod.CustomWorldLog($"Custom Regions: Comparing [{oldLinesList[roomIndex]}] with [{roomNameNewLine}]");
 
-
-                        /* if (lineage)
-                         {
-                             if(oldRoomName.Equals(roomNameNewLine))
-                             {
-                                 if (array[2] == Regex.Split(newCreatureLine, " : ")[2])
-                                 {
-                                     // Found same LINEAGE
-                                     creatureLineBeReplaced = string.Empty;
-                                     sameCreatureLine = true;
-                                     break;
-                                 }
-                                 creatureLineBeReplaced = oldSpawnLine.data;
-                             }
-                         }
-                         else*/
                         {
                             // Adding creatures to new room, check for collision
                             if (oldRoomName.Equals(roomNameNewLine))
@@ -536,16 +759,8 @@ namespace CustomRegions.CWorld
                             }
 
                         }
-
-
-
-
                         //CustomWorldMod.CustomWorldLog($"Custom Regions: Analyzing [{newCreatureLine}]. Room Name [{roomName}]");
-
-
                     }
-
-
                 }
             }
             if (creatureLineBeReplaced == string.Empty)
@@ -654,6 +869,7 @@ namespace CustomRegions.CWorld
 
             return oldCreaturesSpawns;
         }
+
 
         /// <summary>
         /// Create CreatureLine struct from string line. Used in Creature merging
@@ -907,9 +1123,14 @@ namespace CustomRegions.CWorld
 
         /// <summary>
         /// Reads and loads all the world_XX.txt files found in all the custom worlds.
-        /// TODO: a) Implement an algorithm that merges all those files b) Just use the last one loaded.
         /// </summary>
+        /// 
         public static List<string> GetWorldLines(WorldLoader self)
+        {
+            return GetWorldLines(self.lines, self.worldName, self.playerCharacter);
+        }
+
+        public static List<string> GetWorldLines(List<string> selfLines, string selfWorldName, int selfPlayerCharacter)
         {
             List<string> lines = new List<string>();
 
@@ -921,7 +1142,7 @@ namespace CustomRegions.CWorld
             List<WorldDataLine> CREATURES = new List<WorldDataLine>();
             List<WorldDataLine> BATS = new List<WorldDataLine>();
 
-            if (self.lines.Count > 0)
+            if (selfLines.Count > 0)
             {
                 // Fill ROOMS with vanilla rooms
                 CustomWorldMod.Log("Custom Regions: Found vanilla room, filling lines");
@@ -929,7 +1150,7 @@ namespace CustomRegions.CWorld
                 bool startCreatures = false;
                 bool startBats = false;
 
-                foreach (string s in self.lines)
+                foreach (string s in selfLines)
                 {
                     // ROOMS
                     if (s.Equals("END ROOMS"))
@@ -955,12 +1176,11 @@ namespace CustomRegions.CWorld
                         {
                             roomName = split[0];
                             connections = split[1];
-                            try
+                            if (connections.Contains("DISCONNECT"))
                             {
                                 connections.Replace("DISCONNECT", "DISCONNECTED");
                             }
-                            catch { }
-
+                            
                             // Line has ending
                             if (split.Length == 3)
                             {
@@ -981,7 +1201,34 @@ namespace CustomRegions.CWorld
                     }
                     if (startCreatures)
                     {
-                        CREATURES.Add(new WorldDataLine(s, true));
+                        // Pre-processing
+                        string[] split = Regex.Split(s, " : ");
+                        string roomName = string.Empty;
+                        string spawns = string.Empty;
+                        bool lineage = false;
+
+                        List<string> logOuput = new List<string>();
+
+                        // Corrupted line (this should not happen)
+                        if (split.Length < 2)
+                        {
+                            CustomWorldMod.Log($"Corrupted vanilla line [{s}]", true);
+                        }
+                        else
+                        {
+                            if (split.Length > 2 && spawns.Contains("LINEAGE"))
+                            {
+                                roomName = split[1];
+                                spawns = split[2];
+                                lineage = true;
+                            }
+                            else
+                            {
+                                roomName = split[0];
+                                spawns = split[1];
+                            }
+                        }
+                        CREATURES.Add(new WorldDataLine(s, roomName, spawns, "", lineage, true, "Vanilla"));
                     }
                     if (s.Equals("CREATURES"))
                     {
@@ -1019,22 +1266,23 @@ namespace CustomRegions.CWorld
                     Path.DirectorySeparatorChar,
                     "Regions",
                     Path.DirectorySeparatorChar,
-                    self.worldName,
+                    selfWorldName,
                     Path.DirectorySeparatorChar,
                     "world_",
-                    self.worldName,
+                    selfWorldName,
                     ".txt"
-                });
+                }); 
                 
                 if (File.Exists(test))
                 {
-                    CustomWorldMod.Log($"Custom Regions: Found world_{self.worldName}.txt from {keyValues.Value}");
+                    CustomWorldMod.Log($"Custom Regions: Found world_{selfWorldName}.txt from {keyValues.Value}");
                     foundAnyCustomRegion = true;
                     //self.lines = new List<string>();
                     string[] array = File.ReadAllLines(test);
                     if(!array.Contains("ROOMS") && !array.Contains("CREATURES") && !array.Contains("BLOCKAGES"))
                     {
-                        CustomWorldMod.Log($"RegionPack [{keyValues.Key}] has corrupted world_{self.worldName}.txt file: Missing any ROOMS/CREATURES/BLOCKAGES delimiters", true);
+                        CustomWorldMod.Log($"RegionPack [{keyValues.Key}] has corrupted world_{selfWorldName}.txt file: " +
+                            $"Missing any ROOMS/CREATURES/BLOCKAGES delimiters", true);
                     }
                     for (int i = 0; i < array.Length; i++)
                     {
@@ -1051,7 +1299,7 @@ namespace CustomRegions.CWorld
                                         string[] array2 = Regex.Split(array[i].Substring(1, j - 1), ",");
                                         for (int k = 0; k < array2.Length; k++)
                                         {
-                                            if (array2[k] == self.playerCharacter.ToString())
+                                            if (array2[k] == selfPlayerCharacter.ToString())
                                             {
                                                 array[i] = array[i].Substring(j + 1, array[i].Length - j - 1);
                                                 if (array[i][0] == ' ')
@@ -1071,19 +1319,22 @@ namespace CustomRegions.CWorld
 
                                 if (array[i] == "ROOMS")
                                 {
+                                    CustomWorldMod.Log($"[{keyValues.Key}]: Merging rooms...", false, CustomWorldMod.DebugLevel.MEDIUM);
                                     status = MergeStatus.ROOMS;
                                 }
                                 else if (array[i] == "CREATURES")
                                 {
+                                    CustomWorldMod.Log($"[{keyValues.Key}]: Merging creatures...", false, CustomWorldMod.DebugLevel.MEDIUM);
                                     status = MergeStatus.CREATURES;
                                 }
                                 else if (array[i] == "BAT MIGRATION BLOCKAGES")
                                 {
+                                    CustomWorldMod.Log($"[{keyValues.Key}]: Merging bats...", false, CustomWorldMod.DebugLevel.MEDIUM);
                                     status = MergeStatus.BATS;
                                 }
                                 else if (array[i] != "END ROOMS" && array[i] != "END CREATURES" && array[i] != "END BAT MIGRATION BLOCKAGES")
                                 {
-                                    switch (status)
+                                    switch (status) 
                                     {
                                         case MergeStatus.ROOMS:
                                             // MERGE ROOMS
@@ -1091,7 +1342,7 @@ namespace CustomRegions.CWorld
                                             break;
                                         case MergeStatus.CREATURES:
                                             // MERGE CREATURES
-                                            CREATURES = AddNewCreature(array[i], CREATURES); //CREATURES.Add(array[i]);
+                                            CREATURES = AddNewCreature(array[i], CREATURES, keyValues.Key);
                                             break;
                                         case MergeStatus.BATS:
                                             // MERGE BATS
@@ -1127,13 +1378,14 @@ namespace CustomRegions.CWorld
             if (lines.Count < 2)
             {
                 CustomWorldMod.Log("Lines.Count < 2", true);
-                return self.lines;
+                return selfLines;
             }
 
             if (!foundAnyCustomRegion)
             {
-                CustomWorldMod.Log("Custom regions did not find any custom world_XX.txt files, so it will load vanilla. (if you were not expecting this it means you have something installed incorrectly)");
-            }
+                CustomWorldMod.Log("Custom regions did not find any custom world_XX.txt files, so it will load vanilla. " +
+                    "(if you were not expecting this it means you have something installed incorrectly)");
+            } 
             else
             {
                 CustomWorldMod.Log("\nMerged world_XX.txt file");
@@ -1211,6 +1463,17 @@ namespace CustomRegions.CWorld
                 self.faultyExits = new List<WorldCoordinate>();
             }
             orig(self);
+        }
+
+        // TO DO
+        private static void AnalyzeWorldConnections()
+        {
+            List<string> testLines = null; // fill with vanilla
+            string worldName = null;
+            int playerCharacter = 0; 
+
+
+            testLines = GetWorldLines(testLines, worldName, playerCharacter);
         }
     }
 }

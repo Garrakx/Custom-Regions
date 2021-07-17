@@ -10,7 +10,7 @@ namespace CustomRegions.Mod
     {
         /// <summary>
         /// Struct with information of available regions 
-        /// [regionID, regionName, description, activated, checksum, loadOrder(Default is 100)]
+        /// [regionID, regionName, description, activated, checksum, loadOrder(Default is random)]
         /// </summary>
         public struct RegionPack
         {
@@ -29,10 +29,13 @@ namespace CustomRegions.Mod
             public string version;
             public string packUrl;
             public string requirements;
+            /// <summary>If true, region name will be used for slugcat page menu.
+            ///</summary>
+            public bool useRegionName;
 
             public RegionPack(string name, string description, string author, bool activated, string checksum, string folderName, string url, 
                 Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig, List<string> regions, int loadOrder, 
-                int packNumber, string version, string packUrl, string requirements)
+                int packNumber, string version, string packUrl, string requirements, bool usePackName)
             {
                 this.name = name;
                 this.description = description;
@@ -49,7 +52,10 @@ namespace CustomRegions.Mod
                 this.version = version;
                 this.packUrl = packUrl;
                 this.requirements = requirements;
+                this.useRegionName = usePackName;
             }
+            /// <summary>Initializes everything.
+            ///</summary>
             public RegionPack(string folderName)
             {
                 this.name = "";
@@ -62,13 +68,16 @@ namespace CustomRegions.Mod
                 this.electricGates = new Dictionary<string, float>();
                 this.regionConfig = new Dictionary<string, RegionConfiguration>();
                 this.regions = new List<string>();
-                this.loadOrder = int.MaxValue;
-                this.loadNumber = int.MaxValue;
+                this.loadOrder = (int)UnityEngine.Random.value*50;
+                this.loadNumber = this.loadOrder;
                 this.version = "1.0";
                 this.packUrl = "";
                 this.requirements = "";
+                this.useRegionName = false;
             }
 
+            /// <summary>Initializes everything to null except ctor arguments. Used for the save inof
+            ///</summary>
             public RegionPack(string name, string checkSum, int packNumber)
             {
                 this.name = name;
@@ -86,6 +95,7 @@ namespace CustomRegions.Mod
                 this.version = null;
                 this.packUrl = null;
                 this.requirements = null;
+                this.useRegionName = false;
             }
         }
 
@@ -132,7 +142,8 @@ namespace CustomRegions.Mod
 
         /// <summary>
         /// Struct with information of world lines, used in region merging and loading.
-        /// [Data: holds the line itself, Vanilla: comes from vanilla or is it modified, modID: last mod which loaded or modified the line (empty if vanilla)]
+        /// [Data: holds the line itself, Vanilla: comes from vanilla or is it modified, 
+        /// modID: last mod which loaded or modified the line (empty if vanilla)]
         /// </summary>
         public struct WorldDataLine
         {
@@ -140,8 +151,20 @@ namespace CustomRegions.Mod
             public string roomName;
             public string connections;
             public string endingString;
+            public bool lineage;
             public bool vanilla;
             public string packName;
+
+            public WorldDataLine(string line, string roomName, string connections, string endingString, bool lineage, bool vanilla, string modID)
+            {
+                this.line = line;
+                this.roomName = roomName;
+                this.connections = connections;
+                this.endingString = endingString;
+                this.lineage = lineage;
+                this.vanilla = vanilla;
+                this.packName = modID;
+            }
 
             public WorldDataLine(string line, string roomName, string connections, string endingString, bool vanilla, string modID)
             {
@@ -149,15 +172,18 @@ namespace CustomRegions.Mod
                 this.roomName = roomName;
                 this.connections = connections;
                 this.endingString = endingString;
+                this.lineage = false;
                 this.vanilla = vanilla;
                 this.packName = modID;
             }
+
             public WorldDataLine(string line, bool vanilla)
             {
                 this.line = line;
                 this.roomName = null;
                 this.connections = null;
                 this.endingString = null;
+                this.lineage = false;
                 this.vanilla = vanilla;
                 this.packName = null;
             }
