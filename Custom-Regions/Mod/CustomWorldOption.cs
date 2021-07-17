@@ -32,21 +32,120 @@ namespace CustomRegions.Mod
             errorTabWarning = false;
 
             Tabs = new OpTab[4];
-            Tabs[0] = new OpTab("Main Tab");
-            MainTabRedux(0);
 
-            Tabs[1] = new OpTab("Analyzer");
-            AnalyserSaveTab(1);
-
-            Tabs[2] = new OpTab("Browse RainDB");
-            PackBrowser(2);
-
-            Tabs[3] = new OpTab("News");
-            NewsTab(3);
+            MainTabRedux(0, "Main Tab");
+            //PackManager(1, "Pack Manager");
+            AnalyserSaveTab(1, "Analyzer");
+            PackBrowser(2, "Browse RainDB");
+            NewsTab(3, "News");
         }
 
-        private void NewsTab(int tab)
+        // TO DO
+        private void PackManager(int tabNumber, string tabName)
         {
+            Tabs[tabNumber] = new OpTab(tabName);
+
+            OpTab tab = Tabs[tabNumber];
+
+            // Header
+            OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), $"PACK MANAGER".ToUpper(), FLabelAlignment.Center, true);
+            tab.AddItems(labelID);
+
+            OpLabel labelDsc = new OpLabel(new Vector2(100f, 540), new Vector2(400f, 20f), $"Uninstall / disable packs", FLabelAlignment.Center, false);
+            tab.AddItems(labelDsc);
+
+            Dictionary<string, RegionPack> packs = CustomWorldMod.installedPacks;
+
+            //CreateRegionPackList(Tabs[tab], CustomWorldMod.installedPacks, CustomWorldMod.downloadedThumbnails, false);
+            //How Many Options
+            int numberOfOptions = packs.Count;
+
+            if (numberOfOptions < 1)
+            {
+                OpLabel label2 = new OpLabel(new Vector2(100f, 450), new Vector2(400f, 20f), "No regions available.", FLabelAlignment.Center, false);
+                tab.AddItems(label2);
+                return;
+            }
+
+            int spacing = 25;
+
+            // SIZES AND POSITIONS OF ALL ELEMENTS //
+            Vector2 buttonSize = new Vector2(80, 30);
+            Vector2 rectSize = new Vector2(475, buttonSize.y*2 + spacing);
+            Vector2 labelSize = new Vector2(rectSize.x - 1.5f * spacing, 25);
+            OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfOptions)));
+            Vector2 rectPos = new Vector2(spacing, mainScroll.contentSize - rectSize.y - spacing);
+            // ---------------------------------- //
+
+            tab.AddItems(mainScroll);
+
+            for (int i = 0; i < numberOfOptions; i++)
+            {
+                RegionPack pack = packs.ElementAt(i).Value;
+                bool activated = pack.activated;
+
+                Color colorEdge = activated ? Color.white : new Color((108f / 255f), 0.001f, 0.001f);
+
+                // RECTANGLE
+                OpRect rectOption = new OpRect(rectPos, rectSize, 0.2f)
+                {
+                    doesBump = activated && !pack.packUrl.Equals(string.Empty)
+                };
+                mainScroll.AddItems(rectOption);
+                // ---------------------------------- //
+
+
+                // REGION NAME LABEL
+                string nameText = pack.name;
+                if (!pack.author.Equals(string.Empty))
+                {
+                    nameText += " [by " + pack.author.ToUpper() + "]";
+                }
+                OpLabel labelRegionName = new OpLabel(rectPos + new Vector2(spacing, rectSize.y*0.5f-labelSize.y*0.5f), labelSize, "", FLabelAlignment.Left)
+                {
+                    description = nameText
+                };
+
+                // Add load order number
+                nameText = (i + 1).ToString() + "] " + nameText;
+
+                // Trim in case of overflow
+                CRExtras.TrimString(ref nameText, labelSize.x, "...");
+                labelRegionName.text = nameText;
+                mainScroll.AddItems(labelRegionName);
+                // ---------------------------------- //
+
+
+                // BUTTON UNINSTAL
+                Vector2 uniBottonPos = new Vector2(rectSize.x - buttonSize.x - spacing, rectSize.y * 0.5f - buttonSize.y * 0.5f);
+                OpSimpleButton uniButton = new OpSimpleButton(
+                    rectPos + uniBottonPos,
+                    new Vector2(80, 30), 
+                    "", "Uninstall");
+   
+                mainScroll.AddItems(uniButton);
+
+                // BUTTON DISABLE / ENABLE
+                string toggle = pack.activated ? "Disable" : "Enable";
+                OpSimpleButton toggleButton = new OpSimpleButton(
+                    rectPos + uniBottonPos - new Vector2(buttonSize.x + spacing, 0),
+                    new Vector2(80, 30),
+                    "", toggle);
+
+                mainScroll.AddItems(toggleButton);
+
+
+                rectOption.colorEdge = colorEdge;
+                labelRegionName.color = colorEdge;
+
+                rectPos.y -= rectSize.y + spacing;
+            }
+        }
+
+        private void NewsTab(int tab, string tabName)
+        {
+            Tabs[tab] = new OpTab(tabName);
+
             // Header
             OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), $"News Feed".ToUpper(), FLabelAlignment.Center, true);
             Tabs[tab].AddItems(labelID);
@@ -161,7 +260,9 @@ namespace CustomRegions.Mod
                     {
                         if (script.downloadButton == null)
                         {
-                            OpSimpleButton downloadButton = (Tabs.First(x => x.name.Equals("Browse RainDB")).items.Find(x => x is OpSimpleButton button && button.signal.Contains(script.packName)) as OpSimpleButton);
+                            OpSimpleButton downloadButton = (Tabs.First(x => x.name.Equals("Browse RainDB")).items.Find(
+                                                                x => x is OpSimpleButton button && button.signal.Contains(script.packName)
+                                                            ) as OpSimpleButton);
                             script.downloadButton = downloadButton;
                         }
                     }
@@ -265,8 +366,10 @@ namespace CustomRegions.Mod
             }
         }
 
-        private void PackBrowser(int tab)
+        private void PackBrowser(int tab, string tabName)
         {
+            Tabs[tab] = new OpTab(tabName);
+
             // Header
             OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), $"Browse RainDB".ToUpper(), FLabelAlignment.Center, true);
             Tabs[tab].AddItems(labelID);
@@ -280,8 +383,10 @@ namespace CustomRegions.Mod
             CreateRegionPackList(Tabs[tab], CustomWorldMod.rainDbPacks, CustomWorldMod.downloadedThumbnails, true);
         }
 
-        public void MainTabRedux(int tab)
+        public void MainTabRedux(int tab, string tabName)
         {
+            Tabs[tab] = new OpTab(tabName);
+
             // MOD DESCRIPTION
             OpLabel labelID = new OpLabel(new Vector2(50, 560), new Vector2(500, 40f), mod.ModID.ToUpper(), FLabelAlignment.Center, true);
             Tabs[tab].AddItems(labelID);
@@ -289,7 +394,7 @@ namespace CustomRegions.Mod
             Tabs[tab].AddItems(labelDsc);
 
             // VERSION AND AUTHOR
-            OpLabel labelVersion = new OpLabel(new Vector2(50, 530), new Vector2(200f, 20f), "Version: pre-release" /*+ mod.Version*/, FLabelAlignment.Left, false);
+            OpLabel labelVersion = new OpLabel(new Vector2(50, 530), new Vector2(200f, 20f), "Version: "+ mod.Version, FLabelAlignment.Left, false);
             Tabs[tab].AddItems(labelVersion);
             OpLabel labelAuthor = new OpLabel(new Vector2(430, 560), new Vector2(60, 20f), "by Garrakx", FLabelAlignment.Right, false);
             Tabs[tab].AddItems(labelAuthor);
@@ -676,8 +781,10 @@ namespace CustomRegions.Mod
         }
 
 
-        private void AnalyserSaveTab(int tab)
+        private void AnalyserSaveTab(int tab, string tabName)
         {
+            Tabs[tab] = new OpTab(tabName);
+
             OpLabel labelID = new OpLabel(new Vector2(100f, 560), new Vector2(400f, 40f), "Analyzer".ToUpper(), FLabelAlignment.Center, true);
             Tabs[tab].AddItems(labelID);
 

@@ -32,7 +32,7 @@ namespace CustomRegions.CustomMenu
                         break;
                     }
                 }
-                if(allNewGame)
+                if (allNewGame)
                 {
                     errorText = CustomWorldMod.Translate("Problems found in your save, please use the Reset Progress button in the RW options menu");
                 }
@@ -79,34 +79,47 @@ namespace CustomRegions.CustomMenu
                             //CustomWorldMod.activatedPacks.TryGetValue(text2, out fullRegionName);
                             if (CustomWorldMod.activeModdedRegions.Contains(regID))
                             {
-                                foreach(KeyValuePair<string, string> entry in CustomWorldMod.activatedPacks)
+                                foreach (KeyValuePair<string, string> entry in CustomWorldMod.activatedPacks)
                                 {
                                     if (CustomWorldMod.installedPacks[entry.Key].regions.Contains(regID))
                                     {
-                                        fullRegionName = entry.Value;
-                                        CustomWorldMod.Log($"Displaying region name: [{fullRegionName}]. If you pack contains multiple regions, contact @Garrakx.");
+                                        string regionName = CWorld.RegionHook.GetSubRegionName(entry.Value, regID);
+                                        if (CustomWorldMod.installedPacks[entry.Key].useRegionName && regionName != null)
+                                        {
+                                            fullRegionName = regionName;
+                                            CustomWorldMod.Log($"Displaying region name: [{fullRegionName}]. If your pack" +
+                                                $"contains multiple regions, add \"useRegionName\" to the packInfo.json to use" +
+                                                $"the Subregion field from the Properties.txt file");
+                                        }  
+                                        else
+                                        {
+                                            fullRegionName = entry.Value; 
+                                            CustomWorldMod.Log($"Displaying pack name: [{fullRegionName}].");
+                                                //[OUTDATED] If you pack contains multiple regions, contact @Garrakx.");
+                                        }
+
                                         break;
                                     }
                                 }
                             }
-                                if (fullRegionName != null)
+                            if (fullRegionName != null)
+                            {
+                                if (fullRegionName.Length > 0)
                                 {
-                                    if (fullRegionName.Length > 0)
-                                    {
-                                        regID = fullRegionName;
+                                    regID = fullRegionName;
 
-                                        fullRegionName = string.Concat(new object[]
-                                        {
+                                    fullRegionName = string.Concat(new object[]
+                                    {
                                 regID,
                                 " - ",
                                 menu.Translate("Cycle"),
                                 " ",
                                 (slugcatNumber != 2) ? self.saveGameData.cycle : (RedsIllness.RedsCycles(self.saveGameData.redsExtraCycles) - self.saveGameData.cycle)
-                                        });
-                                    }
-                                    (label as MenuLabel).text = fullRegionName;
-                                    break;
+                                    });
                                 }
+                                (label as MenuLabel).text = fullRegionName;
+                                break;
+                            }
                         }
                     }
                 }
