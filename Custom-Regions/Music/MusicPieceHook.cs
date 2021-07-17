@@ -40,7 +40,7 @@ namespace CustomRegions.Music
                                 + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Songs" + Path.DirectorySeparatorChar
                                 + self.trackName + ".ogg";
 
-                            //CustomWorldMod.CustomWorldLog($"Subtrack-path [{text}]");
+                            CustomWorldMod.Log($"Subtrack-path [{text}]", false, CustomWorldMod.DebugLevel.FULL);
                             if (File.Exists(text))
                             {
                                 CustomWorldMod.Log($"Loaded track [{self.trackName}] from [{keyValues.Value}]");
@@ -63,7 +63,7 @@ namespace CustomRegions.Music
                                 + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Procedural" + Path.DirectorySeparatorChar
                                 + self.trackName + ".ogg";
 
-                            //CustomWorldMod.CustomWorldLog($"Subtrack-path [{text2}]");
+                            CustomWorldMod.Log($"Subtrack-path [{text2}]", false, CustomWorldMod.DebugLevel.FULL);
                             if (File.Exists(text2))
                             {
                                 CustomWorldMod.Log($"Loaded procedural track [{self.trackName}] from [{keyValues.Value}]");

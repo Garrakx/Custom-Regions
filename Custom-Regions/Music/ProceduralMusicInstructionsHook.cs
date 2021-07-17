@@ -45,6 +45,7 @@ namespace CustomRegions.Music
                                     {
                                         if (array3[j] == self.tracks[k].name)
                                         {
+                                            CustomWorldMod.Log($"Added layer [{array3[j]}]", false, CustomWorldMod.DebugLevel.FULL);
                                             self.layers[self.layers.Count - 1].tracks.Add(self.tracks[k]);
                                             break;
                                         }
@@ -54,6 +55,7 @@ namespace CustomRegions.Music
                         }
                         else if (array2.Length > 0 && array2[0].Length > 0 && File.Exists(pathToProceduralText + array2[0] + ".ogg"))
                         {
+                            CustomWorldMod.Log($"Added track [{array2[0] + ".ogg"}]", false, CustomWorldMod.DebugLevel.FULL);
                             self.tracks.Add(new ProceduralMusic.ProceduralMusicInstruction.Track(array2[0]));
                             string[] array4 = Regex.Split(array2[1], ", ");
                             for (int l = 0; l < array4.Length; l++)

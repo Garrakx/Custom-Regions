@@ -211,7 +211,13 @@ namespace CustomRegions.Mod
                     this.dependenciesName.Add(dependencyName);
                     try
                     {
+                        if (File.Exists(pathToMoveDependencies + dependencyName) ) 
+                        {
+                            Log($"Deleting old [{dependencyName}]...");
+                            File.Delete(pathToMoveDependencies + dependencyName);
+                        }
                         File.Move(dependency, pathToMoveDependencies + dependencyName);
+                        Log($"Saving [{dependencyName}]...");
                         movedDependencies = true;
                     }
                     catch (Exception e)
@@ -267,11 +273,12 @@ namespace CustomRegions.Mod
 
                 string usedDivider;
                 string finDivier = "<finStat>";
+                string errorDivider = "<err>";
                 if (log.Contains(progressDivider))
                 {
                     stringStatus = log.Substring(log.IndexOf(progressDivider) + progressDivider.Length);
                 }
-                else if (log.Contains(usedDivider = finDivier) || log.Contains(usedDivider = unzipDivider) || log.Contains(usedDivider = downloadDivider))
+                else if (log.Contains(usedDivider = finDivier) || log.Contains(usedDivider = unzipDivider) || log.Contains(usedDivider = downloadDivider) || log.Contains(usedDivider = errorDivider))
                 {
                     string status = log.Replace(usedDivider, "");
                     if (int.TryParse(status, out int intStatus))
@@ -280,6 +287,11 @@ namespace CustomRegions.Mod
                         {
                             errorGrabbingPack = false;
                         }
+                    }
+                    // Something went wrong
+                    else if (usedDivider == errorDivider)
+                    {
+                        CustomWorldMod.Log(status, true);
                     }
                 }
                 else if (!log.Equals(string.Empty))
