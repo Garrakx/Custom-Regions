@@ -14,6 +14,44 @@ namespace CustomRegions.CWorld
             On.Region.ctor += Region_ctor;
         }
 
+
+        public static string GetSubRegionName(string packName, string regID)
+        {
+            //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading custom properties for {keyValues.Key}");
+            string path = CustomWorldMod.resourcePath + packName + Path.DirectorySeparatorChar;
+
+            string test = string.Concat(new object[]
+            {
+                Custom.RootFolderDirectory(),
+                path.Replace('/', Path.DirectorySeparatorChar),
+                "World",
+                Path.DirectorySeparatorChar,
+                "Regions",
+                Path.DirectorySeparatorChar,
+                regID,
+                Path.DirectorySeparatorChar,
+                "properties.txt"
+            });
+            if (File.Exists(test))
+            {
+                string[] array = File.ReadAllLines(test);
+                for (int i = 0; i < array.Length; i++)
+                {
+                    string text = Regex.Split(array[i], ": ")[0];
+                    if (text != null)
+                    {
+                        if (text.Equals("Subregion"))
+                        {
+                            return Regex.Split(array[i], ": ")[1];
+                        }
+                    }
+                }
+
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Holds the properties of the region
         /// </summary>
