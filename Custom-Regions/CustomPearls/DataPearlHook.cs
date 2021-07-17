@@ -15,8 +15,11 @@ namespace CustomRegions.CustomPearls
             On.DataPearl.ApplyPalette += DataPearl_ApplyPalette;
             On.DataPearl.AbstractDataPearl.ToString += AbstractDataPearl_ToString;
 
+            On.DataPearl.UniquePearlMainColor += DataPearl_UniquePearlMainColor;
+            On.DataPearl.UniquePearlHighLightColor += DataPearl_UniquePearlHighLightColor;
+
         }
-        
+
         private static string AbstractDataPearl_ToString(On.DataPearl.AbstractDataPearl.orig_ToString orig, DataPearl.AbstractDataPearl self)
         {
 
@@ -72,6 +75,40 @@ namespace CustomRegions.CustomPearls
 
             }
 
+        }
+
+        private static Color DataPearl_UniquePearlMainColor(On.DataPearl.orig_UniquePearlMainColor orig, DataPearl.AbstractDataPearl.DataPearlType pearlType)
+        {
+            foreach (KeyValuePair<int, CustomPearl> pearls in CustomWorldMod.customPearls)
+            {
+                DataPearl.AbstractDataPearl.DataPearlType dataPearlType = (DataPearl.AbstractDataPearl.DataPearlType)
+                            Enum.Parse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearls.Value.name);
+
+                if (pearlType == dataPearlType)
+                {
+                    return pearls.Value.color;
+                }
+
+            }
+
+            return orig(pearlType);
+        }
+
+        private static Color? DataPearl_UniquePearlHighLightColor(On.DataPearl.orig_UniquePearlHighLightColor orig, DataPearl.AbstractDataPearl.DataPearlType pearlType)
+        {
+            foreach (KeyValuePair<int, CustomPearl> pearls in CustomWorldMod.customPearls)
+            {
+                DataPearl.AbstractDataPearl.DataPearlType dataPearlType = (DataPearl.AbstractDataPearl.DataPearlType)
+                            Enum.Parse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearls.Value.name);
+
+                if (pearlType == dataPearlType)
+                {
+                    return pearls.Value.secondaryColor;
+                }
+
+            }
+
+            return orig(pearlType);
         }
     }
 }
