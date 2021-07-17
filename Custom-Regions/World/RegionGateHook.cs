@@ -26,23 +26,10 @@ namespace CustomRegions.CWorld
             {
                 CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-
-                /*
-                string text = string.Concat(new object[]
-                {
-                Custom.RootFolderDirectory(),
-                path.Replace('/', Path.DirectorySeparatorChar),
-                "World",
-                Path.DirectorySeparatorChar,
-                "selfs",
-                Path.DirectorySeparatorChar,
-                "locks.txt"
-                });
-                */
-
                 string path2 = path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "locks.txt";
+
                 bool foundKarma = false;
-                if (File.Exists(path2))
+                if (File.Exists(path2)) 
                 {
                     string[] array = File.ReadAllLines(path2);
 

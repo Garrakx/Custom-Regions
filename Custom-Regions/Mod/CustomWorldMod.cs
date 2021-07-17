@@ -53,16 +53,16 @@ namespace CustomRegions.Mod
         {
             mod = this;
             ModID = "Custom Regions Mod";
-            Version = "0.8." + version;
+            Version = "0.8." + version + "-experimental";
             author = "Garrakx";
-            versionCR = $"v0.8.{version}";
+            versionCR = $"v{Version}";
         }
 
         // Code for AutoUpdate support
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 41;
+        public int version = 41;//NEEDS UPDATE
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
