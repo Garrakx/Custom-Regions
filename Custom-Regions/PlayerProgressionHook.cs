@@ -84,6 +84,7 @@ namespace CustomRegions
         public static void UpdateProgresionCRS(PlayerProgression self)
         {
             self.regionNames = CustomWorldMod.AddModdedRegions(self.regionNames);
+
             if (self.regionNames.Length != self.mapDiscoveryTextures.Length)
             {
                 Array.Resize(ref self.mapDiscoveryTextures, self.regionNames.Length);
@@ -92,21 +93,30 @@ namespace CustomRegions
             self.miscProgressionData.discoveredShelters = new List<string>[self.regionNames.Length];
 
             // Karma locks
+            List<string> tempLocks = new List<string>(self.karmaLocks);
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
                 string path2 = path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "locks.txt";
 
-                bool foundKarma = false;
                 if (File.Exists(path2))
                 {
-                    string[] array = File.ReadAllLines(path2);
-                    self.karmaLocks = array;
-                    CustomWorldMod.Log($"Loaded karmaGate requirement for {keyValues.Key}: [{string.Join(", ", self.karmaLocks)}]", false, CustomWorldMod.DebugLevel.FULL);
-                    if (foundKarma) { break; }
+                    foreach (string line in File.ReadAllLines(path2))
+                    {
+                        if (!tempLocks.Contains(line))
+                            tempLocks.Insert(0, line);
+                    }
+                }
+                else
+                {
+                    CustomWorldMod.Log($"Custom Regions: {keyValues.Key} does not contain a locks.txt file", false, CustomWorldMod.DebugLevel.MEDIUM);
                 }
             }
+
+            self.karmaLocks = tempLocks.ToArray();
+            CustomWorldMod.Log($"Loaded karmaGate requirements [{string.Join(", ", self.karmaLocks)}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+            
         }
 
         private static void PlayerProgression_InitiateProgression(On.PlayerProgression.orig_InitiateProgression orig, PlayerProgression self)
