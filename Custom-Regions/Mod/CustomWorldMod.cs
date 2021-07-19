@@ -79,11 +79,11 @@ namespace CustomRegions.Mod
                 if (File.Exists(Custom.RootFolderDirectory() + "debugCRS.txt"))
                 {
                     string debugLevel = File.ReadAllText(Custom.RootFolderDirectory() + "debugCRS.txt");
-                    if(debugLevel.Contains("FULL"))
+                    if (debugLevel.Contains("FULL"))
                     {
                         CustomWorldMod.debugLevel = DebugLevel.FULL;
                     }
-                    else if(debugLevel.Contains("MEDIUM"))
+                    else if (debugLevel.Contains("MEDIUM"))
                     {
                         CustomWorldMod.debugLevel = DebugLevel.MEDIUM;
                     }
@@ -93,6 +93,8 @@ namespace CustomRegions.Mod
                     }
                 }
             } catch { }
+
+            CustomWorldMod.debugLevel = DebugLevel.FULL;
 
             bool usingBepinex = false;
             try
@@ -527,6 +529,14 @@ namespace CustomRegions.Mod
             CustomWorldMod.ReadSaveAnalyzerFiles();
 
             CustomWorldMod.AnalyzeSave();
+
+            try
+            {
+                CustomWorldMod.Log("Reloading player progresion...");
+                CustomWorldMod.rainWorldInstance.progression =
+                    new PlayerProgression(CustomWorldMod.rainWorldInstance, CustomWorldMod.rainWorldInstance.setup.loadProg);
+            }
+            catch (Exception e) { CustomWorldMod.Log($"Could not reload player progression [{e}]", true); }
 
         }
 
