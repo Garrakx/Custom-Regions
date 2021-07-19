@@ -28,6 +28,7 @@ namespace CustomRegions.Arena
                 {
                     CustomWorldMod.Log($"Error parsing levelUnlockID enum [{levelName}] - [{e}]", true);
                 }
+
                 if (unlockID >= 0)
                 {
                     return unlockID;

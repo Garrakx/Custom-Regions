@@ -47,19 +47,23 @@ namespace CustomRegions.CWorld
         private static AbstractRoomNode World_GetNode(On.World.orig_GetNode orig, World self, WorldCoordinate c)
         {
             // this.GetAbstractRoom(c.room).nodes[c.abstractNode];
+            bool foundError = false;
             try
             {
                 if (self.GetAbstractRoom(c.room) == null)
                 {
+                    foundError = true;
                     CustomWorldMod.Log("ERROR at GetNode !!! c.room Abstract is null", true);
                 }
 
                 else if (self.GetAbstractRoom(c.room).nodes == null)
                 {
+                    foundError = true;
                     CustomWorldMod.Log("ERROR at GetNode !!! abstractRoomNodes is null", true);
                 }
                 else if (self.GetAbstractRoom(c.room).nodes.Length < 1)
                 {
+                    foundError = true;
                     CustomWorldMod.Log("ERROR at GetNode !!! abstractRoomNodes is empty", true);
                 }
             }
@@ -67,6 +71,9 @@ namespace CustomRegions.CWorld
             {
                 CustomWorldMod.Log("ERROR!" + e, true);
             }
+            if (foundError)
+                CustomWorldMod.Log("Fatal error while loading the world. This is probably caused by a broken connection. " +
+                    "Make sure you are not missing a comp patch.", true);
 
             /*
             string debug = $"Custom Regions: Nodes in [{self.GetAbstractRoom(c.room).name}]"+" {";

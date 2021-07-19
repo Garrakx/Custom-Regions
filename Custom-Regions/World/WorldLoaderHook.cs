@@ -849,7 +849,7 @@ namespace CustomRegions.CWorld
                     {
                         startCreatures = true;
                     }
-
+                     
                     // BAT MIGRATIONS
                     if (s.Equals("END BAT MIGRATION BLOCKAGES"))
                     {

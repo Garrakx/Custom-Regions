@@ -18,11 +18,15 @@ namespace CustomRegions.Arena
         public static Dictionary<string, int> tempDictionary = null;
         public static Dictionary<string, int> tempDictionary2 = null;
 
-        private static void ArenaCreatureSpawner_SpawnArenaCreatures(On.ArenaCreatureSpawner.orig_SpawnArenaCreatures orig, RainWorldGame game, ArenaSetup.GameTypeSetup.WildLifeSetting wildLifeSetting, ref List<AbstractCreature> availableCreatures, ref MultiplayerUnlocks unlocks)
+        private static void ArenaCreatureSpawner_SpawnArenaCreatures(On.ArenaCreatureSpawner.orig_SpawnArenaCreatures orig, 
+            RainWorldGame game, ArenaSetup.GameTypeSetup.WildLifeSetting wildLifeSetting, ref List<AbstractCreature> availableCreatures, 
+            ref MultiplayerUnlocks unlocks)
         {
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                string settingsPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels" + Path.DirectorySeparatorChar + game.world.GetAbstractRoom(0).name + "_Arena.txt";
+                string settingsPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + 
+                    Path.DirectorySeparatorChar + "Levels" + Path.DirectorySeparatorChar + game.world.GetAbstractRoom(0).name + "_Arena.txt";
+
                 if (File.Exists(settingsPath))
                 {
                     CustomWorldMod.Log($"Custom Regions: Loading settings file in SpawnArenaCreatures. Path [{settingsPath}]");
@@ -34,12 +38,9 @@ namespace CustomRegions.Arena
             orig(game, wildLifeSetting, ref availableCreatures, ref unlocks);
         }
 
-        public static void SpawnArenaCreaturesVanilla(RainWorldGame game, ArenaSetup.GameTypeSetup.WildLifeSetting wildLifeSetting, ref List<AbstractCreature> availableCreatures, ref MultiplayerUnlocks unlocks, string[] array)
+        public static void SpawnArenaCreaturesVanilla(RainWorldGame game, ArenaSetup.GameTypeSetup.WildLifeSetting wildLifeSetting, 
+            ref List<AbstractCreature> availableCreatures, ref MultiplayerUnlocks unlocks, string[] array)
         {
-            /*
-            Dictionary<string, int> tempDictionary = null;
-            Dictionary<string, int> tempDictionary2 = null;
-            */
             float num = 1f;
             switch (wildLifeSetting)
             {
