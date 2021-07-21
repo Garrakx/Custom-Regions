@@ -26,6 +26,7 @@ Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3
     * [THUMBNAILS](#thumb)
     * [ALBINO / COLORED CREATURES](#colors)
     * [ARENA UNLOCKS](#arenaUnlock)
+	* [REMOVING SPAWNS](#spawns)
 9) [Known issues](#issues)
 10) [Credits](#credits)
 11) [Changelog](#changelog)
@@ -381,6 +382,18 @@ CR adds the ability to add custom data pearls without any code, and even include
 
 Note: you can have multiple unlocks per region.
 
+### <a name ="spawns"></a>REMOVING SPAWNS
+Creature spawns from world_xx.txt are merged too, but more simpler than world merging:
+1. Any line added by the first region pack will replace the vanilla line if they modify the same room. This accounts for LINEAGE too.
+2. CRS will merge all the lines from different region packs if they modify the same room, but if two packs add spawns to the same den CRS will add both.
+3. If you need to remove any creature spawn, include the room name and append `_REMOVECRS`:
+	Example:
+	```
+	SL_A14_REMOVECRS : 1-Tentacle Plant
+	LINEAGE : SL_B04_REMOVECRS : 3 : NONE-0.05, White-0.2, Red-0
+	```
+	Both lines will be ignored even if they were added by another mod.
+
 ***
 ### <a name="issues"></a>Known issues
 
@@ -403,11 +416,16 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 * Creature merging improved:
     * Offscreen dens should not get duplicated anymore.
     * You can remove lines by adding `_REMOVECRS` tag to the line.
-* Load order is now randomly assigned.
+* A random load order value will be assigned (once) when left blank.
+* Room properties improved:
+	* Room templates are now merged between region packs.
+	* Saving as template if file does not exist should not crash the game.
+
 #### Fixes
 * Fixed a parse error when ommiting DISCONNECT in the world merging.
-* Pearl color will not be displayed properly in the map view.
+* Pearl color will be displayed properly in the map view.
 * CRS should not complain about having a Patch/Patches folder.
+* Karma requeriments should now be displayed on the map. Thanks @Henpemaz <3.
 
 ***
 #### [0.8.40] - January 2021
