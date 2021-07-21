@@ -1,0 +1,12 @@
+{
+   "regionPackName": "Name of your pack", 
+   "description": "Author of the pack", 
+   "activated": true,
+   "loadOrder": 1, 
+   "regions": "REGION_ID_1, REGION_ID_N", 
+   "thumbURL": "url with thumbnail", 
+   "version": "1.3", 
+   "requirements": "", 
+   "useRegionName": false,
+   "checksum": "" 
+}
