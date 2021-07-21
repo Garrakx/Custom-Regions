@@ -187,7 +187,8 @@ namespace CustomRegions.CWorld
             else
             {
                 replaceOrMerge = true;
-                CustomWorldMod.Log($"[WorldMerging]: Merging/replacing oldline [{oldLine.line}] ({oldLine.packName}) with [{newLine}] ({newPackName})");
+                string action = oldLine.vanilla ? "Replacing" : "Merging";
+                CustomWorldMod.Log($"[WorldMerging]: {action} oldline [{oldLine.line}] ({oldLine.packName}) with [{newLine}] ({newPackName})");
 
                 //-----------------------------------------//
                 //          Build new connections
@@ -466,7 +467,8 @@ namespace CustomRegions.CWorld
             else
             {
                 replaceOrMerge = true;
-                CustomWorldMod.Log($"[CreatureMerging] Merging/replacing oldSpawn " +
+                string action = oldSpawnLine.vanilla ? "Replacing" : "Merging";
+                CustomWorldMod.Log($"[CreatureMerging] {action} oldSpawn " +
                     $"[{oldSpawnLine.line}] ({oldSpawnLine.packName}) with [{newSpawn}] ({newPackName})");
 
                 //-----------------------------------------//

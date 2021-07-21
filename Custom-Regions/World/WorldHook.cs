@@ -99,7 +99,7 @@ namespace CustomRegions.CWorld
             orig(self, slugcatNumber);
             bool loadedMapConfig = false;
             bool loadedProperties = false;
-            string[] array;
+            string[] propertiesLines;
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
@@ -115,10 +115,10 @@ namespace CustomRegions.CWorld
                 {
                     CustomWorldMod.Log($"Custom Regions: Loaded mapconfig for {self.name} from {keyValues.Value}");
                     loadedMapConfig = true;
-                    array = File.ReadAllLines(mapPath);
-                    for (int i = 0; i < array.Length; i++)
+                    propertiesLines = File.ReadAllLines(mapPath);
+                    for (int i = 0; i < propertiesLines.Length; i++)
                     {
-                        string[] array2 = Regex.Split(array[i], ": ");
+                        string[] array2 = Regex.Split(propertiesLines[i], ": ");
                         if (array2.Length == 2)
                         {
                             for (int j = 0; j < self.NumberOfRooms; j++)
@@ -155,34 +155,35 @@ namespace CustomRegions.CWorld
                 {
                     CustomWorldMod.Log($"Custom Regions: Loaded properties for {self.name} from {keyValues.Value}");
                     loadedProperties = true;
-                    array = File.ReadAllLines(propertyPath);
-                    for (int k = 0; k < array.Length; k++)
+                    propertiesLines = File.ReadAllLines(propertyPath);
+                    for (int k = 0; k < propertiesLines.Length; k++)
                     {
-                        string[] array3 = Regex.Split(array[k], ": ");
-                        if (array3.Length == 3)
+                        string[] propertyLine = Regex.Split(propertiesLines[k], ": ");
+                        if (propertyLine.Length == 3)
                         {
-                            if (array3[0] == "Room_Attr")
+                            if (propertyLine[0] == "Room_Attr")
                             {
                                 for (int l = 0; l < self.NumberOfRooms; l++)
                                 {
-                                    if (self.abstractRooms[l].name == array3[1])
+                                    if (self.abstractRooms[l].name == propertyLine[1])
                                     {
-                                        string[] array4 = Regex.Split(array3[2], ",");
+                                        string[] array4 = Regex.Split(propertyLine[2], ",");
                                         for (int m = 0; m < array4.Length; m++)
                                         {
                                             if (array4[m] != string.Empty)
                                             {
                                                 string[] array5 = Regex.Split(array4[m], "-");
-                                                self.abstractRooms[l].roomAttractions[(int)Custom.ParseEnum<CreatureTemplate.Type>(array5[0])] = Custom.ParseEnum<AbstractRoom.CreatureRoomAttraction>(array5[1]);
+                                                self.abstractRooms[l].roomAttractions[(int)Custom.ParseEnum<CreatureTemplate.Type>(array5[0])] = 
+                                                    Custom.ParseEnum<AbstractRoom.CreatureRoomAttraction>(array5[1]);
                                             }
                                         }
                                         break;
                                     }
                                 }
                             }
-                            else if (array3[0] == "Broken Shelters" && slugcatNumber == int.Parse(array3[1]))
+                            else if (propertyLine[0] == "Broken Shelters" && slugcatNumber == int.Parse(propertyLine[1]))
                             {
-                                string[] array4 = Regex.Split(array3[2], ", ");
+                                string[] array4 = Regex.Split(propertyLine[2], ", ");
                                 for (int n = 0; n < array4.Length; n++)
                                 {
                                     if (self.GetAbstractRoom(array4[n]) != null && self.GetAbstractRoom(array4[n]).shelter)
