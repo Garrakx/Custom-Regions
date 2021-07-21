@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using RWCustom;
 using System.Text.RegularExpressions;
-using System.Reflection;
 
 namespace CustomRegions
 {
@@ -13,12 +12,13 @@ namespace CustomRegions
 
         public static void ApplyHook()
         {
-           // On.RoomSettings.Load += RoomSettings_Load;
-           // On.RoomSettings.LoadPlacedObjects += RoomSettings_LoadPlacedObjects;
+            On.RoomSettings.LoadPlacedObjects += RoomSettings_LoadPlacedObjects;
 
             On.RoomSettings.FindParent += RoomSettings_FindParent;
             On.RoomSettings.Save += RoomSettings_Save;
             On.RoomSettings.Reset += RoomSettings_Reset;
+
+
             On.RoomSettings.ctor += RoomSettings_ctor;
         }
 
@@ -27,67 +27,29 @@ namespace CustomRegions
             RoomSettings self, string name, Region region, bool template, bool firstTemplate, int playerChar)
         {
             orig(self, name, region, template, firstTemplate, playerChar);
-            regionName = region.name;
+            if (template && region != null) { regionName = region.name; }
         }
 
         private static void RoomSettings_Reset(On.RoomSettings.orig_Reset orig, RoomSettings self)
         {
-            if (self.isTemplate && !File.Exists(self.filePath) && regionName != null)
+            if (regionName == null)
             {
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
-                {
-                    string filePath = "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + regionName +
-                    Path.DirectorySeparatorChar + self.name + ".txt";
-
-                    string newPath = Custom.RootFolderDirectory() + 
-                        CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + filePath;
-
-                    if (File.Exists(newPath))
-                    {
-                        self.filePath = newPath;
-                        CustomWorldMod.Log($"Found template at [{newPath}]");
-                        break;
-                    }
-
-                }
+                orig(self);
+                return;
             }
-            regionName = null;
-            orig(self);
-        }
 
-
-
-        private static void RoomSettings_LoadPlacedObjects(On.RoomSettings.orig_LoadPlacedObjects orig, RoomSettings self, string[] s, int playerChar)
-        {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            orig(self, s, playerChar);
-            watch.Stop();
-            var elapsedMs = watch.ElapsedTicks;
-            CustomWorldMod.Log($"Vanilla Room Settings time [{elapsedMs}]");
-        }
-
-        private static void RoomSettings_Save(On.RoomSettings.orig_Save orig, RoomSettings self)
-        {
-            CustomWorldMod.Log($"Custom Regions: Saving room settings at [{self.filePath}]");
-            orig(self);
-        }
-
-        private static void RoomSettings_FindParent(On.RoomSettings.orig_FindParent orig, RoomSettings self, Region region)
-        {
             if (self.isTemplate)
             {
-                string filePath = "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + region.name + 
+
+                string filePath = "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + regionName +
                     Path.DirectorySeparatorChar + self.name + ".txt";
-                /*
-                if (!File.Exists(Custom.RootFolderDirectory() + filePath))
-                {
-                }
-                */
-                //CustomWorldMod.CustomWorldLog($"Custom Regions: Finding custom room settings template [{filePath}]");
+
+                CustomWorldMod.Log($"Finding custom room settings template [{filePath}]", false, CustomWorldMod.DebugLevel.FULL);
                 bool foundTemplate = false;
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
-                    string newPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + filePath;
+                    string newPath = Custom.RootFolderDirectory() + 
+                        CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + filePath;
 
                     if (File.Exists(newPath))
                     {
@@ -104,13 +66,14 @@ namespace CustomRegions
                     CustomWorldMod.Log($"Using vanilla template at [{self.filePath}] since custom was not found", false, CustomWorldMod.DebugLevel.FULL);
                 }
 
+
             }
             else
             {
                 // Mod didn't include Settings file
                 if (!File.Exists(self.filePath))
                 {
-                    string regularRoomPath = Custom.RootFolderDirectory() + 
+                    string regularRoomPath = Custom.RootFolderDirectory() +
                         "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(self.name, "_")[0];
 
                     regularRoomPath += Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + self.name + "_Settings.txt";
@@ -122,43 +85,31 @@ namespace CustomRegions
                     {
                         CustomWorldMod.Log($"Missing settings file for [{self.name}] - [{regularRoomPath}]", false, CustomWorldMod.DebugLevel.FULL);
                     }
-                    /*
-                    try
-                    {
-                        // Call vanilla FindRoomDirectory
-                        // I copied this from Warp :flushed:
-                        MethodInfo _WorldLoader_FindRoomFileDirectory = typeof(WorldLoader).GetMethod("FindRoomFileDirectory", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
-                        object returnValue = _WorldLoader_FindRoomFileDirectory.Invoke(null, new object[] { self.name, false });
-                        // 
-                        var method = typeof(WorldLoader).GetMethod("FindRoomFileDirectory");
-                        var ftn = method.MethodHandle.GetFunctionPointer();
-                        var func = (Func<string, bool, string>)Activator.CreateInstance(typeof(Func<string, bool, string>), null, ftn);
-                        object returnValue = func(self.name, false);
-
-                        if (returnValue != null && returnValue is string s && File.Exists(s + "_Settings.txt"))
-                        {
-                            self.filePath = s + "_Settings.txt";
-                        }
-                        else
-                        {
-                            CustomWorldMod.Log($"Error loading settings file for [{self.name}] - [{returnValue}]");
-                        }
-
-                    } catch (Exception e) { CustomWorldMod.Log($"Error invoking method [{e}]", true); }
-                    */
 
                 }
             }
 
+            orig(self);
+        }
 
-            /*
-            else
-            {
-                //CustomWorldMod.Log($"Custom Regions: RoomSettings, room [{self.name}] is not template. FilePath [{self.filePath}]");
-                Calling FindRoomFileDirectory will find the custom one
-                self.filePath = FindVanillaRoom(self.name, false) + "_Settings.txt";
-            }
-            */
+        private static void RoomSettings_LoadPlacedObjects(On.RoomSettings.orig_LoadPlacedObjects orig, RoomSettings self, string[] s, int playerChar)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            orig(self, s, playerChar);
+            watch.Stop();
+            DateTime date = new DateTime(watch.ElapsedTicks);
+            CustomWorldMod.Log($"Loading placedObjects [{self.name}]. Elapsed time [{date.ToString("s.ffff")}s]");
+        }
+
+        private static void RoomSettings_Save(On.RoomSettings.orig_Save orig, RoomSettings self)
+        {
+            CustomWorldMod.Log($"Custom Regions: Saving room settings at [{self.filePath}]");
+            orig(self);
+        }
+
+        private static void RoomSettings_FindParent(On.RoomSettings.orig_FindParent orig, RoomSettings self, Region region)
+        {
+            CustomWorldMod.Log($"Finding parent... filePath [{self.filePath}]", false, CustomWorldMod.DebugLevel.FULL);
 
             try
             {
@@ -166,7 +117,7 @@ namespace CustomRegions
             }
             catch (Exception e)
             {
-                CustomWorldMod.Log("Found illegal characters in a room settings file." + e, true);
+                CustomWorldMod.Log($"Found illegal characters in a room settings file [{self.name}]. \nException: {e}", true);
                 throw e;
             }
         }
