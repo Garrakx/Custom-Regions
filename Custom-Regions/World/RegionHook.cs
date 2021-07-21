@@ -30,7 +30,7 @@ namespace CustomRegions.CWorld
                 Path.DirectorySeparatorChar,
                 regID,
                 Path.DirectorySeparatorChar,
-                "properties.txt"
+                "Properties.txt"
             });
             if (File.Exists(test))
             {
@@ -58,33 +58,40 @@ namespace CustomRegions.CWorld
         public static Dictionary<string, int> dictionaryProperties;
 
         /// <summary>
-        /// Loads new Properties for Region.
+        /// Loads new Properties for Region. Templates and subregions are merged
         /// </summary>
         private static void Region_ctor(On.Region.orig_ctor orig, Region self, string name, int firstRoomIndex, int regionNumber)
         {
+            CustomWorldMod.Log($"Creating region {name}", false, CustomWorldMod.DebugLevel.FULL);
             orig(self, name, firstRoomIndex, regionNumber);
+            string[] vanillaTemplateNames = (string[]) self.roomSettingTemplateNames.Clone();
+
+            self.roomSettingTemplateNames = null;
+            self.roomSettingsTemplates = null;
+            List<string> currentTemplateNames = null;
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading custom properties for {keyValues.Key}");
+                CustomWorldMod.Log($"Loading custom properties for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
+
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
-                string test = string.Concat(new object[]
+                string propertiesFilePath = string.Concat(new object[]
                 {
                 Custom.RootFolderDirectory(),
-                path.Replace('/', Path.DirectorySeparatorChar),
+                path,
                 "World",
                 Path.DirectorySeparatorChar,
                 "Regions",
                 Path.DirectorySeparatorChar,
                 name,
                 Path.DirectorySeparatorChar,
-                "properties.txt"
+                "Properties.txt"
                 });
-                if (File.Exists(test))
+                if (File.Exists(propertiesFilePath))
                 {
-                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Found custom properties for {keyValues.Key}");
-                    string[] array = File.ReadAllLines(test);
+                    CustomWorldMod.Log($"Found custom properties for {keyValues.Key}", false, CustomWorldMod.DebugLevel.MEDIUM);
+                    string[] array = File.ReadAllLines(propertiesFilePath);
                     for (int i = 0; i < array.Length; i++)
                     {
                         string text = Regex.Split(array[i], ": ")[0];
@@ -114,17 +121,51 @@ namespace CustomRegions.CWorld
                             {
                                 switch (num)
                                 {
+                                    // Merging room template
                                     case 0:
                                         {
                                             string[] array2 = Regex.Split(Regex.Split(array[i], ": ")[1], ", ");
-                                            self.roomSettingsTemplates = new RoomSettings[array2.Length];
-                                            self.roomSettingTemplateNames = new string[array2.Length];
-                                            for (int j = 0; j < array2.Length; j++)
+                                            if (array2 == null)
                                             {
-                                                self.roomSettingTemplateNames[j] = array2[j];
-                                                self.ReloadRoomSettingsTemplate(array2[j]);
-                                                //CustomWorldMod.CustomWorldLog("Custom reload: " + self.roomSettingTemplateNames[j]);
-                                                //CustomWorldMod.CustomWorldLog(self.roomSettingsTemplates[j].RandomItemDensity.ToString() + " " + self.roomSettingsTemplates[j].RandomItemSpearChance.ToString());
+                                                CustomWorldMod.Log($"Corrupted properties file [{propertiesFilePath}]", true);
+                                                break;
+                                            }
+                                            int previousIndex = 0;
+
+                                            // First region pack, init arrays
+                                            if (self.roomSettingsTemplates == null)
+                                            {
+                                                CustomWorldMod.Log($"Creating templates for [{keyValues.Key}]", false, CustomWorldMod.DebugLevel.FULL);
+                                                self.roomSettingsTemplates = new RoomSettings[array2.Length];
+                                                self.roomSettingTemplateNames = new string[array2.Length];
+                                            }
+                                            else
+                                            {
+                                                CustomWorldMod.Log($"Extending templates for [{keyValues.Key}]." +
+                                                    $"Previous index [{previousIndex}], " +
+                                                    $"new size [{self.roomSettingsTemplates.Length + array2.Length}]", false, CustomWorldMod.DebugLevel.FULL);
+
+                                                previousIndex = self.roomSettingTemplateNames.Length - 1;
+                                                System.Array.Resize(ref self.roomSettingTemplateNames,
+                                                    self.roomSettingTemplateNames.Length + array2.Length);
+
+                                                System.Array.Resize(ref self.roomSettingsTemplates,
+                                                    self.roomSettingsTemplates.Length + array2.Length);
+                                            }
+
+                                            currentTemplateNames = new List<string>(self.roomSettingTemplateNames);
+                                            
+                                            for (int j = previousIndex; j < array2.Length + previousIndex; j++)
+                                            {
+                                                string newTemplate = array2[j];
+                                                if (!currentTemplateNames.Contains(newTemplate))
+                                                {
+                                                    CustomWorldMod.Log($"Adding templates [{array2[j]}] at ({j}) for [{keyValues.Key}]", 
+                                                        false, CustomWorldMod.DebugLevel.FULL);
+
+                                                    self.roomSettingTemplateNames[j] = array2[j];
+                                                    self.ReloadRoomSettingsTemplate(array2[j]);
+                                                }
                                             }
                                             break;
                                         }
@@ -177,25 +218,51 @@ namespace CustomRegions.CWorld
                 }
             }
 
+
+            // Add vanilla templates
+            if (self.roomSettingsTemplates != null)
+            {
+                // merge
+                currentTemplateNames = new List<string>(self.roomSettingTemplateNames);
+                
+            }
+            else
+            {
+                // load vanilla
+                currentTemplateNames = new List<string>();
+                self.roomSettingsTemplates = new RoomSettings[vanillaTemplateNames.Length];
+                self.roomSettingTemplateNames = new string[vanillaTemplateNames.Length];
+            }
+
+            for (int j = 0; j < vanillaTemplateNames.Length; j++)
+            {
+                string newTemplate = vanillaTemplateNames[j];
+                if (!currentTemplateNames.Contains(newTemplate))
+                {
+                    self.roomSettingTemplateNames[j] = newTemplate;
+                    self.ReloadRoomSettingsTemplate(newTemplate);
+                }
+            }
+            CustomWorldMod.Log($"Loaded setting templates: [{string.Join(", ", self.roomSettingTemplateNames)}]", false, CustomWorldMod.DebugLevel.MEDIUM);
         }
 
         /// <summary>
-        /// How many new rooms in region, read from properties
+        /// How many new rooms in region, read from world file
         /// </summary>
         private static int Region_NumberOfRoomsInRegion(On.Region.orig_NumberOfRoomsInRegion orig, string name)
         {
-            //if (!enabled) { return orig(self); }
             bool customRegion = false;
             int totalRooms = 0;
+            
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 //CustomWorldMod.CustomWorldLog($"Custom Regions: Counting total rooms for {keyValues.Value} in {name}");
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
-                string test = string.Concat(new object[]
+                string worldFilePath = string.Concat(new object[]
                 {
                 Custom.RootFolderDirectory(),
-                path.Replace('/', Path.DirectorySeparatorChar),
+                path,
                 "World",
                 Path.DirectorySeparatorChar,
                 "Regions",
@@ -206,10 +273,10 @@ namespace CustomRegions.CWorld
                 name,
                 ".txt"
                 });
-                if (File.Exists(test))
+                if (File.Exists(worldFilePath))
                 {
                     customRegion = true;
-                    string[] array = File.ReadAllLines(test);
+                    string[] array = File.ReadAllLines(worldFilePath);
                     bool flag = false;
                     int num = 1;
                     for (int i = 0; i < array.Length; i++)
@@ -238,12 +305,6 @@ namespace CustomRegions.CWorld
             }
 
             return orig(name);
-            /*
-            else
-            {
-                return orig(name);
-            }
-            */
 
         }
     }
