@@ -475,7 +475,7 @@ namespace CustomRegions.Mod
             if (throwException)
             {
                 Debug.LogError("[CustomRegions] " + logText);
-                logText = "[ERROR] " + logText;
+                logText = "[ERROR] " + logText + "\n";
             }
             Log(logText);
         }

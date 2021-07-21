@@ -153,7 +153,7 @@ namespace CustomRegions.CWorld
                 // Properties.
                 if (File.Exists(propertyPath))
                 {
-                    CustomWorldMod.Log($"Custom Regions: Loaded properties for {self.name} from {keyValues.Value}");
+                    CustomWorldMod.Log($"Custom Regions: Loaded properties (Room Attr and broken shelters) for [{self.name}] from [{keyValues.Value}]");
                     loadedProperties = true;
                     propertiesLines = File.ReadAllLines(propertyPath);
                     for (int k = 0; k < propertiesLines.Length; k++)
