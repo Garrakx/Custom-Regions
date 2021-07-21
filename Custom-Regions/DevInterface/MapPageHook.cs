@@ -40,7 +40,7 @@ namespace CustomRegions.DevInterface
         private static void MapPage_LoadMapConfig(On.DevInterface.MapPage.orig_LoadMapConfig orig, MapPage self)
         {
             string customFilePath = string.Empty;
-
+			bool loadedMap = false;
 			// Iterate backwards, leaving the first activated region as filePath, but loading the info from the rest.
             for (int i = CustomWorldMod.activatedPacks.Count-1; i >= 0; i--)
             {
@@ -53,12 +53,15 @@ namespace CustomRegions.DevInterface
                     string mapPath = customFilePath + Path.DirectorySeparatorChar + "map_" + self.owner.game.world.name + ".txt"; 
 					if (File.Exists(mapPath))
 					{
+						loadedMap = true;
 						CustomWorldMod.Log($"[DEV] New map filepath for [{keyValues.Value}]");
 						self.filePath = mapPath;
 						orig(self);
 					}
 				}
             }
+			if (!loadedMap)
+				orig(self);
             
         }
         public static void SaveCustomMapConfig(MapPage self, string customPropertiesFilePath)
