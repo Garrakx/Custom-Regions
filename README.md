@@ -420,12 +420,19 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 * Room properties improved:
 	* Room templates are now merged between region packs.
 	* Saving as template if file does not exist should not crash the game.
+* MPMusic.txt is now supported.
+* Ambient sounds are now supported.
+* Prevents the game from crashing when using the Dev's Sound tab.
+* WorldLoader orig constructor will now be called, increasing compatibility.
+* "Update button" should now be more noticeable.
+* If you are using Partiality, it will log an error urging to upgrade.
 
 #### Fixes
 * Fixed a parse error when ommiting DISCONNECT in the world merging.
 * Pearl color will be displayed properly in the map view.
 * CRS should not complain about having a Patch/Patches folder.
 * Karma requeriments should now be displayed on the map. Thanks @Henpemaz <3.
+* Added a method to disable all hooks (called on OnDisable).
 
 ***
 #### [0.8.40] - January 2021
