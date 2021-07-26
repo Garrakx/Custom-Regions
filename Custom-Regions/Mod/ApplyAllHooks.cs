@@ -52,6 +52,7 @@ namespace CustomRegions.Mod
             MapHook.ApplyHooks();
 
             /// MUSIC ///
+            MultiplayerDJHook.ApplyHooks();
             MusicPieceHook.ApplyHooks();
             ProceduralMusicInstructionsHook.ApplyHooks();
 
@@ -113,6 +114,7 @@ namespace CustomRegions.Mod
             MapHook.RemoveHooks();
 
             /// MUSIC ///
+            MultiplayerDJHook.RemoveHooks();
             MusicPieceHook.RemoveHooks();
             ProceduralMusicInstructionsHook.RemoveHooks();
 
