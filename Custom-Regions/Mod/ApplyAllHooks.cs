@@ -26,6 +26,7 @@ namespace CustomRegions.Mod
 
             /// CREATURES ///
             BigEelHook.ApplyHooks();
+            DaddyCorruptionHook.ApplyHooks();
             DaddyLongLegsHook.ApplyHooks();
             LizardGraphicsHook.ApplyHooks();
             TentaclePlantGraphicsHook.ApplyHooks();
@@ -96,6 +97,7 @@ namespace CustomRegions.Mod
             /// CREATURES ///
             BigEelHook.RemoveHooks();
             DaddyLongLegsHook.RemoveHooks();
+            DaddyCorruptionHook.RemoveHooks();
             LizardGraphicsHook.RemoveHooks();
             TentaclePlantGraphicsHook.RemoveHooks();
 
