@@ -125,6 +125,12 @@ namespace CustomRegions.Mod
             // Load from file
             CustomWorldMod.analyzingLog = string.Empty;
 
+            if (!usingBepinex)
+            {
+                CustomWorldMod.Log("You are using Partiality, which is no longer worked on and has issues. " +
+                        "Consider upgrading to BepInEx. Instructions for switching: [https://youtu.be/brDN_8uN6-U]", true);
+            }
+
             Hooks.ApplyAllHooks();
 
             // Create exe updater
@@ -139,6 +145,12 @@ namespace CustomRegions.Mod
             {
                 CustomWorldMod.scripts.Add(new NewsFetcher(CustomWorldMod.newsUrl));
             }
+        }
+
+        public override void OnDisable()
+        {
+            base.OnDisable();
+            Hooks.RemoveAllHooks();
         }
 
 
@@ -539,7 +551,7 @@ namespace CustomRegions.Mod
                 CustomWorldMod.rainWorldInstance.progression =
                     new PlayerProgression(CustomWorldMod.rainWorldInstance, CustomWorldMod.rainWorldInstance.setup.loadProg);
             }
-            catch (Exception e) { CustomWorldMod.Log($"Could not reload player progression [{e}]", true); }
+            catch (Exception e) { CustomWorldMod.Log($"Could not reload player progression [{e}]"); }
 
         }
 
