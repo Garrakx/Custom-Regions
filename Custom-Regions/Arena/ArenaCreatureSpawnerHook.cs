@@ -10,9 +10,14 @@ namespace CustomRegions.Arena
 {
     public static class ArenaCreatureSpawnerHook
     {
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.ArenaCreatureSpawner.SpawnArenaCreatures += ArenaCreatureSpawner_SpawnArenaCreatures;
+        }
+
+        public static void RemoveHooks()
+        {
+            On.ArenaCreatureSpawner.SpawnArenaCreatures -= ArenaCreatureSpawner_SpawnArenaCreatures;
         }
 
         public static Dictionary<string, int> tempDictionary = null;
