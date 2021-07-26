@@ -91,8 +91,6 @@
     <Compile Include="Mod\CustomWorldStructs.cs" />
     <Compile Include="Mod\Scripts.cs" />
     <Compile Include="Music\ProceduralMusicInstructionsHook.cs" />
-    <Compile Include="World\RegionStateHook.cs" />
-    <Compile Include="World\WaterGateHook.cs" />
     <Compile Include="HUDs\MapHook.cs" />
     <Compile Include="CustomMenu\MenuIllustrationHook.cs" />
     <Compile Include="CustomMenu\MenuSceneHook.cs" />
