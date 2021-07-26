@@ -945,17 +945,17 @@ namespace CustomRegions.CWorld
 
                                 if (array[i] == "ROOMS")
                                 {
-                                    CustomWorldMod.Log($"[{keyValues.Key}]: Merging rooms...", false, CustomWorldMod.DebugLevel.MEDIUM);
+                                    CustomWorldMod.Log($"\n[{keyValues.Key}]: Merging rooms...", false, CustomWorldMod.DebugLevel.MEDIUM);
                                     status = MergeStatus.ROOMS;
                                 }
                                 else if (array[i] == "CREATURES")
                                 {
-                                    CustomWorldMod.Log($"[{keyValues.Key}]: Merging creatures...", false, CustomWorldMod.DebugLevel.MEDIUM);
+                                    CustomWorldMod.Log($"\n[{keyValues.Key}]: Merging creatures...", false, CustomWorldMod.DebugLevel.MEDIUM);
                                     status = MergeStatus.CREATURES;
                                 }
                                 else if (array[i] == "BAT MIGRATION BLOCKAGES")
                                 {
-                                    CustomWorldMod.Log($"[{keyValues.Key}]: Merging bats...", false, CustomWorldMod.DebugLevel.MEDIUM);
+                                    CustomWorldMod.Log($"\n[{keyValues.Key}]: Merging bats...", false, CustomWorldMod.DebugLevel.MEDIUM);
                                     status = MergeStatus.BATS;
                                 }
                                 else if (array[i] != "END ROOMS" && array[i] != "END CREATURES" && array[i] != "END BAT MIGRATION BLOCKAGES")
@@ -976,13 +976,9 @@ namespace CustomRegions.CWorld
                                             break;
                                     }
                                 }
-                                //lines.Add(array[i]);
-                                //CustomWorldMod.CustomWorldLog(array[i]);
                             }
                         }
                     }
-
-                    //break;
                 }
 
             }
@@ -1009,12 +1005,12 @@ namespace CustomRegions.CWorld
 
             if (!foundAnyCustomRegion)
             {
-                CustomWorldMod.Log("Custom regions did not find any custom world_XX.txt files, so it will load vanilla. " +
+                CustomWorldMod.Log($"Custom regions did not find any custom world_{selfWorldName}.txt files, so it will load vanilla. " +
                     "(if you were not expecting this it means you have something installed incorrectly)");
             }
             else
             {
-                CustomWorldMod.Log("\nMerged world_XX.txt file");
+                CustomWorldMod.Log($"\nMerged world_{selfWorldName}.txt file");
                 CustomWorldMod.Log(string.Join($"\n", lines.ToArray()));
                 CustomWorldMod.Log("\n");
             }
@@ -1068,28 +1064,7 @@ namespace CustomRegions.CWorld
 
         }
 
-        /// <summary>
-        /// Use new world_##.txt file
-        /// </summary>
-        private static void WorldLoader_NextActivity(On.WorldLoader.orig_NextActivity orig, WorldLoader self)
-        {
-            if (self.activity == WorldLoader.Activity.Init && !self.singleRoomWorld)
-            {
-                if (self.lines == null)
-                {
-                    CustomWorldMod.Log("Custom Regions: World was null, creating new lines");
-                    self.lines = new List<string>();
-                }
-                self.lines = GetWorldLines(self);
 
-            }
-            if (self.faultyExits == null)
-            {
-                CustomWorldMod.Log($"Custom Regions: NextActivity failed, faultyExits is null");
-                self.faultyExits = new List<WorldCoordinate>();
-            }
-            orig(self);
-        }
 
         // TO DO
         private static void AnalyzeWorldConnections()
@@ -1146,18 +1121,16 @@ namespace CustomRegions.CWorld
             }
         }
 
-        /// <summary>
-        /// Vanilla RW does not check if the region about to load does exist. When we enter a custom region the game will try to look for the world files in the root folder.
-        /// There should be a better way to do this, but if the region is custom I replace the ctor completly.
-        /// </summary>
+
+        public static bool pendingToLoadCustomRegion = false;
+        /// <summary> Creates a temporal world_xx.txt file (to avoid a crash) if the region is custom. Calls orig and deletes the file
+        /// Then, it loads the custom world_xx in NextActivity </summary>
         private static void WorldLoader_ctor(On.WorldLoader.orig_ctor orig, WorldLoader self, RainWorldGame game, int playerCharacter, bool singleRoomWorld, string worldName, Region region, RainWorldGame.SetupValues setupValues)
         {
-            /* try
-             {
-                 CustomWorldMod.CustomWorldLog($"Custom Regions: Creating WorldLoader : Game [{game}]. PlayerCharacter [{playerCharacter}]. SingleRoomWorld [{singleRoomWorld}]. WorldName [{worldName}]");
-             }
-             catch (Exception e) { CustomWorldMod.CustomWorldLog($"Custom Reginons: Error ar WorldLoaderCtor [{e}]"); }
-             */
+            pendingToLoadCustomRegion = false;
+            CustomWorldMod.Log($"Custom Regions: Creating WorldLoader : Game [{game}]. PlayerCharacter [{playerCharacter}]. " +
+                $"SingleRoomWorld [{singleRoomWorld}]. WorldName [{worldName}]", false, CustomWorldMod.DebugLevel.FULL);
+ 
             worldLoaderWatch = new Stopwatch();
             absRoomLoadWatch = new Stopwatch();
 
@@ -1171,46 +1144,42 @@ namespace CustomRegions.CWorld
                 Path.DirectorySeparatorChar,
                 worldName,
                 Path.DirectorySeparatorChar,
-                "world_",
-                worldName,
-                ".txt"
             });
 
-
-            if (!singleRoomWorld && File.Exists(pathRegion))
+            if (!File.Exists(pathRegion + "world_" + worldName+ ".txt"))
             {
-                orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues);
+                Directory.CreateDirectory(pathRegion);
+                File.Create(pathRegion + "world_" + worldName + ".txt");
+                pendingToLoadCustomRegion = true;
+                CustomWorldMod.Log($"Creating temporal directory [{pathRegion}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+                CustomWorldMod.Log($"Creating temporal [world_{worldName}]", false, CustomWorldMod.DebugLevel.MEDIUM);
             }
-            else
+            orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues);
+            if (pendingToLoadCustomRegion)
             {
-                // LOADING A CUSTOM REGION
-                // THIS WILL REPLACE THE CTOR REDUCING COMPABILITY
-
-                // INITIALIZING LISTS
-                CustomWorldMod.Log("Using custom WorldLoader ctor");
-                try
-                {
-                    InitializeWorldLoaderList(self);
-                }
-                catch (Exception e)
-                {
-                    CustomWorldMod.Log($"Custom Worlds: something failed ERROR!!! [{e}]");
-                }
-
-                string path = CustomWorldMod.resourcePath + region + Path.DirectorySeparatorChar;
-
-                self.game = game;
-                self.playerCharacter = playerCharacter;
-                self.world = new World(game, region, worldName, singleRoomWorld);
-                self.singleRoomWorld = singleRoomWorld;
-                self.worldName = worldName;
-                self.setupValues = setupValues;
-                self.lines = new List<string>();
-
-                self.NextActivity();
+                CustomWorldMod.Log($"Deleting temporal files...", false, CustomWorldMod.DebugLevel.MEDIUM);
+                File.Delete(pathRegion + "world_" + worldName + ".txt");
+                Directory.Delete(pathRegion);
             }
         }
 
+        /// <summary>
+        /// Use new world_##.txt file
+        /// </summary>
+        private static void WorldLoader_NextActivity(On.WorldLoader.orig_NextActivity orig, WorldLoader self)
+        {
+            if (pendingToLoadCustomRegion)
+            {
+                pendingToLoadCustomRegion = false;
+                CustomWorldMod.Log($"Pending to load a custom region, resetting lines (size {self.lines.Count})");
+                self.lines = new List<string>();
+            }
+            if (self.activity == WorldLoader.Activity.Init && !self.singleRoomWorld)
+            {
+                self.lines = GetWorldLines(self);
+            }
+            orig(self);
+        }
 
         /// <summary>
         /// If finds the room in the CustomAssets folder, returns that path (takes priority over vanilla)
