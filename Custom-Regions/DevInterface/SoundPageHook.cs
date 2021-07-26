@@ -47,16 +47,16 @@ namespace CustomRegions.DevInterface
                     FileInfo[] array = directoryInfo.GetFiles();
                     for (int i = 0; i < array.Length; i++)
                     {
-                        if (!list.Contains(array[i]))
+                        if (!list.Contains(array[i]) && !array[i].Name.Contains("meta"))
                         {
-                            CustomWorldMod.Log($"Adding loaded ambient sounds {array[i]} from [{keyValues.Key}]", false, CustomWorldMod.DebugLevel.FULL);
+                            CustomWorldMod.Log($"[LoadedSoundEffects] Adding ambient sounds {array[i]} from [{keyValues.Key}]", false, CustomWorldMod.DebugLevel.FULL);
                             list.Add(array[i]);
                         }
                     }
                 }
                 else
                 {
-                    CustomWorldMod.Log($"{keyValues.Key} does not have loaded ambient sounds at {directoryInfo.FullName}",
+                    CustomWorldMod.Log($"[LoadedSoundEffects] {keyValues.Key} does not have loaded ambient sounds at {directoryInfo.FullName}",
                         false, CustomWorldMod.DebugLevel.FULL);
                 }
 
@@ -77,18 +77,11 @@ namespace CustomRegions.DevInterface
                         }
                         if (flag)
                         {
-                            CustomWorldMod.Log($"Adding ambient sounds {array[j]} from [{keyValues.Key}]", false, CustomWorldMod.DebugLevel.FULL);
+                            CustomWorldMod.Log($"[LoadedSoundEffects/Ambient] Adding ambient sounds {array[j]} from [{keyValues.Key}]", false, CustomWorldMod.DebugLevel.FULL);
                             list.Add(array[j]);
                         }
                     }
-                    // CURSED
-                    for (int l = list.Count - 1; l >= 0; l--)
-                    {
-                        if (list[l].Name.Length > 5 && list[l].Name.Substring(list[l].Name.Length - 5, 5) == ".meta")
-                        {
-                            list.RemoveAt(l);
-                        }
-                    }
+     
                 }
                 else
                 {
@@ -98,7 +91,7 @@ namespace CustomRegions.DevInterface
             }
 
             List<FileInfo> currentFiles = new List<FileInfo>(self.files);
-            for (int a = list.Count; a > 0; a--)
+            for (int a = list.Count-1; a >= 0; a--)
             {
                 currentFiles.Insert(0, list[a]);
             }

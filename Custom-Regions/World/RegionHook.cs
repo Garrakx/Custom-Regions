@@ -78,7 +78,7 @@ namespace CustomRegions.CWorld
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                CustomWorldMod.Log($"Loading custom properties for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
+                CustomWorldMod.Log($"Loading custom Properties for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
 
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
@@ -166,7 +166,7 @@ namespace CustomRegions.CWorld
                                                 string newTemplate = array2[j];
                                                 if (!currentTemplateNames.Contains(newTemplate))
                                                 {
-                                                    CustomWorldMod.Log($"Adding templates [{array2[j]}] at ({j}) for [{keyValues.Key}]", 
+                                                    CustomWorldMod.Log($"Adding new custom templates [{array2[j]}] at ({j}) for [{keyValues.Key}]", 
                                                         false, CustomWorldMod.DebugLevel.FULL);
 
                                                     self.roomSettingTemplateNames[j] = array2[j];
@@ -234,6 +234,7 @@ namespace CustomRegions.CWorld
             }
             else
             {
+                CustomWorldMod.Log($"Loading vanilla templates for [{self.name}]...", false, CustomWorldMod.DebugLevel.MEDIUM);
                 // load vanilla
                 currentTemplateNames = new List<string>();
                 self.roomSettingsTemplates = new RoomSettings[vanillaTemplateNames.Length];
