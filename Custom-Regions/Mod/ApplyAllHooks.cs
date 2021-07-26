@@ -82,6 +82,13 @@ namespace CustomRegions.Mod
 
         public static void RemoveAllHooks()
         {
+            if (!CustomWorldMod.usingBepinex)
+            {
+                // Partiality crashes with -=
+                return;
+                // :(
+            }
+
             /// ARENAS ///
             ArenaCreatureSpawnerHook.RemoveHooks();
             MultiplayerUnlocksHook.RemoveHooks();
