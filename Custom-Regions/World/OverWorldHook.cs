@@ -22,6 +22,14 @@ namespace CustomRegions.CWorld
             On.OverWorld.LoadWorld += OverWorld_LoadWorld;
         }
 
+        public static void RemoveHooks()
+        {
+            On.OverWorld.LoadFirstWorld -= OverWorld_LoadFirstWorld;
+
+            On.OverWorld.GetRegion_1 -= OverWorld_GetRegion_1;
+            On.OverWorld.LoadWorld -= OverWorld_LoadWorld;
+        }
+
         private static void OverWorld_LoadWorld(On.OverWorld.orig_LoadWorld orig, OverWorld self, string worldName, int playerCharacterNumber, bool singleRoomWorld)
         {
             CustomWorldMod.Log($"Custom Regions: Loading world. Worldname [{worldName}], using [{textLoadWorld}]. SingleWorld [{singleWorld}]");

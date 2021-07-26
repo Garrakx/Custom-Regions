@@ -16,7 +16,13 @@ namespace CustomRegions.DevInterface
             On.DevInterface.MapPage.SaveMapConfig += MapPage_SaveMapConfig;
         }
 
-        private static void MapPage_SaveMapConfig(On.DevInterface.MapPage.orig_SaveMapConfig orig, MapPage self)
+		public static void RemoveHooks()
+		{
+			On.DevInterface.MapPage.LoadMapConfig -= MapPage_LoadMapConfig;
+			On.DevInterface.MapPage.SaveMapConfig -= MapPage_SaveMapConfig;
+		}
+
+		private static void MapPage_SaveMapConfig(On.DevInterface.MapPage.orig_SaveMapConfig orig, MapPage self)
         {
 			string customFilePath = string.Empty;
 			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)

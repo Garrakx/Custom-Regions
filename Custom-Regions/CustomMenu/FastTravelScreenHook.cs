@@ -20,6 +20,14 @@ namespace CustomRegions.CustomMenu
             On.Menu.FastTravelScreen.InitiateRegionSwitch += FastTravelScreen_InitiateRegionSwitch;
         }
 
+        public static void RemoveHooks()
+        {
+
+            On.Menu.FastTravelScreen.GetRegionOrder -= FastTravelScreen_GetRegionOrder;
+            On.Menu.FastTravelScreen.TitleSceneID -= FastTravelScreen_TitleSceneID;
+            On.Menu.FastTravelScreen.InitiateRegionSwitch -= FastTravelScreen_InitiateRegionSwitch;
+        }
+
         private static void FastTravelScreen_InitiateRegionSwitch(On.Menu.FastTravelScreen.orig_InitiateRegionSwitch orig, FastTravelScreen self, int switchToRegion)
         {
             if (switchToRegion == 0 && self.currentRegion == 0)

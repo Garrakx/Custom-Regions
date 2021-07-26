@@ -10,11 +10,16 @@ namespace CustomRegions.HUDs
 {
     static class MapHook
     {
-
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.HUD.Map.Update += Map_Update;
             On.HUD.Map.LoadConnectionPositions += Map_LoadConnectionPositions;
+        }
+
+        public static void RemoveHooks()
+        {
+            On.HUD.Map.Update -= Map_Update;
+            On.HUD.Map.LoadConnectionPositions -= Map_LoadConnectionPositions;
         }
 
         /// <summary>

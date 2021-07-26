@@ -29,11 +29,20 @@ namespace CustomRegions.CWorld
             On.WorldLoader.NextActivity += WorldLoader_NextActivity;
             On.WorldLoader.ctor += WorldLoader_ctor;
 
-            // DEBUG
-            //On.WorldLoader.MappingRooms += WorldLoader_MappingRooms;
             On.WorldLoader.Update += WorldLoader_Update;
             On.WorldLoader.CreatingAbstractRooms += WorldLoader_CreatingAbstractRooms;
             On.WorldLoader.LoadAbstractRoom += WorldLoader_LoadAbstractRoom;
+        }
+
+        public static void RemoveHooks()
+        {
+            On.WorldLoader.FindRoomFileDirectory -= WorldLoader_FindRoomFileDirectory;
+            On.WorldLoader.NextActivity -= WorldLoader_NextActivity;
+            On.WorldLoader.ctor -= WorldLoader_ctor;
+
+            On.WorldLoader.Update -= WorldLoader_Update;
+            On.WorldLoader.CreatingAbstractRooms -= WorldLoader_CreatingAbstractRooms;
+            On.WorldLoader.LoadAbstractRoom -= WorldLoader_LoadAbstractRoom;
         }
 
 

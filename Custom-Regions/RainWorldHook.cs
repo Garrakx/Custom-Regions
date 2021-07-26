@@ -12,6 +12,11 @@ namespace CustomRegions
             On.RainWorld.Start += RainWorld_Start;
         }
 
+        public static void RemoveHooks()
+        {
+            On.RainWorld.Start -= RainWorld_Start;
+        }
+
         private static void RainWorld_Start(On.RainWorld.orig_Start orig, RainWorld self)
         {
             CustomWorldMod.LoadCustomWorldResources();

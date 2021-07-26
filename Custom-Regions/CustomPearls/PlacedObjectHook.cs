@@ -19,6 +19,14 @@ namespace CustomRegions.CustomPearls
             On.PlacedObject.FromString += PlacedObject_FromString;
         }
 
+        public static void RemoveHooks()
+        {
+            On.PlacedObject.DataPearlData.FromString -= DataPearlData_FromString;
+            On.PlacedObject.DataPearlData.ToString -= DataPearlData_ToString;
+
+            On.PlacedObject.FromString -= PlacedObject_FromString;
+        }
+
         private static void PlacedObject_FromString(On.PlacedObject.orig_FromString orig, PlacedObject self, string[] s)
         {
             try

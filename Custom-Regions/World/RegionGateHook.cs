@@ -14,6 +14,10 @@ namespace CustomRegions.CWorld
             On.RegionGate.ctor += RegionGate_ctor;
         }
 
+        public static void RemoveHooks()
+        {
+            On.RegionGate.ctor -= RegionGate_ctor;
+        }
 
         /// <summary>
         /// Loads karmaGate requirements

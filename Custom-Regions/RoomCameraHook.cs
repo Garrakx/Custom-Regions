@@ -13,17 +13,21 @@ namespace CustomRegions
     {
         //public delegate void orig_WWW_ctor(WWW self, string url);
 
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
-            // Palette
-            //On.RoomCamera.LoadPalette += RoomCamera_LoadPalette;
-           // IDetour hookWWWctor = new Hook(typeof(WWW).GetConstructor(new Type[] { typeof(string) }), typeof(RoomCameraHook).GetMethod("WWW_ctor"));
 
             // If a custom room uses vanilla textures
             On.RoomCamera.MoveCamera2 += RoomCamera_MoveCamera2;
 
             On.RoomCamera.PreLoadTexture += RoomCamera_PreLoadTexture;
 
+        }
+
+        public static void RemoveHooks()
+        {
+            // If a custom room uses vanilla textures
+            On.RoomCamera.MoveCamera2 -= RoomCamera_MoveCamera2;
+            On.RoomCamera.PreLoadTexture -= RoomCamera_PreLoadTexture;
         }
 
         /// <summary>

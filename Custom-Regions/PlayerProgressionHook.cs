@@ -10,26 +10,32 @@ namespace CustomRegions
 {
     public static class PlayerProgressionHook
     {
-        //private static Dictionary<string, int> tempDictionary = null;
-
+     
         public static void ApplyHooks()
         {
-            // Debug
-            //On.PlayerProgression.ctor += PlayerProgression_ctor;
-
             On.PlayerProgression.LoadProgression += PlayerProgression_LoadProgression;
             On.PlayerProgression.InitiateProgression += PlayerProgression_InitiateProgression;
 
-            // Fix Savefile
-            // On.PlayerProgression.GetProgLines += PlayerProgression_GetProgLines;
-
-            // Debug
             On.PlayerProgression.MiscProgressionData.SaveDiscoveredShelter += MiscProgressionData_SaveDiscoveredShelter;
             On.PlayerProgression.MiscProgressionData.ToString += MiscProgressionData_ToString;
             On.PlayerProgression.MiscProgressionData.FromString += MiscProgressionData_FromString;
 
             On.PlayerProgression.SaveToDisk += PlayerProgression_SaveToDisk;
             On.PlayerProgression.WipeAll += PlayerProgression_WipeAll;
+        }
+
+        public static void RemoveHooks()
+        {
+            On.PlayerProgression.LoadProgression -= PlayerProgression_LoadProgression;
+            On.PlayerProgression.InitiateProgression -= PlayerProgression_InitiateProgression;
+
+            // Debug
+            On.PlayerProgression.MiscProgressionData.SaveDiscoveredShelter -= MiscProgressionData_SaveDiscoveredShelter;
+            On.PlayerProgression.MiscProgressionData.ToString -= MiscProgressionData_ToString;
+            On.PlayerProgression.MiscProgressionData.FromString -= MiscProgressionData_FromString;
+
+            On.PlayerProgression.SaveToDisk -= PlayerProgression_SaveToDisk;
+            On.PlayerProgression.WipeAll -= PlayerProgression_WipeAll;
         }
 
         private static void PlayerProgression_WipeAll(On.PlayerProgression.orig_WipeAll orig, PlayerProgression self)
@@ -133,14 +139,6 @@ namespace CustomRegions
 
         private static void MiscProgressionData_FromString(On.PlayerProgression.MiscProgressionData.orig_FromString orig, PlayerProgression.MiscProgressionData self, string s)
         {
-            /*
-            string debug2 = "Custom Regions: MISC PROGRESION FROM STRING - RegionNames { ";
-            for (int i = 0; i < self.owner.regionNames.Length; i++)
-            {
-                debug2 += self.owner.regionNames[i] + " , ";
-            }
-            CustomWorldMod.CustomWorldLog(debug2);
-            */
             CustomWorldMod.Log($"MISC PROGRESSION FROM STRING - RegionNames[{string.Join(", ", self.owner.regionNames)}]");
 
             Dictionary<string, int> dictionaryTemp = new Dictionary<string, int>(7);
@@ -206,15 +204,6 @@ namespace CustomRegions
                         }
                     }
                 }
-
-
-                /*for (int a = 0; a < array2.Length; a++)
-                {
-                    for (int b = 0; b < array2[a].Length; b++)
-                    {
-                        debug += array2[a][b] + " ";
-                    }
-                }*/
             }
             debug += " ]";
             CustomWorldMod.Log(debug);

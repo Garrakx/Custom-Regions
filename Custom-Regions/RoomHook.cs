@@ -12,6 +12,11 @@ namespace CustomRegions
             On.Room.AddObject += Room_AddObject;
             On.Room.Loaded += Room_Loaded;
         }
+        public static void RemoveHooks()
+        {
+            On.Room.AddObject -= Room_AddObject;
+            On.Room.Loaded -= Room_Loaded;
+        }
 
         private static void Room_Loaded(On.Room.orig_Loaded orig, Room self)
         {

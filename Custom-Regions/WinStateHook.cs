@@ -5,9 +5,14 @@ namespace CustomRegions
 {
     static class WinStateHook
     {
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.WinState.CreateAndAddTracker += WinState_CreateAndAddTracker;
+        }
+
+        public static void RemoveHooks()
+        {
+            On.WinState.CreateAndAddTracker -= WinState_CreateAndAddTracker;
         }
 
         private static WinState.EndgameTracker WinState_CreateAndAddTracker(On.WinState.orig_CreateAndAddTracker orig, WinState.EndgameID ID, List<WinState.EndgameTracker> endgameTrackers)

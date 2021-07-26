@@ -20,7 +20,11 @@ namespace CustomRegions.CustomPearls
             On.SLOracleBehaviorHasMark.GrabObject += SLOracleBehaviorHasMark_GrabObject;
             On.SLOracleBehaviorHasMark.MoonConversation.AddEvents += MoonConversation_AddEvents;
         }
-
+        public static void RemoveHooks()
+        {
+            On.SLOracleBehaviorHasMark.GrabObject -= SLOracleBehaviorHasMark_GrabObject;
+            On.SLOracleBehaviorHasMark.MoonConversation.AddEvents -= MoonConversation_AddEvents;
+        }
 
         private static void SLOracleBehaviorHasMark_GrabObject(On.SLOracleBehaviorHasMark.orig_GrabObject orig, SLOracleBehaviorHasMark self, PhysicalObject item)
         {

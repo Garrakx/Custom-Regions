@@ -8,10 +8,16 @@ namespace CustomRegions.CWorld
 {
     static class RegionHook
     {
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.Region.NumberOfRoomsInRegion += Region_NumberOfRoomsInRegion;
             On.Region.ctor += Region_ctor;
+        }
+
+        public static void RemoveHooks()
+        {
+            On.Region.NumberOfRoomsInRegion -= Region_NumberOfRoomsInRegion;
+            On.Region.ctor -= Region_ctor;
         }
 
 

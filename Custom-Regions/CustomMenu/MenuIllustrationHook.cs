@@ -8,9 +8,14 @@ namespace CustomRegions.CustomMenu
 {
     static class MenuIllustrationHook
     {
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.Menu.MenuIllustration.LoadFile_1 += MenuIllustration_LoadFile_1;
+        }
+
+        public static void RemoveHooks()
+        {
+            On.Menu.MenuIllustration.LoadFile_1 -= MenuIllustration_LoadFile_1;
         }
 
         private static void MenuIllustration_LoadFile_1(On.Menu.MenuIllustration.orig_LoadFile_1 orig, Menu.MenuIllustration self, string folder)

@@ -8,6 +8,10 @@ namespace CustomRegions
         {
             On.MainLoopProcess.Update += MainLoopProcess_Update;
         }
+        public static void RemoveHooks()
+        {
+            On.MainLoopProcess.Update -= MainLoopProcess_Update;
+        }
 
         private static void MainLoopProcess_Update(On.MainLoopProcess.orig_Update orig, MainLoopProcess self)
         {

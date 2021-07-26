@@ -12,11 +12,18 @@ namespace CustomRegions.CustomMenu
 
     static class MenuSceneHook
     {
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.Menu.MenuScene.BuildScene += MenuScene_BuildScene;
             On.Menu.MenuScene.SaveToFile += MenuScene_SaveToFile;
             On.Menu.MenuScene.Update += MenuScene_Update;
+        }
+
+        public static void RemoveHooks()
+        {
+            On.Menu.MenuScene.BuildScene -= MenuScene_BuildScene;
+            On.Menu.MenuScene.SaveToFile -= MenuScene_SaveToFile;
+            On.Menu.MenuScene.Update -= MenuScene_Update;
         }
 
         private static void MenuScene_Update(On.Menu.MenuScene.orig_Update orig, MenuScene self)

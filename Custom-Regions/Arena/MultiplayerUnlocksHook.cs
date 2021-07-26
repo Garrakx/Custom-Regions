@@ -13,6 +13,11 @@ namespace CustomRegions.Arena
             On.MultiplayerUnlocks.LevelLockID += MultiplayerUnlocks_LevelLockID;
         }
 
+        public static void RemoveHooks()
+        {
+            On.MultiplayerUnlocks.LevelLockID -= MultiplayerUnlocks_LevelLockID;
+        }
+
         private static MultiplayerUnlocks.LevelUnlockID MultiplayerUnlocks_LevelLockID(On.MultiplayerUnlocks.orig_LevelLockID orig, string levelName)
         {
             if (CustomWorldMod.levelUnlocks.ContainsKey(levelName))

@@ -8,7 +8,7 @@ namespace CustomRegions
 {
     static class SaveStateHook
     {
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.SaveState.ctor += SaveState_ctor;
             On.SaveState.LoadGame += SaveState_LoadGame;
@@ -23,6 +23,22 @@ namespace CustomRegions
             {
                 CustomWorldMod.Log($"Using Slime_Cubed's fix for On_SaveState_AbstractPhysicalObjectFromString. Consider switching to BepInEx");
                 APOFSFix.On_SaveState_AbstractPhysicalObjectFromString += SaveState_AbstractPhysicalObjectFromString;
+            }
+        }
+
+        public static void RemoveHooks()
+        {
+            On.SaveState.ctor -= SaveState_ctor;
+            On.SaveState.LoadGame -= SaveState_LoadGame;
+
+            // Pearl
+            if (CustomWorldMod.usingBepinex)
+            {
+                On.SaveState.AbstractPhysicalObjectFromString -= SaveState_AbstractPhysicalObjectFromString;
+            }
+            else
+            {
+                APOFSFix.On_SaveState_AbstractPhysicalObjectFromString -= SaveState_AbstractPhysicalObjectFromString;
             }
         }
 

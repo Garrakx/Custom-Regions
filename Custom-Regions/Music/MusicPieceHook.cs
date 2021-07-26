@@ -18,8 +18,16 @@ namespace CustomRegions.Music
 			On.Music.MusicPiece.Update += MusicPiece_Update;
         }
 
+        public static void RemoveHooks()
+        {
+            On.Music.MusicPiece.SubTrack.Update -= SubTrack_Update;
+
+            // Only needed if you don't have CustomAssets
+            On.Music.MusicPiece.Update -= MusicPiece_Update;
+        }
+
         // COULD LOOK FIRST FOR VANILLA TO BE A LITTLE MORE EFFICIENT
-		private static void SubTrack_Update(On.Music.MusicPiece.SubTrack.orig_Update orig, MusicPiece.SubTrack self)
+        private static void SubTrack_Update(On.Music.MusicPiece.SubTrack.orig_Update orig, MusicPiece.SubTrack self)
         {
             if (!self.readyToPlay)
 			{

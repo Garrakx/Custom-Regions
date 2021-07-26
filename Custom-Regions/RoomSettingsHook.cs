@@ -10,16 +10,24 @@ namespace CustomRegions
     static class RoomSettingsHook
     {
 
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.RoomSettings.LoadPlacedObjects += RoomSettings_LoadPlacedObjects;
 
             On.RoomSettings.FindParent += RoomSettings_FindParent;
             On.RoomSettings.Save += RoomSettings_Save;
             On.RoomSettings.Reset += RoomSettings_Reset;
-
-
             On.RoomSettings.ctor += RoomSettings_ctor;
+        }
+
+        public static void RemoveHooks()
+        {
+            On.RoomSettings.LoadPlacedObjects -= RoomSettings_LoadPlacedObjects;
+
+            On.RoomSettings.FindParent -= RoomSettings_FindParent;
+            On.RoomSettings.Save -= RoomSettings_Save;
+            On.RoomSettings.Reset -= RoomSettings_Reset;
+            On.RoomSettings.ctor -= RoomSettings_ctor;
         }
 
         private static string regionName = null;
@@ -85,7 +93,6 @@ namespace CustomRegions
                     {
                         CustomWorldMod.Log($"Missing settings file for [{self.name}] - [{regularRoomPath}]", false, CustomWorldMod.DebugLevel.FULL);
                     }
-
                 }
             }
 

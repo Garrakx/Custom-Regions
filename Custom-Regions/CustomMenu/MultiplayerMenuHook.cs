@@ -11,13 +11,18 @@ namespace CustomRegions.CustomMenu
 {
     static class MultiplayerMenuHook
     {
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.Menu.MultiplayerMenu.ctor += MultiplayerMenu_ctor;
         }
 
-       // Thumbnail
-       // THIS IS CALLED IN WWWCTOR
+        public static void RemoveHooks()
+        {
+            On.Menu.MultiplayerMenu.ctor -= MultiplayerMenu_ctor;
+        }
+
+        // Thumbnail
+        // THIS IS CALLED IN WWWCTOR
         public static void MultiplayerMenuUrl(ref string url)
         {
             if (url.Contains("file:///" + Custom.RootFolderDirectory() + "Levels") && url.Contains("_1.png"))
