@@ -84,6 +84,7 @@
     <Compile Include="DevInterface\CustomDecalRepresentationHook.cs" />
     <Compile Include="DevInterface\MapPageHook.cs" />
     <Compile Include="DevInterface\MapRenderOutputHook.cs" />
+    <Compile Include="DevInterface\SoundPageHook.cs" />
     <Compile Include="EnumExtender.cs" />
     <Compile Include="MainLoopProcessHook.cs" />
     <Compile Include="Mod\ApplyAllHooks.cs" />
