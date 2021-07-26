@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arena\ArenaCreatureSpawnerHook.cs" />
+    <Compile Include="Music\MultiplayerDJHook.cs" />
     <Compile Include="Arena\MultiplayerUnlocksHook.cs" />
     <Compile Include="Creatures\BigEelHook.cs" />
     <Compile Include="Creatures\DaddyLongLegsHook.cs" />
