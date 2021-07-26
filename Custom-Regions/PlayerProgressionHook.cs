@@ -139,12 +139,12 @@ namespace CustomRegions
 
         private static void MiscProgressionData_FromString(On.PlayerProgression.MiscProgressionData.orig_FromString orig, PlayerProgression.MiscProgressionData self, string s)
         {
-            CustomWorldMod.Log($"MISC PROGRESSION FROM STRING - RegionNames[{string.Join(", ", self.owner.regionNames)}]");
+            CustomWorldMod.Log($"MISC PROGRESSION FROM STRING - Region Names [{string.Join(", ", self.owner.regionNames)}]");
 
             Dictionary<string, int> dictionaryTemp = new Dictionary<string, int>(7);
             string[] array = Regex.Split(s, "<mpdA>");
 
-            string debug = "Custom Regions: Loaded shelters from string: [ ";
+            string debug = "Loaded shelters from string: [ ";
             for (int i = 0; i < array.Length; i++)
             {
                 string[] array2 = Regex.Split(array[i], "<mpdB>");
@@ -209,7 +209,7 @@ namespace CustomRegions
             CustomWorldMod.Log(debug);
             orig(self, s);
 
-            string debug2 = "Custom Regions: Discovered Shelters { ";
+            string debug2 = "Discovered Shelters { ";
             for (int i = 0; i < self.discoveredShelters.Length; i++)
             {
                 if (self.discoveredShelters[i] != null)
@@ -229,7 +229,7 @@ namespace CustomRegions
 
         private static string MiscProgressionData_ToString(On.PlayerProgression.MiscProgressionData.orig_ToString orig, PlayerProgression.MiscProgressionData self)
         {
-            string text = "Custom Regions: MiscProgdata [";
+            string text = "MiscProgdata [";
             for (int i = 0; i < self.discoveredShelters.Length; i++)
             {
                 if (self.discoveredShelters[i] != null && self.discoveredShelters[i].Count > 0)
