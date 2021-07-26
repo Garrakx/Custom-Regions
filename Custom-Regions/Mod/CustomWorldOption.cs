@@ -232,7 +232,7 @@ namespace CustomRegions.Mod
         private bool updateAvailableTabWarning;
         private bool errorTabWarning;
         private bool updatedNews = false;
-
+        Color updateBlinkColor = Color.white;
         float counter = 0;
         public override void Update(float dt)
         {
@@ -251,7 +251,8 @@ namespace CustomRegions.Mod
                 if (updateAvailableTabWarning)
                 {
                     //OpTab raindbTab = Tabs.First(x => x.name.Equals("Browse RainDB"));
-                    raindbTab.color = Color.Lerp(Color.white, Color.green, 0.5f * (0.65f - Mathf.Sin(counter + Mathf.PI)));
+                    updateBlinkColor = Color.Lerp(Color.white, Color.green, 0.5f * (0.65f - Mathf.Sin(counter + Mathf.PI)));
+                    raindbTab.color = updateBlinkColor;
                 }
                 if (!raindbTab.isHidden && CustomWorldMod.scripts != null)
                 {
@@ -265,6 +266,13 @@ namespace CustomRegions.Mod
                                                             ) as OpSimpleButton);
                             script.downloadButton = downloadButton;
                         }
+                    }
+                    List<UIelement> simpleButtons =
+                        raindbTab.items.FindAll(x => x is OpSimpleButton button && button.text.ToLower().Contains("update"));
+
+                    foreach (UIelement item in simpleButtons)
+                    {
+                        (item as OpSimpleButton).colorEdge = updateBlinkColor;
                     }
 
                 }
@@ -317,7 +325,8 @@ namespace CustomRegions.Mod
 
                         if (url != null && url != string.Empty)
                         {
-                            string arguments = $"{url}{divider}\"{packName}\"{divider}{ID}{divider}" + @"\" + CustomWorldMod.resourcePath + (signal.Contains("update") ? $"{divider}update" : "");
+                            string arguments = $"{url}{divider}\"{packName}\"{divider}{ID}{divider}" + 
+                                @"\" + CustomWorldMod.resourcePath + (signal.Contains("update") ? $"{divider}update" : "");
                             CustomWorldMod.Log($"Creating pack downloader for [{arguments}]");
 
                             CustomWorldMod.scripts.Add(new PackDownloader(arguments, packName));
@@ -447,7 +456,8 @@ namespace CustomRegions.Mod
                 bool update = false;
                 try
                 {
-                    update = raindb && !activated && pack.checksum != null && pack.checksum != string.Empty && !pack.checksum.Equals(CustomWorldMod.installedPacks[pack.name].checksum);
+                    update = raindb && !activated && pack.checksum != null && pack.checksum != string.Empty && 
+                        !pack.checksum.Equals(CustomWorldMod.installedPacks[pack.name].checksum);
                 }
                 catch { CustomWorldMod.Log("Error checking the checksum for updates"); }
                 Color colorEdge = activated ? Color.white : new Color((108f / 255f), 0.001f, 0.001f);
@@ -656,7 +666,7 @@ namespace CustomRegions.Mod
                         // Download or Update
                         OpSimpleButton button = new OpSimpleButton(pos, new Vector2(80, 30), signal, text)
                         {
-                            colorEdge = update ? colorInverse : colorEdge
+                            colorEdge = update ? Color.green : colorEdge
                         };
                         mainScroll.AddItems(button);
                     }
