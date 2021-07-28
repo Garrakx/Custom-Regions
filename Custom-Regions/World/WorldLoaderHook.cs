@@ -1201,9 +1201,11 @@ namespace CustomRegions.CWorld
                 string arenaPath = pathToCustomFolder + "Levels" + Path.DirectorySeparatorChar + roomName;
 
                 // room is regular room
-                if (Directory.Exists(regularRoomPath) && File.Exists(regularRoomPath + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName + ".txt"))
+                if (Directory.Exists(regularRoomPath) && 
+                    File.Exists(regularRoomPath + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName + ".txt"))
                 {
-                    result = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0] + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName;
+                    result = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + 
+                        Regex.Split(roomName, "_")[0] + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + roomName;
                     //CustomWorldMod.CustomWorldLog($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
                 }
                 // room is GATE
@@ -1233,7 +1235,7 @@ namespace CustomRegions.CWorld
 
             if (result != "")
             {
-                //CustomWorldMod.CustomWorldLog("Using Custom Worldfile: " + result);
+                CustomWorldMod.Log("Using Custom Worldfile: " + result, false, CustomWorldMod.DebugLevel.FULL);
                 if (includeRootDirectory)
                 {
                     result = "file:///" + Custom.RootFolderDirectory() + result;

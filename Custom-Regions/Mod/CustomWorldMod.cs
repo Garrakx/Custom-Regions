@@ -92,7 +92,7 @@ namespace CustomRegions.Mod
                         CustomWorldMod.debugLevel = DebugLevel.FULL;
                     }
                 }
-            } catch { }
+            } catch (Exception e) { CustomWorldMod.Log($"Could not read debug level file \n{e}", true); }
 
             CustomWorldMod.debugLevel = DebugLevel.FULL;
 
@@ -112,7 +112,7 @@ namespace CustomRegions.Mod
             }
             catch (Exception e)
             {
-                CustomWorldMod.Log("Error checking the modloaer " + e, true);
+                CustomWorldMod.Log("Error checking the modloaer \n{e}", true);
             }
 
 

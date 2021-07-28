@@ -31,7 +31,8 @@ namespace CustomRegions.Creatures
                     {
                         if (!config.bllVanilla)
                         {
-                            //CustomWorldMod.Log($"Spawning custom DDL/BLL in [{world.region.name}] from [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
+                            CustomWorldMod.Log($"Spawning custom DDL/BLL in [{world.region.name}] from " +
+                                $"[{CustomWorldMod.installedPacks[keyValues.Key].name}]", false, CustomWorldMod.DebugLevel.FULL);
                             self.colorClass = true;
                             self.effectColor = config.bllColor ?? new UnityEngine.Color(0, 0, 1);
                             self.eyeColor = self.effectColor;

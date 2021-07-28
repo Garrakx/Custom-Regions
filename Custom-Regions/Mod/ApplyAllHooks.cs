@@ -56,6 +56,7 @@ namespace CustomRegions.Mod
             MultiplayerDJHook.ApplyHooks();
             MusicPieceHook.ApplyHooks();
             ProceduralMusicInstructionsHook.ApplyHooks();
+            SoundLoaderHook.ApplyHooks();
 
 
             /// WORLD ///
@@ -85,6 +86,7 @@ namespace CustomRegions.Mod
         {
             if (!CustomWorldMod.usingBepinex)
             {
+                CustomWorldMod.Log($"Could not disable hooks since you are using Partiality! Consider upgrading to BepInEx", true);
                 // Partiality crashes with -=
                 return;
                 // :(
@@ -126,6 +128,7 @@ namespace CustomRegions.Mod
             MultiplayerDJHook.RemoveHooks();
             MusicPieceHook.RemoveHooks();
             ProceduralMusicInstructionsHook.RemoveHooks();
+            SoundLoaderHook.RemoveHooks();
 
 
             /// WORLD ///
