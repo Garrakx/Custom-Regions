@@ -35,8 +35,7 @@ namespace CustomRegions
                     if (self.roomSettings.placedObjects[m].active)
                     {
                         PlacedObject placedObj = self.roomSettings.placedObjects[m];
-                        //PlacedObject.Type type = placedObj.type;
-                        //CustomWorldMod.Log($"Checking if [{type}] is {EnumExt_PlacedObjectType.VultureMaskSpawn}");
+
                         if (placedObj.data is PlacedObject.MultiplayerItemData && UnityEngine.Random.value <= (placedObj.data as PlacedObject.MultiplayerItemData).chance)
                         {
                             PlacedObject.MultiplayerItemData.Type typeMulti = (placedObj.data as PlacedObject.MultiplayerItemData).type;

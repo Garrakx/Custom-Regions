@@ -7,6 +7,8 @@ using MonoMod.RuntimeDetour;
 
 namespace CustomRegions.Mod
 {
+
+
     public static class CRExtras
     {
         public enum CustomFolder
@@ -217,17 +219,6 @@ namespace CustomRegions.Mod
             //hsl.hue *= 1 / 360f;
             return hsl;
 
-        }
-
-        public static void CopyTo(this Stream input, Stream output)
-        {
-            byte[] buffer = new byte[16 * 1024]; // Fairly arbitrary size
-            int bytesRead;
-
-            while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                output.Write(buffer, 0, bytesRead);
-            }
         }
 
         public static void TrimString(ref string reference, float targetPixel, string endSequence)

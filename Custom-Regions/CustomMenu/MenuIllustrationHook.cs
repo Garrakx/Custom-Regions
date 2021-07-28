@@ -25,9 +25,6 @@ namespace CustomRegions.CustomMenu
                 try
                 {
                     CustomWorldMod.Log($"Custom Regions: Loading custom resources at MenuIllustration. Folder [{folder}] and fileName [{self.fileName}]");
-                    /*string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                    string sceneFolder = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Scenes" + Path.DirectorySeparatorChar + $"Landscape - {keyValues.Key}";
-                    */
 
                     self.www = new WWW(string.Concat(new object[] { "file:///", Custom.RootFolderDirectory(), folder, Path.DirectorySeparatorChar, self.fileName, ".png" }));
                     self.texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);

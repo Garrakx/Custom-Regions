@@ -32,19 +32,6 @@ namespace CustomRegions.CustomPearls
         private static string AbstractDataPearl_ToString(On.DataPearl.AbstractDataPearl.orig_ToString orig, DataPearl.AbstractDataPearl self)
         {
 
-            /*
-            DataPearl.AbstractDataPearl.DataPearlType backUpType = self.pearlType;
-
-            if (backUpType > DataPearl.AbstractDataPearl.DataPearlType.Red_stomach)
-            {
-                self.pearlType = (DataPearl.AbstractDataPearl.DataPearlType)CustomWorldMod.customPearls.First(x => x.Value.name.Equals(backUpType.ToString())).Key;
-            }
-            CustomWorldMod.Log($"DataPearl to string. PearlType [{self.pearlType}] [{backUpType.ToString()}]");
-            string toString = orig(self);
-            self.pearlType = backUpType;
-            return toString;
-            */
-
             DataPearl.AbstractDataPearl.DataPearlType backUpType = self.dataPearlType;
             KeyValuePair<int, CustomWorldStructs.CustomPearl> entry = CustomWorldMod.customPearls.FirstOrDefault(x => x.Value.name.Equals(backUpType.ToString()));
 
@@ -57,9 +44,6 @@ namespace CustomRegions.CustomPearls
             string toString = orig(self);
             self.dataPearlType = backUpType;
             return toString;
-            //CustomWorldMod.Log($"PearlData to string [{string.Concat(array)}] - PearlTypeHas [{num2}] - PearlType [{CustomWorldMod.customPearls[num2].name}]");
-            //int num2 = CustomWorldMod.customPearls.First(x => x.Value.name.Equals(self.dataPearlType.ToString())).Key;
-
         }
         
 

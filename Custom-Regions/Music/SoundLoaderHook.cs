@@ -57,6 +57,7 @@ namespace CustomRegions.Music
                     ambientImporter.absolutePath = ambientPath;
                     ambientImporter.Init(self);
                     return null;
+
                     /*
                     // File already loaded
                     for (int i = 0; i < self.ambientClipsThroughUnity.Count; i++)

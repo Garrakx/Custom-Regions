@@ -94,7 +94,8 @@ namespace CustomRegions.Mod
                 }
             } catch (Exception e) { CustomWorldMod.Log($"Could not read debug level file \n{e}", true); }
 
-            CustomWorldMod.debugLevel = DebugLevel.FULL;
+            //CustomWorldMod.debugLevel = DebugLevel.FULL;
+            //CustomWorldMod.Log("Forcing DEBUG, don't forget to remove for release", true);
 
             bool usingBepinex = false;
             try
