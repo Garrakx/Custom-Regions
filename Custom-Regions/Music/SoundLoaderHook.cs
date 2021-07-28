@@ -12,13 +12,11 @@ namespace CustomRegions.Music
     {
         public static void RemoveHooks()
         {
-            On.SoundLoader.LoadAllAmbientSounds -= SoundLoader_LoadAllAmbientSounds;
             On.SoundLoader.RequestAmbientAudioClip -= SoundLoader_RequestAmbientAudioClip;
         }
 
         public static void ApplyHooks()
         {
-            //On.SoundLoader.LoadAllAmbientSounds += SoundLoader_LoadAllAmbientSounds;
             On.SoundLoader.RequestAmbientAudioClip += SoundLoader_RequestAmbientAudioClip;
         }
 
@@ -83,6 +81,7 @@ namespace CustomRegions.Music
             return orig(self, clipName);
         }
 
+        /*
         private static void SoundLoader_LoadAllAmbientSounds(On.SoundLoader.orig_LoadAllAmbientSounds orig, SoundLoader self)
         {
             orig(self);
@@ -98,5 +97,6 @@ namespace CustomRegions.Music
                 }
             }
         }
+        */
     }
 }
