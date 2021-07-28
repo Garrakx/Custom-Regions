@@ -27,9 +27,13 @@ namespace CustomRegions.DevInterface
 			string customFilePath = string.Empty;
 			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
 			{
+				/*
 				customFilePath = Custom.RootFolderDirectory() + 
 					CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
 					"World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.owner.game.world.name + Path.DirectorySeparatorChar + "Properties.txt";
+				*/
+				customFilePath = CRExtras.BuildPath(keyValues.Value, 
+					CRExtras.CustomFolder.RegionID, regionID: self.owner.game.world.name, file: "Properties.txt");
 
 				if (File.Exists(customFilePath))
 				{
@@ -45,18 +49,23 @@ namespace CustomRegions.DevInterface
 
         private static void MapPage_LoadMapConfig(On.DevInterface.MapPage.orig_LoadMapConfig orig, MapPage self)
         {
-            string customFilePath = string.Empty;
+            string mapPath = string.Empty;
 			bool loadedMap = false;
 			// Iterate backwards, leaving the first activated region as filePath, but loading the info from the rest.
             for (int i = CustomWorldMod.activatedPacks.Count-1; i >= 0; i--)
             {
 				KeyValuePair<string, string> keyValues = CustomWorldMod.activatedPacks.ElementAt(i);
-				customFilePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
-					"World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +					self.owner.game.world.name;
 
-                if (Directory.Exists(customFilePath))
-                {
-                    string mapPath = customFilePath + Path.DirectorySeparatorChar + "map_" + self.owner.game.world.name + ".txt"; 
+				/*
+                customFilePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
+                    "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.owner.game.world.name;
+				*/
+				mapPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.owner.game.world.name,
+					file: "map_" + self.owner.game.world.name + ".txt");
+
+				//if (Directory.Exists(customFilePath))
+                
+                    //string mapPath = customFilePath + Path.DirectorySeparatorChar + "map_" + self.owner.game.world.name + ".txt"; 
 					if (File.Exists(mapPath))
 					{
 						loadedMap = true;
@@ -64,7 +73,7 @@ namespace CustomRegions.DevInterface
 						self.filePath = mapPath;
 						orig(self);
 					}
-				}
+				
             }
 			if (!loadedMap)
 				orig(self);
@@ -194,7 +203,8 @@ namespace CustomRegions.DevInterface
 									}
 									else
 									{
-										Debug.Log("failed connection: " + roomPanel.roomRep.room.name + " -> " + (self.subNodes[m] as RoomPanel).roomRep.room.name);
+										Debug.Log("failed connection: " + roomPanel.roomRep.room.name + " -> " + 
+											(self.subNodes[m] as RoomPanel).roomRep.room.name);
 									}
 								}
 							}

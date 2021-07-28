@@ -29,13 +29,14 @@ namespace CustomRegions.CWorld
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
+                /*
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
                 string path2 = path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "locks.txt";
-
-                bool foundKarma = false;
-                if (File.Exists(path2)) 
+                */
+                string karmaLocksText = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Gates, file: "locks.txt");
+                if (File.Exists(karmaLocksText)) 
                 {
-                    string[] array = File.ReadAllLines(path2);
+                    string[] array = File.ReadAllLines(karmaLocksText);
 
                     for (int i = 0; i < array.Length; i++)
                     {
@@ -52,12 +53,11 @@ namespace CustomRegions.CWorld
                                 room.AddObject(self.karmaGlyphs[j]);
                             }
 
-                            CustomWorldMod.Log($"Custom Regions: Found custom karmaGate requirement for {keyValues.Key}. Gate [{self.karmaRequirements[0]}/{self.karmaRequirements[1]}]");
-                            foundKarma = true;
-                            break;
+                            CustomWorldMod.Log($"Custom Regions: Found custom karmaGate requirement for {keyValues.Key}. " +
+                                $"Gate [{self.karmaRequirements[0]}/{self.karmaRequirements[1]}]");
+                            return;
                         }
                     }
-                    if (foundKarma) { break; }
                 }
             }
         }

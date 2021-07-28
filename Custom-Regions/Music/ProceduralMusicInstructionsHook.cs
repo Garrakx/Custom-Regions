@@ -25,16 +25,18 @@ namespace CustomRegions.Music
 
 			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
 			{
+                /*
 				string pathToProceduralText = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 				pathToProceduralText += "Assets" + Path.DirectorySeparatorChar + "Futile" +
 					Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Procedural" + Path.DirectorySeparatorChar;
-
+                */
+                string pathToProceduralTextFolder = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Procedural);
                 int numberOfTracksAdded = self.tracks.Count;
-                if (File.Exists(pathToProceduralText + name + ".txt"))
+                if (File.Exists(pathToProceduralTextFolder + name + ".txt"))
                 {
                     CustomWorldMod.Log($"[MUSIC] Adding procedural tracks from [{keyValues.Value}]");
 
-                    string[] array = File.ReadAllLines(pathToProceduralText + name + ".txt");
+                    string[] array = File.ReadAllLines(pathToProceduralTextFolder + name + ".txt");
                     for (int i = 0; i < array.Length; i++)
                     {
                         string[] array2 = Regex.Split(array[i], " : ");
@@ -58,7 +60,7 @@ namespace CustomRegions.Music
                                 }
                             }
                         }
-                        else if (array2.Length > 0 && array2[0].Length > 0 && File.Exists(pathToProceduralText + array2[0] + ".ogg"))
+                        else if (array2.Length > 0 && array2[0].Length > 0 && File.Exists(pathToProceduralTextFolder + array2[0] + ".ogg"))
                         {
                             CustomWorldMod.Log($"Added track [{array2[0] + ".ogg"}]", false, CustomWorldMod.DebugLevel.FULL);
                             self.tracks.Add(new ProceduralMusic.ProceduralMusicInstruction.Track(array2[0]));

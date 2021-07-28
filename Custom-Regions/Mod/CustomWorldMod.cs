@@ -406,8 +406,9 @@ namespace CustomRegions.Mod
             List<string> availableResourceFoldersTemp = null;
             foreach (KeyValuePair<string, string> regionPack in CustomWorldMod.activatedPacks)
             {
-                string folder = Custom.RootFolderDirectory() + resourcePath + regionPack.Value + @"\Assets\Futile\Resources";
-                //Log($"Folder [{folder}]");
+                //string folder = Custom.RootFolderDirectory() + resourcePath + regionPack.Value + @"\Assets\Futile\Resources";
+                string folder = CRExtras.BuildPath(regionPack.Value, CRExtras.CustomFolder.Resources);
+
                 if (Directory.Exists(folder))
                 {
                     foreach (string dir in Directory.GetDirectories(folder))
@@ -951,10 +952,10 @@ namespace CustomRegions.Mod
 
                 if (pack.activated)
                 {
-                    LoadCustomPearls(dir, pack.name);
-                    LoadElectricGates(dir, pack);
-                    LoadVariations(dir, pack);
-                    LoadArenaUnlocks(dir, pack);
+                    LoadCustomPearls(pack.name);
+                    LoadElectricGates(pack);
+                    LoadVariations(pack);
+                    LoadArenaUnlocks(pack);
                 }
                 else
                 {
@@ -1180,10 +1181,13 @@ namespace CustomRegions.Mod
             }
         }
 
-        public static void LoadElectricGates(string dir, RegionPack pack)
+        public static void LoadElectricGates(RegionPack regionPack)
         {
             // Add electric gates
+            /*
             string pathToElectricGates = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "electricGates.txt";
+            */
+            string pathToElectricGates = CRExtras.BuildPath(regionPack.folderName, CRExtras.CustomFolder.Gates, file: "electricGates.txt");
             if (File.Exists(pathToElectricGates))
             {
                 string[] electricGates = File.ReadAllLines(pathToElectricGates);
@@ -1192,20 +1196,23 @@ namespace CustomRegions.Mod
                     string gateName = Regex.Split(electricGates[i], " : ")[0];
                     float meterHeigh = float.Parse(Regex.Split(electricGates[i], " : ")[1]);
 
-                    Log($"Added new gate electric gate [{gateName}] from [{pack.name}]. Meter height [{meterHeigh}]");
-                    pack.electricGates.Add(gateName, meterHeigh);
+                    Log($"Added new gate electric gate [{gateName}] from [{regionPack.name}]. Meter height [{meterHeigh}]");
+                    regionPack.electricGates.Add(gateName, meterHeigh);
                 }
             }
 
         }
 
-        public static void LoadCustomPearls(string dir, string regionName)
+        public static void LoadCustomPearls(string regionPack)
         {
             // Add Custom Pearls
+            /*
             string pathToPearls = dir + Path.DirectorySeparatorChar + "Assets" + Path.DirectorySeparatorChar + "pearlData.txt";
+            */
+            string pathToPearls = CRExtras.BuildPath(regionPack, CRExtras.CustomFolder.Assets, file: "pearlData.txt");
             if (File.Exists(pathToPearls))
             {
-                Log($"Loading pearl data for {regionName}");
+                Log($"Loading pearl data for {regionPack}");
                 string[] customPearlsLines = File.ReadAllLines(pathToPearls);
                 string[] newLines = customPearlsLines;
                 for (int i = 0; i < customPearlsLines.Length; i++)
@@ -1223,7 +1230,7 @@ namespace CustomRegions.Mod
                     try
                     {
                         fileNumber = int.Parse(lineDivided[0]);
-                        pearlName = $"{regionName.Replace(" ", "_")}_{lineDivided[1]}";
+                        pearlName = $"{regionPack.Replace(" ", "_")}_{lineDivided[1]}";
                     }
                     catch (Exception e)
                     {
@@ -1232,10 +1239,10 @@ namespace CustomRegions.Mod
                     }
 
                     try { pearlColor = OptionalUI.OpColorPicker.HexToColor(lineDivided[2]); }
-                    catch (Exception e) { Log($"Pearl missing color from {regionName} {e}", true); }
+                    catch (Exception e) { Log($"Pearl missing color from {regionPack} {e}", true); }
 
                     try { secondaryColor = OptionalUI.OpColorPicker.HexToColor(lineDivided[3]); }
-                    catch (Exception e) { Log($"Pearl missing highlighted color from {regionName} {e}"); }
+                    catch (Exception e) { Log($"Pearl missing highlighted color from {regionPack} {e}"); }
 
                     try
                     {
@@ -1248,11 +1255,11 @@ namespace CustomRegions.Mod
                             hash = int.Parse(lineDivided[4]);
                         }
                     }
-                    catch (Exception e) { Log($"Error loading hash {regionName} {e}", true); }
+                    catch (Exception e) { Log($"Error loading hash {regionPack} {e}", true); }
 
                     CustomWorldMod.Log($"Added new pearl [{pearlName} / {fileNumber} / {pearlColor}]");
 
-                    CustomWorldMod.customPearls.Add(hash, new CustomPearl(pearlName, fileNumber, pearlColor, secondaryColor, regionName));
+                    CustomWorldMod.customPearls.Add(hash, new CustomPearl(pearlName, fileNumber, pearlColor, secondaryColor, regionPack));
 
                     // Extend PearlTypeEnum
                     EnumExtender.AddDeclaration(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearlName);
@@ -1279,22 +1286,25 @@ namespace CustomRegions.Mod
                 try { File.WriteAllLines(pathToPearls, newLines); }
                 catch (Exception e) { Log($"Error creating pearl hash [{e}]", true); }
             }
-
-            if (Directory.Exists(dir + Path.DirectorySeparatorChar + "Assets" + Path.DirectorySeparatorChar + "Text"))
+            string directory = CRExtras.BuildPath(regionPack, CRExtras.CustomFolder.Text);
+            if (Directory.Exists(directory))
             {
                 // Encrypt text files
-                Log($"Creating conversation files for {regionName}...");
-                EncryptCustomDialogue(dir, regionName);
+                Log($"Creating conversation files for {regionPack}...");
+                EncryptCustomDialogue(directory, regionPack);
             }
         }
 
-        public static void EncryptCustomDialogue(string dir, string regionName)
+        public static void EncryptCustomDialogue(string dir, string regionPack)
         {
             for (int j = 0; j < Enum.GetNames(typeof(InGameTranslator.LanguageID)).Length; j++)
             {
                 //for (int k = 1; k <= 57; k++)
+                /*
                 string pathToConvoDir = dir + Path.DirectorySeparatorChar + "Assets" + Path.DirectorySeparatorChar + "Text" +
                         Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort((InGameTranslator.LanguageID)j) + Path.DirectorySeparatorChar;
+                */
+                string pathToConvoDir = Path.Combine(dir, "Text_" + LocalizationTranslator.LangShort((InGameTranslator.LanguageID)j)+Path.DirectorySeparatorChar);
 
                 if (Directory.Exists(pathToConvoDir))
                 {
@@ -1307,7 +1317,7 @@ namespace CustomRegions.Mod
 
                         if (!int.TryParse(Path.GetFileNameWithoutExtension(pathToConvo), out int k))
                         {
-                            Log($"Fatal error encrypting conversation files for [{regionName}] " +
+                            Log($"Fatal error encrypting conversation files for [{regionPack}] " +
                                 $"[Error parsing filename {Path.GetFileNameWithoutExtension(pathToConvo)}]", true);
                             return;
                         }
@@ -1318,7 +1328,7 @@ namespace CustomRegions.Mod
                         {
                             convoLines = Regex.Replace(convoLines, @"\r\n|\r|\n", "\r\n");
                             string[] lines = Regex.Split(convoLines, Environment.NewLine);
-                            Log($"Encrypting file [{Path.GetFileNameWithoutExtension(pathToConvo)}.txt] from [{regionName}]. " +
+                            Log($"Encrypting file [{Path.GetFileNameWithoutExtension(pathToConvo)}.txt] from [{regionPack}]. " +
                                 $"Number of lines [{lines.Length}]");
 
                             if (lines.Length > 1)
@@ -1345,9 +1355,12 @@ namespace CustomRegions.Mod
             }
         }
 
-        public static void LoadVariations(string dir, RegionPack packInfo)
+        public static void LoadVariations(RegionPack packInfo)
         {
+            /*
             string pathToRegionsDir = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar;
+            */
+            string pathToRegionsDir = CRExtras.BuildPath(packInfo.folderName, CRExtras.CustomFolder.Regions);
             if (!Directory.Exists(pathToRegionsDir))
             {
                 Log($"Region [{packInfo.name}] doesn't have Regions folder");
@@ -1406,9 +1419,10 @@ namespace CustomRegions.Mod
             }
         }
 
-        private static void LoadArenaUnlocks(string dir, RegionPack pack)
+        private static void LoadArenaUnlocks(RegionPack pack)
         {
-            string pathToRegionsDir = dir + Path.DirectorySeparatorChar + "Levels";
+            //string pathToRegionsDir = dir + Path.DirectorySeparatorChar + "Levels";
+            string pathToRegionsDir = CRExtras.BuildPath(pack.folderName, CRExtras.CustomFolder.Levels);
             if (!Directory.Exists(pathToRegionsDir))
             {
                 Log($"Pack [{pack.name}] doesn't have Levels folder");

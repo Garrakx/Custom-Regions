@@ -14,7 +14,6 @@ namespace CustomRegions.CustomMenu
 
         public static void ApplyHooks()
         {
-
             On.Menu.FastTravelScreen.GetRegionOrder += FastTravelScreen_GetRegionOrder;
             On.Menu.FastTravelScreen.TitleSceneID += FastTravelScreen_TitleSceneID;
             On.Menu.FastTravelScreen.InitiateRegionSwitch += FastTravelScreen_InitiateRegionSwitch;
@@ -22,7 +21,6 @@ namespace CustomRegions.CustomMenu
 
         public static void RemoveHooks()
         {
-
             On.Menu.FastTravelScreen.GetRegionOrder -= FastTravelScreen_GetRegionOrder;
             On.Menu.FastTravelScreen.TitleSceneID -= FastTravelScreen_TitleSceneID;
             On.Menu.FastTravelScreen.InitiateRegionSwitch -= FastTravelScreen_InitiateRegionSwitch;
@@ -41,18 +39,8 @@ namespace CustomRegions.CustomMenu
                 string shelter = self.currentShelter ?? string.Empty;
                 CustomWorldMod.Log($"Initiate Region switch, called from Fast Travel ctor... [{shelter}]");
                 int num = 0;
-                string pathToVanillaRegions = Custom.RootFolderDirectory() + @"World\Regions\regions.txt";
-                /*
-                string[] array = File.ReadAllLines(string.Concat(new object[]
-                {
-                    Custom.RootFolderDirectory(),
-                    "World",
-                    Path.DirectorySeparatorChar,
-                    "Regions",
-                    Path.DirectorySeparatorChar,
-                    "regions.txt"
-                }));
-                */
+                //string pathToVanillaRegions = Custom.RootFolderDirectory() + @"World\Regions\regions.txt";
+                string pathToVanillaRegions = CRExtras.BuildPath(null, CRExtras.CustomFolder.Regions, file: "regions.txt");
                 string[] array = File.ReadAllLines(pathToVanillaRegions);
 
                 array = CustomWorldMod.AddModdedRegions(array);

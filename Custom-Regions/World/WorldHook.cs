@@ -115,12 +115,15 @@ namespace CustomRegions.CWorld
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                /*
+                string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + 
+                    keyValues.Value + Path.DirectorySeparatorChar;
 
                 string pathToRegionFolder = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.name + Path.DirectorySeparatorChar;
                 string mapPath = pathToRegionFolder + "map_" + self.name + ".txt";
+                */
 
-                //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading room map_config and properties for {keyValues.Key}. Paths: \n {mapPath} \n {propertyPath}");
+                string mapPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.name, file: "map_" + self.name + ".txt");
 
                 //Mapconfig
                 if (File.Exists(mapPath))
@@ -157,11 +160,15 @@ namespace CustomRegions.CWorld
             }
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
+                /*
                 string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                 string pathToRegionFolder = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.name + Path.DirectorySeparatorChar;
 
                 string propertyPath = pathToRegionFolder + "Properties.txt";
+                */
+                string propertyPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.name, file: "Properties.txt");
+
                 // Properties.
                 if (File.Exists(propertyPath))
                 {

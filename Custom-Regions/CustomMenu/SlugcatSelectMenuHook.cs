@@ -29,7 +29,8 @@ namespace CustomRegions.CustomMenu
             if (CustomWorldMod.saveProblems[saveSlot].AnyProblems)
             {
                 bool allNewGame = true;
-                string errorText = CustomWorldMod.Translate("Problems found in your save, please check the tab SaveAnalyzer in the config screen for more information.");
+                string errorText = CustomWorldMod.Translate("Problems found in your save, " +
+                    "please check the tab SaveAnalyzer in the config screen for more information.");
                 for (int m = 0; m < self.slugcatPages.Length; m++)
                 { 
                     if (self.saveGameData[m] != null)
@@ -120,7 +121,8 @@ namespace CustomRegions.CustomMenu
                                 " - ",
                                 menu.Translate("Cycle"),
                                 " ",
-                                (slugcatNumber != 2) ? self.saveGameData.cycle : (RedsIllness.RedsCycles(self.saveGameData.redsExtraCycles) - self.saveGameData.cycle)
+                                (slugcatNumber != 2) ? self.saveGameData.cycle : 
+                                (RedsIllness.RedsCycles(self.saveGameData.redsExtraCycles) - self.saveGameData.cycle)
                                     });
                                 }
                                 (label as MenuLabel).text = fullRegionName;

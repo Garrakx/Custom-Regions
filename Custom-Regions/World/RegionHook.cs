@@ -23,7 +23,7 @@ namespace CustomRegions.CWorld
 
         public static string GetSubRegionName(string packName, string regID)
         {
-            //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading custom properties for {keyValues.Key}");
+            /*
             string path = CustomWorldMod.resourcePath + packName + Path.DirectorySeparatorChar;
 
             string test = string.Concat(new object[]
@@ -38,9 +38,11 @@ namespace CustomRegions.CWorld
                 Path.DirectorySeparatorChar,
                 "Properties.txt"
             });
-            if (File.Exists(test))
+            */
+            string propertiesPath = CRExtras.BuildPath(packName, CRExtras.CustomFolder.RegionID, regionID: regID, file: "Properties.txt");
+            if (File.Exists(propertiesPath))
             {
-                string[] array = File.ReadAllLines(test);
+                string[] array = File.ReadAllLines(propertiesPath);
                 for (int i = 0; i < array.Length; i++)
                 {
                     string text = Regex.Split(array[i], ": ")[0];
@@ -80,20 +82,8 @@ namespace CustomRegions.CWorld
             {
                 CustomWorldMod.Log($"Loading custom Properties for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
 
-                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                string propertiesFilePath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: name, file: "Properties.txt");
 
-                string propertiesFilePath = string.Concat(new object[]
-                {
-                Custom.RootFolderDirectory(),
-                path,
-                "World",
-                Path.DirectorySeparatorChar,
-                "Regions",
-                Path.DirectorySeparatorChar,
-                name,
-                Path.DirectorySeparatorChar,
-                "Properties.txt"
-                });
                 if (File.Exists(propertiesFilePath))
                 {
                     CustomWorldMod.Log($"Found custom properties for {keyValues.Key}", false, CustomWorldMod.DebugLevel.MEDIUM);
@@ -264,6 +254,7 @@ namespace CustomRegions.CWorld
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 //CustomWorldMod.CustomWorldLog($"Custom Regions: Counting total rooms for {keyValues.Value} in {name}");
+                /*
                 string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                 string worldFilePath = string.Concat(new object[]
@@ -280,6 +271,8 @@ namespace CustomRegions.CWorld
                 name,
                 ".txt"
                 });
+                */
+                string worldFilePath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: name, file: "world_"+name+".txt");
                 if (File.Exists(worldFilePath))
                 {
                     customRegion = true;

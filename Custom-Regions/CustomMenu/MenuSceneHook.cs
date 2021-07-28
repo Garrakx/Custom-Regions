@@ -85,7 +85,8 @@ namespace CustomRegions.CustomMenu
         {
             if (self.flatMode)
             {
-                self.AddIllustration(new MenuIllustration(self.menu, self, self.sceneFolder, $"Landscape - {regionID} - Flat", new Vector2(683f, 384f), false, true));
+                self.AddIllustration(new MenuIllustration(self.menu, self, self.sceneFolder, 
+                    $"Landscape - {regionID} - Flat", new Vector2(683f, 384f), false, true));
             }
             else
             {
@@ -126,9 +127,11 @@ namespace CustomRegions.CustomMenu
             {
                  packName = CustomWorldMod.installedPacks.First(x => x.Value.regions.Contains(regionID)).Value.folderName;
             } catch { }
-
+            /*
             string path = CustomWorldMod.resourcePath + packName + Path.DirectorySeparatorChar;
             string titleFolderName = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Illustrations"+ Path.DirectorySeparatorChar;
+            */
+            string titleFolderName = CRExtras.BuildPath(packName, CRExtras.CustomFolder.Illustrations);
             if (Directory.Exists(titleFolderName))
             {
                 if (self.menu.ID == ProcessManager.ProcessID.FastTravelScreen || self.menu.ID == ProcessManager.ProcessID.RegionsOverviewScreen)
@@ -182,23 +185,11 @@ namespace CustomRegions.CustomMenu
 
         private static void MenuScene_BuildScene(On.Menu.MenuScene.orig_BuildScene orig, Menu.MenuScene self)
         {
-            /* if(self.sceneID == EnumExt_extendedSceneID.CustomSceneID)
-             {
-                 self.sceneID = MenuScene.SceneID.MainMenu;
-             }*/
             orig(self);
-
-            //ID = (MenuScene.SceneID)Enum.Parse(typeof(MenuScene.SceneID), regionName);
 
             if (self.sceneID != MenuScene.SceneID.Empty && (int)self.sceneID > 69)
             {
                 CustomWorldMod.Log($"Custom Regions: Building custom scene [{self.sceneID}]");
-                //bool notFound = true;
-                /*
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.loadedRegions)
-                {
-                }
-                */
                 string regionID = string.Empty;
                 try
                 {
@@ -206,26 +197,25 @@ namespace CustomRegions.CustomMenu
                 }
                 catch (Exception e) { CustomWorldMod.Log($"Error trimming regionID [{self.sceneID}] {e}", true); return; }
 
-                string regionName = string.Empty;
+                string regionFolder = string.Empty;
                 try
                 {
                     // This might be slow
-                    regionName = CustomWorldMod.installedPacks.FirstOrDefault(x=>x.Value.regions.Contains(regionID)).Key; 
+                    regionFolder = CustomWorldMod.installedPacks.FirstOrDefault(x=>(x.Value.activated && x.Value.regions.Contains(regionID))).Key; 
                 }
                 catch (Exception e) { CustomWorldMod.Log($"Error finding regionName [{self.sceneID}] {e}", true); return; }
-
+                /*
                 string path = CustomWorldMod.resourcePath + regionName + Path.DirectorySeparatorChar;
                 string sceneFolder = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar +
                     "Resources" + Path.DirectorySeparatorChar + "Scenes" + Path.DirectorySeparatorChar + $"Landscape - {regionID}" + Path.DirectorySeparatorChar;
-
-                CustomWorldMod.Log($"Custom Regions: Searching assets at {sceneFolder}");
+                */
+                string sceneFolder = CRExtras.BuildPath(regionFolder, CRExtras.CustomFolder.Scenes, folder: $"Landscape - {regionID}");
+                CustomWorldMod.Log($"Custom Regions: Searching assets at {sceneFolder}", false, CustomWorldMod.DebugLevel.MEDIUM);
                 if (Directory.Exists(sceneFolder))
                 {
                     CustomWorldMod.Log($"Custom Regions: Found custom scene [{sceneFolder}]");
-                    //notFound = false;
                     self.sceneFolder = sceneFolder;
                     BuildCustomRegionScene(self, regionID, sceneFolder);
-                    //break;
                 }
 
             }
