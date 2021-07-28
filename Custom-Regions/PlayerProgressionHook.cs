@@ -65,9 +65,6 @@ namespace CustomRegions
             if (!File.Exists(saveFileName))
             {
                 string saveRegionData = string.Empty;
-                //dictionaryString += $"{ string.Join(", ", new List<string>(CustomWorldMod.loadedRegions.Values).ToArray())}" + "}";
-                //saveRegionData += $"{CustomWorldMod.saveDividerA}REGIONLIST{string.Join(",",CustomWorldMod.loadedRegions.Keys.ToArray())}{CustomWorldMod.saveDividerA}";
-
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
                     if (CustomWorldMod.installedPacks.TryGetValue(keyValues.Key, out RegionPack regionInfo))
@@ -103,10 +100,6 @@ namespace CustomRegions
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
-                /*
-                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                string path2 = path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "locks.txt";
-                */
                 string locksPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Gates, file: "locks.txt");
                 if (File.Exists(locksPath))
                 {
@@ -139,7 +132,8 @@ namespace CustomRegions
             orig(self);
         }
 
-        private static void MiscProgressionData_FromString(On.PlayerProgression.MiscProgressionData.orig_FromString orig, PlayerProgression.MiscProgressionData self, string s)
+        private static void MiscProgressionData_FromString(On.PlayerProgression.MiscProgressionData.orig_FromString orig, 
+            PlayerProgression.MiscProgressionData self, string s)
         {
             CustomWorldMod.Log($"MISC PROGRESSION FROM STRING - Region Names [{string.Join(", ", self.owner.regionNames)}]");
 
@@ -185,14 +179,11 @@ namespace CustomRegions
                                     }
                                     if (num2 > -1)
                                     {
-                                        // self.discoveredShelters[num2] = new List<string>();
                                         string[] array3 = Regex.Split(array2[2], "<mpdC>");
                                         for (int k = 0; k < array3.Length; k++)
                                         {
                                             if (array3[k].Length > 0)
                                             {
-                                                // self.discoveredShelters[num2].Add(array3[k]);
-                                                //shelters.Add(array3[k]);
                                                 for (int h = 0; h < array3[k].Length; h++)
                                                 {
                                                     debug += array3[h] + " ";
@@ -200,7 +191,6 @@ namespace CustomRegions
                                             }
                                         }
                                     }
-                                    //myStringOutput = String.Join(",", array2[2].Select(p => p.ToString()).ToArray());
                                     break;
                                 }
                         }

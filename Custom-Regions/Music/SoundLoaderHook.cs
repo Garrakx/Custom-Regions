@@ -25,11 +25,6 @@ namespace CustomRegions.Music
         {
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                /*
-                string customPath = RWCustom.Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                string ambientPath = customPath + "Assets/Futile/Resources/LoadedSoundEffects/Ambient/";
-                string clipPath = ambientPath + clipName;
-                */
                 string ambientPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Ambient);
                 string clipPath = Path.Combine(ambientPath, clipName);
 

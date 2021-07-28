@@ -94,8 +94,8 @@ namespace CustomRegions.Mod
                 }
             } catch (Exception e) { CustomWorldMod.Log($"Could not read debug level file \n{e}", true); }
 
-            //CustomWorldMod.debugLevel = DebugLevel.FULL;
-            //CustomWorldMod.Log("Forcing DEBUG, don't forget to remove for release", true);
+            CustomWorldMod.debugLevel = DebugLevel.FULL;
+            CustomWorldMod.Log("Forcing DEBUG, don't forget to remove for release", true);
 
             bool usingBepinex = false;
             try
@@ -1025,22 +1025,10 @@ namespace CustomRegions.Mod
                     needsUpdate = true;
                 }
 
-                // Checksum handler
-                /*
-                string newChecksum = CustomWorldMod.GenerateRegionCheckSum(dir);
-                if (!newChecksum.Equals(string.Empty) && !newChecksum.Equals(pack.checksum))
-                {
-                    Log($"New checksum for {pack.name} [{newChecksum}]");
-                    pack.checksum = newChecksum;
-                    needsUpdate = true;
-                }
-                */
-
                 // Write new info
-                //if ((!newDescr.Equals(pack.description)) || !newChecksum.Equals(string.Empty) || !newUrl.Equals(pack.thumbUrl))
+
                 if (needsUpdate)
                 {
-                    //Log($"Updating packInfo for {pack.name}. New description [{!newDescr.Equals(pack.description)}] New checksum [{!newDescr.Equals(pack.description)}]");
                     if (updatedInstalledPacks == null)
                     {
                         updatedInstalledPacks = new Dictionary<string, RegionPack>();
@@ -1063,7 +1051,6 @@ namespace CustomRegions.Mod
         // Cursed
         public static void FromDictionaryToPackInfo(Dictionary<string, object> json, ref RegionPack pack)
         {
-            //   regionInformation = JsonConvert.DeserializeObject <Dictionary<string, string>>(dictionary);
 
             Dictionary<string, object> packDictionary = json;
 
@@ -1185,9 +1172,6 @@ namespace CustomRegions.Mod
         public static void LoadElectricGates(RegionPack regionPack)
         {
             // Add electric gates
-            /*
-            string pathToElectricGates = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "electricGates.txt";
-            */
             string pathToElectricGates = CRExtras.BuildPath(regionPack.folderName, CRExtras.CustomFolder.Gates, file: "electricGates.txt");
             if (File.Exists(pathToElectricGates))
             {
@@ -1207,9 +1191,6 @@ namespace CustomRegions.Mod
         public static void LoadCustomPearls(string regionPack)
         {
             // Add Custom Pearls
-            /*
-            string pathToPearls = dir + Path.DirectorySeparatorChar + "Assets" + Path.DirectorySeparatorChar + "pearlData.txt";
-            */
             string pathToPearls = CRExtras.BuildPath(regionPack, CRExtras.CustomFolder.Assets, file: "pearlData.txt");
             if (File.Exists(pathToPearls))
             {
@@ -1300,22 +1281,12 @@ namespace CustomRegions.Mod
         {
             for (int j = 0; j < Enum.GetNames(typeof(InGameTranslator.LanguageID)).Length; j++)
             {
-                //for (int k = 1; k <= 57; k++)
-                /*
-                string pathToConvoDir = dir + Path.DirectorySeparatorChar + "Assets" + Path.DirectorySeparatorChar + "Text" +
-                        Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort((InGameTranslator.LanguageID)j) + Path.DirectorySeparatorChar;
-                */
                 string pathToConvoDir = Path.Combine(dir, "Text_" + LocalizationTranslator.LangShort((InGameTranslator.LanguageID)j)+Path.DirectorySeparatorChar);
 
                 if (Directory.Exists(pathToConvoDir))
                 {
                     foreach (string pathToConvo in Directory.GetFiles(pathToConvoDir))
                     {
-                        /*
-                        string pathToConvo = dir + Path.DirectorySeparatorChar + "Assets" + Path.DirectorySeparatorChar + "Text" +
-                            Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort((InGameTranslator.LanguageID)j) + Path.DirectorySeparatorChar + k + ".txt";
-                            */
-
                         if (!int.TryParse(Path.GetFileNameWithoutExtension(pathToConvo), out int k))
                         {
                             Log($"Fatal error encrypting conversation files for [{regionPack}] " +

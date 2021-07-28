@@ -31,17 +31,12 @@ namespace CustomRegions.DevInterface
             string customFilePath = string.Empty;
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                /*
-                customFilePath = Custom.RootFolderDirectory() +
-                    CustomWorldMod.resourcePath + keyValues.Value + "/Assets/Futile/Resources/Decals";
-                */
                 customFilePath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Decals);
                 CustomWorldMod.Log($"Looking for decals at [{customFilePath}]");
 
                 if (Directory.Exists(customFilePath))
                 {
                     DirectoryInfo directoryInfo = new DirectoryInfo(customFilePath);
-                    //FileInfo[] files = directoryInfo.GetFiles();
 
                     if (customDecalFiles == null) { customDecalFiles = new List<string>(); }
                     foreach(FileInfo file in directoryInfo.GetFiles())
@@ -60,7 +55,6 @@ namespace CustomRegions.DevInterface
             }
             if (customDecalFiles != null)
             {
-                //CustomWorldMod.Log($"Loading decals for DevInterface");
                 int pointerDecal = self.decalFiles.Length;
                 Array.Resize(ref self.decalFiles, pointerDecal + customDecalFiles.Count);
                 for (int i = 0; i < customDecalFiles.Count; i++)

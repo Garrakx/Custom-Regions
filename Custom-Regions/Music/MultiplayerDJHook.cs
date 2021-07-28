@@ -27,11 +27,6 @@ namespace CustomRegions.Arena
             List<string> customMultiSongs = new List<string>();
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                /*
-                string folderPath = RWCustom.Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                string multiMusicPath = folderPath + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources"
-                    + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "MPMusic.txt";
-                */
                 string multiMusicPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Music, file: "MPMusic.txt");
                 if (File.Exists(multiMusicPath) )
                 {

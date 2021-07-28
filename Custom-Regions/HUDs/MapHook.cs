@@ -31,11 +31,6 @@ namespace CustomRegions.HUDs
             {
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
-                    /*
-                    string pathToCustomFolder = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                    string test = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +
-                        self.RegionName + Path.DirectorySeparatorChar + "map_" + self.RegionName + ".png";
-                    */
                     string pathToMapFile = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.RegionName,
                         file: "map_" + self.RegionName + ".png");
 
@@ -56,18 +51,11 @@ namespace CustomRegions.HUDs
         /// </summary>
         private static void Map_LoadConnectionPositions(On.HUD.Map.orig_LoadConnectionPositions orig, HUD.Map self)
         {
-            //List<Map.OnMapConnection> backUpConnections = self.mapConnections;
 
             orig(self);
 
-            //self.mapConnections = new List<Map.OnMapConnection>();
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                /*
-                string pathToCustomFolder = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                string test = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +
-                    self.RegionName + Path.DirectorySeparatorChar + "map_" + self.RegionName + ".txt";
-                */
                 string pathToMapFile = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.RegionName,
                         file: "map_" + self.RegionName + ".png");
 

@@ -42,11 +42,13 @@ namespace CustomRegions.CWorld
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
                     //CustomWorldMod.Log($"Checking in [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
-                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(self.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(self.region.name, 
+                        out CustomWorldStructs.RegionConfiguration config))
                     {
                         if (config.albinoJet)
                         {
-                            CustomWorldMod.Log($"Spawning albino jetfish [{ID}] in [{self.region.name}] from [{CustomWorldMod.installedPacks[keyValues.Key].name}]");
+                            CustomWorldMod.Log($"Spawning albino jetfish [{ID}] in [{self.region.name}] from " +
+                                $"[{CustomWorldMod.installedPacks[keyValues.Key].name}]");
                             return 10;
                         }
                         break;
@@ -58,7 +60,6 @@ namespace CustomRegions.CWorld
 
         private static AbstractRoomNode World_GetNode(On.World.orig_GetNode orig, World self, WorldCoordinate c)
         {
-            // this.GetAbstractRoom(c.room).nodes[c.abstractNode];
             bool foundError = false;
             try
             {
@@ -103,14 +104,6 @@ namespace CustomRegions.CWorld
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                /*
-                string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + 
-                    keyValues.Value + Path.DirectorySeparatorChar;
-
-                string pathToRegionFolder = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.name + Path.DirectorySeparatorChar;
-                string mapPath = pathToRegionFolder + "map_" + self.name + ".txt";
-                */
-
                 string mapPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.name, file: "map_" + self.name + ".txt");
 
                 //Mapconfig
@@ -148,13 +141,6 @@ namespace CustomRegions.CWorld
             }
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                /*
-                string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-
-                string pathToRegionFolder = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.name + Path.DirectorySeparatorChar;
-
-                string propertyPath = pathToRegionFolder + "Properties.txt";
-                */
                 string propertyPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.name, file: "Properties.txt");
 
                 // Properties.
@@ -233,13 +219,6 @@ namespace CustomRegions.CWorld
                     self.abstractRooms[num2].mapPos -= b;
                 }
             }
-            /*
-            // YOU MUST INCLUDE BOTH PROPERTIES AND MAP CONFIG TO MAKE CHANGES TO VANILLA
-            if (!(loadedMapConfig && loadedProperties))
-            {
-                CustomWorldMod.Log($"You are missing either the mapconfig or properties file to make changes to vanilla. Loaded MapConfig [{loadedMapConfig}]. Loaded Properties [{loadedProperties}]");
-            }
-            */;
         }
     }
 }

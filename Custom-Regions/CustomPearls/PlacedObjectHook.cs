@@ -49,11 +49,7 @@ namespace CustomRegions.CustomPearls
             {
                 self.pearlType = (DataPearl.AbstractDataPearl.DataPearlType)entry.Key;
             }
-            /*
-            if (backUpType > DataPearl.AbstractDataPearl.DataPearlType.Red_stomach)
-            {
-            }
-            */
+
             CustomWorldMod.Log($"DataPearl to string. PearlType [{self.pearlType}] [{backUpType.ToString()}]");
             string toString = orig(self);
             self.pearlType = backUpType;

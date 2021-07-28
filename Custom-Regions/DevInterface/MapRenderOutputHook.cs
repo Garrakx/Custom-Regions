@@ -20,41 +20,27 @@ namespace CustomRegions.DevInterface
 
         private static void MapRenderOutput_Signal(On.DevInterface.MapRenderOutput.orig_Signal orig, global::DevInterface.MapRenderOutput self, global::DevInterface.DevUISignalType type, global::DevInterface.DevUINode sender, string message)
         {
-			string pathToMapFile = string.Empty;
-            /*
-			string pathToRegion = Custom.RootFolderDirectory() +
-					"World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.owner.game.world.name;
-            */
-            //if (!File.Exists(pathToRegion))
-            //{
-                // From a Custom Region
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
-                {
-                /*
-                    customFilePath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar +
-                        "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.owner.game.world.name;
-                */
+            string pathToMapFile = string.Empty;
+            // From a Custom Region
+            foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
+            {
+
                 pathToMapFile = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.owner.game.world.name,
                     file: "map_" + self.owner.game.world.name + ".png");
+                CustomWorldMod.Log($"[DEV] Saving custom Map Config to map_XX.png from [{keyValues.Value}] to [{pathToMapFile}]");
 
-                    //if (Directory.Exists(customFilePath))
-                    
-                        //string pathToMapFile = customFilePath + Path.DirectorySeparatorChar + "map_" + self.owner.game.world.name + ".png";
-                        CustomWorldMod.Log($"[DEV] Saving custom Map Config to map_XX.png from [{keyValues.Value}] to [{pathToMapFile}]");
+                PNGSaver.SaveTextureToFile(self.texture, pathToMapFile);
+                self.ClearSprites();
+                (self.parentNode as MapPage).renderOutput = null;
+                (self.parentNode as MapPage).modeSpecificNodes.Remove(self);
+                self.parentNode.subNodes.Remove(self);
+                return;
 
-                        PNGSaver.SaveTextureToFile(self.texture, pathToMapFile);
-                        self.ClearSprites();
-                        (self.parentNode as MapPage).renderOutput = null;
-                        (self.parentNode as MapPage).modeSpecificNodes.Remove(self);
-                        self.parentNode.subNodes.Remove(self);
-                        return;
-                    
-                }
-            //}
+            }
 
             CustomWorldMod.Log($"[DEV] No custom region folder found for [{self.owner.game.world.name}], using vanilla...");
 
-			orig(self, type, sender, message);
+            orig(self, type, sender, message);
         }
 
 

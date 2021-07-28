@@ -29,10 +29,6 @@ namespace CustomRegions.CWorld
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
-                /*
-                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                string path2 = path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "locks.txt";
-                */
                 string karmaLocksText = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Gates, file: "locks.txt");
                 if (File.Exists(karmaLocksText)) 
                 {

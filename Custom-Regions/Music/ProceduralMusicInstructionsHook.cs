@@ -25,11 +25,6 @@ namespace CustomRegions.Music
 
 			foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
 			{
-                /*
-				string pathToProceduralText = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-				pathToProceduralText += "Assets" + Path.DirectorySeparatorChar + "Futile" +
-					Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Procedural" + Path.DirectorySeparatorChar;
-                */
                 string pathToProceduralTextFolder = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Procedural);
                 int numberOfTracksAdded = self.tracks.Count;
                 if (File.Exists(pathToProceduralTextFolder + name + ".txt"))

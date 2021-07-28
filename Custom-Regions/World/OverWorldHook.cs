@@ -107,10 +107,6 @@ namespace CustomRegions.CWorld
                     text2 = Regex.Split(text, "_")[0];
                     foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                     {
-                        /*
-                        string customDirectory = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + 
-                            Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + text2;
-                        */
                         string customDirectory = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: text2);
 
                         CustomWorldMod.Log($"Found custom region directory [{customDirectory}]", false, CustomWorldMod.DebugLevel.MEDIUM);

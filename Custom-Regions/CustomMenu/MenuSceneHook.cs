@@ -204,11 +204,7 @@ namespace CustomRegions.CustomMenu
                     regionFolder = CustomWorldMod.installedPacks.FirstOrDefault(x=>(x.Value.activated && x.Value.regions.Contains(regionID))).Key; 
                 }
                 catch (Exception e) { CustomWorldMod.Log($"Error finding regionName [{self.sceneID}] {e}", true); return; }
-                /*
-                string path = CustomWorldMod.resourcePath + regionName + Path.DirectorySeparatorChar;
-                string sceneFolder = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar +
-                    "Resources" + Path.DirectorySeparatorChar + "Scenes" + Path.DirectorySeparatorChar + $"Landscape - {regionID}" + Path.DirectorySeparatorChar;
-                */
+
                 string sceneFolder = CRExtras.BuildPath(regionFolder, CRExtras.CustomFolder.Scenes, folder: $"Landscape - {regionID}");
                 CustomWorldMod.Log($"Custom Regions: Searching assets at {sceneFolder}", false, CustomWorldMod.DebugLevel.MEDIUM);
                 if (Directory.Exists(sceneFolder))

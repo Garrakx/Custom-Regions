@@ -23,22 +23,6 @@ namespace CustomRegions.CWorld
 
         public static string GetSubRegionName(string packName, string regID)
         {
-            /*
-            string path = CustomWorldMod.resourcePath + packName + Path.DirectorySeparatorChar;
-
-            string test = string.Concat(new object[]
-            {
-                Custom.RootFolderDirectory(),
-                path.Replace('/', Path.DirectorySeparatorChar),
-                "World",
-                Path.DirectorySeparatorChar,
-                "Regions",
-                Path.DirectorySeparatorChar,
-                regID,
-                Path.DirectorySeparatorChar,
-                "Properties.txt"
-            });
-            */
             string propertiesPath = CRExtras.BuildPath(packName, CRExtras.CustomFolder.RegionID, regionID: regID, file: "Properties.txt");
             if (File.Exists(propertiesPath))
             {
@@ -253,25 +237,6 @@ namespace CustomRegions.CWorld
             
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                //CustomWorldMod.CustomWorldLog($"Custom Regions: Counting total rooms for {keyValues.Value} in {name}");
-                /*
-                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-
-                string worldFilePath = string.Concat(new object[]
-                {
-                Custom.RootFolderDirectory(),
-                path,
-                "World",
-                Path.DirectorySeparatorChar,
-                "Regions",
-                Path.DirectorySeparatorChar,
-                name,
-                Path.DirectorySeparatorChar,
-                "world_",
-                name,
-                ".txt"
-                });
-                */
                 string worldFilePath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: name, file: "world_"+name+".txt");
                 if (File.Exists(worldFilePath))
                 {
@@ -294,7 +259,6 @@ namespace CustomRegions.CWorld
                             flag = true;
                         }
                     }
-                    //CustomWorldMod.CustomWorldLog($"Custom Regions: {keyValues.Value} had {num} rooms-connections in region [{name}].");
                     totalRooms += num;
                 }
             }

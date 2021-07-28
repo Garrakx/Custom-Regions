@@ -40,9 +40,6 @@ namespace CustomRegions.DevInterface
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-
-                //string customPath = RWCustom.Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                //directoryInfo = new DirectoryInfo(customPath + "Assets/Futile/Resources/LoadedSoundEffects/Ambient/");
                 string customPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Ambient);
                 directoryInfo = new DirectoryInfo(customPath);
 

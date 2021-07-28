@@ -35,7 +35,6 @@ namespace CustomRegions.Music
                 {
                     if (self.source.clip == null)
                     {
-
                         if (!self.piece.IsProcedural)
                         {
                             string subTrackPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Songs, file: self.trackName);
@@ -83,14 +82,7 @@ namespace CustomRegions.Music
                 }
             }
 
-			orig(self);
-			/*
-			if (this.piece.startedPlaying)
-			{
-				this.source.volume = Mathf.Pow(this.volume * this.piece.volume * this.piece.musicPlayer.manager.rainWorld.options.musicVolume, this.piece.musicPlayer.manager.soundLoader.volumeExponent);
-			}
-			*/
-            
+			orig(self);            
 		}
 
         private static void MusicPiece_Update(On.Music.MusicPiece.orig_Update orig, MusicPiece self)
