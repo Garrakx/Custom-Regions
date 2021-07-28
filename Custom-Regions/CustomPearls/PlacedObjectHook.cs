@@ -42,7 +42,8 @@ namespace CustomRegions.CustomPearls
         private static string DataPearlData_ToString(On.PlacedObject.DataPearlData.orig_ToString orig, PlacedObject.DataPearlData self)
         {
             DataPearl.AbstractDataPearl.DataPearlType backUpType = self.pearlType;
-            KeyValuePair<int, CustomWorldStructs.CustomPearl> entry = CustomWorldMod.customPearls.FirstOrDefault(x => x.Value.name.Equals(backUpType.ToString()));
+            KeyValuePair<int, CustomWorldStructs.CustomPearl> entry = 
+                CustomWorldMod.customPearls.FirstOrDefault(x => x.Value.name.Equals(backUpType.ToString()));
 
             if (!entry.Equals(default(KeyValuePair<int, CustomWorldStructs.CustomPearl>)))
             {
@@ -75,7 +76,9 @@ namespace CustomRegions.CustomPearls
                     if (CustomWorldMod.customPearls.TryGetValue(hash, out CustomWorldStructs.CustomPearl customPearl))
                     {
                         string pearlName = customPearl.name;
-                        DataPearl.AbstractDataPearl.DataPearlType type = (DataPearl.AbstractDataPearl.DataPearlType)Enum.Parse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearlName);
+                        DataPearl.AbstractDataPearl.DataPearlType type = 
+                            (DataPearl.AbstractDataPearl.DataPearlType)Enum.Parse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearlName);
+
                         CustomWorldMod.Log($"Loaded custom pearl [{type.ToString()}] Hash [{hash}]");
                         self.pearlType = type;
                         self.hidden = (array[5] == "1");
@@ -87,7 +90,7 @@ namespace CustomRegions.CustomPearls
                     }
                 }
             }
-            catch (Exception e){ CustomWorldMod.Log($"Exception loading pearl [{e}]", true);  }
+            catch (Exception e) { CustomWorldMod.Log($"Exception loading pearl [{e}]", true);  }
         }
         
     }

@@ -27,7 +27,8 @@ namespace CustomRegions.Creatures
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
                     //CustomWorldMod.Log($"Checking in [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
-                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, 
+                        out CustomWorldStructs.RegionConfiguration config))
                     {
                         if (!config.bllVanilla)
                         {

@@ -538,7 +538,8 @@ namespace CustomRegions.Mod
 
                         if (CustomWorldMod.installedPacks.TryGetValue(packNames[currentThumb], out RegionPack value))
                         {
-                            string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + value.folderName + Path.DirectorySeparatorChar + "thumb.png";
+                            string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + value.folderName + 
+                                Path.DirectorySeparatorChar + "thumb.png";
                             if (!File.Exists(path))
                             {
                                 Log($"Saving thumb from [{packNames[currentThumb]}]... Path [{path}]");

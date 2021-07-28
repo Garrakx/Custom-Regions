@@ -20,7 +20,9 @@ namespace CustomRegions.DevInterface
             On.DevInterface.CustomDecalRepresentation.ctor -= CustomDecalRepresentation_ctor;
         }
 
-        private static void CustomDecalRepresentation_ctor(On.DevInterface.CustomDecalRepresentation.orig_ctor orig, global::DevInterface.CustomDecalRepresentation self, global::DevInterface.DevUI owner, string IDstring, global::DevInterface.DevUINode parentNode, PlacedObject pObj, string name)
+        private static void CustomDecalRepresentation_ctor(On.DevInterface.CustomDecalRepresentation.orig_ctor orig, 
+            global::DevInterface.CustomDecalRepresentation self, global::DevInterface.DevUI owner, string IDstring, 
+            global::DevInterface.DevUINode parentNode, PlacedObject pObj, string name)
         {
             orig(self, owner, IDstring, parentNode, pObj, name);
 
@@ -29,8 +31,11 @@ namespace CustomRegions.DevInterface
             string customFilePath = string.Empty;
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
+                /*
                 customFilePath = Custom.RootFolderDirectory() +
                     CustomWorldMod.resourcePath + keyValues.Value + "/Assets/Futile/Resources/Decals";
+                */
+                customFilePath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Decals);
                 CustomWorldMod.Log($"Looking for decals at [{customFilePath}]");
 
                 if (Directory.Exists(customFilePath))
@@ -62,7 +67,8 @@ namespace CustomRegions.DevInterface
                 {
                     self.decalFiles[pointerDecal + i] = customDecalFiles[i];
                 }
-                CustomWorldMod.Log($"Loaded custom decals for DevInterface: [{string.Join(", ", customDecalFiles.ToArray())}]");
+                CustomWorldMod.Log($"Loaded custom decals for DevInterface: [{string.Join(", ", customDecalFiles.ToArray())}]", 
+                    false, CustomWorldMod.DebugLevel.MEDIUM);
             }
 
             

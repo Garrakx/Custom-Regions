@@ -26,7 +26,8 @@ namespace CustomRegions.Creatures
             {
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
-                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, 
+                        out CustomWorldStructs.RegionConfiguration config))
                     {
                         //CustomWorldMod.Log($"Albino leviathan in [{world.region.name}]");
                         if (config.albinoLevi)

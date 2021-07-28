@@ -38,21 +38,25 @@ namespace CustomRegions.Music
                         //string dataPath = Application.dataPath;
                         //string dataPath2 = Application.dataPath;
 
-                        string dataPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                        //string dataPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                         if (!self.piece.IsProcedural)
                         {
+                            /*
                             string text = dataPath.Substring(0, dataPath.LastIndexOf
                                 (Path.DirectorySeparatorChar)) + Path.DirectorySeparatorChar
                                  + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar
                                 + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Songs" + Path.DirectorySeparatorChar
                                 + self.trackName + ".ogg";
-
-                            CustomWorldMod.Log($"Subtrack-path [{text}]", false, CustomWorldMod.DebugLevel.FULL);
-                            if (File.Exists(text))
+                            */
+                            string subTrackPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Songs, file: self.trackName + ".ogg");
+                            CustomWorldMod.Log($"[MusicPiece] Searching song subtrack at [{subTrackPath}]", false, CustomWorldMod.DebugLevel.FULL);
+                            if (File.Exists(subTrackPath))
                             {
-                                CustomWorldMod.Log($"Loaded track [{self.trackName}] from [{keyValues.Value}]");
-                                WWW www = new WWW("file://" + text);
+                                CustomWorldMod.Log($"[MusicPiece] Loaded track [{self.trackName}] from [{keyValues.Value}]", 
+                                    false, CustomWorldMod.DebugLevel.MEDIUM);
+
+                                WWW www = new WWW("file://" + subTrackPath);
                                 self.source.clip = www.GetAudioClip(false, true, AudioType.OGGVORBIS);
                                 break;
                             }
@@ -65,17 +69,23 @@ namespace CustomRegions.Music
                         }
                         else
                         {
+                            /*
                             string text2 = dataPath.Substring(0, dataPath.LastIndexOf
                                 (Path.DirectorySeparatorChar)) + Path.DirectorySeparatorChar 
                                 + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar
-                                + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Procedural" + Path.DirectorySeparatorChar
+                                + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Procedural" + 
+                                Path.DirectorySeparatorChar
                                 + self.trackName + ".ogg";
-
                             CustomWorldMod.Log($"Subtrack-path [{text2}]", false, CustomWorldMod.DebugLevel.FULL);
-                            if (File.Exists(text2))
+                            */
+                            string subTrackPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Procedural, file: self.trackName + ".ogg");
+                            CustomWorldMod.Log($"[MusicPiece] Searching threat subtrack at [{subTrackPath}]", false, CustomWorldMod.DebugLevel.FULL);
+                            if (File.Exists(subTrackPath))
                             {
-                                CustomWorldMod.Log($"Loaded procedural track [{self.trackName}] from [{keyValues.Value}]");
-                                WWW www2 = new WWW("file://" + text2);
+                                CustomWorldMod.Log($"[MusicPiece] Loaded procedural track [{self.trackName}] from [{keyValues.Value}]", false, 
+                                    CustomWorldMod.DebugLevel.MEDIUM);
+
+                                WWW www2 = new WWW("file://" + subTrackPath);
                                 self.source.clip = www2.GetAudioClip(false, true, AudioType.OGGVORBIS);
                                     break;
                             }
@@ -117,7 +127,8 @@ namespace CustomRegions.Music
                     {
                         audioSource = self.subTracks[i].source;
                     }
-                    else if (audioSource != null && self.subTracks[i].source.isPlaying && Math.Abs(audioSource.timeSamples - self.subTracks[i].source.timeSamples) >= audioSource.clip.frequency / 4)
+                    else if (audioSource != null && self.subTracks[i].source.isPlaying && 
+                        Math.Abs(audioSource.timeSamples - self.subTracks[i].source.timeSamples) >= audioSource.clip.frequency / 4)
                     {
                         self.subTracks[i].source.timeSamples = audioSource.timeSamples;
                     }

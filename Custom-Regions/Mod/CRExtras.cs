@@ -9,6 +9,161 @@ namespace CustomRegions.Mod
 {
     public static class CRExtras
     {
+        public enum CustomFolder
+        {
+            // Depth 1
+            Assets,
+            World,
+            Levels,
+            // Depth 2.1
+            Gates_Shelters,
+            Gates,
+            Regions,
+            // Depth 2.2
+            Futile,
+            Text,
+            // Depth 3
+            RegionID,
+            // Depth 4.1
+            Rooms,
+            // Depth 4.2
+            Resources,
+            // Depth 5
+            Illustrations,
+            LoadedSoundEffects,
+            Scenes,
+            Atlases,
+            Music,
+            Decals,
+            Palettes,
+            // Depth 6
+            ///<summary>LoadedSoundEffects/Ambient!!!!</summary>
+            Ambient,
+            Procedural,
+            Songs
+
+        }
+
+        /// <summary>
+        /// Builds a folder path. It will return a specific file if specified, otherwise it will end with backslash.
+        /// </summary>
+        /// <param name="regionPackFolder"> Folder name of the region pack. Use null for vanilla path. </param>
+        /// <param name="folderEnum"> Folder which to retreive.</param>
+        /// <param name="regionID"> Region ID needed for Rooms or RegionID folder.</param>
+        /// <param name="file"> If specified, it will append a file after the folder path.</param>
+        /// <param name="folder"> If specified, it will append an additional folder path.</param>
+        /// <returns>Path built.</returns>
+        public static string BuildPath(string regionPackFolder, CustomFolder folderEnum, string regionID = null, 
+            string file = null, string folder = null, bool includeRoot = true, bool recursive = false)
+        {
+            char div = Path.DirectorySeparatorChar;
+
+            if (folderEnum == CustomFolder.RegionID || folderEnum == CustomFolder.Rooms)
+            {
+                if (string.IsNullOrEmpty(regionID))
+                {
+                    CustomWorldMod.Log($"Called BuildPath without regionID", true);
+                    return null;
+                }
+            }
+            string path = string.Empty;
+            string recursivePath = string.Empty;
+            switch (folderEnum)
+            {
+                // Depth 1
+                case CustomFolder.Assets:
+                case CustomFolder.Levels:
+                case CustomFolder.World:
+                    if (includeRoot)
+                    {
+                        // Rain World/
+                        path = RWCustom.Custom.RootFolderDirectory() + path;
+                    }
+
+                    // Requesting custom folder
+                    if (regionPackFolder != null)
+                    {
+                        // includeRoot?/Mods/CustomResources/RegionPack
+                        path = path + CustomWorldMod.resourcePath + regionPackFolder;
+                    }
+                    path = path + div + folderEnum.ToString();
+                    break;
+
+                // Depth 2
+                case CustomFolder.Gates_Shelters:
+                case CustomFolder.Gates:
+                case CustomFolder.Regions:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.World, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString().Replace("_", " ");
+                    break;
+                case CustomFolder.Futile:
+                case CustomFolder.Text:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.Assets, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+
+                // Special case
+                case CustomFolder.RegionID:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.Regions, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + regionID;
+                    break;
+
+                case CustomFolder.Rooms:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.RegionID, regionID: regionID, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+
+                // Depth 3
+                case CustomFolder.Resources:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.Futile, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+
+                //  Depth 4
+                case CustomFolder.Illustrations:
+                case CustomFolder.LoadedSoundEffects:
+                case CustomFolder.Scenes:
+                case CustomFolder.Atlases:
+                case CustomFolder.Music:
+                case CustomFolder.Decals:
+                case CustomFolder.Palettes:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.Resources, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+
+                // Depth 5.1
+                case CustomFolder.Ambient:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.LoadedSoundEffects, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+                // Depth 5.2
+                case CustomFolder.Procedural:
+                case CustomFolder.Songs:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.Music, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+
+                default:
+                    path = null;
+                    break;
+            }
+
+            if (path == null)
+            {
+                CustomWorldMod.Log($"[PathBuilder] Could not find request folder [{folderEnum}]", true);
+                return string.Empty;
+            }
+            
+            if (!recursive)
+            {
+                path += folder != null ? (div.ToString() + folder + div.ToString()) : div.ToString();
+                path += file != null ? file : string.Empty;
+            }
+                
+            return path;
+        }
+
+
         // Source: https://www.programmingalgorithms.com/algorithm/rgb-to-hsl/
         public static HSLColor RGB2HSL(Color color)
         {

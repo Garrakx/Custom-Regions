@@ -26,12 +26,15 @@ namespace CustomRegions.CustomPearls
             On.SLOracleBehaviorHasMark.MoonConversation.AddEvents -= MoonConversation_AddEvents;
         }
 
-        private static void SLOracleBehaviorHasMark_GrabObject(On.SLOracleBehaviorHasMark.orig_GrabObject orig, SLOracleBehaviorHasMark self, PhysicalObject item)
+        private static void SLOracleBehaviorHasMark_GrabObject(On.SLOracleBehaviorHasMark.orig_GrabObject orig, 
+            SLOracleBehaviorHasMark self, PhysicalObject item)
         {
             if (item is DataPearl dataPearl)
             {
                 DataPearl.AbstractDataPearl.DataPearlType pearlType = dataPearl.AbstractPearl.dataPearlType;
-                KeyValuePair<int, CustomWorldStructs.CustomPearl> foundPearl = CustomWorldMod.customPearls.FirstOrDefault(x => x.Value.name.Equals(pearlType.ToString()));
+                KeyValuePair<int, CustomWorldStructs.CustomPearl> foundPearl = 
+                    CustomWorldMod.customPearls.FirstOrDefault(x => x.Value.name.Equals(pearlType.ToString()));
+
                 CustomWorldMod.Log($"Moon grabbed pearl: {pearlType}");
 
                 // Pearl is not vanilla
@@ -59,7 +62,6 @@ namespace CustomRegions.CustomPearls
                         self.currentConversation = new SLOracleBehaviorHasMark.MoonConversation(id, self, SLOracleBehaviorHasMark.MiscItemType.NA);
                         self.State.totalPearlsBrought++;
                         CustomWorldMod.Log("pearls brought up: " + self.State.totalPearlsBrought);
-                        //self.State.significantPearls[(int)(item as DataPearl).AbstractPearl.dataPearlType] = true;
                         self.State.totalItemsBrought++;
                         self.State.AddItemToAlreadyTalkedAbout(item.abstractPhysicalObject.ID);
 
@@ -77,7 +79,8 @@ namespace CustomRegions.CustomPearls
             orig(self, item);
         }
 
-        private static void MoonConversation_AddEvents(On.SLOracleBehaviorHasMark.MoonConversation.orig_AddEvents orig, SLOracleBehaviorHasMark.MoonConversation self)
+        private static void MoonConversation_AddEvents(On.SLOracleBehaviorHasMark.MoonConversation.orig_AddEvents orig, 
+            SLOracleBehaviorHasMark.MoonConversation self)
         {
             bool foundPearl = false;
             foreach (KeyValuePair<int, CustomPearl> pearls in CustomWorldMod.customPearls)
@@ -96,14 +99,13 @@ namespace CustomRegions.CustomPearls
             orig(self);
         }
 
-        private static void LoadCustomEventsFromFile(int fileName, string customRegion, Conversation self)
+        private static void LoadCustomEventsFromFile(int fileName, string regionPack, Conversation self)
         {
             CustomWorldMod.Log("~~~LOAD CONVO " + fileName);
 
-            char div = Path.DirectorySeparatorChar;
-            string convoPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + customRegion + div +
-                "Assets" + div + "Text" + div + "Text_" + LocalizationTranslator.LangShort(CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage)
-                + div + fileName + ".txt";
+            string file = "Text_" + LocalizationTranslator.LangShort(CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage)
+                + Path.DirectorySeparatorChar + fileName + ".txt";
+            string convoPath = CRExtras.BuildPath(regionPack, CRExtras.CustomFolder.Text, file: file);
 
             if (!File.Exists(convoPath))
             {
@@ -113,13 +115,11 @@ namespace CustomRegions.CustomPearls
             string text2 = File.ReadAllText(convoPath, Encoding.Default);
             if (text2[0] == '0')
             {
-                //Debug.LogError("Tried to encrypt custom text");
-                //Conversation.EncryptAllDialogue();
-                CustomWorldMod.EncryptCustomDialogue(Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + customRegion + div, customRegion);
+                CustomWorldMod.EncryptCustomDialogue(CRExtras.BuildPath(regionPack, CRExtras.CustomFolder.Text), regionPack);
             }
             else
             {
-                CustomWorldMod.Log($"Decrypting file [{fileName}] from [{customRegion}] in [{CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage}]");
+                CustomWorldMod.Log($"Decrypting file [{fileName}] from [{regionPack}] in [{CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage}]");
                 text2 = Custom.xorEncrypt(text2, (int)(54 + fileName + (int)CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage * 7));
             }
             string[] array = Regex.Split(text2, Environment.NewLine);
@@ -135,33 +135,12 @@ namespace CustomRegions.CustomPearls
                     for (int j = 1; j < array.Length; j++)
                     {
                         string[] array3 = Regex.Split(array[j], " : ");
-                        /*
-                        if (array3.Length == 3)
-                        {
-                            self.events.Add(new Conversation.TextEvent(self, int.Parse(array3[0]), array3[2], int.Parse(array3[1])));
-                        }
-                        else if (array3.Length == 2)
-                        {
-                            if (array3[0] == "SPECEVENT")
-                            {
-                                self.events.Add(new Conversation.SpecialEvent(self, 0, array3[1]));
-                            }
-                            else if (array3[0] == "PEBBLESWAIT")
-                            {
-                                //self.events.Add(new SSOracleBehavior.PebblesConversation.PauseAndWaitForStillEvent(self, null, int.Parse(array3[1])));
-                            }
-                        }
-                        else*/
+
                         if (array3.Length == 1 && array3[0].Length > 0)
                         {
                             self.events.Add(new Conversation.TextEvent(self, 0, array3[0], 0));
                         }
-                        /*
-                        else
-                        {
-                            CustomWorldMod.Log($"Corrupted conversation [{array3[0]}]", true);
-                        }
-                        */
+   
                     }
 
                 }

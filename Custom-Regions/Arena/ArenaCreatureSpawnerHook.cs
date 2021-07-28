@@ -29,9 +29,7 @@ namespace CustomRegions.Arena
         {
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                string settingsPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + 
-                    Path.DirectorySeparatorChar + "Levels" + Path.DirectorySeparatorChar + game.world.GetAbstractRoom(0).name + "_Arena.txt";
-
+                string settingsPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Levels) + game.world.GetAbstractRoom(0).name + "_Arena.txt";
                 if (File.Exists(settingsPath))
                 {
                     CustomWorldMod.Log($"Custom Regions: Loading settings file in SpawnArenaCreatures. Path [{settingsPath}]");
