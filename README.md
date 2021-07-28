@@ -26,10 +26,12 @@ Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3
     * [THUMBNAILS](#thumb)
     * [ALBINO / COLORED CREATURES](#colors)
     * [ARENA UNLOCKS](#arenaUnlock)
-	* [REMOVING SPAWNS](#spawns)
-9) [Known issues](#issues)
-10) [Credits](#credits)
-11) [Changelog](#changelog)
+	* [REMOVING CREATURE SPAWNS](#spawns)
+	* [CUSTOM MUSIC AND AMBIENT SOUNDEFFECTS](#music)
+9) [Suggestions](#suggesting)
+10) [Known issues](#issues)
+11) [Credits](#credits)
+12) [Changelog](#changelog)
 ***
 
 ### <a name="FAQ"></a>Introduction and FAQ
@@ -61,7 +63,7 @@ This file contains information about the region pack. After you have made any mo
 * <a name="regionInfo"></a>**Difference between `packInfo.json` and `regionInfo.json`**  
 In recent versions of CRS, the `regionInfo.json` file was upgraded to `packInfo.json`. The purpose is the same, just a change of name to unify the naming of region packs. If you are coming from a version that used the old file, it should get upgraded automatically.
 * <a name="corrupted"></a>**Corrupted saves**  
-After you change any room connections, you change the order in which the packs are loaded or you activate / deactivate any region packs, your file will be corrupted. In the best case scenario, creature dens and objets will be misplaced. In the worst case, you will not be able to load the game at all. To fix this, you have to reset progress of the save slot from the options menu.  
+After you change any room connections, you change the order in which the packs are loaded or you activate / deactivate any region packs, your file will be corrupted. In the best case scenario, creature dens and objets will be misplaced. In the worst case, you will not be able to load the game at all. To fix this, you have to reset progress of the save slot from the options menu. `@Deltatime` made a mod that tries to fix this issue, but it is not full completed so it might have some issues. You can download the latest version [here](https://discord.com/channels/291184728944410624/481900360324218880/826151202923872326) (you have to install it before installing any regions). 
 ![Reset progress option](./Images/reset_progress_button.png)
 * **Can I use CRS with a modified Rain World install? (merged regions)**  
 Short answer: no.
@@ -110,7 +112,13 @@ If you want to install a Region Pack using the in-game browser, just click the d
 	* `loadOrder`: It determines (relatively to other packs) the order in which this region pack will be loaded. You should only change it if you know what are you doing, or if you are having incompatibilities.
 **WARNING: Making any modifications to any of this two fields (as well as installing or uninstalling new regions) will corrupt your save, and you will have to reset progress from the game's options menu**. [More info](#corrupted)
 
-6) If you go to the config screen aka CRS pack overview, you can see the order in which pack are loaded and if they are enabled (disabled regions will appear with a dark thumbnail, in red, and a "disabled" label).
+5) If you go to the config screen aka CRS pack overview, you can see the order in which pack are loaded and if they are enabled (disabled regions will appear with a dark thumbnail, in red, and a "disabled" label).
+
+##### HELP MY GAME BROKE!
+If something went wrong, try these steps:
+* If you have installed several region packs, you might be missing a Compatibility Patch. You can navigate to the `CustomResources` folders and inside each region pack you might find a README with more instructions.
+* If you are savvy enough, you can try opening `customWorldLog.txt` (next to the game .exe). It is verbose enough you can try understanding what went wrong.
+* If you need assistance, joing the official Rain World server (click [here](https://www.discord.gg/rainworld)) and ping @garrakx in `#modding-support`. You will need `customWorldLog.txt` and `exceptionLog.txt`, both located next to the game executable (Default path: `C:\Program Files (x86)\Steam\steamapps\common\Rain World`)
 
 ***
 ### <a name="index3"></a>Uninstalling a Region Pack (two options, pick one)
@@ -310,7 +318,7 @@ CRS will fetch and update the local description, thumbnail and author from the f
 
 ### <a name="gates"></a>ELECTRIC GATES
 
-* To add an Electric gate, create a new .txt file inside your mod's `Gates` folder (next to `locks.txt`) and call it `electricGates.txt`. Following the same format as `locks.txt`, write all the gate names that needs to be electric followed by the meter height:
+* To add an Electric gate, create a new .txt file inside your mod's `Gates` folder (next to `locks.txt`) and call it `electricGates.txt`. Following the same format as `locks.txt`, write all the gate names that needs to be electric followed by the meter height:v
 
 	```
 	GATE_SB_AR : 558
@@ -382,7 +390,7 @@ CR adds the ability to add custom data pearls without any code, and even include
 
 Note: you can have multiple unlocks per region.
 
-### <a name ="spawns"></a>REMOVING SPAWNS
+### <a name ="spawns"></a>*(new)* REMOVING SPAWNS
 Creature spawns from world_xx.txt are merged too, but more simpler than world merging:
 1. Any line added by the first region pack will replace the vanilla line if they modify the same room. This accounts for LINEAGE too.
 2. CRS will merge all the lines from different region packs if they modify the same room, but if two packs add spawns to the same den CRS will add both.
@@ -392,19 +400,29 @@ Creature spawns from world_xx.txt are merged too, but more simpler than world me
 	SL_A14_REMOVECRS : 1-Tentacle Plant
 	LINEAGE : SL_B04_REMOVECRS : 3 : NONE-0.05, White-0.2, Red-0
 	```
-	Both lines will be ignored even if they were added by another mod.
+	Both lines will be removed from the merged world_XX.txt file, even if they were added by another mod.
 
+
+
+### <a name ="music"></a>*(new)* CUSTOM MUSIC AND AMBIENT SOUNDEFFECTS
+* For adding new songs or replacing vanilla, create the appropiate folders following the vanilla structure. Both `.ogg`and `.mp3` formats are supported.
+* For adding or replacing SoundEffects/AmbientSFX, make sure to use the `Assets\Futile\Resources\LoadedSoundEffects\Ambient` and not the `SoundEffects`folder. Both `.ogg`and **`.wav`** formats are supported. Careful since `.mp3` is currently **not** supported.
 ***
+
+### <a name ="suggesting"></a>SUGGESTIONS
+Do you have a suggestion? Have you found a bug? The best way is to open a github issue. Doing that will ensure my tiny brain does not forget about it. Thanks!.
+***
+
 ### <a name="issues"></a>Known issues
 
-* Due to Rain World savefile system, you need to clear you save slot if you uninstall / install new regions, or change the load order.
-* When using the in-game pack downloader, it is normal for it to fail a couple of times. Just retry until it succeeds.
+* Due to Rain World savefile system, you need to clear you save slot if you uninstall / install new regions, or change the load order. More info in the [FAQ](#corrupted) section.
+* When using the in-game pack downloader, it might fail a couple of times. Just retry until it succeeds. If it fails more than tree times in a row, try restarting the game.
 * The in-game map sometimes doesn't work.
 
 ***
 ### <a name="credits"></a>Credits
 
-Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick](https://classick-ii.tumblr.com/post/634237640578859008/boopbeep) Thanks to `LeeMoriya` for helping and suggestions. Thanks to `Thalber` and `LB Gamer` for the translations. Thanks `Slime_Cubed` for the idea of using a separate process to download the packs. Thanks to `carrotpudding`, `LB Gamer`, `Precipitator`, `Stereo` and `laura` for testing. Thanks `dual curly potato noodles` for suggestions on how to make the repo more collaboration friendly.
+Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick](https://classick-ii.tumblr.com/post/634237640578859008/boopbeep) Thanks to `LeeMoriya`, `bee` and `dual curly potato noodles` for helping and suggestions. Thanks to `Thalber` and `LB Gamer` for the translations. Thanks `Slime_Cubed` for the idea of using a separate process to download the packs and helping with some crucial fixes. Thanks to `carrotpudding`, `LB Gamer`, `Precipitator`, `Stereo`, `laura`, `Thrithralas` and `Wrayk` for testing.
 
 ***
 ### <a name="changelog"></a>Changelog
@@ -421,7 +439,6 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 	* Room templates are now merged between region packs.
 	* Saving as template if file does not exist should not crash the game.
 * MPMusic.txt is now supported.
-* Ambient sounds are now supported.
 * Prevents the game from crashing when using the Dev's Sound tab.
 * WorldLoader orig constructor will now be called, increasing compatibility.
 * "Update button" should now be more noticeable.
@@ -432,7 +449,8 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 * Pearl color will be displayed properly in the map view.
 * CRS should not complain about having a Patch/Patches folder.
 * Karma requeriments should now be displayed on the map. Thanks @Henpemaz <3.
-* Added a method to disable all hooks (called on OnDisable).
+* Added a method to disable all hooks (called on OnDisable), only for BepInEx users.
+* Corruption scits should be now colored as well.
 
 ***
 #### [0.8.40] - January 2021
