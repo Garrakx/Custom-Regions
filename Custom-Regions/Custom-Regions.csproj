@@ -101,6 +101,7 @@
     <Compile Include="Mod\CustomWorldOption.cs" />
     <Compile Include="CustomMenu\MultiplayerMenuHook.cs" />
     <Compile Include="Music\MusicPieceHook.cs" />
+    <Compile Include="Music\SoundLoaderHook.cs" />
     <Compile Include="World\OverWorldHook.cs" />
     <Compile Include="PlayerProgressionHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -49,14 +49,15 @@ namespace CustomRegions.DevInterface
                     {
                         if (!list.Contains(array[i]) && !array[i].Name.Contains("meta"))
                         {
-                            CustomWorldMod.Log($"[LoadedSoundEffects] Adding ambient sounds {array[i]} from [{keyValues.Key}]", false, CustomWorldMod.DebugLevel.FULL);
+                            CustomWorldMod.Log($"[DevLoadedSoundEffects] Adding ambient sounds {array[i]} from [{keyValues.Key}]", 
+                                false, CustomWorldMod.DebugLevel.FULL);
                             list.Add(array[i]);
                         }
                     }
                 }
                 else
                 {
-                    CustomWorldMod.Log($"[LoadedSoundEffects] {keyValues.Key} does not have loaded ambient sounds at {directoryInfo.FullName}",
+                    CustomWorldMod.Log($"[DevLoadedSoundEffects] {keyValues.Key} does not have loaded ambient sounds at {directoryInfo.FullName}",
                         false, CustomWorldMod.DebugLevel.FULL);
                 }
 
@@ -77,7 +78,8 @@ namespace CustomRegions.DevInterface
                         }
                         if (flag)
                         {
-                            CustomWorldMod.Log($"[LoadedSoundEffects/Ambient] Adding ambient sounds {array[j]} from [{keyValues.Key}]", false, CustomWorldMod.DebugLevel.FULL);
+                            CustomWorldMod.Log($"[DevLoadedSoundEffects/Ambient] Adding ambient sounds {array[j]} from [{keyValues.Key}]", 
+                                false, CustomWorldMod.DebugLevel.FULL);
                             list.Add(array[j]);
                         }
                     }
@@ -97,7 +99,7 @@ namespace CustomRegions.DevInterface
             }
             self.files = currentFiles.ToArray();
 
-            CustomWorldMod.Log($"Loaded ambient sounds: [{string.Join(", ", self.files.Select(l => l.Name).ToArray())}]", 
+            CustomWorldMod.Log($"[DevLoadedSoundEffects] Loaded ambient sounds: [{string.Join(", ", self.files.Select(l => l.Name).ToArray())}]", 
                 false, CustomWorldMod.DebugLevel.FULL);
 
 			self.totalFilePages = 1 + (int)((float)self.files.Length / (float)self.maxFilesPerPage + 0.5f);
