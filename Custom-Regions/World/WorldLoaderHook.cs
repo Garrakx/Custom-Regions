@@ -880,25 +880,7 @@ namespace CustomRegions.CWorld
             bool foundAnyCustomRegion = false;
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                //CustomWorldMod.CustomWorldLog($"Custom Regions: Reading world_{self.worldName}.txt from {keyValues.Value}");
-                /*
-                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                string test = string.Concat(new object[]
-                {
-                    Custom.RootFolderDirectory(),
-                    path,
-                    Path.DirectorySeparatorChar,
-                    "World",
-                    Path.DirectorySeparatorChar,
-                    "Regions",
-                    Path.DirectorySeparatorChar,
-                    selfWorldName,
-                    Path.DirectorySeparatorChar,
-                    "world_",
-                    selfWorldName,
-                    ".txt"
-                });
-                */
+
                 string worldXXFile = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: selfWorldName,
                     file: "world_" + selfWorldName + ".txt");
 
@@ -1193,17 +1175,6 @@ namespace CustomRegions.CWorld
             string result = "";
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                /*
-                string pathToCustomFolder = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-
-                //string test = Custom.RootFolderDirectory() + pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0];
-                //CustomWorldMod.CustomWorldLog($"Custom Regions: Finding room {roomName} in {keyValues.Key}. Path: {test}");
-
-                string gatePath = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + roomName;
-                string gateShelterPath = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "Gate shelters" + Path.DirectorySeparatorChar + roomName;
-                string regularRoomPath = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + Regex.Split(roomName, "_")[0];
-                string arenaPath = pathToCustomFolder + "Levels" + Path.DirectorySeparatorChar + roomName;
-                */
                 string gatePath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Gates, file: fileName, includeRoot: false);
                 string gateShelterPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Gates_Shelters, file: fileName, includeRoot: false);
                 string arenaPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Levels, file: fileName, includeRoot: false);
@@ -1212,24 +1183,18 @@ namespace CustomRegions.CWorld
                 if (Directory.Exists(regularRoomPath) && 
                     File.Exists(regularRoomPath + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + fileName + ".txt"))
                 {
-                    /*
-                    result = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + 
-                        Regex.Split(fileName, "_")[0] + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + fileName;
-                    */
-                    result = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Rooms, regionID: Regex.Split(fileName, "_")[0], file: fileName);
-                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Found room {roomName} in {keyValues.Key}. Path: {result}");
+                    result = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Rooms,
+                        regionID: Regex.Split(fileName, "_")[0], file: fileName, includeRoot: false);
                 }
                 // room is GATE
                 else if (Regex.Split(fileName, "_")[0] == "GATE" && File.Exists(Custom.RootFolderDirectory() + gatePath + ".txt"))
                 {
                     result = gatePath;
-                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Found gate {roomName} in {keyValues.Key}. Path: {result}");
                 }
                 // room is Gate shelter
                 else if (File.Exists(Custom.RootFolderDirectory() + gateShelterPath + ".txt"))
                 {
                     result = gateShelterPath;
-                    //CustomWorldMod.CustomWorldLog($"Custom Regions: Found gate_shelter {roomName} in {keyValues.Key}. Path: {result}");
                 }
                 // room is Arena
                 else if (File.Exists(Custom.RootFolderDirectory() + arenaPath + ".txt"))
