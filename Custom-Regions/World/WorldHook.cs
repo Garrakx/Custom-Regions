@@ -84,22 +84,10 @@ namespace CustomRegions.CWorld
                 CustomWorldMod.Log("ERROR!" + e, true);
             }
             if (foundError)
+            {
                 CustomWorldMod.Log("Fatal error while loading the world. This is probably caused by a broken connection. " +
                     "Make sure you are not missing a comp patch.", true);
-
-            /*
-            string debug = $"Custom Regions: Nodes in [{self.GetAbstractRoom(c.room).name}]"+" {";
-            for (int i = 0; i < self.GetAbstractRoom(c.room).nodes.Length; i++)
-            {
-                try
-                {
-                    debug += self.GetAbstractRoom(c.room).nodes[i] + "/";
-                }
-                catch (Exception e) { }
             }
-            CustomWorldMod.CustomWorldLog(debug + "}");
-            */
-
             return orig(self, c);
         }
 

@@ -62,7 +62,6 @@ namespace CustomRegions.CustomPearls
                         self.currentConversation = new SLOracleBehaviorHasMark.MoonConversation(id, self, SLOracleBehaviorHasMark.MiscItemType.NA);
                         self.State.totalPearlsBrought++;
                         CustomWorldMod.Log("pearls brought up: " + self.State.totalPearlsBrought);
-                        //self.State.significantPearls[(int)(item as DataPearl).AbstractPearl.dataPearlType] = true;
                         self.State.totalItemsBrought++;
                         self.State.AddItemToAlreadyTalkedAbout(item.abstractPhysicalObject.ID);
 
@@ -103,12 +102,7 @@ namespace CustomRegions.CustomPearls
         private static void LoadCustomEventsFromFile(int fileName, string regionPack, Conversation self)
         {
             CustomWorldMod.Log("~~~LOAD CONVO " + fileName);
-            /*
-            char div = Path.DirectorySeparatorChar;
-            string convoPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + regionPack + div +
-                "Assets" + div + "Text" + div + "Text_" + LocalizationTranslator.LangShort(CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage)
-                + div + fileName + ".txt";
-            */
+
             string file = "Text_" + LocalizationTranslator.LangShort(CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage)
                 + Path.DirectorySeparatorChar + fileName + ".txt";
             string convoPath = CRExtras.BuildPath(regionPack, CRExtras.CustomFolder.Text, file: file);
@@ -121,9 +115,6 @@ namespace CustomRegions.CustomPearls
             string text2 = File.ReadAllText(convoPath, Encoding.Default);
             if (text2[0] == '0')
             {
-                //Debug.LogError("Tried to encrypt custom text");
-                //Conversation.EncryptAllDialogue();
-                //string dir = CRExtras.BuildPath(regionPack, )
                 CustomWorldMod.EncryptCustomDialogue(CRExtras.BuildPath(regionPack, CRExtras.CustomFolder.Text), regionPack);
             }
             else
@@ -144,33 +135,12 @@ namespace CustomRegions.CustomPearls
                     for (int j = 1; j < array.Length; j++)
                     {
                         string[] array3 = Regex.Split(array[j], " : ");
-                        /*
-                        if (array3.Length == 3)
-                        {
-                            self.events.Add(new Conversation.TextEvent(self, int.Parse(array3[0]), array3[2], int.Parse(array3[1])));
-                        }
-                        else if (array3.Length == 2)
-                        {
-                            if (array3[0] == "SPECEVENT")
-                            {
-                                self.events.Add(new Conversation.SpecialEvent(self, 0, array3[1]));
-                            }
-                            else if (array3[0] == "PEBBLESWAIT")
-                            {
-                                //self.events.Add(new SSOracleBehavior.PebblesConversation.PauseAndWaitForStillEvent(self, null, int.Parse(array3[1])));
-                            }
-                        }
-                        else*/
+
                         if (array3.Length == 1 && array3[0].Length > 0)
                         {
                             self.events.Add(new Conversation.TextEvent(self, 0, array3[0], 0));
                         }
-                        /*
-                        else
-                        {
-                            CustomWorldMod.Log($"Corrupted conversation [{array3[0]}]", true);
-                        }
-                        */
+   
                     }
 
                 }

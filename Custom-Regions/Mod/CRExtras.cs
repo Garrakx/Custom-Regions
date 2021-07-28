@@ -47,7 +47,7 @@ namespace CustomRegions.Mod
         /// <summary>
         /// Builds a folder path. It will return a specific file if specified, otherwise it will end with backslash.
         /// </summary>
-        /// <param name="regionPackFolder"> Folder name of the region pack.</param>
+        /// <param name="regionPackFolder"> Folder name of the region pack. Use null for vanilla path. </param>
         /// <param name="folderEnum"> Folder which to retreive.</param>
         /// <param name="regionID"> Region ID needed for Rooms or RegionID folder.</param>
         /// <param name="file"> If specified, it will append a file after the folder path.</param>
@@ -153,27 +153,6 @@ namespace CustomRegions.Mod
                 CustomWorldMod.Log($"[PathBuilder] Could not find request folder [{folderEnum}]", true);
                 return string.Empty;
             }
-
-            // this is not necessary but makes me sleep at night
-            /*
-            path = Path.Combine(path, "\\");
-            if (folder != null)
-            {
-                path = Path.Combine(path, folder);
-                // this is not necessary but makes me sleep at night
-                path = Path.Combine(path, "\\");
-            }
-
-            if (file != null)
-            {
-                path = Path.Combine(path, file);
-            }
-            */
-
-
-            // Debug
-            
-           
             
             if (!recursive)
             {
