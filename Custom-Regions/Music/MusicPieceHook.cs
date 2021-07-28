@@ -35,66 +35,44 @@ namespace CustomRegions.Music
                 {
                     if (self.source.clip == null)
                     {
-                        //string dataPath = Application.dataPath;
-                        //string dataPath2 = Application.dataPath;
-
-                        //string dataPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
 
                         if (!self.piece.IsProcedural)
                         {
-                            /*
-                            string text = dataPath.Substring(0, dataPath.LastIndexOf
-                                (Path.DirectorySeparatorChar)) + Path.DirectorySeparatorChar
-                                 + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar
-                                + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Songs" + Path.DirectorySeparatorChar
-                                + self.trackName + ".ogg";
-                            */
-                            string subTrackPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Songs, file: self.trackName + ".ogg");
+                            string subTrackPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Songs, file: self.trackName);
                             CustomWorldMod.Log($"[MusicPiece] Searching song subtrack at [{subTrackPath}]", false, CustomWorldMod.DebugLevel.FULL);
-                            if (File.Exists(subTrackPath))
+                            bool isMP3 = false;
+                            if (File.Exists(subTrackPath + ".ogg") || (isMP3 = File.Exists(subTrackPath + ".mp3")))
                             {
-                                CustomWorldMod.Log($"[MusicPiece] Loaded track [{self.trackName}] from [{keyValues.Value}]", 
+                                string extension = isMP3 ? ".mp3" : ".ogg";
+                                AudioType audioType = isMP3 ? AudioType.MPEG : AudioType.OGGVORBIS;
+
+                                CustomWorldMod.Log($"[MusicPiece] Loaded track [{self.trackName}] from [{keyValues.Value}]. Extension [{audioType}]",
                                     false, CustomWorldMod.DebugLevel.MEDIUM);
 
-                                WWW www = new WWW("file://" + subTrackPath);
-                                self.source.clip = www.GetAudioClip(false, true, AudioType.OGGVORBIS);
+                                WWW www = new WWW("file://" + subTrackPath + extension);
+                                self.source.clip = www.GetAudioClip(false, true, audioType);
                                 break;
                             }
-                                /*
-                            else
-                            {
-                                self.source.clip = (Resources.Load("Music/Songs/" + self.trackName, typeof(AudioClip)) as AudioClip);
-                            }
-                            */
                         }
                         else
                         {
-                            /*
-                            string text2 = dataPath.Substring(0, dataPath.LastIndexOf
-                                (Path.DirectorySeparatorChar)) + Path.DirectorySeparatorChar 
-                                + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar
-                                + "Resources" + Path.DirectorySeparatorChar + "Music" + Path.DirectorySeparatorChar + "Procedural" + 
-                                Path.DirectorySeparatorChar
-                                + self.trackName + ".ogg";
-                            CustomWorldMod.Log($"Subtrack-path [{text2}]", false, CustomWorldMod.DebugLevel.FULL);
-                            */
-                            string subTrackPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Procedural, file: self.trackName + ".ogg");
-                            CustomWorldMod.Log($"[MusicPiece] Searching threat subtrack at [{subTrackPath}]", false, CustomWorldMod.DebugLevel.FULL);
-                            if (File.Exists(subTrackPath))
-                            {
-                                CustomWorldMod.Log($"[MusicPiece] Loaded procedural track [{self.trackName}] from [{keyValues.Value}]", false, 
-                                    CustomWorldMod.DebugLevel.MEDIUM);
 
-                                WWW www2 = new WWW("file://" + subTrackPath);
-                                self.source.clip = www2.GetAudioClip(false, true, AudioType.OGGVORBIS);
-                                    break;
-                            }
-                            /*
-                            else
+                            string subTrackPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Procedural, file: self.trackName);
+                            CustomWorldMod.Log($"[MusicPiece] Searching threat subtrack at [{subTrackPath}]", false, CustomWorldMod.DebugLevel.FULL);
+                            bool isMP3 = false;
+                            if (File.Exists(subTrackPath + ".ogg") || (isMP3 = File.Exists(subTrackPath + ".mp3")))
                             {
-                                self.source.clip = (Resources.Load("Music/Procedural/" + self.trackName, typeof(AudioClip)) as AudioClip);
+                                string extension = isMP3 ? ".mp3" : ".ogg";
+                                AudioType audioType = isMP3 ? AudioType.MPEG : AudioType.OGGVORBIS;
+
+                                CustomWorldMod.Log($"[MusicPiece] Loaded threat track [{self.trackName}] from [{keyValues.Value}] Extension [{audioType}]", 
+                                    false, CustomWorldMod.DebugLevel.MEDIUM);
+
+                                WWW www2 = new WWW("file://" + subTrackPath + extension);
+                                self.source.clip = www2.GetAudioClip(false, true, audioType);
+                                break;
                             }
-                            */
+    
                         }
                     }
                     else if (!self.source.isPlaying && self.source.clip.isReadyToPlay)
