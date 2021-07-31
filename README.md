@@ -2,7 +2,7 @@
 # Custom Regions Support
 ***
 ## Lets you install and browse region packs without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms
-[![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)](https://twitter.com/garrakx)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/)
+[![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)](https://twitter.com/garrakx)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/latest)
 ![Custom Regions!](./Images/CRS_thumb.jpg)
 
 Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/flag-spain_1f1ea-1f1f8.png" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-ES.md), [Russian (outdated) <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-RU.md) and [French <img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-FR.md)
@@ -78,8 +78,8 @@ If it is the browser tab, it means you have an updated available for a pack. If 
 
 1) BEFORE USING ANY MODS, MAKE A BACK UP OF YOUR SAVES (located in the `Rain World\UserData` folder)
 2) Download and install a Rain World Modloader. BepInEx is recommended. **Video tutorial** by *LeeMoriya*: [click here](https://youtu.be/brDN_8uN6-U).
-3) Download the latest CRS release from [here](https://github.com/Garrakx/Custom-Regions/releases/).
-4) Apply **all** (`CustomRegions.dll`, `EnumExtender.dll`, and finally `ConfigMachine.dll`) mods inside [DOWNLOAD_THIS_Custom-Regions-vX.X.zip](https://github.com/Garrakx/Custom-Regions/releases/) file. You will receive updates automatically. (Note: CustomAssets.dll is no longer required).
+3) Download the latest CRS release from [here](https://github.com/Garrakx/Custom-Regions/releases/latest).
+4) Apply **all** (`CustomRegions.dll`, `EnumExtender.dll`, and finally `ConfigMachine.dll`) mods inside [DOWNLOAD_THIS_Custom-Regions-vX.X.zip](https://github.com/Garrakx/Custom-Regions/releases/latest) file. You will receive updates automatically. (Note: CustomAssets.dll is no longer required).
 5) You are done!
 
 ***
