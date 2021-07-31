@@ -19,7 +19,8 @@ namespace CustomRegions.DevInterface
             On.DevInterface.TriggersPage.ctor += TriggersPage_ctor;
         }
 
-        private static void TriggersPage_ctor(On.DevInterface.TriggersPage.orig_ctor orig, global::DevInterface.TriggersPage self, global::DevInterface.DevUI owner, string IDstring, global::DevInterface.DevUINode parentNode, string name)
+        private static void TriggersPage_ctor(On.DevInterface.TriggersPage.orig_ctor orig, global::DevInterface.TriggersPage self, 
+            global::DevInterface.DevUI owner, string IDstring, global::DevInterface.DevUINode parentNode, string name)
         {
             orig(self, owner, IDstring, parentNode, name);
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
@@ -31,6 +32,12 @@ namespace CustomRegions.DevInterface
                 {
                     CustomWorldMod.Log($"[TriggerPage] Found custom triggers for [{keyValues.Key}]", false, CustomWorldMod.DebugLevel.MEDIUM);
                     FileInfo[] files = directoryInfo.GetFiles().Where(x => !x.Extension.Equals(".meta")).ToArray();
+                    if (files.Length < 1)
+                    {
+                        // No songs in folder
+                        continue;
+                    }
+
                     int previousIndex = 0;
                     if (self.songNames == null)
                     {
@@ -41,11 +48,20 @@ namespace CustomRegions.DevInterface
                         previousIndex = self.songNames.Length;
                         Array.Resize(ref self.songNames, previousIndex + files.Length);
                     }
-                    for (int j = previousIndex; j < self.songNames.Length; j++)
+                    try
                     {
-                        self.songNames[j] = Path.GetFileNameWithoutExtension(files[j].Name);
+                        for (int j = 0; j < files.Length; j++)
+                        {
+                            self.songNames[previousIndex + j] = Path.GetFileNameWithoutExtension(files[j].Name);
+                        }
+                        CustomWorldMod.Log($"[TriggerPage] Loaded ({self.songNames.Length - previousIndex}) sound triggers from [{keyValues.Key}]");
                     }
-                    CustomWorldMod.Log($"[TriggerPage] Loaded ({self.songNames.Length-previousIndex}) sound triggers from [{keyValues.Key}]");
+                    catch (Exception e)
+                    {
+                        CustomWorldMod.Log($"Could not load song names in TriggerPage. " +
+                            $"PreviousIndex [{previousIndex}], array length [{self.songNames.Length}]. Exception: \n {e}", true);
+                    }
+
                 }
             }
 
