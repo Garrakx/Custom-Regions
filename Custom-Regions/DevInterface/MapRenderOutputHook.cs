@@ -21,20 +21,25 @@ namespace CustomRegions.DevInterface
         private static void MapRenderOutput_Signal(On.DevInterface.MapRenderOutput.orig_Signal orig, global::DevInterface.MapRenderOutput self, global::DevInterface.DevUISignalType type, global::DevInterface.DevUINode sender, string message)
         {
             string pathToMapFile = string.Empty;
+
             // From a Custom Region
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
+                string customFilePath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.owner.game.world.name);
 
-                pathToMapFile = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.owner.game.world.name,
-                    file: "map_" + self.owner.game.world.name + ".png");
-                CustomWorldMod.Log($"[DEV] Saving custom Map Config to map_XX.png from [{keyValues.Value}] to [{pathToMapFile}]");
+                if (Directory.Exists(customFilePath))
+                {
+                    pathToMapFile = customFilePath + "map_" + self.owner.game.world.name + ".png";
 
-                PNGSaver.SaveTextureToFile(self.texture, pathToMapFile);
-                self.ClearSprites();
-                (self.parentNode as MapPage).renderOutput = null;
-                (self.parentNode as MapPage).modeSpecificNodes.Remove(self);
-                self.parentNode.subNodes.Remove(self);
-                return;
+                    CustomWorldMod.Log($"[DEV] Saving custom Map Config to map_XX.png from [{keyValues.Value}] to [{pathToMapFile}]");
+
+                    PNGSaver.SaveTextureToFile(self.texture, pathToMapFile);
+                    self.ClearSprites();
+                    (self.parentNode as MapPage).renderOutput = null;
+                    (self.parentNode as MapPage).modeSpecificNodes.Remove(self);
+                    self.parentNode.subNodes.Remove(self);
+                    return;
+                }
 
             }
 
