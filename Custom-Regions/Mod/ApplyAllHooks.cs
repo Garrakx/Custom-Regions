@@ -48,6 +48,7 @@ namespace CustomRegions.Mod
             MapRenderOutputHook.ApplyHooks();
             CustomDecalRepresentationHook.ApplyHooks();
             SoundPageHook.ApplyHooks();
+            TriggersPageHook.ApplyHooks();
 
             /// HUD ///
             MapHook.ApplyHooks();
@@ -120,6 +121,7 @@ namespace CustomRegions.Mod
             MapRenderOutputHook.RemoveHooks();
             CustomDecalRepresentationHook.RemoveHooks();
             SoundPageHook.RemoveHooks();
+            TriggersPageHook.RemoveHooks();
 
             /// HUD ///
             MapHook.RemoveHooks();
