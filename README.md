@@ -78,8 +78,8 @@ If it is the browser tab, it means you have an updated available for a pack. If 
 
 1) BEFORE USING ANY MODS, MAKE A BACK UP OF YOUR SAVES (located in the `Rain World\UserData` folder)
 2) Download and install a Rain World Modloader. BepInEx is recommended. **Video tutorial** by *LeeMoriya*: [click here](https://youtu.be/brDN_8uN6-U).
-3) Download the latest CRS release from [here](https://github.com/Garrakx/Custom-Regions/releases/).
-4) Apply **all** (`CustomRegions.dll`, `EnumExtender.dll`, and finally `ConfigMachine.dll`) mods inside [DOWNLOAD_THIS_Custom-Regions-vX.X.zip](https://github.com/Garrakx/Custom-Regions/releases/) file. You will receive updates automatically. (Note: CustomAssets.dll is no longer required).
+3) Download the latest CRS release from [here](https://github.com/Garrakx/Custom-Regions/releases/latest).
+4) Apply **all** (`CustomRegions.dll`, `EnumExtender.dll`, and finally `ConfigMachine.dll`) mods inside [DOWNLOAD_THIS_Custom-Regions-vX.X.zip](https://github.com/Garrakx/Custom-Regions/releases/latest) file. You will receive updates automatically. (Note: CustomAssets.dll is no longer required).
 5) You are done!
 
 ***
