@@ -405,7 +405,7 @@ Creature spawns from world_xx.txt are merged too, but more simpler than world me
 
 
 ### <a name ="music"></a>*(new)* CUSTOM MUSIC AND AMBIENT SOUNDEFFECTS
-* For adding new songs or replacing vanilla, create the appropiate folders following the vanilla structure. Both `.ogg`and `.mp3` formats are supported.
+* For adding new songs or replacing vanilla one, create the appropiate folders following the vanilla structure. Both `.ogg`and `.mp3` formats are supported.
 * For adding or replacing SoundEffects/AmbientSFX, make sure to use the `Assets\Futile\Resources\LoadedSoundEffects\Ambient` and not the `SoundEffects`folder. Both `.ogg`and **`.wav`** formats are supported. Careful since `.mp3` is currently **not** supported.
 ***
 
@@ -427,22 +427,23 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 ***
 ### <a name="changelog"></a>Changelog
 
-#### [0.8.42] - July 2021
+#### [0.9.42] - August 2021
 
 #### Changes
 * New field in `packInfo.json`, **`useRegionName`**. Used to read from the Properties Subregion field in the continue save menu instead of the pack name.
 * Creature merging improved:
     * Offscreen dens should not get duplicated anymore.
     * You can remove lines by adding `_REMOVECRS` tag to the line.
-* A random load order value will be assigned (once) when left blank.
 * Room properties improved:
 	* Room templates are now merged between region packs.
 	* Saving as template if file does not exist should not crash the game.
-* MPMusic.txt is now supported.
-* Prevents the game from crashing when using the Dev's Sound tab.
+* `MPMusic.txt` is now supported.
+* LoadedSoundEffects/Ambient is now supported.
+* Added support for custom songs in `mp3` format.
 * WorldLoader orig constructor will now be called, increasing compatibility.
 * "Update button" should now be more noticeable.
 * If you are using Partiality, it will log an error urging to upgrade.
+* A random load order value will be assigned (once) when left blank.
 
 #### Fixes
 * Fixed a parse error when ommiting DISCONNECT in the world merging.
@@ -451,6 +452,7 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 * Karma requeriments should now be displayed on the map. Thanks @Henpemaz <3.
 * Added a method to disable all hooks (called on OnDisable), only for BepInEx users.
 * Corruption scits should be now colored as well.
+* Prevents the game from crashing when using the Dev's Sound tab.
 
 ***
 #### [0.8.40] - January 2021
