@@ -1,0 +1,38 @@
+[dte]28/07/2021
+[bgTxT]Latest CRS news!
+- Forgotten Boiler has been updated with new rooms and a new lore pearl!
+[bgTxT]21/07/2021
+- Better Shelters received a major update. Check it out!
+- Check all the new packs released: Floating Isles and Testing Arenas!
+- Forgotten Boiler received a small update!
+[bgTxT]13/06/2021
+- Aether Ridge has been updated! The issue in which the pack won't update should be fixed, so just try again!
+- CRS will not be available for 25 mins on Thursday 17th June 2021 (2021-06-17) at 06:00 AM UTC D:
+- Forgotten Boiler by LimeCultivist is now available!
+[bgTxT]14/05/2021
+- Master Quest has been updated to be fully compatible with CRS! Thanks Will! (Note: it is probably very incompatible with other packs so be wary!) (Note2: The version in raindb doesn't really work with CRS)
+[bgTxT]26/04/2021
+- You can download Injury Mod thru CRS! (There is an update available, make sure to grab it). You can find more information about the mod inside the readme in CustomResources/Injury Mod/readme.txt
+- It is a test for releasing non-region mods in CRS. You can find more information on how to publish mods in the readme mentioned above.
+[bgTxT]19/04/2021
+- The Root 2.1.1 is now available! If you had problems with the region screen, try deleting the pack folder in \CustomResources and downloading it again in-game. Your saves should be fine even if CRS complains.
+[bgTxT]13/04/2021
+- Badlands and Pyramid Wall are now baked, which means AI will behave better and loading times will be shorter. Delicious!
+[bgTxT]05/04/2021
+- Badlands received an update with threat music, a new pearl, and fixes the double spawn issue in neighboring regions.
+- Aether Ridge has released a new version with new content and improvements!
+- Pyramid Wall is now available!
+- The Root is now available to download from the browser thanks to Doggo!
+- If you have problems downloading from the browser and you live in Russia, you might have to use a VPN :S
+[bgTxT]28/03/2021
+- Happy anniversary, Rain World!
+[bgTxT]08/02/2021
+- The Mast received a baby update! It includes some compatibility fixes and a french translation!
+[bgTxT]24/01/2021
+- Arid Barrens is now available to download! If you had problems with the region screen, try deleting the pack folder in \CustomResources and downloading it again in-game. Your saves should be fine even if CRS complains.
+[bgTxT]17/01/2021
+- The Mast Note: apart from applying the .dlls, make sure you have installed Badlands region pack as well. You can find more info and patches in the README in \CustomResources\The Mast\
+- Aether Ridge Note: if you have The Root installed, make sure to check the README in \CustomResources\Aether Ridge\ to apply the patch. Ignore the update warning after installing the patch.
+- Confused about the changes? Do you have problems? Check the FAQ section in the CRS page (you can access it from rainDB.net->Tools)
+- If you have crashes with PartialityModloader, consider switching to BepInEx, you can find the instructions on the CRS readme.
+- Side House received an update! If you had problems with Side House's region screen, try deleting the pack folder in \CustomResources and downloading it again in-game. Your saves should be fine even if CRS complains.
