@@ -135,16 +135,17 @@ namespace CustomRegions.CWorld
 
                                             currentTemplateNames = new List<string>(self.roomSettingTemplateNames);
                                             
-                                            for (int j = previousIndex; j < array2.Length + previousIndex; j++)
+                                            for (int j = 0; j < array2.Length; j++)
                                             {
                                                 string newTemplate = array2[j];
                                                 if (!currentTemplateNames.Contains(newTemplate))
                                                 {
-                                                    CustomWorldMod.Log($"Adding new custom templates [{array2[j]}] at ({j}) for [{keyValues.Key}]", 
+                                                    CustomWorldMod.Log(
+                                                        $"Adding new custom templates [{newTemplate}] at ({j+previousIndex}) for [{keyValues.Key}]", 
                                                         false, CustomWorldMod.DebugLevel.FULL);
 
-                                                    self.roomSettingTemplateNames[j] = array2[j];
-                                                    self.ReloadRoomSettingsTemplate(array2[j]);
+                                                    self.roomSettingTemplateNames[j+previousIndex] = newTemplate;
+                                                    self.ReloadRoomSettingsTemplate(newTemplate);
                                                 }
                                             }
                                             break;
