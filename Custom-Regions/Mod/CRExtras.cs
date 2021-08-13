@@ -237,7 +237,7 @@ namespace CustomRegions.Mod
             {
                 (CustomWorldMod.rainWorldInstance.processManager.currentMainLoop as Menu.Menu).PlaySound(soundID);
             }
-            catch (Exception e) { CustomWorldMod.Log("Exception " + e, true); }
+            catch (Exception e) { CustomWorldMod.Log("Exception " + e, false); }
         }
     }
 

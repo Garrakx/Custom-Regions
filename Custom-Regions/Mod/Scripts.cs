@@ -154,7 +154,7 @@ namespace CustomRegions.Mod
             {
                 string labelText = "N/A";
                 string buttonText = "ERROR";
-                string signal = "";
+                CustomWorldOption.OptionSignal signal = CustomWorldOption.OptionSignal.Empty;
                 if (!error)
                 {
                     labelText = $"[{this.packName}] requires additional mods to function:\n\n";
@@ -168,7 +168,7 @@ namespace CustomRegions.Mod
                         labelText += $"to Partiality's Mods folder. \nPlease close the game and apply them using the Partiality Launcher.";
                     }
                     buttonText = "Exit game";
-                    signal = "close_game";
+                    signal = CustomWorldOption.OptionSignal.CloseGame;
                 }
                 else
                 {
@@ -182,7 +182,7 @@ namespace CustomRegions.Mod
                         labelText += "Missing executable.\n";
                     }
                     buttonText = "Close";
-                    signal = "close_window";
+                    signal = CustomWorldOption.OptionSignal.CloseWindow;
                 }
                 CustomWorldOption.CreateWindowPopUp(labelText, tab, signal, buttonText, error);
             }
@@ -250,7 +250,7 @@ namespace CustomRegions.Mod
             processStartInfo.UseShellExecute = false;
             processStartInfo.ErrorDialog = false;
             processStartInfo.CreateNoWindow = true;
-            processStartInfo.RedirectStandardInput = true;
+            //processStartInfo.RedirectStandardInput = true;
             processStartInfo.RedirectStandardOutput = true;
             //processStartInfo.RedirectStandardError = true;
 
