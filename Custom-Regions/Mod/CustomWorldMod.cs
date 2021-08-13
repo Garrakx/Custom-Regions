@@ -53,7 +53,7 @@ namespace CustomRegions.Mod
         {
             mod = this;
             ModID = "Custom Regions Mod";
-            Version = "0.9." + version + "-experimental.1";
+            Version = "0.9." + version + "-experimental.2";
             author = "Garrakx";
             versionCR = $"v{Version}";
         }
@@ -62,7 +62,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 41;//NEEDS UPDATE
+        public int version = 41;//NEEDS UPDATE, should be 42
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
@@ -953,7 +953,7 @@ namespace CustomRegions.Mod
 
                 if (pack.activated)
                 {
-                    LoadCustomPearls(pack.name);
+                    LoadCustomPearls(pack);
                     LoadElectricGates(pack);
                     LoadVariations(pack);
                     LoadArenaUnlocks(pack);
@@ -1049,7 +1049,7 @@ namespace CustomRegions.Mod
         }
 
         // Cursed
-        public static void FromDictionaryToPackInfo(Dictionary<string, object> json, ref RegionPack pack)
+        public static void FromDictionaryToPackInfo(Dictionary<string, object> json, ref RegionPack pack, bool authorative = false)
         {
 
             Dictionary<string, object> packDictionary = json;
@@ -1117,6 +1117,14 @@ namespace CustomRegions.Mod
                     }
                 }
             }
+            // Only works when loading from the web
+            if (authorative)
+            {
+                if (packDictionary.TryGetValue("expansion", out value) && value != null)
+                {
+                    pack.expansion = bool.Parse(value.ToString());
+                }
+            }
 
         }
 
@@ -1171,6 +1179,7 @@ namespace CustomRegions.Mod
 
         public static void LoadElectricGates(RegionPack regionPack)
         {
+            Log($"Loading electric gates...", false, DebugLevel.MEDIUM);
             // Add electric gates
             string pathToElectricGates = CRExtras.BuildPath(regionPack.folderName, CRExtras.CustomFolder.Gates, file: "electricGates.txt");
             if (File.Exists(pathToElectricGates))
@@ -1188,13 +1197,14 @@ namespace CustomRegions.Mod
 
         }
 
-        public static void LoadCustomPearls(string regionPack)
+        public static void LoadCustomPearls(RegionPack regionPack)
         {
+            Log($"Loading custom pearls...", false, DebugLevel.MEDIUM);
             // Add Custom Pearls
-            string pathToPearls = CRExtras.BuildPath(regionPack, CRExtras.CustomFolder.Assets, file: "pearlData.txt");
+            string pathToPearls = CRExtras.BuildPath(regionPack.folderName, CRExtras.CustomFolder.Assets, file: "pearlData.txt");
             if (File.Exists(pathToPearls))
             {
-                Log($"Loading pearl data for {regionPack}");
+                Log($"Loading pearl data for {regionPack.name}");
                 string[] customPearlsLines = File.ReadAllLines(pathToPearls);
                 string[] newLines = customPearlsLines;
                 for (int i = 0; i < customPearlsLines.Length; i++)
@@ -1212,7 +1222,7 @@ namespace CustomRegions.Mod
                     try
                     {
                         fileNumber = int.Parse(lineDivided[0]);
-                        pearlName = $"{regionPack.Replace(" ", "_")}_{lineDivided[1]}";
+                        pearlName = $"{regionPack.name.Replace(" ", "_")}_{lineDivided[1]}";
                     }
                     catch (Exception e)
                     {
@@ -1221,10 +1231,10 @@ namespace CustomRegions.Mod
                     }
 
                     try { pearlColor = OptionalUI.OpColorPicker.HexToColor(lineDivided[2]); }
-                    catch (Exception e) { Log($"Pearl missing color from {regionPack} {e}", true); }
+                    catch (Exception e) { Log($"Pearl missing color from {regionPack.name} {e}", true); }
 
                     try { secondaryColor = OptionalUI.OpColorPicker.HexToColor(lineDivided[3]); }
-                    catch (Exception e) { Log($"Pearl missing highlighted color from {regionPack} {e}"); }
+                    catch (Exception e) { Log($"Pearl missing highlighted color from {regionPack.name} {e}"); }
 
                     try
                     {
@@ -1237,11 +1247,17 @@ namespace CustomRegions.Mod
                             hash = int.Parse(lineDivided[4]);
                         }
                     }
-                    catch (Exception e) { Log($"Error loading hash {regionPack} {e}", true); }
+                    catch (Exception e) { Log($"Error loading hash {regionPack.name} {e}", true); }
 
                     CustomWorldMod.Log($"Added new pearl [{pearlName} / {fileNumber} / {pearlColor}]");
-
-                    CustomWorldMod.customPearls.Add(hash, new CustomPearl(pearlName, fileNumber, pearlColor, secondaryColor, regionPack));
+                    try
+                    {
+                        CustomWorldMod.customPearls.Add(hash, new CustomPearl(pearlName, fileNumber, pearlColor, secondaryColor, regionPack.name));
+                    } catch (Exception e)
+                    {
+                        CustomWorldMod.Log($"Could not add pearl [{pearlName}] from [{regionPack.name}]. Make sure the hash is not duplicated. " +
+                            $"You can try deleting the last long number after the color in [{pathToPearls}] and relaunch the game. \n {e}", true);
+                    }
 
                     // Extend PearlTypeEnum
                     EnumExtender.AddDeclaration(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearlName);
@@ -1268,12 +1284,12 @@ namespace CustomRegions.Mod
                 try { File.WriteAllLines(pathToPearls, newLines); }
                 catch (Exception e) { Log($"Error creating pearl hash [{e}]", true); }
             }
-            string directory = CRExtras.BuildPath(regionPack, CRExtras.CustomFolder.Text);
+            string directory = CRExtras.BuildPath(regionPack.name, CRExtras.CustomFolder.Text);
             if (Directory.Exists(directory))
             {
                 // Encrypt text files
-                Log($"Creating conversation files for {regionPack}...");
-                EncryptCustomDialogue(directory, regionPack);
+                Log($"Creating conversation files for {regionPack.name}...");
+                EncryptCustomDialogue(directory, regionPack.name);
             }
         }
 
@@ -1329,9 +1345,8 @@ namespace CustomRegions.Mod
 
         public static void LoadVariations(RegionPack packInfo)
         {
-            /*
-            string pathToRegionsDir = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar;
-            */
+            Log($"Loading custom colors...", false, DebugLevel.MEDIUM);
+            // Add custom colors
             string pathToRegionsDir = CRExtras.BuildPath(packInfo.folderName, CRExtras.CustomFolder.Regions);
             if (!Directory.Exists(pathToRegionsDir))
             {
@@ -1393,7 +1408,8 @@ namespace CustomRegions.Mod
 
         private static void LoadArenaUnlocks(RegionPack pack)
         {
-            //string pathToRegionsDir = dir + Path.DirectorySeparatorChar + "Levels";
+            Log($"Loading arena unlocks...", false, DebugLevel.MEDIUM);
+            
             string pathToRegionsDir = CRExtras.BuildPath(pack.folderName, CRExtras.CustomFolder.Levels);
             if (!Directory.Exists(pathToRegionsDir))
             {
