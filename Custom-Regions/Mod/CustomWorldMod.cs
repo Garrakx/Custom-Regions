@@ -1124,6 +1124,10 @@ namespace CustomRegions.Mod
                 {
                     pack.expansion = bool.Parse(value.ToString());
                 }
+                if (packDictionary.TryGetValue("shownInBrowser", out value) && value != null)
+                {
+                    pack.shownInBrowser = bool.Parse(value.ToString());
+                }
             }
 
         }

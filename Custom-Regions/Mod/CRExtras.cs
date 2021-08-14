@@ -223,6 +223,10 @@ namespace CustomRegions.Mod
 
         public static void TrimString(ref string reference, float targetPixel, string endSequence)
         {
+            if (targetPixel < 0)
+            {
+                return;
+            }
             if (OptionalUI.LabelTest.GetWidth(reference, false) > targetPixel)
             {
                 reference = reference.Remove(reference.Length - 1);
