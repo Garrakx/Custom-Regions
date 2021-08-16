@@ -860,7 +860,7 @@ namespace CustomRegions.CWorld
                     {
                         startCreatures = true;
                     }
-                     
+
                     // BAT MIGRATIONS
                     if (s.Equals("END BAT MIGRATION BLOCKAGES"))
                     {
@@ -968,6 +968,17 @@ namespace CustomRegions.CWorld
 
             }
 
+            // Check for problems
+            List<WorldDataLine> fixedROOMS = AnalyzeMergedRooms(ROOMS);
+            ROOMS = fixedROOMS;
+            /*
+            while (brokenConnections.Count > 0)
+            {
+                CustomWorldMod.Log("Removing broken lines ...");
+                brokenConnections = AnalyzeMergedRooms(ROOMS.Except(brokenConnections).ToList());
+            }
+            */
+
 
             // Sort lists to increase readability 
             List<string> sortedRooms = CustomWorldMod.FromWorldDataToListString(ROOMS);
@@ -1000,6 +1011,183 @@ namespace CustomRegions.CWorld
                 CustomWorldMod.Log("\n");
             }
             return lines;
+        }
+
+
+        private static List<WorldDataLine> AnalyzeMergedRooms(List<WorldDataLine> lines)
+        {
+            //List<WorldDataLine> brokenLines = new List<WorldDataLine>();
+
+            List<string> connections;
+            List<WorldDataLine> otherConnectedLines;
+            List<WorldDataLine> linesProcessed = new List<WorldDataLine>(lines);
+            List<WorldDataLine> fixedLines = new List<WorldDataLine>(lines);
+            WorldDataLine currentLine;
+            WorldDataLine otherConnectedLine;
+
+            //foreach (var currentLine in lines)
+            for (int i = 0; i < lines.Count(); i++)
+            {
+                currentLine = lines[i];
+                CustomWorldMod.Log($"Analyzing line [{currentLine.line}]", false, CustomWorldMod.DebugLevel.FULL);
+
+                // All lines that contain current room in their connections
+                otherConnectedLines = lines.FindAll(x => !x.roomName.Equals(currentLine.roomName)).FindAll(x => x.connections.Contains(currentLine.roomName));
+
+                // Check if current room is connected to any other room
+                if (otherConnectedLines.Count == 0)
+                {
+                    // room is not connected
+                    CustomWorldMod.Log("     Room does not appear elsewhere", false, CustomWorldMod.DebugLevel.FULL);
+
+                    //CustomWorldMod.Log("     ", false, CustomWorldMod.DebugLevel.FULL);
+
+                    /* REDUNDANT
+                    connections = Regex.Split(currentLine.connections, ", ").ToList();
+                    if (connections.FindAll(x => x.Contains("DISCONNECTED")).Count == connections.Count)
+                    {
+                        // room is disconnected from everything
+                    }
+                    else
+                    {
+                        // room is broken
+                        brokenLines.Add(currentLine);
+                        CustomWorldMod.Log($"Line is broken [{currentLine.line}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+                    }
+                    */
+                }
+                // Room is connected to another room
+                else
+                {
+                    CustomWorldMod.Log($"     Room appears in other connections:\n     " +
+                        $"{string.Join("\n     ", otherConnectedLines.Select(x => x.line).ToArray())}", false, CustomWorldMod.DebugLevel.FULL);
+
+                    //foreach (var otherConnectedLine in otherConnectedLines)
+
+                    // All lines that have our room in their connections
+                    for (int j = 0; j < otherConnectedLines.Count(); j++)
+                    {
+                        /*List<WorldDataLine> linesToModify = linesNotProcessed.FindAll(x => !x.roomName.Equals(currentLine.roomName)).
+                            FindAll(x => x.connections.Contains(currentLine.roomName));*/
+
+                        otherConnectedLine = otherConnectedLines[j];
+
+                        connections = Regex.Split(otherConnectedLine.connections, ", ").ToList();
+
+                        // Check if connection is reciprocal
+                        if (!currentLine.connections.Contains(otherConnectedLine.roomName))
+                        {
+                            // Disconnect both lines between each other
+                            CustomWorldMod.Log($"          Broken connection. Current line does not have room [{otherConnectedLine.roomName}]. Disconnecting..."
+                                , false, CustomWorldMod.DebugLevel.FULL);
+
+                            WorldDataLine temp1;
+
+                            // Disconnect current room from other rooms
+                            int indexOtherRoom = fixedLines.FindIndex(x => x.roomName.Equals(otherConnectedLine.roomName));
+                            temp1 = fixedLines[indexOtherRoom];
+                            temp1.line = fixedLines[indexOtherRoom].line.Replace(currentLine.roomName, "DISCONNECT");
+                            fixedLines[indexOtherRoom] = temp1;
+                            /*CustomWorldMod.Log($"Sanity check 1. Trying to replace [{currentLine.roomName}] at [{temp1.line}]. " +
+                                $"Contains? [{temp1.line.Contains(currentLine.roomName)}].");*/
+
+                            /*
+                            int indexCurrentRoom = fixedLines.FindIndex(x => x.roomName.Equals(currentLine.roomName));
+                            // Disconnect current room from other lines
+                            temp1 = fixedLines[indexCurrentRoom];
+                            temp1.line = fixedLines[indexCurrentRoom].line.Replace(otherConnectedLine.roomName, "DISCONNECT");
+                            fixedLines[indexCurrentRoom] = temp1;
+                            */
+
+                            CustomWorldMod.Log($"               Fixed other line [{fixedLines[indexOtherRoom].line}]", false, CustomWorldMod.DebugLevel.FULL);
+                        }
+
+                        /*
+                        // Remove all connections that match the current room
+                        connections.RemoveAll(x => x.Equals(currentLine.roomName));
+                        connections.RemoveAll(x => x.Equals("DISCONNECTED"));
+
+                        int indexB = linesProcessed.FindIndex(x => x.roomName.Equals(otherConnectedLine.roomName));
+
+                        if (indexB < 0 || indexB >= linesProcessed.Count())
+                        {
+                            CustomWorldMod.Log($"Index out of range ???? [{indexB}] ");
+                        }
+                        else
+                        {
+                            // Update processed lines
+                            WorldDataLine temp2 = linesProcessed[indexB];
+                            temp2.connections = string.Join(", ", connections.ToArray());
+                            linesProcessed[indexB] = temp2;
+                        }*/
+
+                        List<WorldDataLine> linesToModify = linesProcessed.FindAll(x => !x.roomName.Equals(currentLine.roomName)).
+                        FindAll(x => x.connections.Contains(currentLine.roomName));
+
+                        // Remove analyzed connections
+                        foreach (var lineToModify in linesToModify)
+                        {
+                            string otherRoomName = lineToModify.roomName;
+                            connections = Regex.Split(lineToModify.connections, ", ").ToList();
+                            WorldDataLine updatedLine = lineToModify;
+
+                            // Remove all connections that match the current room
+                            connections.RemoveAll(x => x.Equals(currentLine.roomName));
+                            connections.RemoveAll(x => x.Equals("DISCONNECTED"));
+
+
+                            int indexB = linesProcessed.FindIndex(x => x.Equals(lineToModify));
+                            if (indexB < 0 || indexB >= linesProcessed.Count())
+                            {
+                                CustomWorldMod.Log($"Index out of range ???? [{indexB}] ");
+                            }
+                            else
+                            {
+                                // Update not processed lines
+                                updatedLine.connections = string.Join(", ", connections.ToArray());
+                                linesProcessed[indexB] = updatedLine;
+                            }
+                        }
+
+
+                    }
+                }
+
+                /*
+                // Check if room has broken connections
+                connections = Regex.Split(currentLine.connections, ", ").ToList();
+                foreach (var item in connections)
+                {
+                    if (!item.Equals("DISCONNECTED"))
+                    {
+                        if (lines.FindAll(x => x.connections.Contains(item)).Count() == 0)
+                        {
+                            // Connection is broken
+                            linesNotProcessed.Add(currentLine);
+                        }
+                        else
+                        {
+                            // Connection is not broken
+                        }
+                    }
+                }
+                */
+            }
+
+            linesProcessed.RemoveAll(x => x.connections.Equals(string.Empty));
+            //linesNotProcessed.Concat(brokenLines);
+
+            if (linesProcessed.Count != 0)
+            {
+                CustomWorldMod.Log($"Found broken connections in world file! Read customWorldLog.txt for more information", true);
+                CustomWorldMod.Log($"Broken connections:");
+                foreach (var item in linesProcessed)
+                {
+                    CustomWorldMod.Log($"Room: [{item.roomName}]. Connections: [{item.connections}]");
+                }
+            }
+
+            return fixedLines;
         }
 
 
@@ -1110,42 +1298,54 @@ namespace CustomRegions.CWorld
         public static bool pendingToLoadCustomRegion = false;
         /// <summary> Creates a temporal world_xx.txt file (to avoid a crash) if the region is custom. Calls orig and deletes the file
         /// Then, it loads the custom world_xx in NextActivity </summary>
-        private static void WorldLoader_ctor(On.WorldLoader.orig_ctor orig, WorldLoader self, RainWorldGame game, int playerCharacter, bool singleRoomWorld, string worldName, Region region, RainWorldGame.SetupValues setupValues)
+        private static void WorldLoader_ctor(On.WorldLoader.orig_ctor orig, WorldLoader self, RainWorldGame game, int playerCharacter,
+            bool singleRoomWorld, string worldName, Region region, RainWorldGame.SetupValues setupValues)
         {
             pendingToLoadCustomRegion = false;
             CustomWorldMod.Log($"Custom Regions: Creating WorldLoader : Game [{game}]. PlayerCharacter [{playerCharacter}]. " +
                 $"SingleRoomWorld [{singleRoomWorld}]. WorldName [{worldName}]", false, CustomWorldMod.DebugLevel.FULL);
- 
+
             worldLoaderWatch = new Stopwatch();
             absRoomLoadWatch = new Stopwatch();
 
-            string pathRegion = string.Concat(new object[]
-            {
-                Custom.RootFolderDirectory(),
-                Path.DirectorySeparatorChar,
-                "World",
-                Path.DirectorySeparatorChar,
-                "Regions",
-                Path.DirectorySeparatorChar,
-                worldName,
-                Path.DirectorySeparatorChar,
-            });
+            string pathWorldFolder = CRExtras.BuildPath(null, CRExtras.CustomFolder.RegionID, regionID: worldName);
+            string pathWorldFile = CRExtras.BuildPath(null, CRExtras.CustomFolder.RegionID, regionID: worldName, file: "world_" + worldName + ".txt");
 
-            if (!File.Exists(pathRegion + "world_" + worldName+ ".txt"))
+            if (!File.Exists(pathWorldFile))
             {
-                Directory.CreateDirectory(pathRegion);
-                File.Create(pathRegion + "world_" + worldName + ".txt");
-                pendingToLoadCustomRegion = true;
-                CustomWorldMod.Log($"Creating temporal directory [{pathRegion}]", false, CustomWorldMod.DebugLevel.MEDIUM);
-                CustomWorldMod.Log($"Creating temporal [world_{worldName}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+                try
+                {
+                    CustomWorldMod.Log($"Creating temporal folder [{pathWorldFolder}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+                    Directory.CreateDirectory(pathWorldFolder);
+                    pendingToLoadCustomRegion = true;
+                    CustomWorldMod.Log($"Creating temporal [{pathWorldFile}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+                    using (var myFile = File.Create(pathWorldFile)) { /* close file */ };
+                }
+                catch (Exception e) { CustomWorldMod.Log($"Failed creating temporal file/directory [{pathWorldFile}] \n{e}", true); }
             }
-            orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues);
+
+            try
+            {
+                orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues);
+            }
+            catch (Exception e) { CustomWorldMod.Log($"Game crashed when loading world \n{e}", true); }
+
+            CustomWorldMod.Log($"Finished wordLoader, pending custom region [{pendingToLoadCustomRegion}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+
             if (pendingToLoadCustomRegion)
             {
                 CustomWorldMod.Log($"Deleting temporal files...", false, CustomWorldMod.DebugLevel.MEDIUM);
-                File.Delete(pathRegion + "world_" + worldName + ".txt");
-                Directory.Delete(pathRegion);
+
+                try { File.Delete(pathWorldFile); }
+                catch (Exception e)
+                { CustomWorldMod.Log($"Failed deleting temporal file [{worldName}] \n{e}", true); }
+
+                try { Directory.Delete(pathWorldFolder); }
+                catch (Exception e)
+                { CustomWorldMod.Log($"Failed deleting temporal directory [{worldName}] \n{e}", true); }
+
             }
+
         }
 
         /// <summary>
@@ -1153,12 +1353,6 @@ namespace CustomRegions.CWorld
         /// </summary>
         private static void WorldLoader_NextActivity(On.WorldLoader.orig_NextActivity orig, WorldLoader self)
         {
-            if (pendingToLoadCustomRegion)
-            {
-                pendingToLoadCustomRegion = false;
-                CustomWorldMod.Log($"Pending to load a custom region, resetting lines (size {self.lines.Count})");
-                self.lines = new List<string>();
-            }
             if (self.activity == WorldLoader.Activity.Init && !self.singleRoomWorld)
             {
                 self.lines = GetWorldLines(self);
@@ -1167,7 +1361,7 @@ namespace CustomRegions.CWorld
         }
 
         /// <summary>
-        /// If finds the room in the CustomAssets folder, returns that path (takes priority over vanilla)
+        /// If finds the room in the CustomResources folder, returns that path (takes priority over vanilla)
         /// </summary>
         /// <returns>returns path to room</returns>
         private static string WorldLoader_FindRoomFileDirectory(On.WorldLoader.orig_FindRoomFileDirectory orig, string fileName, bool includeRootDirectory)
@@ -1180,7 +1374,7 @@ namespace CustomRegions.CWorld
                 string arenaPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Levels, file: fileName, includeRoot: false);
                 string regularRoomPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, Regex.Split(fileName, "_")[0], includeRoot: false);
                 // room is regular room
-                if (Directory.Exists(regularRoomPath) && 
+                if (Directory.Exists(regularRoomPath) &&
                     File.Exists(regularRoomPath + Path.DirectorySeparatorChar + "Rooms" + Path.DirectorySeparatorChar + fileName + ".txt"))
                 {
                     result = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Rooms,
@@ -1226,6 +1420,6 @@ namespace CustomRegions.CWorld
 
         #endregion
 
-        
+
     }
 }
