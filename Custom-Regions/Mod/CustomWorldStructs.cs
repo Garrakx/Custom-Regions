@@ -117,10 +117,12 @@ namespace CustomRegions.Mod
             public Color? kelpColor;
             public bool bllVanilla;
             public Color? bllColor;
+            public Color? batFlyColor;
+            public bool batVanilla;
             public float blackSalamanderChance;
 
             public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, 
-                bool kelpVanilla, Color? kelpColor, bool bllVanilla, Color? bllColor, float blackSalamanderChance)
+                bool kelpVanilla, Color? kelpColor, bool bllVanilla, Color? bllColor, float blackSalamanderChance, Color? batFlyColor, bool batVanilla)
             {
                 this.regionID = regionID;
                 this.albinoLevi = albinoLevi;
@@ -130,6 +132,8 @@ namespace CustomRegions.Mod
                 this.bllVanilla = bllVanilla;
                 this.bllColor = bllColor;
                 this.blackSalamanderChance = blackSalamanderChance;
+                this.batFlyColor = batFlyColor;
+                this.batVanilla = batVanilla;
             }
         }
 
