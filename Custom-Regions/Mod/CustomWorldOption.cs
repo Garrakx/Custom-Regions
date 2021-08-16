@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -32,6 +33,8 @@ namespace CustomRegions.Mod
             errorTabWarning = false;
 
             Tabs = new OpTab[4];
+
+            windows = new List<WindowCM>();
 
             MainTabRedux(0, "Main Tab");
             //PackManager(1, "Pack Manager");
@@ -228,7 +231,7 @@ namespace CustomRegions.Mod
             }
         }
 
-        static List<UIelement> currentWindowPopUp = null;
+        static List<WindowCM> windows = null;
         private bool updateAvailableTabWarning;
         private bool errorTabWarning;
         private bool updatedNews = false;
@@ -284,6 +287,28 @@ namespace CustomRegions.Mod
                 }
             }
             catch (Exception e) { CustomWorldMod.Log("Error getting downloadButton " + e, true); }
+
+            if (windows != null)
+            {
+                foreach (WindowCM window in windows)
+                {
+                    OpTab tab = window.tab;
+                    if (!tab.isHidden)
+                    {
+                        if (!window.added)
+                        {
+                            tab.AddItems(window.WindowContents.ToArray());
+                            window.added = true;
+                            window.ShowWindow();
+                        }
+                        if (window.opened && window.showLoading)
+                        {
+                            window.UpdateLoadingRotation(dt);
+                        }
+                    }
+                }
+            }
+
         }
 
         public override void Signal(UItrigger trigger, string signal)
@@ -296,11 +321,13 @@ namespace CustomRegions.Mod
                 // Refresh config menu list
                 if (signal.Equals(OptionSignal.Refresh.ToString()))
                 {
+                    CRExtras.TryPlayMenuSound(SoundID.MENU_Player_Unjoin_Game);
                     ConfigMenu.ResetCurrentConfig();
                 }
                 // Reload pack list
                 else if (signal.Equals(OptionSignal.ReloadRegions.ToString()))
                 {
+                    CRExtras.TryPlayMenuSound(SoundID.HUD_Exit_Game);
                     CustomWorldMod.LoadCustomWorldResources();
                 }
                 // Downnload a pack X
@@ -342,67 +369,114 @@ namespace CustomRegions.Mod
                     {
                         CustomWorldMod.Log("Pack downloader in process");
 
-                        OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => x.name.Equals("Browse RainDB"));
-                        if (OptionInterface.IsConfigScreen && (tab != null) && !tab.isHidden)
+                        CRExtras.TryPlayMenuSound(SoundID.MENU_Player_Unjoin_Game);
+                        OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
+                        if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
                         {
-                            CreateWindowPopUp($"[{packName}] is currently being downloaded.\n\nPlease wait until it finishes.", tab,
+                            CreateWindowPopUp(tab, $"A pack is currently being downloaded.\n\nPlease wait until it finishes.",
                                 CustomWorldOption.OptionSignal.CloseWindow, "OK", true);
                         }
 
-                        CRExtras.TryPlayMenuSound(SoundID.MENU_Player_Unjoin_Game);
                     }
                 }
                 // Close the game
                 else if (signal.Equals(OptionSignal.CloseGame.ToString()))
                 {
+                    CRExtras.TryPlayMenuSound(SoundID.HUD_Exit_Game);
                     CustomWorldMod.Log("Exiting game...");
                     Application.Quit();
                 }
                 // Close(hide) pop-up window
                 else if (signal.Equals(OptionSignal.CloseWindow.ToString()))
                 {
-                    if (currentWindowPopUp != null)
+                    if (windows != null)
                     {
-                        OpTab tab = ConfigMenu.currentInterface.Tabs.First(x => x.name.Equals("Browse RainDB"));
-                        if (tab != null)
+                        foreach (WindowCM window in windows)
                         {
-                            foreach (UIelement item in currentWindowPopUp)
+                            if (window != null && window.opened)
                             {
-                                try
-                                {
-                                    item.Hide();
-                                }
-                                catch (Exception e) { CustomWorldMod.Log("option " + e, true); }
+                                window.HideWindow();
                             }
                         }
                     }
                 }
                 else if (signal.Contains(OptionSignal.TryUninstall.ToString()))
                 {
-                    OpTab tab = ConfigMenu.currentInterface.Tabs.First(x => x.name.Equals("Main Tab"));
-                    if (OptionInterface.IsConfigScreen && (tab != null) && !tab.isHidden)
+                    try
                     {
-                        try
+                        string packName = Regex.Split(signal, "_")[1];
+                        string text = $"Do you want to uninstall [{packName}]?\n\n Uninstalling will permanently delete the pack folder.";
+                        OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
+
+                        if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
                         {
-
-                            string packName = Regex.Split(signal, "_")[1];
-                            string text = $"Do you want to uninstall [{packName}]?\n Uninstalling will permanently delete the pack folder.";
-                            CreateWindowPopUp(text, tab, OptionSignal.Uninstall, "Uninstall", false);
+                            CreateWindowPopUp(tab, text, $"{OptionSignal.Uninstall}_{packName}", "Uninstall", true, buttonText2: "Cancel");
                         }
-                        catch (Exception e) { CustomWorldMod.Log("A " + e); }
                     }
-                }
-                else if (signal.Contains(OptionSignal.TryDisable.ToString()))
-                {
-
+                    catch (Exception e) { CustomWorldMod.Log("A " + e); }
                 }
                 else if (signal.Contains(OptionSignal.Uninstall.ToString()))
                 {
+                    // Uninstall
+                    try
+                    {
+                        CRExtras.TryPlayMenuSound(SoundID.HUD_Exit_Game);
+                        WindowCM current = GetActiveWindow();
+                        if (current != null)
+                        {
+                            current.ShowLoading();
+                        }
+                        string packName = Regex.Split(signal, "_")[1];
+                        string folderName = CustomWorldMod.installedPacks[packName].folderName;
 
+                        string pathFolder = CRExtras.BuildPath(folderName, CRExtras.CustomFolder.None);
+
+                        CustomWorldMod.Log($"[WARNING] Deleting pack at [{pathFolder}]");
+                        Directory.Delete(pathFolder, true);
+                        CustomWorldMod.LoadCustomWorldResources();
+
+                    }
+                    catch (Exception e) { CustomWorldMod.Log($"Could not uninstall pack [{signal}] {e}", true); }
                 }
-                else if (signal.Contains(OptionSignal.Disable.ToString()))
+                else if (signal.Contains(OptionSignal.TryDisableToggle.ToString()))
                 {
+                    // try disable
+                    try
+                    {
+                        string packName = Regex.Split(signal, "_")[1];
+                        RegionPack pack = CustomWorldMod.installedPacks[packName];
+                        string action = pack.activated ? "Disable" : "Enable";
+                        string text = $"Do you want to {action.ToLower()} [{packName}]?\n\n Enabling / disabling packs might corrupt your saves! " +
+                            $"You can always enable / disable it again if problems arise.";
 
+                        OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
+                        if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
+                        {
+                            CreateWindowPopUp(tab, text, $"{OptionSignal.DisableToggle}_{packName}", action, true, buttonText2: "Cancel");
+                        }
+                    }
+                    catch (Exception e) { CustomWorldMod.Log("A " + e); }
+                }
+                else if (signal.Contains(OptionSignal.DisableToggle.ToString()))
+                {
+                    // Disable
+                    try
+                    {
+                        CRExtras.TryPlayMenuSound(SoundID.HUD_Exit_Game);
+                        WindowCM current = GetActiveWindow();
+                        if (current != null)
+                        {
+                            current.ShowLoading();
+                        }
+                        OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
+                        string packName = Regex.Split(signal, "_")[1];
+                        RegionPack pack = CustomWorldMod.installedPacks[packName];
+                        pack.activated = !pack.activated;
+                        CustomWorldMod.SerializePackInfoJSON(CRExtras.BuildPath(pack.folderName, CRExtras.CustomFolder.None, file: "packInfo.json"), pack);
+                        CustomWorldMod.LoadCustomWorldResources();
+
+                    }
+                    catch (Exception e) { CustomWorldMod.Log($"Could not disable pack [{signal}] {e}", true); }
                 }
                 else
                 {
@@ -461,7 +535,7 @@ namespace CustomRegions.Mod
         {
             //How Many Options
             int numberOfOptions = packs.Count;
-            int numberOfExpansions = 1; // CHANGE
+            int numberOfExpansions = packs.Select(x=>x.Value.expansion).Count(); // CHANGE
 
             if (numberOfOptions < 1)
             {
@@ -481,9 +555,9 @@ namespace CustomRegions.Mod
             Vector2 thumbSize = new Vector2(225, 156);
             Vector2 rectSize = new Vector2(475, thumbSize.y + spacing / 2);
 
-            // calculates new vertical size by: scaling factor = (rectHor / thumbHor)
-            // verticalsize = scaling factor · thumbnailVer
-            Vector2 rectBigSize = new Vector2(rectSize.x, rectSize.y*0.75f + (rectSize.x - spacing / 2) / thumbSize.x * thumbSize.y);
+            /// calculates new vertical size by: scaling factor = (rectHor / thumbHor)
+            /// verticalsize = scaling factor · thumbnailVer
+            Vector2 rectBigSize = new Vector2(rectSize.x, rectSize.y * 0.75f + (rectSize.x - spacing / 2) / thumbSize.x * thumbSize.y);
 
             float contentSize = (spacing + (rectSize.y + spacing) * (numberOfOptions - numberOfExpansions) + (rectBigSize.y * numberOfExpansions + spacing));
 
@@ -497,11 +571,10 @@ namespace CustomRegions.Mod
 
             for (int i = 0; i < numberOfOptions; i++)
             {
-
                 RegionPack pack = packs.ElementAt(i).Value;
                 bool activated = pack.activated;
                 bool update = false;
-                bool big = (pack.name.Equals("Drought"));//pack.expansion;
+                bool big = pack.expansion;
 
                 // Reset to defaults
                 thumbSize = new Vector2(225, 156);
@@ -525,23 +598,25 @@ namespace CustomRegions.Mod
 
                 // Positions
                 Vector2 thumbPos = rectPos + new Vector2(spacing / 4f, rectSize.y - thumbSize.y - spacing / 4f);
-                Vector2 nameLabelPos = rectPos + new Vector2(spacing + thumbSize.x, rectSize.y - nameLabelSize.y - 5f);
+                Vector2 nameLabelPos = rectPos + new Vector2(spacing * 0.75f + thumbSize.x, rectSize.y - nameLabelSize.y - 5f);
                 if (big)
                 {
                     nameLabelPos.x -= thumbSize.x;
                     nameLabelPos.y -= thumbSize.y + spacing / 2f;
                 }
                 Vector2 descLabelPos = nameLabelPos - new Vector2(0, descripLabelSize.y);
-                Vector2 iconPosStart = rectPos + new Vector2(spacing, spacing / 2f);
+                Vector2 iconPosStart = rectPos + new Vector2(spacing / 2f, spacing / 2f);
 
-                Vector2 downloadButtonPos = rectPos + new Vector2(rectSize.x - bigButtonSize.x - spacing / 2f, spacing / 2f);
-                Vector2 disableButtonPos = downloadButtonPos - new Vector2(bigButtonSize.x * 0.5f + spacing / 4f, 0);
-                Vector2 uninstallButtonPos = disableButtonPos - new Vector2(bigButtonSize.x + spacing/4f, 0);
+                Vector2 downloadButtonPos = rectPos + new Vector2(rectSize.x - bigButtonSize.x - spacing/2f, spacing / 2f);
+                Vector2 disableButtonPos = downloadButtonPos - new Vector2(bigButtonSize.x * 0.5f + spacing / 3f, 0);
+                Vector2 uninstallButtonPos = disableButtonPos - new Vector2(bigButtonSize.x + spacing / 3f, 0);
 
                 try
                 {
                     update = raindb && !activated && pack.checksum != null && pack.checksum != string.Empty &&
                         !pack.checksum.Equals(CustomWorldMod.installedPacks[pack.name].checksum);
+                    CustomWorldMod.Log($"[UPDATE] [{pack.name}] at [{pack.folderName}] needs update [{update}]. " +
+                        $"Local [{pack.checksum}] <-> RainDB [{CustomWorldMod.installedPacks[pack.name].checksum}]");
                 }
                 catch { CustomWorldMod.Log("Error checking the checksum for updates"); }
 
@@ -727,15 +802,6 @@ namespace CustomRegions.Mod
                     iconOffset += requImage.sprite.width + separation;
                 }
 
-
-
-
-                //rectOption.size = new Vector2(rectOption.size + new Vector2(0, expansionExtraYSize));
-                /*
-
-                */
-
-
                 // False button + text inside
                 OpLabel installedLabel = new OpLabel(downloadButtonPos, new Vector2(80, 30), "", FLabelAlignment.Center, false);
                 OpRect falseButtonRect = new OpRect(downloadButtonPos, new Vector2(80, 30))
@@ -774,29 +840,30 @@ namespace CustomRegions.Mod
                     if (activated)
                     {
                         installedLabel.text = $"v{pack.version}";
-                        installedLabel.pos = downloadButtonPos + new Vector2(25, 0);
-                        falseButtonRect = new OpRect(downloadButtonPos + new Vector2(40,0), new Vector2(45, 30));
+                        installedLabel.pos = downloadButtonPos + new Vector2(20, 0);
+                        falseButtonRect = new OpRect(downloadButtonPos + new Vector2(40, 0), new Vector2(42, 30));
                         falseButtonRect.colorEdge = colorEdge;
+                        mainScroll.AddItems(installedLabel, falseButtonRect);
                     }
+                    /*
                     else
                     {
                         installedLabel.text = "Disabled";
                         installedLabel.color = colorEdge;
                     }
-                    mainScroll.AddItems(installedLabel, falseButtonRect);
+                    */
 
                     // Add buttons
-                    OpSimpleButton disableButton = new OpSimpleButton(disableButtonPos, bigButtonSize, 
-                        $"{OptionSignal.TryDisable}_{pack.name}", "Disable");
+                    OpSimpleButton disableButton = new OpSimpleButton(disableButtonPos, bigButtonSize,
+                        $"{OptionSignal.TryDisableToggle}_{pack.name}", activated ? "Disable" : "Enable");
 
                     disableButton.colorEdge = colorEdge;
-                    OpSimpleButton uninstallButton = new OpSimpleButton(uninstallButtonPos, bigButtonSize, 
+                    OpSimpleButton uninstallButton = new OpSimpleButton(uninstallButtonPos, bigButtonSize,
                         $"{OptionSignal.TryUninstall}_{pack.name}", "Uninstall");
 
                     uninstallButton.colorEdge = colorEdge;
                     mainScroll.AddItems(disableButton, uninstallButton);
                 }
-
 
                 if (update)
                 {
@@ -816,9 +883,9 @@ namespace CustomRegions.Mod
             Update,
             CloseGame,
             CloseWindow,
-            TryDisable,
+            TryDisableToggle,
             TryUninstall,
-            Disable,
+            DisableToggle,
             Uninstall
         }
 
@@ -830,119 +897,52 @@ namespace CustomRegions.Mod
         /// <param name="signal"></param>
         /// <param name="buttonText1"></param>
         /// <param name="error"></param>
-        public static void CreateWindowPopUp(string contentText, OpTab tab, CustomWorldOption.OptionSignal signalEnum1, string buttonText1, bool error,
-            CustomWorldOption.OptionSignal signalEnum2 = CustomWorldOption.OptionSignal.Empty, string buttonText2 = null)
+        public static void CreateWindowPopUp(OpTab tab, string contentText, string signalEnum1, string buttonText1, bool error, string buttonText2 = null)
         {
-            CustomWorldMod.Log($"Number of items [{tab.items.Count}]");
-
-            OpLabelLong label;
-            OpSimpleButton button1;
-            OpRect restartPop;
-            OpImage cross;
-
-            OpSimpleButton button2 = null;
-
-            int spacing = 30;
-
-            Vector2 buttonSize = new Vector2(70, 35);
-            Vector2 rectSize = new Vector2(420, 135 + buttonSize.y);
-            Vector2 rectPos = new Vector2(300 - rectSize.x / 2f, 300 - rectSize.y / 2);
-            Vector2 labelSize = rectSize - new Vector2(spacing, spacing + buttonSize.y + spacing);
-            Color color = !error ? Color.white : Color.red;
-
-            Vector2 button1Pos = new Vector2(rectPos.x + (rectSize.x - buttonSize.x) / 2f, rectPos.y + spacing / 2f);
-
-            float doubleButtonOffset = buttonSize.x / 2f + spacing/2f;
-            if (buttonText2 != null)
+            WindowCM foundWindow = null;
+            foreach (WindowCM window in windows)
             {
-                button1Pos.x -= doubleButtonOffset;
+                if (window.tab.Equals(tab))
+                {
+                    foundWindow = window;
+                    break;
+                }
             }
 
-            string labelText = contentText;
-            string symbol = error ? "Menu_Symbol_Clear_All" : "Menu_Symbol_CheckBox";
-            string signal1 = signalEnum1 == CustomWorldOption.OptionSignal.Empty ? null : signalEnum1.ToString();
-            bool isNull = false;
-
-            if (currentWindowPopUp == null)
+            if (foundWindow == null)
             {
-                CustomWorldMod.Log("[WINDOW] Creating new window", false, CustomWorldMod.DebugLevel.MEDIUM);
-                isNull = true;
-                currentWindowPopUp = new List<UIelement>();
+                // Add new window
+                foundWindow = new WindowCM(tab, contentText, signalEnum1, buttonText1, error, buttonCancelText: buttonText2);
+                windows.Add(foundWindow);
             }
             else
             {
-                // CRINGE ALERT
-                bool firstButton = false;
-                for (int i = 0; i < currentWindowPopUp.Count; i++)
-                {
-                    UIelement item = currentWindowPopUp[i];
-
-                    item.Show();
-                    if (item is OpLabelLong itemTab)
-                    {
-                        itemTab.text = labelText;
-                    }
-                    else if (item is OpImage itemTab4)
-                    {
-                        itemTab4.ChangeElement(symbol);
-                        itemTab4.sprite.color = color;
-                    }
-                    else if (item is OpSimpleButton itemTab2 && !firstButton)
-                    {
-                        itemTab2.signal = signal1;
-                    }
-                    else if (item is OpSimpleButton itemTab3)
-                    {
-                        itemTab3.signal = signalEnum2.ToString();
-                    }
-                }
+                // Update window contents
+                foundWindow.UpdateWindow(contentText, signalEnum1, buttonText1, error, buttonCancelText: buttonText2);
             }
+        }
 
-            if (isNull)
+        public static void CreateWindowPopUp(OpTab tab, string contentText, CustomWorldOption.OptionSignal signalEnum1, string buttonText1, bool error,
+           string buttonText2 = null)
+        {
+            CreateWindowPopUp(tab, contentText, signalEnum1.ToString(), buttonText1, error, buttonText2: buttonText2);
+        }
+
+        public WindowCM GetActiveWindow()
+        {
+            if (windows != null)
             {
-                restartPop = new OpRect(rectPos, rectSize, 0.9f);
-
-                button1 = new OpSimpleButton(button1Pos, buttonSize, signal1, buttonText1);
-
-                if (buttonText2 != null)
+                foreach (WindowCM window in windows)
                 {
-                    button2 = new OpSimpleButton(button1Pos + new Vector2(doubleButtonOffset*2, 0), buttonSize, signalEnum2.ToString(), buttonText2);
-                }
-
-                label = new OpLabelLong(new Vector2(rectPos.x + spacing / 2, rectPos.y + buttonSize.y + spacing), labelSize, "", true, FLabelAlignment.Center)
-                {
-                    text = labelText,
-                    verticalAlignment = OpLabel.LabelVAlignment.Top
-                };
-
-                cross = new OpImage(new Vector2(rectPos.x + spacing / 2f, rectPos.y + rectSize.y - spacing), symbol);
-                cross.sprite.color = color;
-
-                CustomWorldMod.Log("[WINDOW] Trying to add elements", false, CustomWorldMod.DebugLevel.FULL);
-                try
-                {
-                    currentWindowPopUp.Add(cross);
-                    currentWindowPopUp.Add(label);
-                    currentWindowPopUp.Add(restartPop);
-                    currentWindowPopUp.Add(button1);
-                    if (buttonText2 != null)
+                    OpTab tab = window.tab;
+                    if (window.added && !tab.isHidden)
                     {
-                        currentWindowPopUp.Add(button2);
+                        return window;
                     }
                 }
-                catch (Exception e) { CustomWorldMod.Log($"Exception when creating window pop up (1) [{e}]", true); }
-
-
-                try
-                {
-                    CustomWorldMod.Log("[WINDOW] Trying to add elements to CM", false, CustomWorldMod.DebugLevel.FULL);
-                    tab.AddItems(restartPop, label, button1, cross);
-                }
-                catch (Exception e)
-                {
-                    CustomWorldMod.Log($"Exception when creating window pop up (2) [{e}]", true);
-                }
             }
+
+            return null;
         }
 
 
@@ -1092,5 +1092,185 @@ namespace CustomRegions.Mod
             }
         }
 
+    }
+
+    public class WindowCM
+    {
+        OpLabelLong label;
+        OpSimpleButton button1;
+        OpRect restartPop;
+        OpImage cross;
+        OpImage loading;
+        OpSimpleButton buttonCancel;
+        int spacing = 30;
+        Vector2 buttonSize;
+        Vector2 rectSize;
+        Vector2 rectPos;
+        Vector2 labelSize;
+        Color color;
+
+        Vector2 button1Pos;
+
+        float doubleButtonOffset;
+
+        public bool showLoading;
+        public bool added;
+        public bool opened;
+        public OpTab tab;
+
+        bool doubleButton;
+
+        public WindowCM(OpTab tab, string contentText, string signal1, string buttonText1, bool error, string buttonCancelText = null)
+        {
+            buttonSize = new Vector2(70, 35);
+            rectSize = new Vector2(420, 135 + buttonSize.y);
+            rectPos = new Vector2(300 - rectSize.x / 2f, 300 - rectSize.y / 2);
+            labelSize = rectSize - new Vector2(spacing, spacing + buttonSize.y + spacing);
+            color = !error ? Color.white : Color.red;
+
+            button1Pos = new Vector2(rectPos.x + (rectSize.x - buttonSize.x) / 2f, rectPos.y + spacing / 2f);
+
+            doubleButtonOffset = 0;
+            doubleButton = buttonCancelText != null;
+
+            if (doubleButton)
+            {
+                doubleButtonOffset = buttonSize.x / 2f + spacing / 2f;
+            }
+
+            string labelText = contentText;
+            string symbol = error ? "Menu_Symbol_Clear_All" : "Menu_Symbol_CheckBox";
+
+            added = false;
+
+            CustomWorldMod.Log("[WINDOW] Called window", false, CustomWorldMod.DebugLevel.MEDIUM);
+
+
+            restartPop = new OpRect(rectPos, rectSize, 0.9f);
+
+            button1 = new OpSimpleButton(button1Pos - new Vector2(doubleButtonOffset, 0), buttonSize, signal1, buttonText1);
+
+            buttonCancel = new OpSimpleButton(button1Pos + new Vector2(doubleButtonOffset, 0), buttonSize,
+                CustomWorldOption.OptionSignal.CloseWindow.ToString(), buttonCancelText == null ? "NaN" : buttonCancelText);
+            buttonCancel.description = "Cancel";
+
+            loading = new OpImage(new Vector2(300f, 300f), "Multiplayer_Time");
+            loading.anchor = new Vector2(0.5f, 0.5f);
+            loading.description = "Waiting...";
+
+            //loading.sprite.scale *= 2f;
+            //loading.pos -= new Vector2(loading.sprite.width / 2f, loading.sprite.height / 2f);
+
+            label = new OpLabelLong(new Vector2(rectPos.x + spacing / 2, rectPos.y + buttonSize.y + spacing*1.5f), labelSize, "", true, FLabelAlignment.Center)
+            {
+                text = labelText,
+                verticalAlignment = OpLabel.LabelVAlignment.Top
+            };
+
+            cross = new OpImage(new Vector2(rectPos.x + spacing / 2f, rectPos.y + rectSize.y - spacing), symbol);
+            cross.sprite.color = color;
+            this.tab = tab;
+            showLoading = false;
+        }
+
+        public void UpdateWindow(string contentText, string signal1, string buttonText1, bool error, string buttonCancelText = null)
+        {
+            CustomWorldMod.Log("[WINDOW] Updating window...", false, CustomWorldMod.DebugLevel.MEDIUM);
+
+            ShowWindow();
+
+            color = !error ? Color.white : Color.red;
+
+            doubleButtonOffset = 0;
+            if (buttonCancelText != null)
+            {
+                doubleButtonOffset = buttonSize.x / 2f + spacing / 2f;
+                this.buttonCancel.Show();
+            }
+            else
+            {
+                this.buttonCancel.Hide();
+            }
+
+            label.text = contentText;
+            string symbol = error ? "Menu_Symbol_Clear_All" : "Menu_Symbol_CheckBox";
+
+            cross.ChangeElement(symbol);
+            cross.sprite.color = color;
+
+            button1.signal = signal1;
+            button1.text = buttonText1;
+            button1.pos = button1Pos - new Vector2(doubleButtonOffset, 0);
+
+
+        }
+
+        public List<UIelement> WindowContents
+        {
+            get
+            {
+                return GetType().GetFields(
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).
+                    Select(field => field.GetValue(this)).OfType<UIelement>().ToList(); // ignores null values
+            }
+        }
+
+        public void HideWindow()
+        {
+            CustomWorldMod.Log("[WINDOW] Hiding window...", false, CustomWorldMod.DebugLevel.MEDIUM);
+            var fieldValues = WindowContents;
+
+            foreach (UIelement item in fieldValues.OfType<UIelement>())
+            {
+                item.Hide();
+            }
+            this.opened = false;
+            showLoading = false;
+        }
+
+        public void ShowWindow()
+        {
+            CustomWorldMod.Log("[WINDOW] Showing window...", false, CustomWorldMod.DebugLevel.MEDIUM);
+            var fieldValues = WindowContents;
+            this.loading.Hide();
+            if (!doubleButton)
+            {
+                this.buttonCancel.Hide();
+            }
+
+            foreach (UIelement item in fieldValues.OfType<UIelement>())
+            {
+                if (item.description.Equals(loading.description) || item.description.Equals(buttonCancel.description))
+                {
+                    // Workaround for CM crashing, since Hide / Show will crash CM if called before adding to the tab
+                    continue;
+                }
+                item.Show();
+            }
+            this.opened = true;
+        }
+
+        public void ShowLoading()
+        {
+            CustomWorldMod.Log("[WINDOW] Showing loading...", false, CustomWorldMod.DebugLevel.MEDIUM);
+            loading.Show();
+            showLoading = true;
+        }
+
+        public void AddElements()
+        {
+            var fieldValues = WindowContents;
+
+            this.tab.AddItems(fieldValues.OfType<UIelement>().ToArray());
+
+            ShowWindow();
+        }
+
+        internal void UpdateLoadingRotation(float dt)
+        {
+            //CustomWorldMod.Log($"[WINDOW] Rotating loading... [{this.loading.sprite.rotation}]", false, CustomWorldMod.DebugLevel.FULL);
+            this.loading.sprite.rotation = Mathf.Lerp(this.loading.sprite.rotation, this.loading.sprite.rotation+10, dt*10);
+            this.loading.GrafUpdate(dt);
+        }
     }
 }

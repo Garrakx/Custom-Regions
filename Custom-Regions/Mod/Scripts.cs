@@ -184,7 +184,7 @@ namespace CustomRegions.Mod
                     buttonText = "Close";
                     signal = CustomWorldOption.OptionSignal.CloseWindow;
                 }
-                CustomWorldOption.CreateWindowPopUp(labelText, tab, signal, buttonText, error);
+                CustomWorldOption.CreateWindowPopUp(tab, labelText, signal, buttonText, error);
             }
         }
 
