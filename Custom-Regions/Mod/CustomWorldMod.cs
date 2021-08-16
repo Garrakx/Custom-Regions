@@ -53,7 +53,7 @@ namespace CustomRegions.Mod
         {
             mod = this;
             ModID = "Custom Regions Mod";
-            Version = "0.9." + version + "-experimental.2";
+            Version = "0.9." + version + "-experimental.3";
             author = "Garrakx";
             versionCR = $"v{Version}";
         }
@@ -1026,7 +1026,6 @@ namespace CustomRegions.Mod
                 }
 
                 // Write new info
-
                 if (needsUpdate)
                 {
                     if (updatedInstalledPacks == null)
@@ -1178,6 +1177,21 @@ namespace CustomRegions.Mod
             if (dictionary.TryGetValue("black_salamander_chance", out value) && value != null)
             {
                 float.TryParse(value.ToString(), out regionConfiguration.blackSalamanderChance);
+            }
+
+            if (dictionary.TryGetValue("batfly_color", out value) && value != null)
+            {
+                try
+                {
+                    string color = value.ToString();
+                    if (color.Contains("#"))
+                    {
+                        color = color.Replace("#", "");
+                        CustomWorldMod.Log($"Removed # from color [{color}]");
+                    }
+                    regionConfiguration.batFlyColor = OptionalUI.OpColorPicker.HexToColor(color);
+                }
+                catch (Exception) { regionConfiguration.batFlyColor = null; }
             }
         }
 
@@ -1364,7 +1378,7 @@ namespace CustomRegions.Mod
                 if (File.Exists(pathConfig))
                 {
                     Log($"Loading variation config for region [{new DirectoryInfo(regionDir).Name}] from [{packInfo.name}]");
-                    RegionConfiguration regionConfiguration = new RegionConfiguration(null, false, false, false, null, false, null, -1);
+                    RegionConfiguration regionConfiguration = new RegionConfiguration(null, false, false, false, null, false, null, -1, null, false);
 
                     Dictionary<string, object> dictionary = null;
                     try
@@ -1387,6 +1401,7 @@ namespace CustomRegions.Mod
                         {
                             regionConfiguration.kelpVanilla = regionConfiguration.kelpColor == null;
                             regionConfiguration.bllVanilla = regionConfiguration.bllColor == null;
+                            regionConfiguration.batVanilla = regionConfiguration.batFlyColor == null;
                         }
                         catch (Exception e) { Log($"Exception loading variation [{e}]", true); }
                         regionConfiguration.regionID = new DirectoryInfo(regionDir).Name;
@@ -1565,8 +1580,9 @@ namespace CustomRegions.Mod
             return infoSerial;
         }
 
-        private static void SerializePackInfoJSON(string dir, RegionPack pack)
+        public static void SerializePackInfoJSON(string dir, RegionPack pack)
         {
+            CustomWorldMod.Log($"Serializing packInfo json [{pack.name}]");
             using (StreamWriter sw = File.CreateText(dir))
             {
                 string json = "{\n" +
