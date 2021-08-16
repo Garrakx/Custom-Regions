@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using CustomRegions.Mod;
-
+using System.Linq;
 
 namespace CustomRegions.CWorld
 {
@@ -12,11 +12,50 @@ namespace CustomRegions.CWorld
         public static void ApplyHooks()
         {
             On.RegionGate.ctor += RegionGate_ctor;
+            On.RegionGate.Update += RegionGate_Update;
         }
 
         public static void RemoveHooks()
         {
             On.RegionGate.ctor -= RegionGate_ctor;
+            On.RegionGate.Update -= RegionGate_Update;
+        }
+
+        static bool loggedError = false;
+        private static void RegionGate_Update(On.RegionGate.orig_Update orig, RegionGate self, bool eu)
+        {
+            orig(self, eu);
+
+            AbstractRoom abstractRoom = self.room.abstractRoom;
+
+            // Old World
+            //Debug.Log("Old world: " + name);
+            string name = self.room.game.overWorld.activeWorld.name;
+
+            string[] arrayName = Regex.Split(abstractRoom.name, "_");
+            string text = "ERROR!";
+            if (arrayName.Length == 3)
+            {
+                for (int i = 1; i < 3; i++)
+                {
+                    if (arrayName[i] != name)
+                    {
+                        text = arrayName[i];
+                        break;
+                    }
+                }
+            }
+
+            if (!self.room.game.overWorld.regions.Select(x => x.name).Contains(text))
+            {
+                self.dontOpen = true;
+                if(!loggedError)
+                {
+                    CustomWorldMod.Log($"Gate is blocked. Trying to load a region which is not available [{text}]. " +
+                        $"Loaded regions [{string.Join(", ", self.room.game.overWorld.regions.Select(x => x.name).ToArray())}] ", true);
+                    loggedError = true;
+                }
+            }
         }
 
         /// <summary>
@@ -24,7 +63,10 @@ namespace CustomRegions.CWorld
         /// </summary>
         private static void RegionGate_ctor(On.RegionGate.orig_ctor orig, RegionGate self, Room room)
         {
+
             orig(self, room);
+
+            loggedError = false;
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
