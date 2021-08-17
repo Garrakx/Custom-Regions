@@ -1193,6 +1193,16 @@ namespace CustomRegions.Mod
                 }
                 catch (Exception) { regionConfiguration.batFlyColor = null; }
             }
+
+            if (dictionary.TryGetValue("scave_trade_item", out value) && value != null)
+            {
+                try
+                {
+                    string item = value.ToString();
+                    regionConfiguration.scavTradeItem = item;
+                }
+                catch (Exception) { regionConfiguration.scavTradeItem = null; }
+            }
         }
 
         public static void LoadElectricGates(RegionPack regionPack)
@@ -1378,7 +1388,7 @@ namespace CustomRegions.Mod
                 if (File.Exists(pathConfig))
                 {
                     Log($"Loading variation config for region [{new DirectoryInfo(regionDir).Name}] from [{packInfo.name}]");
-                    RegionConfiguration regionConfiguration = new RegionConfiguration(null, false, false, false, null, false, null, -1, null, false);
+                    RegionConfiguration regionConfiguration = new RegionConfiguration(null, false, false, false, null, false, null, -1, null, false, null);
 
                     Dictionary<string, object> dictionary = null;
                     try

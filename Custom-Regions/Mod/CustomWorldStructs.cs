@@ -120,9 +120,10 @@ namespace CustomRegions.Mod
             public Color? batFlyColor;
             public bool batVanilla;
             public float blackSalamanderChance;
+            public string scavTradeItem;
 
-            public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, 
-                bool kelpVanilla, Color? kelpColor, bool bllVanilla, Color? bllColor, float blackSalamanderChance, Color? batFlyColor, bool batVanilla)
+            public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, bool kelpVanilla, Color? kelpColor, bool bllVanilla, 
+                Color? bllColor, float blackSalamanderChance, Color? batFlyColor, bool batVanilla, string scavTradeItems)
             {
                 this.regionID = regionID;
                 this.albinoLevi = albinoLevi;
@@ -134,6 +135,7 @@ namespace CustomRegions.Mod
                 this.blackSalamanderChance = blackSalamanderChance;
                 this.batFlyColor = batFlyColor;
                 this.batVanilla = batVanilla;
+                this.scavTradeItem = scavTradeItems;
             }
         }
 
