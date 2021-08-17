@@ -105,7 +105,7 @@ namespace CustomRegions
                 {
                     foreach (string line in File.ReadAllLines(locksPath))
                     {
-                        if (!tempLocks.Contains(line))
+                        if (!tempLocks.Contains(line) && !line.Equals(string.Empty))
                             tempLocks.Insert(0, line);
                     }
                 }

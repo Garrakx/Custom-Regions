@@ -13,6 +13,8 @@ namespace CustomRegions.Mod
     {
         public enum CustomFolder
         {
+            // Depth 0
+            None,
             // Depth 1
             Assets,
             World,
@@ -72,7 +74,9 @@ namespace CustomRegions.Mod
             string recursivePath = string.Empty;
             switch (folderEnum)
             {
+
                 // Depth 1
+                case CustomFolder.None:
                 case CustomFolder.Assets:
                 case CustomFolder.Levels:
                 case CustomFolder.World:
@@ -88,7 +92,10 @@ namespace CustomRegions.Mod
                         // includeRoot?/Mods/CustomResources/RegionPack
                         path = path + CustomWorldMod.resourcePath + regionPackFolder;
                     }
-                    path = path + div + folderEnum.ToString();
+                    if (folderEnum != CustomFolder.None)
+                    {
+                        path = path + div + folderEnum.ToString();
+                    }
                     break;
 
                 // Depth 2
@@ -223,6 +230,10 @@ namespace CustomRegions.Mod
 
         public static void TrimString(ref string reference, float targetPixel, string endSequence)
         {
+            if (targetPixel < 0)
+            {
+                return;
+            }
             if (OptionalUI.LabelTest.GetWidth(reference, false) > targetPixel)
             {
                 reference = reference.Remove(reference.Length - 1);
@@ -237,7 +248,7 @@ namespace CustomRegions.Mod
             {
                 (CustomWorldMod.rainWorldInstance.processManager.currentMainLoop as Menu.Menu).PlaySound(soundID);
             }
-            catch (Exception e) { CustomWorldMod.Log("Exception " + e, true); }
+            catch (Exception e) { CustomWorldMod.Log("Exception " + e, false); }
         }
     }
 

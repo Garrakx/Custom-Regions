@@ -14,21 +14,24 @@ namespace CustomRegions.CWorld
         public static bool? singleWorld = null;
 
 
-        public static void ApplyHooks()
-        {
-            On.OverWorld.LoadFirstWorld += OverWorld_LoadFirstWorld;
-
-            On.OverWorld.GetRegion_1 += OverWorld_GetRegion_1;
-            On.OverWorld.LoadWorld += OverWorld_LoadWorld;
-        }
-
         public static void RemoveHooks()
         {
             On.OverWorld.LoadFirstWorld -= OverWorld_LoadFirstWorld;
 
             On.OverWorld.GetRegion_1 -= OverWorld_GetRegion_1;
             On.OverWorld.LoadWorld -= OverWorld_LoadWorld;
+
         }
+
+        public static void ApplyHooks()
+        {
+            On.OverWorld.LoadFirstWorld += OverWorld_LoadFirstWorld;
+
+            On.OverWorld.GetRegion_1 += OverWorld_GetRegion_1;
+            On.OverWorld.LoadWorld += OverWorld_LoadWorld;
+
+        }
+
 
         private static void OverWorld_LoadWorld(On.OverWorld.orig_LoadWorld orig, OverWorld self, string worldName, 
             int playerCharacterNumber, bool singleRoomWorld)
@@ -156,7 +159,7 @@ namespace CustomRegions.CWorld
         /// </summary>
         private static Region OverWorld_GetRegion_1(On.OverWorld.orig_GetRegion_1 orig, OverWorld self, string rName)
         {
-            CustomWorldMod.Log($"Getting region. AbstractRoom [{rName}]).");
+            CustomWorldMod.Log($"Getting region: [{rName}]).");
 
             CustomWorldMod.Log($"Loaded regions [{string.Join(", ", self.regions.Select(x => x.name).ToArray())}]");
 

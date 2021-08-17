@@ -99,7 +99,6 @@ namespace CustomRegions.CWorld
         {
             orig(self, slugcatNumber);
             bool loadedMapConfig = false;
-            bool loadedProperties = false;
             string[] propertiesLines;
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
@@ -147,7 +146,6 @@ namespace CustomRegions.CWorld
                 if (File.Exists(propertyPath))
                 {
                     CustomWorldMod.Log($"Custom Regions: Loaded properties (Room Attr and broken shelters) for [{self.name}] from [{keyValues.Value}]");
-                    loadedProperties = true;
                     propertiesLines = File.ReadAllLines(propertyPath);
                     for (int k = 0; k < propertiesLines.Length; k++)
                     {

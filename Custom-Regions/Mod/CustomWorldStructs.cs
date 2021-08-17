@@ -29,13 +29,16 @@ namespace CustomRegions.Mod
             public string version;
             public string packUrl;
             public string requirements;
+            public bool expansion;
+            public bool shownInBrowser;
+
             /// <summary>If true, region name will be used for slugcat page menu.
             ///</summary>
             public bool useRegionName;
 
             public RegionPack(string name, string description, string author, bool activated, string checksum, string folderName, string url, 
                 Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig, List<string> regions, int loadOrder, 
-                int packNumber, string version, string packUrl, string requirements, bool usePackName)
+                int packNumber, string version, string packUrl, string requirements, bool usePackName, bool expansion, bool shownInBrowser)
             {
                 this.name = name;
                 this.description = description;
@@ -53,6 +56,8 @@ namespace CustomRegions.Mod
                 this.packUrl = packUrl;
                 this.requirements = requirements;
                 this.useRegionName = usePackName;
+                this.expansion = expansion;
+                this.shownInBrowser = shownInBrowser;
             }
             /// <summary>Initializes everything.
             ///</summary>
@@ -74,6 +79,8 @@ namespace CustomRegions.Mod
                 this.packUrl = "";
                 this.requirements = "";
                 this.useRegionName = false;
+                this.expansion = false;
+                this.shownInBrowser = true;
             }
 
             /// <summary>Initializes everything to null except ctor arguments. Used for the save inof
@@ -96,24 +103,10 @@ namespace CustomRegions.Mod
                 this.packUrl = null;
                 this.requirements = null;
                 this.useRegionName = false;
+                this.expansion = false;
+                this.shownInBrowser = true;
             }
         }
-
-        /*
-        public struct CustomRegion
-        {
-            public string regionID;
-            public int loadOrder;
-            public int regionNumber;
-
-            public CustomRegion(string regionID, int loadOrder, int regionNumber)
-            {
-                this.regionID = regionID;
-                this.loadOrder = loadOrder;
-                this.regionNumber = regionNumber;
-            }
-        }
-        */
 
         public struct RegionConfiguration
         {
@@ -124,10 +117,13 @@ namespace CustomRegions.Mod
             public Color? kelpColor;
             public bool bllVanilla;
             public Color? bllColor;
+            public Color? batFlyColor;
+            public bool batVanilla;
             public float blackSalamanderChance;
+            public string scavTradeItem;
 
-            public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, 
-                bool kelpVanilla, Color? kelpColor, bool bllVanilla, Color? bllColor, float blackSalamanderChance)
+            public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, bool kelpVanilla, Color? kelpColor, bool bllVanilla, 
+                Color? bllColor, float blackSalamanderChance, Color? batFlyColor, bool batVanilla, string scavTradeItems)
             {
                 this.regionID = regionID;
                 this.albinoLevi = albinoLevi;
@@ -137,22 +133,38 @@ namespace CustomRegions.Mod
                 this.bllVanilla = bllVanilla;
                 this.bllColor = bllColor;
                 this.blackSalamanderChance = blackSalamanderChance;
+                this.batFlyColor = batFlyColor;
+                this.batVanilla = batVanilla;
+                this.scavTradeItem = scavTradeItems;
             }
         }
 
         /// <summary>
         /// Struct with information of world lines, used in region merging and loading.
-        /// [Data: holds the line itself, Vanilla: comes from vanilla or is it modified, 
-        /// modID: last mod which loaded or modified the line (empty if vanilla)]
         /// </summary>
         public struct WorldDataLine
         {
+            /// <summary>
+            /// Holds the whole line (room + connections + ending string)
+            /// </summary>
             public string line;
+            /// <summary>
+            /// Room of the connection
+            /// </summary>
             public string roomName;
+            /// <summary>
+            /// Connections (everything after : without the ending)
+            /// </summary>
             public string connections;
+            /// <summary>
+            /// If connection has ending string (GATE, SHELTER, etc)
+            /// </summary>
             public string endingString;
             public bool lineage;
             public bool vanilla;
+            /// <summary>
+            /// Last packName that modified this connection
+            /// </summary>
             public string packName;
 
             public WorldDataLine(string line, string roomName, string connections, string endingString, bool lineage, bool vanilla, string modID)
@@ -186,6 +198,11 @@ namespace CustomRegions.Mod
                 this.lineage = false;
                 this.vanilla = vanilla;
                 this.packName = null;
+            }
+
+            public override string ToString()
+            {
+                return base.ToString();
             }
         }
 

@@ -28,7 +28,9 @@ namespace CustomRegions.Mod
             BigEelHook.ApplyHooks();
             DaddyCorruptionHook.ApplyHooks();
             DaddyLongLegsHook.ApplyHooks();
+            FlyGraphicsHook.ApplyHooks();
             LizardGraphicsHook.ApplyHooks();
+            ScavengerAbstractAIHook.ApplyHooks();
             TentaclePlantGraphicsHook.ApplyHooks();
 
             /// CUSTOM MENU ///
@@ -101,7 +103,9 @@ namespace CustomRegions.Mod
             BigEelHook.RemoveHooks();
             DaddyLongLegsHook.RemoveHooks();
             DaddyCorruptionHook.RemoveHooks();
+            FlyGraphicsHook.RemoveHooks();
             LizardGraphicsHook.RemoveHooks();
+            ScavengerAbstractAIHook.RemoveHooks();
             TentaclePlantGraphicsHook.RemoveHooks();
 
             /// CUSTOM MENU ///

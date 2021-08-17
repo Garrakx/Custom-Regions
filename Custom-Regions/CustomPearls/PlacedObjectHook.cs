@@ -69,19 +69,20 @@ namespace CustomRegions.CustomPearls
                 if (array.Length >= 5)
                 {
                     int hash = int.Parse(array[4]);
+                    CustomWorldMod.Log($"Fetching pearl. Hash [{hash}]", false, CustomWorldMod.DebugLevel.FULL);
                     if (CustomWorldMod.customPearls.TryGetValue(hash, out CustomWorldStructs.CustomPearl customPearl))
                     {
                         string pearlName = customPearl.name;
                         DataPearl.AbstractDataPearl.DataPearlType type = 
                             (DataPearl.AbstractDataPearl.DataPearlType)Enum.Parse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearlName);
 
-                        CustomWorldMod.Log($"Loaded custom pearl [{type.ToString()}] Hash [{hash}]");
+                        CustomWorldMod.Log($"Loaded custom pearl [{type.ToString()}]. Hash [{hash}]");
                         self.pearlType = type;
                         self.hidden = (array[5] == "1");
                     }
                     else if (hash > 0x25)
                     {
-                        CustomWorldMod.Log($"Error loading data pearl. You are missing dataPearls.txt or your pack needs to be updated\n" +
+                        CustomWorldMod.Log($"Error loading data pearl. You might be missing pearlData.txt or your pack needs to be updated\n" +
                             $"Please remove the custom datapearl [{self.pearlType}] with devtools and place it again [{self.owner.pos}]",true);
                     }
                 }

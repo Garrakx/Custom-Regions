@@ -154,7 +154,7 @@ namespace CustomRegions.Mod
             {
                 string labelText = "N/A";
                 string buttonText = "ERROR";
-                string signal = "";
+                CustomWorldOption.OptionSignal signal = CustomWorldOption.OptionSignal.Empty;
                 if (!error)
                 {
                     labelText = $"[{this.packName}] requires additional mods to function:\n\n";
@@ -168,7 +168,7 @@ namespace CustomRegions.Mod
                         labelText += $"to Partiality's Mods folder. \nPlease close the game and apply them using the Partiality Launcher.";
                     }
                     buttonText = "Exit game";
-                    signal = "close_game";
+                    signal = CustomWorldOption.OptionSignal.CloseGame;
                 }
                 else
                 {
@@ -182,9 +182,9 @@ namespace CustomRegions.Mod
                         labelText += "Missing executable.\n";
                     }
                     buttonText = "Close";
-                    signal = "close_window";
+                    signal = CustomWorldOption.OptionSignal.CloseWindow;
                 }
-                CustomWorldOption.CreateWindowPopUp(labelText, tab, signal, buttonText, error);
+                CustomWorldOption.CreateWindowPopUp(tab, labelText, signal, buttonText, error);
             }
         }
 
@@ -250,7 +250,7 @@ namespace CustomRegions.Mod
             processStartInfo.UseShellExecute = false;
             processStartInfo.ErrorDialog = false;
             processStartInfo.CreateNoWindow = true;
-            processStartInfo.RedirectStandardInput = true;
+            //processStartInfo.RedirectStandardInput = true;
             processStartInfo.RedirectStandardOutput = true;
             //processStartInfo.RedirectStandardError = true;
 
@@ -638,23 +638,33 @@ namespace CustomRegions.Mod
                     Log($"Fetching RainDB data... path [{url}]");
                     string file = www.text;
                     List<object> json = file.listFromJson();
-
+                    Dictionary<string, RegionPack> tempRainDb = new Dictionary<string, RegionPack>();
                     foreach (object jsonPack in json)
                     {
                         RegionPack regionPack = new RegionPack("");
                         //CustomWorldMod.Log($"Obtained data [{jsonPack.ToString()}]");
-                        CustomWorldMod.FromDictionaryToPackInfo(jsonPack as Dictionary<string, object>, ref regionPack);
+                        CustomWorldMod.FromDictionaryToPackInfo(jsonPack as Dictionary<string, object>, ref regionPack, authorative: true);
                         try
                         {
                             regionPack.activated = true;
                             //regionPack.activated = CustomWorldMod.installedRegionPacks.ContainsKey(regionPack.name);
-                            CustomWorldMod.rainDbPacks.Add(regionPack.name, regionPack);
+                            tempRainDb.Add(regionPack.name, regionPack);
                         }
                         catch (Exception e) { Log($"Exception when adding fetched region [{e}]", true); }
                     }
-                    // CustomWorldMod.rainDbPacks = CustomWorldMod.rainDbPacks.OrderBy(x => x.Value.activated == true);
-                    //var sorted = from entry in CustomWorldMod.rainDbPacks orderby entry.Value.activated ascending select entry;
-                    //CustomWorldMod.rainDbPacks = CustomWorldMod.rainDbPacks.OrderBy(x => x.Value.activated).ToDictionary(x => x.Key, x => x.Value);
+
+                    var date = DateTime.UtcNow.Date;
+                    var seed = date.Year * 1000 + date.DayOfYear;
+                    var random1 = new System.Random(seed);
+
+                    var seq = Enumerable.Range(0, tempRainDb.Count()).OrderBy(x=> random1.Next()).Take(tempRainDb.Count()).ToList();
+                    foreach (int item in seq)
+                    {
+                        KeyValuePair<string, RegionPack> tempItem = tempRainDb.ElementAt(item);
+                        CustomWorldMod.rainDbPacks.Add(tempItem.Key, tempItem.Value);
+                    }
+
+
                     Log($"Added fetched regions [{string.Join(", ", CustomWorldMod.rainDbPacks.Keys.ToArray())}]");
                     ready = false;
                     readyToDelete = true;

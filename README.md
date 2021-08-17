@@ -2,10 +2,10 @@
 # Custom Regions Support
 ***
 ## Lets you install and browse region packs without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms
-[![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)](https://twitter.com/garrakx)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/)
+[![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)](https://twitter.com/garrakx)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/latest)
 ![Custom Regions!](./Images/CRS_thumb.jpg)
 
-Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/flag-spain_1f1ea-1f1f8.png" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-ES.md), [Russian <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-RU.md) and [French <img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="15"/>](https://github.com/Garrakx/Custom-Regions/blob/master/README-FR.md)
+Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/flag-spain_1f1ea-1f1f8.png" alt="drawing" width="15"/>](./README-ES.md), [Russian <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="15"/>](./README-RU.md) and [French <img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="15"/>](./README-FR.md)
 
 ## <a name="index"></a>Index
 
@@ -63,7 +63,7 @@ This file contains information about the region pack. After you have made any mo
 * <a name="regionInfo"></a>**Difference between `packInfo.json` and `regionInfo.json`**  
 In recent versions of CRS, the `regionInfo.json` file was upgraded to `packInfo.json`. The purpose is the same, just a change of name to unify the naming of region packs. If you are coming from a version that used the old file, it should get upgraded automatically.
 * <a name="corrupted"></a>**Corrupted saves**  
-After you change any room connections, you change the order in which the packs are loaded or you activate / deactivate any region packs, your file will be corrupted. In the best case scenario, creature dens and objets will be misplaced. In the worst case, you will not be able to load the game at all. To fix this, you have to reset progress of the save slot from the options menu. `@Deltatime` made a mod that tries to fix this issue, but it is not full completed so it might have some issues. You can download the latest version [here](https://discord.com/channels/291184728944410624/481900360324218880/826151202923872326) (you have to install it before installing any regions). 
+After you change any room connections, you change the order in which the packs are loaded or you activate / deactivate any region packs, your file will be corrupted. In the best case scenario, creature dens and objets will be misplaced. In the worst case, you will not be able to load the game at all. To fix this, you have to reset progress of the save slot from the options menu. `@Deltatime` made a mod that tries to fix this issue, but it is not full completed so it might have some issues. You can download the latest version [here](https://discord.com/channels/291184728944410624/481900360324218880/826151202923872326) (you have to install it before installing any regions).  
 ![Reset progress option](./Images/reset_progress_button.png)
 * **Can I use CRS with a modified Rain World install? (merged regions)**  
 Short answer: no.
@@ -74,7 +74,7 @@ CRS and other mods use Enum Extender to add new Data Pearls. However, the intege
 For technical reasons, the downloading and unzipping process is done by a separate program. If you don't want to use this program, just run CRS in offline mode (see above).
 * **What's `(packName).crpack`?**  
 This is a temporal file used by the RegionDownloader.exe. You can change the extension to .zip and open it, you will see it is just the zipped pack. You can safely delete this file if you want to.
-* **Why is the tab blinking?**
+* **Why is the tab blinking?**  
 If it is the browser tab, it means you have an updated available for a pack. If it is the analyzer tab, it means it found an error.
 
 ***
@@ -82,8 +82,8 @@ If it is the browser tab, it means you have an updated available for a pack. If 
 
 1) BEFORE USING ANY MODS, MAKE A BACK UP OF YOUR SAVES (located in the `Rain World\UserData` folder)
 2) Download and install a Rain World Modloader. BepInEx is recommended. **Video tutorial** by *LeeMoriya*: [click here](https://youtu.be/brDN_8uN6-U).
-3) Download the latest CRS release from [here](https://github.com/Garrakx/Custom-Regions/releases/).
-4) Apply **all** (`CustomRegions.dll`, `EnumExtender.dll`, and finally `ConfigMachine.dll`) mods inside [DOWNLOAD_THIS_Custom-Regions-vX.X.zip](https://github.com/Garrakx/Custom-Regions/releases/) file. You will receive updates automatically. (Note: CustomAssets.dll is no longer required).
+3) Download the latest CRS release from [here](https://github.com/Garrakx/Custom-Regions/releases/latest).
+4) Apply **all** (`CustomRegions.dll`, `EnumExtender.dll`, and finally `ConfigMachine.dll`) mods inside [DOWNLOAD_THIS_Custom-Regions-vX.X.zip](https://github.com/Garrakx/Custom-Regions/releases/latest) file. You will receive updates automatically. (Note: CustomAssets.dll is no longer required).
 5) You are done!
 
 ***
@@ -329,7 +329,7 @@ CRS will fetch and update the local description, thumbnail and author from the f
 
 CR adds the ability to add custom data pearls without any code, and even include dialogue. These are the steps:
 
-1. Navigate to the following folder (`Rain World\Mods\CustomResources\"your region name"\Assets\`). Here, you have to create a text file called `pearlData.txt`, or [download the example](https://github.com/Garrakx/Custom-Regions/blob/master/Example%20Config%20Files/pearlData.txt). This file will tell the game to create the pearls and make them available in Devtools' place object menu.
+1. Navigate to the following folder (`Rain World\Mods\CustomResources\"your region name"\Assets\`). Here, you have to create a text file called `pearlData.txt`, or [download the example](./Example%20Config%20Files/pearlData.txt). This file will tell the game to create the pearls and make them available in Devtools' place object menu.
 
 2. Inside `Rain World\Mods\CustomResources\"your region name"\Assets\pearlData.txt`, you must indicate the pearls you want to create following this structure (make sure to follow it exactly, with all the spaces):
 
@@ -371,8 +371,14 @@ CR adds the ability to add custom data pearls without any code, and even include
 
 ### <a name="colors"></a>ALBINO / COLORED CREATURES
 
-* Configure if any region should spawn albino creatures (leviathan / jetfish) or the color of the Monster Kelp or the Daddy / Brother Long legs.
-* Download [this file](https://github.com/Garrakx/Custom-Regions/blob/master/Example%20Config%20Files/CustomConfig.json) and place it next to the world_XX.txt file of the region you want to configure `Rain World\Mods\CustomResources\"Your Region"\World\Regions\"RegionInitials"\`(if you want to configure a vanilla region, just create an empty folder with the region initials and place the file).
+* Works per region basis.
+* Configure options: 
+	* if region should spawn albino creatures (leviathan / jetfish) .
+	* the color of the Monster Kelp .
+	* the color of Daddy / Brother Long legs.
+	* *(new)* if Batflies should glow in the dark and their color.
+	* *(new)* which items should scavenger spawn in and trade with.
+* Download [this file](./Example%20Config%20Files/CustomConfig.json) and place it next to the world_XX.txt file of the region you want to configure `Rain World\Mods\CustomResources\"Your Region"\World\Regions\"RegionInitials"\`(if you want to configure a vanilla region, just create an empty folder with the region initials and place the file).
 * You have to put the color in HEX format (00FF00).
 * Leaving an empty string ("") next to the color means to use vanilla.
 * Black salamander chance is a number between 0-1 (i.e: `0.3`) and determines the chance a salamander to spawn as its black variance. 1 will mean a 100% change (all salamanders will be black).
@@ -422,12 +428,12 @@ Do you have a suggestion? Have you found a bug? The best way is to open a github
 ***
 ### <a name="credits"></a>Credits
 
-Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick](https://classick-ii.tumblr.com/post/634237640578859008/boopbeep) Thanks to `LeeMoriya`, `bee` and `dual curly potato noodles` for helping and suggestions. Thanks to `Thalber` and `LB Gamer` for the translations. Thanks `Slime_Cubed` for the idea of using a separate process to download the packs and helping with some crucial fixes. Thanks to `carrotpudding`, `LB Gamer`, `Precipitator`, `Stereo`, `laura`, `Thrithralas` and `Wrayk` for testing.
+Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick](https://classick-ii.tumblr.com/post/634237640578859008/boopbeep) Thanks to `LeeMoriya`, `bee` and `dual curly potato noodles` for helping and suggestions. Thanks to `Thalber` and `LB Gamer` for the translations. Thanks `Slime_Cubed` for the idea of using a separate process to download the packs and helping with some crucial fixes. Thanks to `carrotpudding`, `LB Gamer`, `Precipitator`, `Stero`, `laura`, `Thrithralas` and `Wrayk` for testing.
 
 ***
 ### <a name="changelog"></a>Changelog
 
-#### [0.9.42] - August 2021
+#### [0.9.XX] - August 2021
 
 #### Changes
 * New field in `packInfo.json`, **`useRegionName`**. Used to read from the Properties Subregion field in the continue save menu instead of the pack name.
@@ -444,6 +450,17 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 * "Update button" should now be more noticeable.
 * If you are using Partiality, it will log an error urging to upgrade.
 * A random load order value will be assigned (once) when left blank.
+* Revamped CRS config menu:
+	* Packs can now be uninstalled / installed in-game.
+	* Packs can now be activated / deactivated in-game.
+	* Add a warning pop-up when you try to download a pack when another is downloading.
+	* Mod expansions will show a big thumbnail (contact @garrakx if you are making a mod expansion).
+	* RainDB browser order is randomized each day.
+* CRS is will now to fix broken connections:
+	* If there is a connection that only goes one way (roomA is connected to roomB, but roomB is not connected to roomA), CRS will disconnect both rooms between each other and log and error.
+* Gates won't open if the next region is not loaded.
+* You can select which items Scavengers will trade / spawn with from the `CustomConfig.json` file.
+* You can make batflies glow in dark areas with a custom color, configured in the `CustomConfig.json` file.
 
 #### Fixes
 * Fixed a parse error when ommiting DISCONNECT in the world merging.
@@ -453,6 +470,7 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 * Added a method to disable all hooks (called on OnDisable), only for BepInEx users.
 * Corruption scits should be now colored as well.
 * Prevents the game from crashing when using the Dev's Sound tab.
+* Cleaned CRS menu.
 
 ***
 #### [0.8.40] - January 2021
