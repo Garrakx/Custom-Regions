@@ -113,7 +113,7 @@ namespace CustomRegions.Mod
             }
             catch (Exception e)
             {
-                CustomWorldMod.Log("Error checking the modloaer \n{e}", true);
+                CustomWorldMod.Log($"Error checking the modloaer \n{e}", true);
             }
 
 

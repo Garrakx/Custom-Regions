@@ -190,7 +190,8 @@ namespace CustomRegions.Creatures
             }
             else if (self.room.Darkness(self.bodyChunks[0].pos) > 0f && !self.dead)
             {
-                Mod.CustomWorldMod.Log($"Creating light for [{self.abstractPhysicalObject.ID.number}]", false, CustomWorldMod.DebugLevel.FULL);
+                Mod.CustomWorldMod.Log($"Creating light for [{self.abstractCreature.creatureTemplate}-{self.abstractPhysicalObject.ID.number}]", 
+                    false, CustomWorldMod.DebugLevel.FULL);
 
                 FlyFields.GetField(self).light = new LightSource(self.bodyChunks[0].pos, false, UnityEngine.Color.yellow, self);
                 FlyFields.GetField(self).light.requireUpKeep = true;
