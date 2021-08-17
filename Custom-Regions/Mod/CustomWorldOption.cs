@@ -537,6 +537,8 @@ namespace CustomRegions.Mod
             int numberOfOptions = packs.Count;
             int numberOfExpansions = packs.Select(x=>x.Value.expansion).Count(); // CHANGE
 
+            CustomWorldMod.Log($"Number of packs [{numberOfOptions}]. Number of expansions [{numberOfExpansions}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+
             if (numberOfOptions < 1)
             {
                 OpLabel label2 = new OpLabel(new Vector2(100f, 450), new Vector2(400f, 20f), "No regions available.", FLabelAlignment.Center, false);
