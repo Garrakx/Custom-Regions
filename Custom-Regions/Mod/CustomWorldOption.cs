@@ -17,7 +17,7 @@ namespace CustomRegions.Mod
     public class CustomWorldOption : OptionInterface
     {
 
-        public CustomWorldOption() : base(CustomWorldMod.mod)
+        public CustomWorldOption() : base(mod: CustomWorldMod.mod)
         {
         }
 
@@ -77,7 +77,7 @@ namespace CustomRegions.Mod
             Vector2 rectSize = new Vector2(475, buttonSize.y * 2 + spacing);
             Vector2 labelSize = new Vector2(rectSize.x - 1.5f * spacing, 25);
             OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfOptions)));
-            Vector2 rectPos = new Vector2(spacing, mainScroll.contentSize - rectSize.y - spacing);
+            Vector2 rectPos = new Vector2(spacing, mainScroll.GetContentSize() - rectSize.y - spacing);
             // ---------------------------------- //
 
             tab.AddItems(mainScroll);
@@ -213,7 +213,7 @@ namespace CustomRegions.Mod
 
                 Vector2 rectSize = new Vector2(500 - spacing, 30);
                 OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 500), (int)(spacing + ((rectSize.y + spacing) * numberOfNews)));
-                Vector2 rectPos = new Vector2(spacing / 2, mainScroll.contentSize - rectSize.y - spacing);
+                Vector2 rectPos = new Vector2(spacing / 2, mainScroll.GetContentSize() - rectSize.y - spacing);
                 Vector2 labelSize = new Vector2(rectSize.x - spacing, rectSize.y - 2 * spacing);
                 Tabs[tab].AddItems(mainScroll);
 
@@ -509,13 +509,13 @@ namespace CustomRegions.Mod
             Tabs[tab] = new OpTab(tabName);
 
             // MOD DESCRIPTION
-            OpLabel labelID = new OpLabel(new Vector2(50, 560), new Vector2(500, 40f), mod.ModID.ToUpper(), FLabelAlignment.Center, true);
+            OpLabel labelID = new OpLabel(new Vector2(50, 560), new Vector2(500, 40f), rwMod.ModID.ToUpper(), FLabelAlignment.Center, true);
             Tabs[tab].AddItems(labelID);
             OpLabel labelDsc = new OpLabel(new Vector2(100f, 545), new Vector2(400f, 20f), "Support for custom regions.", FLabelAlignment.Center, false);
             Tabs[tab].AddItems(labelDsc);
 
             // VERSION AND AUTHOR
-            OpLabel labelVersion = new OpLabel(new Vector2(50, 530), new Vector2(200f, 20f), "Version: " + mod.Version, FLabelAlignment.Left, false);
+            OpLabel labelVersion = new OpLabel(new Vector2(50, 530), new Vector2(200f, 20f), "Version: " + rwMod.Version, FLabelAlignment.Left, false);
             Tabs[tab].AddItems(labelVersion);
             OpLabel labelAuthor = new OpLabel(new Vector2(430, 560), new Vector2(60, 20f), "by Garrakx", FLabelAlignment.Right, false);
             Tabs[tab].AddItems(labelAuthor);
@@ -535,7 +535,7 @@ namespace CustomRegions.Mod
         {
             //How Many Options
             int numberOfOptions = packs.Count;
-            int numberOfExpansions = packs.Select(x=>x.Value.expansion).Count(); // CHANGE
+            int numberOfExpansions = packs.Values.ToList().FindAll(x => x.expansion).Count(); // CHANGE
 
             CustomWorldMod.Log($"Number of packs [{numberOfOptions}]. Number of expansions [{numberOfExpansions}]", false, CustomWorldMod.DebugLevel.MEDIUM);
 
@@ -564,12 +564,11 @@ namespace CustomRegions.Mod
             float contentSize = (spacing + (rectSize.y + spacing) * (numberOfOptions - numberOfExpansions) + (rectBigSize.y * numberOfExpansions + spacing));
 
             // ---------------------------------- //
-
             OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 500), contentSize);
             tab.AddItems(mainScroll);
 
             // Bottom left
-            Vector2 rectPos = new Vector2(spacing, contentSize);
+            Vector2 rectPos = new Vector2(spacing, mainScroll.GetContentSize());
 
             for (int i = 0; i < numberOfOptions; i++)
             {
@@ -617,10 +616,13 @@ namespace CustomRegions.Mod
                 {
                     update = raindb && !activated && pack.checksum != null && pack.checksum != string.Empty &&
                         !pack.checksum.Equals(CustomWorldMod.installedPacks[pack.name].checksum);
-                    CustomWorldMod.Log($"[UPDATE] [{pack.name}] at [{pack.folderName}] needs update [{update}]. " +
-                        $"Local [{pack.checksum}] <-> RainDB [{CustomWorldMod.installedPacks[pack.name].checksum}]");
+                    if (pack.checksum != null)
+                    {
+                        CustomWorldMod.Log($"[UPDATE] [{pack.name}] at [{pack.folderName}] needs update [{update}]. " +
+                            $"Local [{pack.checksum}] <-> RainDB [{CustomWorldMod.installedPacks[pack.name].checksum}]");
+                    }
                 }
-                catch { CustomWorldMod.Log("Error checking the checksum for updates"); }
+                catch (Exception e) { CustomWorldMod.Log($"Error checking the checksum for updates {e}"); }
 
                 Color colorEdge = activated ? Color.white : new Color((108f / 255f), 0.001f, 0.001f);
 
@@ -630,6 +632,8 @@ namespace CustomRegions.Mod
                 {
                     doesBump = activated && !pack.packUrl.Equals(string.Empty)
                 };
+                CustomWorldMod.Log($"[{pack.name}] Rectpos [{rectPos}], contentSize [{contentSize}-{mainScroll.GetContentSize()}]", 
+                    false, CustomWorldMod.DebugLevel.FULL);
                 mainScroll.AddItems(rectOption);
                 // ---------------------------------- //
 
@@ -1066,7 +1070,7 @@ namespace CustomRegions.Mod
 
             Vector2 rectSize = new Vector2(475, 125);
             OpScrollBox mainScroll = new OpScrollBox(new Vector2(25, 25), new Vector2(550, 250), (int)(spacing + ((rectSize.y + spacing) * numberOfOptions)));
-            Vector2 rectPos = new Vector2(spacing, mainScroll.contentSize - rectSize.y - spacing);
+            Vector2 rectPos = new Vector2(spacing, mainScroll.GetContentSize() - rectSize.y - spacing);
             Vector2 labelSize = new Vector2(rectSize.x - 2 * spacing, rectSize.y - 2 * spacing);
             Tabs[tab].AddItems(mainScroll);
 
