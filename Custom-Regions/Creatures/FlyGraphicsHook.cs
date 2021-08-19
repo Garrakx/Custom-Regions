@@ -31,25 +31,33 @@ namespace CustomRegions.Creatures
             //On.FlyGraphics.DrawSprites += FlyGraphics_DrawSprites;
         }
 
-        private static void FlyGraphics_DrawSprites(On.FlyGraphics.orig_DrawSprites orig, FlyGraphics self, RoomCamera.SpriteLeaser sLeaser,
-            RoomCamera rCam, float timeStacker, Vector2 camPos)
+
+        static UnityEngine.Color? customColor;
+        private static void FlyGraphics_ctor(On.FlyGraphics.orig_ctor orig, FlyGraphics self, PhysicalObject ow)
         {
-            orig(self, sLeaser, rCam, timeStacker, camPos);
-            Fly fly = self.owner as Fly;
+            orig(self, ow);
 
-            sLeaser.sprites[FlyFields.GetField(fly).bodySprite].x = sLeaser.sprites[0].x;
-            sLeaser.sprites[FlyFields.GetField(fly).bodySprite].y = sLeaser.sprites[0].y;
-            sLeaser.sprites[FlyFields.GetField(fly).bodySprite].rotation = sLeaser.sprites[0].rotation;
-
-            sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].x = sLeaser.sprites[1].x;
-            sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].y = sLeaser.sprites[1].y;
-            sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].rotation = sLeaser.sprites[1].rotation;
-
-            sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].x = sLeaser.sprites[2].x;
-            sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].y = sLeaser.sprites[2].y;
-            sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].rotation = sLeaser.sprites[2].rotation;
-
+            customColor = null;
+            World world = ow.abstractPhysicalObject.world;
+            if (world != null && !world.singleRoomWorld && world.region != null)
+            {
+                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
+                {
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name,
+                        out CustomWorldStructs.RegionConfiguration config))
+                    {
+                        if (!config.batVanilla)
+                        {
+                            CustomWorldMod.Log($"Glowing batfly in [{world.region.name}] from [{CustomWorldMod.installedPacks[keyValues.Key].name}]",
+                               false, CustomWorldMod.DebugLevel.FULL);
+                            customColor = config.batFlyColor;
+                            break;
+                        }
+                    }
+                }
+            }
         }
+
 
         private static void FlyGraphics_InitiateSprites(On.FlyGraphics.orig_InitiateSprites orig, FlyGraphics self, RoomCamera.SpriteLeaser sLeaser,
             RoomCamera rCam)
@@ -61,9 +69,10 @@ namespace CustomRegions.Creatures
             }
 
             FlyFields.GetField(self.owner as Fly).numberOfOrigSprites = sLeaser.sprites.Count();
+            
+            // scrapped
             return;
 
-            // scrapped
             try
             {
                 Fly fly = self.owner as Fly;
@@ -106,36 +115,13 @@ namespace CustomRegions.Creatures
             }
         }
 
-        static UnityEngine.Color? customColor;
-        private static void FlyGraphics_ctor(On.FlyGraphics.orig_ctor orig, FlyGraphics self, PhysicalObject ow)
-        {
-            orig(self, ow);
-
-            customColor = null;
-            World world = ow.abstractPhysicalObject.world;
-            if (world != null && !world.singleRoomWorld && world.region != null)
-            {
-                foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
-                {
-                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name,
-                        out CustomWorldStructs.RegionConfiguration config))
-                    {
-                        if (!config.batVanilla)
-                        {
-                            customColor = config.batFlyColor;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
 
         private static void FlyGraphics_ApplyPalette(On.FlyGraphics.orig_ApplyPalette orig, FlyGraphics self, RoomCamera.SpriteLeaser sLeaser,
             RoomCamera rCam, RoomPalette palette)
         {
             orig(self, sLeaser, rCam, palette);
 
-            if ((self.owner as Creature).dead)
+            if ((self.owner as Creature).dead || customColor == null)
             {
                 return;
             }
@@ -198,6 +184,28 @@ namespace CustomRegions.Creatures
                 self.room.AddObject(FlyFields.GetField(self).light);
             }
         }
+
+        // scrapped
+        private static void FlyGraphics_DrawSprites(On.FlyGraphics.orig_DrawSprites orig, FlyGraphics self, RoomCamera.SpriteLeaser sLeaser,
+    RoomCamera rCam, float timeStacker, Vector2 camPos)
+        {
+            orig(self, sLeaser, rCam, timeStacker, camPos);
+            Fly fly = self.owner as Fly;
+
+            sLeaser.sprites[FlyFields.GetField(fly).bodySprite].x = sLeaser.sprites[0].x;
+            sLeaser.sprites[FlyFields.GetField(fly).bodySprite].y = sLeaser.sprites[0].y;
+            sLeaser.sprites[FlyFields.GetField(fly).bodySprite].rotation = sLeaser.sprites[0].rotation;
+
+            sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].x = sLeaser.sprites[1].x;
+            sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].y = sLeaser.sprites[1].y;
+            sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].rotation = sLeaser.sprites[1].rotation;
+
+            sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].x = sLeaser.sprites[2].x;
+            sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].y = sLeaser.sprites[2].y;
+            sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].rotation = sLeaser.sprites[2].rotation;
+
+        }
+
 
 
     }

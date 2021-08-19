@@ -37,8 +37,8 @@ namespace CustomRegions.Creatures
                                 $"[{CustomWorldMod.installedPacks[keyValues.Key].name}]", false, CustomWorldMod.DebugLevel.FULL);
                             self.effectColor = config.bllColor ?? new UnityEngine.Color(0, 0, 1);
                             self.eyeColor = self.effectColor;
+                            break;
                         }
-                        break;
                     }
                 }
             }

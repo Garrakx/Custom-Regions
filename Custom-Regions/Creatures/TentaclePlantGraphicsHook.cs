@@ -32,10 +32,8 @@ namespace CustomRegions.Creatures
             World world = ow.abstractPhysicalObject.world;
             if (world != null && !world.singleRoomWorld && world.region != null)
             {
-                //CustomWorldMod.Log($"Region Name [{self.region.name}]");
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
-                    //CustomWorldMod.Log($"Checking in [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
                     if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, 
                         out CustomWorldStructs.RegionConfiguration config))
                     {
@@ -53,8 +51,8 @@ namespace CustomRegions.Creatures
                                     Mathf.Lerp(hsl.lightness, 0.4f, self.danglerProps[i, 0])
                                     );
                             }
+                            break;
                         }
-                        break;
                     }
                 }
             }

@@ -32,12 +32,14 @@ namespace CustomRegions.Creatures
                     {
                         if (config.blackSalamanderChance >= 0)
                         {
+                            CustomWorldMod.Log($"Custom salamander chance [{config.blackSalamanderChance}] in [{world.region.name}] from " +
+                                $"[{CustomWorldMod.installedPacks[keyValues.Key].name}]", false, CustomWorldMod.DebugLevel.FULL);
                             int seed = UnityEngine.Random.seed;
                             UnityEngine.Random.seed = self.lizard.abstractCreature.ID.RandomSeed;
                             self.blackSalamander = (UnityEngine.Random.value < config.blackSalamanderChance);
                             UnityEngine.Random.seed = seed;
+                            break;
                         }
-                        break;
                     }
                 }
             }

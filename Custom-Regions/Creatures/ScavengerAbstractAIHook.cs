@@ -42,8 +42,8 @@ namespace CustomRegions.Creatures
                         if (config.scavTradeItem != null)
                         {
                             tradeItem = config.scavTradeItem;
+                            break;
                         }
-                        break;
                     }
                 }
             }
@@ -129,8 +129,8 @@ namespace CustomRegions.Creatures
                         if (config.scavTradeItem != null)
                         {
                             tradeItem = config.scavTradeItem;
+                            break;
                         }
-                        break;
                     }
                 }
             }
