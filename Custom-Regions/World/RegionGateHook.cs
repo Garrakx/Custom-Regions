@@ -13,12 +13,44 @@ namespace CustomRegions.CWorld
         {
             On.RegionGate.ctor += RegionGate_ctor;
             On.RegionGate.Update += RegionGate_Update;
+            On.RegionGate.KarmaBlinkRed += RegionGate_KarmaBlinkRed;
         }
 
         public static void RemoveHooks()
         {
             On.RegionGate.ctor -= RegionGate_ctor;
             On.RegionGate.Update -= RegionGate_Update;
+            On.RegionGate.KarmaBlinkRed -= RegionGate_KarmaBlinkRed;
+        }
+
+        private static bool RegionGate_KarmaBlinkRed(On.RegionGate.orig_KarmaBlinkRed orig, RegionGate self)
+        {
+            int num = self.PlayersInZone();
+            if (num > 0)
+            {
+                AbstractRoom abstractRoom = self.room.abstractRoom;
+                string name = self.room.game.overWorld.activeWorld.name;
+                string[] arrayName = Regex.Split(abstractRoom.name, "_");
+                string text = "ERROR!";
+                if (arrayName.Length == 3)
+                {
+                    for (int i = 1; i < 3; i++)
+                    {
+                        if (arrayName[i] != name)
+                        {
+                            text = arrayName[i];
+                            break;
+                        }
+                    }
+                }
+
+                if (!self.room.game.overWorld.regions.Select(x => x.name).Contains(text))
+                {
+                    return true;
+                }
+
+            }
+            return orig(self);
         }
 
         static bool loggedError = false;
