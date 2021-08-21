@@ -135,7 +135,6 @@ namespace CustomRegions.CWorld
             // DataLine to add to oldLlist
             WorldDataLine? newWorldDataLine = null;
 
-            //List<string> logOuput = new List<string>();
 
             // Corrupted line
             if (split.Length < 2)
@@ -145,6 +144,7 @@ namespace CustomRegions.CWorld
             }
             else
             {
+                // Separate line into components
                 newRoomName = split[0];
                 newConnections = split[1];
                 if (newConnections.Contains("DISCONNECT"))
@@ -165,7 +165,7 @@ namespace CustomRegions.CWorld
             oldLine = oldLines.Find(x => x.roomName.Equals(newRoomName));
 
             ///-------------------------------------------------------------------------------------///
-            // pack added a new room connection
+            // pack added a new room connection (no line with same room found)
             ///-------------------------------------------------------------------------------------///
             if (oldLine.Equals(default(WorldDataLine)))
             {
@@ -178,11 +178,13 @@ namespace CustomRegions.CWorld
             else if (oldLine.connections.Equals(newConnections))
             {
                 replaceOrMerge = true;
+                // new connection added an ending, old connection had none
                 if (oldLine.endingString.Equals(string.Empty) && (!newEndingString.Equals(string.Empty)))
                 {
                     oldLine.endingString = newEndingString;
                     modifiedOldLine = true;
-                    CustomWorldMod.Log($"[WorldMerging]: Added new ending [{newEndingString}] ([{newPackName}]) to [{oldLine.roomName}] ([{oldLine.packName}])");
+                    CustomWorldMod.Log($"[WorldMerging]: Added new ending [{newEndingString}] ([{newPackName}]) to [{oldLine.roomName}] " +
+                        $"([{oldLine.packName}])");
                 }
                 else
                 {
@@ -232,7 +234,8 @@ namespace CustomRegions.CWorld
                             modifiedNewLine = true;
                             newConnList.Add("DISCONNECTED");
                         }
-                        CustomWorldMod.Log($"[WorldMerging]: Pack [{newPackName}] omitted DISCONNECT/DISCONNECTED in their lines, added to increase compatibility -> [{string.Join(", ", newConnList.ToArray())}]");
+                        CustomWorldMod.Log($"[WorldMerging]: Pack [{newPackName}] omitted DISCONNECT/DISCONNECTED in their lines, " +
+                            $"added to increase compatibility -> [{string.Join(", ", newConnList.ToArray())}]");
                     }
 
                     // The mod will replace the old lines since they are vanilla
@@ -293,14 +296,18 @@ namespace CustomRegions.CWorld
 
                     if (modifiedOldLine)
                     {
-                        if (!oldLine.endingString.Equals(string.Empty) || newEndingString.Equals(string.Empty))
+                        if (!oldLine.endingString.Equals(string.Empty) && newEndingString.Equals(string.Empty))
                         {
                             newEndingString = oldLine.endingString;
+                            CustomWorldMod.Log($"[WorldMerging]: Added new ending (2) [{newEndingString}] ([{newPackName}]) to [{oldLine.roomName}] " +
+                                $"([{oldLine.packName}])");
                         }
                         else
                         {
+                            // do nothing
+                            /*
                             newEndingString += (" : " + newEndingString);
-                            CustomWorldMod.Log($"[WorldMerging]: Added new ending [{newEndingString}] ([{newPackName}]) to [{oldLine.roomName}] ([{oldLine.packName}])");
+                            */
                         }
                         // From list to string separated with comma
                         string updatedOldConnections = string.Join(", ", oldConnList.ToArray());
@@ -320,9 +327,10 @@ namespace CustomRegions.CWorld
                     else
                     {
                         // [TODO] Add connections missing to a list to remove any disconnected rooms to avoid crash...
-                        string errorLog = $"#Found possible incompatibility! Existing line: [{oldLine.line}] from [{oldLine.packName}] and new line [{newLine}] from [{newPackName}].\n   You might be missing compatibility patch or the two packs are incompatible.";
-                        CustomWorldMod.analyzingLog += errorLog + "\n\n";
-                        CustomWorldMod.Log(errorLog, true);
+                        string errorLog = $"Existing line: [{oldLine.line}] from [{oldLine.packName}] " +
+                            $"is not compatible with new line [{newLine}] from [{newPackName}].";
+                        CustomWorldMod.analyzingLog += errorLog + "\n";
+                        CustomWorldMod.Log("[NOT COMPATIBLE] " + errorLog);
                     }
                 }
             }
@@ -971,6 +979,12 @@ namespace CustomRegions.CWorld
             // Check for problems
             List<WorldDataLine> fixedROOMS = AnalyzeMergedRooms(ROOMS);
             ROOMS = fixedROOMS;
+
+            if (CustomWorldMod.analyzingLog != string.Empty)
+            {
+                CustomWorldMod.Log("Found possible incompatibilities! You might be missing compatibility patch or this two packs are incompatible. " +
+                    "Please check customWorldLog or the Analyzer tab for more information.", true);
+            }
             /*
             while (brokenConnections.Count > 0)
             {
@@ -1016,11 +1030,12 @@ namespace CustomRegions.CWorld
 
         private static List<WorldDataLine> AnalyzeMergedRooms(List<WorldDataLine> lines)
         {
-            //List<WorldDataLine> brokenLines = new List<WorldDataLine>();
+            List<WorldDataLine> brokenLines = new List<WorldDataLine>();
+
+            //  List<WorldDataLine> linesProcessed = new List<WorldDataLine>(lines);
 
             List<string> connections;
             List<WorldDataLine> otherConnectedLines;
-            List<WorldDataLine> linesProcessed = new List<WorldDataLine>(lines);
             List<WorldDataLine> fixedLines = new List<WorldDataLine>(lines);
             WorldDataLine currentLine;
             WorldDataLine otherConnectedLine;
@@ -1032,7 +1047,12 @@ namespace CustomRegions.CWorld
                 CustomWorldMod.Log($"Analyzing line [{currentLine.line}]", false, CustomWorldMod.DebugLevel.FULL);
 
                 // All lines that contain current room in their connections
-                otherConnectedLines = lines.FindAll(x => !x.roomName.Equals(currentLine.roomName)).FindAll(x => x.connections.Contains(currentLine.roomName));
+                /*
+                otherConnectedLines = lines.FindAll(x => !x.roomName.Equals(currentLine.roomName)).
+                    FindAll(x => FromConnectionsToList(x.connections).Contains(currentLine.roomName));
+                */
+                otherConnectedLines = lines.FindAll(x => !x.roomName.Equals(currentLine.roomName) &&
+                FromConnectionsToList(x.connections).Contains(currentLine.roomName));
 
                 // Check if current room is connected to any other room
                 if (otherConnectedLines.Count == 0)
@@ -1075,19 +1095,20 @@ namespace CustomRegions.CWorld
                         connections = Regex.Split(otherConnectedLine.connections, ", ").ToList();
 
                         // Check if connection is reciprocal
-                        if (!currentLine.connections.Contains(otherConnectedLine.roomName))
+                        if (!FromConnectionsToList(currentLine.connections).Contains(otherConnectedLine.roomName))
                         {
                             // Disconnect both lines between each other
                             CustomWorldMod.Log($"          Broken connection. Current line does not have room [{otherConnectedLine.roomName}]. Disconnecting..."
                                 , false, CustomWorldMod.DebugLevel.FULL);
 
                             WorldDataLine temp1;
-
                             // Disconnect current room from other rooms
                             int indexOtherRoom = fixedLines.FindIndex(x => x.roomName.Equals(otherConnectedLine.roomName));
+                            brokenLines.Add(fixedLines[indexOtherRoom]);
                             temp1 = fixedLines[indexOtherRoom];
                             temp1.line = fixedLines[indexOtherRoom].line.Replace(currentLine.roomName, "DISCONNECT");
                             fixedLines[indexOtherRoom] = temp1;
+
                             /*CustomWorldMod.Log($"Sanity check 1. Trying to replace [{currentLine.roomName}] at [{temp1.line}]. " +
                                 $"Contains? [{temp1.line.Contains(currentLine.roomName)}].");*/
 
@@ -1103,52 +1124,35 @@ namespace CustomRegions.CWorld
                         }
 
                         /*
-                        // Remove all connections that match the current room
-                        connections.RemoveAll(x => x.Equals(currentLine.roomName));
-                        connections.RemoveAll(x => x.Equals("DISCONNECTED"));
 
-                        int indexB = linesProcessed.FindIndex(x => x.roomName.Equals(otherConnectedLine.roomName));
+                         List<WorldDataLine> linesToModify = linesProcessed.FindAll(x => !x.roomName.Equals(currentLine.roomName)).
+                         FindAll(x => x.connections.Contains(currentLine.roomName));
 
-                        if (indexB < 0 || indexB >= linesProcessed.Count())
-                        {
-                            CustomWorldMod.Log($"Index out of range ???? [{indexB}] ");
-                        }
-                        else
-                        {
-                            // Update processed lines
-                            WorldDataLine temp2 = linesProcessed[indexB];
-                            temp2.connections = string.Join(", ", connections.ToArray());
-                            linesProcessed[indexB] = temp2;
-                        }*/
+                         // Remove analyzed connections
+                         foreach (var lineToModify in linesToModify)
+                         {
+                             string otherRoomName = lineToModify.roomName;
+                             connections = Regex.Split(lineToModify.connections, ", ").ToList();
+                             WorldDataLine updatedLine = lineToModify;
 
-                        List<WorldDataLine> linesToModify = linesProcessed.FindAll(x => !x.roomName.Equals(currentLine.roomName)).
-                        FindAll(x => x.connections.Contains(currentLine.roomName));
-
-                        // Remove analyzed connections
-                        foreach (var lineToModify in linesToModify)
-                        {
-                            string otherRoomName = lineToModify.roomName;
-                            connections = Regex.Split(lineToModify.connections, ", ").ToList();
-                            WorldDataLine updatedLine = lineToModify;
-
-                            // Remove all connections that match the current room
-                            connections.RemoveAll(x => x.Equals(currentLine.roomName));
-                            connections.RemoveAll(x => x.Equals("DISCONNECTED"));
+                             // Remove all connections that match the current room
+                             connections.RemoveAll(x => x.Equals(currentLine.roomName));
+                             connections.RemoveAll(x => x.Equals("DISCONNECTED"));
 
 
-                            int indexB = linesProcessed.FindIndex(x => x.Equals(lineToModify));
-                            if (indexB < 0 || indexB >= linesProcessed.Count())
-                            {
-                                CustomWorldMod.Log($"Index out of range ???? [{indexB}] ");
-                            }
-                            else
-                            {
-                                // Update not processed lines
-                                updatedLine.connections = string.Join(", ", connections.ToArray());
-                                linesProcessed[indexB] = updatedLine;
-                            }
-                        }
-
+                             int indexB = linesProcessed.FindIndex(x => x.Equals(lineToModify));
+                             if (indexB < 0 || indexB >= linesProcessed.Count())
+                             {
+                                 CustomWorldMod.Log($"Index out of range ???? [{indexB}] ");
+                             }
+                             else
+                             {
+                                 // Update not processed lines
+                                 updatedLine.connections = string.Join(", ", connections.ToArray());
+                                 linesProcessed[indexB] = updatedLine;
+                             }
+                         }
+                        */
 
                     }
                 }
@@ -1174,6 +1178,7 @@ namespace CustomRegions.CWorld
                 */
             }
 
+            /*
             linesProcessed.RemoveAll(x => x.connections.Equals(string.Empty));
             //linesNotProcessed.Concat(brokenLines);
 
@@ -1185,6 +1190,18 @@ namespace CustomRegions.CWorld
                 {
                     CustomWorldMod.Log($"Room: [{item.roomName}]. Connections: [{item.connections}]");
                 }
+            }
+            */
+
+            if (brokenLines.Count != 0)
+            {
+                CustomWorldMod.Log($"\nThese lines were disconnected:");
+                foreach (var item in brokenLines)
+                {
+                    CustomWorldMod.Log($"Room: [{item.roomName}]. Connections: [{item.connections}] " +
+                        $"replaced with -> [{Regex.Split(fixedLines.Find(x => x.roomName.Equals(item.roomName)).line, " : ")[1]}]");
+                }
+                CustomWorldMod.Log($"Found broken connections in world file! Read customWorldLog.txt for more information", true);
             }
 
             return fixedLines;
@@ -1237,18 +1254,6 @@ namespace CustomRegions.CWorld
 
         }
 
-
-
-        // TO DO
-        private static void AnalyzeWorldConnections()
-        {
-            List<string> testLines = null; // fill with vanilla
-            string worldName = null;
-            int playerCharacter = 0;
-
-
-            testLines = GetWorldLines(testLines, worldName, playerCharacter);
-        }
 
         #region Hooks
         /// <summary>
