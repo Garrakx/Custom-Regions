@@ -99,7 +99,8 @@ namespace CustomRegions.CustomMenu
         /// <summary>
         /// in FastTravelScreen - Searchs for custom SceneID, sets the the currentShelter to null to avoid nullref and stores it in a static var
         /// </summary>
-        private static Menu.MenuScene.SceneID FastTravelScreen_TitleSceneID(On.Menu.FastTravelScreen.orig_TitleSceneID orig, Menu.FastTravelScreen self, string regionName)
+        private static Menu.MenuScene.SceneID FastTravelScreen_TitleSceneID(On.Menu.FastTravelScreen.orig_TitleSceneID orig, Menu.FastTravelScreen self, 
+            string regionName)
         {
             // Debug
             CustomWorldMod.Log($"Accesible regions count [{self.accessibleRegions.Count}] out of [{FastTravelScreen.GetRegionOrder().Count}]");
