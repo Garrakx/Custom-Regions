@@ -15,6 +15,7 @@ namespace CustomRegions
 
         private static void MainLoopProcess_Update(On.MainLoopProcess.orig_Update orig, MainLoopProcess self)
         {
+            orig(self);
             CustomWorldMod.scripts.RemoveAll(x => x == null);
 
             for (int i = CustomWorldMod.scripts.Count - 1; i >= 0; i--)
@@ -26,7 +27,7 @@ namespace CustomRegions
                         if (script.readyToDelete)
                         {
                             script.Clear();
- 
+
                             CustomWorldMod.scripts.Remove(script);
                             script = null;
                             CustomWorldMod.Log($"Scripts count [{CustomWorldMod.scripts.Count}]");
