@@ -200,9 +200,48 @@ namespace CustomRegions.Mod
                 this.packName = null;
             }
 
+            public void BuildRoomFromWholeLine(string line)
+            {
+                //CustomWorldMod.Log($"Rebuilding WorldData from line [{this}]", false, CustomWorldMod.DebugLevel.FULL);
+                WorldDataLine updatedLine = this;
+                string[] split = System.Text.RegularExpressions.Regex.Split(line, " : ");
+                string roomName = string.Empty;
+                string connections = string.Empty;
+                string endingString = string.Empty;
+
+                // Corrupted line (this should not happen)
+                if (split.Length < 2 || split.Length > 3)
+                {
+                    CustomWorldMod.Log($"Corrupted vanilla line [{line}]", true);
+                }
+                else
+                {
+                    roomName = split[0];
+                    connections = split[1];
+                    if (connections.Contains("DISCONNECT"))
+                    {
+                        connections.Replace("DISCONNECT", "DISCONNECTED");
+                    }
+
+                    // Line has ending
+                    if (split.Length == 3)
+                    {
+                        endingString = split[2];
+                    }
+                }
+                updatedLine.roomName = roomName;
+                updatedLine.connections = connections;
+                updatedLine.endingString = endingString;
+                this = updatedLine;
+                //CustomWorldMod.Log($"Result after rebuilding [{this}]", false, CustomWorldMod.DebugLevel.FULL);
+            }
+
+
             public override string ToString()
             {
-                return base.ToString();
+                string formatedName = $"LINE [{this.line}] ROOMNAME [{this.roomName}] CONNECTIONS [{this.connections}] ENDINGSTRING [{this.endingString}] " +
+                    $"PACK [{this.packName}]";
+                return formatedName;
             }
         }
 

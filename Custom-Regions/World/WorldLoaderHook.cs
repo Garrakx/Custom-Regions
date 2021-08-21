@@ -1008,7 +1008,7 @@ namespace CustomRegions.CWorld
                     if (!shouldInclude)
                     {
                         CustomWorldMod.Log($"[WorldMerging]: Line is ignored [{readLines[i]}]. Meets character requirement [{meetsCharReq || !hasCharReq}]. " +
-                            $"Meets region requirement [{meetsRegionReq}]");
+                            $"Meets region requirement [{meetsRegionReq}]", false, CustomWorldMod.DebugLevel.MEDIUM);
                     }
                     else
                     {
@@ -1102,7 +1102,7 @@ namespace CustomRegions.CWorld
             return lines;
         }
 
-
+        // IT MIGHT DO REDUNDANT OPERATIONS, NEEDS OPTIMIZATION
         private static List<WorldDataLine> AnalyzeMergedRooms(List<WorldDataLine> lines)
         {
             List<WorldDataLine> brokenLines = new List<WorldDataLine>();
@@ -1128,8 +1128,39 @@ namespace CustomRegions.CWorld
                 // Check if current room is connected to any other room
                 if (otherConnectedLines.Count == 0)
                 {
-                    // room is not connected
-                    CustomWorldMod.Log("     Room does not appear elsewhere", false, CustomWorldMod.DebugLevel.FULL);
+
+                    currentConnections = Regex.Split(currentLine.connections, ", ").ToList();
+                    if (currentConnections.FindAll(x => x.Contains("DISCONNECTED")).Count == currentConnections.Count)
+                    {
+                        // room is disconnected from everything
+                    }
+                    else
+                    {
+                        // room is broken
+                        // room is not connected
+                        CustomWorldMod.Log("     Room does not appear elsewhere", false, CustomWorldMod.DebugLevel.FULL);
+                        brokenLines.Add(currentLine);
+
+
+                        CustomWorldMod.Log($"          Broken connection. Current room does not appear in any other connection " +
+                                    $"Disconnecting...");
+
+                        // Disconnect current broken connection
+                        WorldDataLine temp1;
+                        int currentRoom = fixedLines.FindIndex(x => x.roomName.Equals(currentLine.roomName));
+                        brokenLines.Add(currentLine);
+                        temp1 = currentLine;
+                        for (int n = 0; n < currentConnections.Count(); n++)
+                        {
+                            currentConnections[n] = "DISCONNECTED";
+                        }
+                        temp1.line = FromListToConnectionsString(currentLine.roomName, currentConnections) + currentLine.endingString;
+                        temp1.BuildRoomFromWholeLine(temp1.line);
+                        fixedLines[currentRoom] = temp1;
+
+
+                        CustomWorldMod.Log($"               Fixed current line [{fixedLines[currentRoom].line}]", false, CustomWorldMod.DebugLevel.FULL);
+                    }
 
                     //CustomWorldMod.Log("     ", false, CustomWorldMod.DebugLevel.FULL);
 
@@ -1168,15 +1199,15 @@ namespace CustomRegions.CWorld
                         if (!FromConnectionsToList(currentLine.connections).Contains(otherConnectedLine.roomName))
                         {
                             // Disconnect both lines between each other
-                            CustomWorldMod.Log($"          Broken connection. Current line does not have room [{otherConnectedLine.roomName}]. Disconnecting..."
-                                , false, CustomWorldMod.DebugLevel.FULL);
+                            CustomWorldMod.Log($"          Broken connection. Current line does not have room [{otherConnectedLine.roomName}]. Disconnecting...");
 
                             WorldDataLine temp1;
                             // Disconnect current room from other rooms
                             int indexOtherRoom = fixedLines.FindIndex(x => x.roomName.Equals(otherConnectedLine.roomName));
                             brokenLines.Add(fixedLines[indexOtherRoom]);
                             temp1 = fixedLines[indexOtherRoom];
-                            temp1.line = fixedLines[indexOtherRoom].line.Replace(currentLine.roomName, "DISCONNECT");
+                            temp1.line = fixedLines[indexOtherRoom].line.Replace(currentLine.roomName, "DISCONNECTED");
+                            temp1.BuildRoomFromWholeLine(temp1.line);
                             fixedLines[indexOtherRoom] = temp1;
 
                             /*CustomWorldMod.Log($"Sanity check 1. Trying to replace [{currentLine.roomName}] at [{temp1.line}]. " +
@@ -1229,25 +1260,40 @@ namespace CustomRegions.CWorld
                     currentConnections = FromConnectionsToList(currentLine.connections);
                     for (int l = 0; l < currentConnections.Count(); l++)
                     {
-                        if (lines.FindAll(x => !x.roomName.Equals(currentLine.roomName)
-                             && FromConnectionsToList(x.connections).Contains(currentConnections[l])).Count() == 0)
+                        if (currentConnections[l].Equals("DISCONNECTED"))
                         {
-                            // current line is connected to nowwhere
-                            CustomWorldMod.Log($"          Broken connection. Current line has a broken connection [{currentConnections[l]}]. " +
-                                $"Disconnecting...", false, CustomWorldMod.DebugLevel.FULL);
-
-                            // Disconnect current broken connection
-                            WorldDataLine temp1;
-                            int currentRoom = fixedLines.FindIndex(x => x.roomName.Equals(currentLine.roomName));
-                            brokenLines.Add(currentLine);
-                            temp1 = currentLine;
-                            temp1.line = fixedLines[currentRoom].line.Replace(currentConnections[l], "DISCONNECT");
-                            fixedLines[currentRoom] = temp1;
-
-
-                            CustomWorldMod.Log($"               Fixed current line [{fixedLines[currentRoom].line}]", false, CustomWorldMod.DebugLevel.FULL);
-
+                            continue;
                         }
+                        CustomWorldMod.Log($"          Does [{currentConnections[l]}] appear elsewhere ...", false, CustomWorldMod.DebugLevel.FULL);
+                        /*
+                        bool found = false;
+                        for (int c = 0; c < otherConnectedLines.Count; c++)
+                        {
+                            List<string> temp123 = FromConnectionsToList(otherConnectedLines[c].connections);
+                            found = temp123.Contains(currentConnections[l]);
+                            CustomWorldMod.Log($"Comparing to [{otherConnectedLines[c].connections}]. Found [{found}]");
+                            if (found) break;
+                        }*/
+                            if (otherConnectedLines.FindAll(x => x.roomName.Equals(currentConnections[l])).Count() == 0)
+                            //if (!found)
+                            {
+                                // current line is connected to nowwhere
+                                CustomWorldMod.Log($"          Broken connection. Current line has a broken connection [{currentConnections[l]}]. " +
+                                    $"Disconnecting...");
+
+                                // Disconnect current broken connection
+                                WorldDataLine temp1;
+                                int currentRoom = fixedLines.FindIndex(x => x.roomName.Equals(currentLine.roomName));
+                                brokenLines.Add(currentLine);
+                                temp1 = currentLine;
+                                temp1.line = fixedLines[currentRoom].line.Replace(currentConnections[l], "DISCONNECTED");
+                                temp1.BuildRoomFromWholeLine(temp1.line);
+                                fixedLines[currentRoom] = temp1;
+
+
+                                CustomWorldMod.Log($"               Fixed current line [{fixedLines[currentRoom].line}]", false, CustomWorldMod.DebugLevel.FULL);
+
+                            }
                     }
                 }
 
@@ -1286,7 +1332,7 @@ namespace CustomRegions.CWorld
                 }
             }
             */
-
+            brokenLines = brokenLines.Distinct().ToList();
             if (brokenLines.Count != 0)
             {
                 CustomWorldMod.Log($"\nThese lines were disconnected:");
