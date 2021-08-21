@@ -229,6 +229,8 @@ namespace CustomRegions.Mod
 
                 }
             }
+
+            AddScriptIndicator(Tabs[tab]);
         }
 
         static List<WindowCM> windows = null;
@@ -237,6 +239,7 @@ namespace CustomRegions.Mod
         private bool updatedNews = false;
         Color updateBlinkColor = Color.white;
         float counter = 0;
+
         public override void Update(float dt)
         {
             base.Update(dt);
@@ -307,6 +310,38 @@ namespace CustomRegions.Mod
                         }
                     }
                 }
+            }
+
+            OpTab currentTab = Tabs.First(x => !x.isHidden);
+            if (!currentTab.Equals(default))
+            {
+                try
+                {
+                    OpImage loadingImage = currentTab.items.Find(x => x.description.ToLower().Contains("script") && x is OpImage) as OpImage;
+                    OpLabel scriptLabel = currentTab.items.Find(x => x is OpLabel label && label.description.Equals("Script action")) as OpLabel;
+                    if (!loadingImage.Equals(default))
+                    {
+                        int scriptsCount = CustomWorldMod.scripts.Count();
+                        if (scriptsCount > 0)
+                        {
+                            loadingImage.Show();
+                            scriptLabel.Show();
+                            string currentDesc = loadingImage.description;
+                            loadingImage.description = $"{currentDesc.Substring(0, currentDesc.IndexOf('[')+1)}{CustomWorldMod.scripts[scriptsCount - 1].action}]";
+                            loadingImage.sprite.rotation = Mathf.Lerp(loadingImage.sprite.rotation, loadingImage.sprite.rotation + 10, dt * 5);
+                            loadingImage.GrafUpdate(dt);
+                            scriptLabel.text = CustomWorldMod.scripts[scriptsCount - 1].action;
+                            //scriptLabel.GrafUpdate(dt);
+                        }
+                        else
+                        {
+                            loadingImage.Hide();
+                            scriptLabel.Hide();
+                        }
+                    }
+
+                }
+                catch { }
             }
 
         }
@@ -507,6 +542,8 @@ namespace CustomRegions.Mod
             CreateRegionPackList(Tabs[tab], CustomWorldMod.rainDbPacks.Where(x => x.Value.shownInBrowser).ToDictionary(x => x.Key, x => x.Value),
                 CustomWorldMod.downloadedThumbnails, true);
 
+            AddScriptIndicator(Tabs[tab]);
+
         }
 
         public void MainTabRedux(int tab, string tabName)
@@ -534,6 +571,23 @@ namespace CustomRegions.Mod
 
             Tabs[tab].AddItems(errorLabel);
             CreateRegionPackList(Tabs[tab], CustomWorldMod.installedPacks, CustomWorldMod.downloadedThumbnails, false);
+
+            AddScriptIndicator(Tabs[tab]);
+        }
+
+        private void AddScriptIndicator(OpTab opTab)
+        {
+            int position = 15;
+            OpImage loading = new OpImage(new Vector2(position, 600f - position), "Multiplayer_Time");
+            loading.anchor = new Vector2(0.5f, 0.5f);
+            loading.description = "Script []";
+
+            OpLabel scriptLabel = new OpLabel(position + loading.sprite.width-5, 600f - position-7, "", false)
+            {
+                description = "Script action"
+            };
+
+            opTab.AddItems(loading, scriptLabel);
         }
 
         private void CreateRegionPackList(OpTab tab, Dictionary<string, RegionPack> packs, Dictionary<string, byte[]> thumbnails, bool raindb)
@@ -613,13 +667,13 @@ namespace CustomRegions.Mod
                 Vector2 descLabelPos = nameLabelPos - new Vector2(0, descripLabelSize.y);
                 Vector2 iconPosStart = rectPos + new Vector2(spacing / 2f, spacing / 2f);
 
-                Vector2 downloadButtonPos = rectPos + new Vector2(rectSize.x - bigButtonSize.x - spacing/2f, spacing / 2f);
+                Vector2 downloadButtonPos = rectPos + new Vector2(rectSize.x - bigButtonSize.x - spacing / 2f, spacing / 2f);
                 Vector2 disableButtonPos = downloadButtonPos - new Vector2(bigButtonSize.x * 0.5f + spacing / 3f, 0);
                 Vector2 uninstallButtonPos = disableButtonPos - new Vector2(bigButtonSize.x + spacing / 3f, 0);
 
                 try
                 {
-                    update = raindb && !activated && pack.checksum != null && pack.checksum != string.Empty && 
+                    update = raindb && !activated && pack.checksum != null && pack.checksum != string.Empty &&
                         CustomWorldMod.installedPacks.ContainsKey(pack.name) && CustomWorldMod.installedPacks[pack.name].checksum != null &&
                         !pack.checksum.Equals(CustomWorldMod.installedPacks[pack.name].checksum);
                     /*
@@ -640,7 +694,7 @@ namespace CustomRegions.Mod
                 {
                     doesBump = activated && !pack.packUrl.Equals(string.Empty)
                 };
-                CustomWorldMod.Log($"[{pack.name}] Rectpos [{rectPos}], contentSize [{contentSize}-{mainScroll.GetContentSize()}]", 
+                CustomWorldMod.Log($"[{pack.name}] Rectpos [{rectPos}], contentSize [{contentSize}-{mainScroll.GetContentSize()}]",
                     false, CustomWorldMod.DebugLevel.FULL);
                 mainScroll.AddItems(rectOption);
                 // ---------------------------------- //
@@ -1178,7 +1232,7 @@ namespace CustomRegions.Mod
             //loading.sprite.scale *= 2f;
             //loading.pos -= new Vector2(loading.sprite.width / 2f, loading.sprite.height / 2f);
 
-            label = new OpLabelLong(new Vector2(rectPos.x + spacing / 2, rectPos.y + buttonSize.y + spacing*1.5f), labelSize, "", true, FLabelAlignment.Center)
+            label = new OpLabelLong(new Vector2(rectPos.x + spacing / 2, rectPos.y + buttonSize.y + spacing * 1.5f), labelSize, "", true, FLabelAlignment.Center)
             {
                 text = labelText,
                 verticalAlignment = OpLabel.LabelVAlignment.Top
@@ -1305,7 +1359,7 @@ namespace CustomRegions.Mod
         internal void UpdateLoadingRotation(float dt)
         {
             //CustomWorldMod.Log($"[WINDOW] Rotating loading... [{this.loading.sprite.rotation}]", false, CustomWorldMod.DebugLevel.FULL);
-            this.loading.sprite.rotation = Mathf.Lerp(this.loading.sprite.rotation, this.loading.sprite.rotation+10, dt*10);
+            this.loading.sprite.rotation = Mathf.Lerp(this.loading.sprite.rotation, this.loading.sprite.rotation + 10, dt * 10);
             this.loading.GrafUpdate(dt);
         }
     }
