@@ -20,13 +20,15 @@ Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3
     * [FOLDER STRUCTURE](#folder)
     * [COMPATIBILITY BETWEEN TWO PACKS](#compatibility)
     * [PUBLISH YOUR PACK](#publish)
+	* [*(new)* CONDITIONAL LINKS](#links)
+	* [*(new)* CONNECTION FIXER](#fixer)
     * [REGION ART](#art)
     * [ELECTRIC GATES](#gates)
     * [CUSTOM DATA PEARLS](#pearls)
     * [THUMBNAILS](#thumb)
     * [ALBINO / COLORED CREATURES](#colors)
     * [ARENA UNLOCKS](#arenaUnlock)
-	* [REMOVING CREATURE SPAWNS](#spawns)
+	* [*(new)* REMOVING CREATURE SPAWNS](#spawns)
 	* [CUSTOM MUSIC AND AMBIENT SOUNDEFFECTS](#music)
 9) [Suggestions](#suggesting)
 10) [Known issues](#issues)
@@ -307,6 +309,89 @@ CRS will fetch and update the local description, thumbnail and author from the f
 5) Upload your file to [mediafire.com](https://www.mediafire.com/) (a free account is required). For technical reasons, Mediafire is the only site that was compatible.
 6) Contact me with the download link (i.e. `https://www.mediafire.com/file/abunchofcharacters/RegionPackName.zip/file`) and the checksum you wrote down.
 
+### <a name="links"></a>*(new)* CONDITIONAL ROOM LINKS
+In the vanilla game, you can wire your region depend on which character is being played (same as with CREATURE spawns). With CRS, you can also configure your connections based on which regions are installed.
+* To make your room depend on character difficulties, you include using parenthesis and separated by commas, the characters in which the connection will appear. You can indicate multiple difficulties (`(0, 1)roomA : roomB`)
+#### **Examples**:
+For example, if you want to make a connection that only appears for survivor:
+
+
+	ROOMS
+	[...]
+	(0)roomA : roomB, roomD
+	[...]
+	END ROOMS
+* To make your room depend on region installed, you include using parenthesis and separated by commas, the required regions that must be installed for this connection to appear. If you want the opposite, for a connection to appear only if you do **NOT** have a region installed, you put an exclamation mark right before (`(!TM)roomA : roomB`). As before, you can include multiple regions.
+
+If you want to make a connection that only appears if the user has installed The Mast (TM):
+
+	ROOMS
+	[...]
+	(TM)roomA : roomB, roomD
+	[...]
+	END ROOMS
+
+Furthermore, you want to make a connection that only appears if the user has installed The Mast (TM), but it has **NOT** installed Badlands (BL)
+
+
+	ROOMS
+	[...]
+	(TM, !BL)roomA : roomB, roomD
+	[...]
+	END ROOMS
+
+* You can combine both character and region requeriments as you wish. A complete example combining all the above:
+
+**world_TR.txt:**
+
+
+	[...]
+	(TM, !BL)TR_S05 : TR_ROOT05 : SHELTER
+	(TM, 1)TR_ROOT06 : TR_ROOT03, TR_ROOT08
+	(0, PY)TR_ROOT07 : TR_ROOT03, TR_ROOT11, TR_ROOT08
+	[...]
+	// PY is a made up region, so it will count as not installed
+
+
+**log output:**
+
+
+	[...]
+	[WorldMerging]: Conditional elements found [TM,!BL]
+	[TM] -> Installed requirement [True]. Should be excluded [False]
+	[!BL] -> Installed requirement [True]. Should be excluded [True]
+	[WorldMerging]: Line is ignored [(TM, !BL)TR_S05 : TR_ROOT05 : SHELTER]. Meets character requirement [True]. Meets region requirement [False]
+	[WorldMerging]: Conditional elements found [TM,1]
+	[TM] -> Installed requirement [True]. Should be excluded [False]
+	[WorldMerging]: Line is ignored [(TM, 1)TR_ROOT06 : TR_ROOT03, TR_ROOT08]. Meets character requirement [False]. Meets region requirement [True]
+	[WorldMerging]: Conditional elements found [PY,0]
+	[PY] -> Installed requirement [False]. Should be excluded [False]
+	[WorldMerging]: Line is ignored [(PY, 0)TR_ROOT07 : TR_ROOT03, TR_ROOT11, TR_ROOT08]. Meets character requirement [True]. Meets region requirement [False]
+	[...]
+
+
+### <a name="fixer"></a>*(new)* CONNECTION FIXER
+
+Since version `v0.9.XX`, CRS will fix broken connections found after merging. You have to be careful with this feature.
+* Check if connections are reciprocal:
+
+	```
+	roomA : roomB, roomC, roomD
+	roomB : roomA
+	roomC : roomP 	//not reciprocal!!
+	roomD : roomA
+	```
+
+* If CRS founds any broken connections, it will disconnect them:
+
+	```
+	roomA : roomB, DISCONNECTED, roomD 	//disconnect roomA from roomC
+	roomB : roomA
+	roomC : roomP 
+	roomD : roomA
+	```
+* Any connection fixed will be logged into `customWorldLog.txt` and a warning will appear on `exceptiongLog.txt`
+
 ### <a name="art"></a>REGION ART
 
 * Apart from the "`positions.txt`" file for the Region Art, you will need to include a "`depths.txt`" to position the depth of your art. Follows the same order as "`positions.txt`".
@@ -456,11 +541,18 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 	* Add a warning pop-up when you try to download a pack when another is downloading.
 	* Mod expansions will show a big thumbnail (contact @garrakx if you are making a mod expansion).
 	* RainDB browser order is randomized each day.
+	* An indicator of the current job is added on the top left of the screen.
+	* Improved the error messages.
+	* You can now skip restarting the game while you are downloading packs.
 * CRS is will now to fix broken connections:
-	* If there is a connection that only goes one way (roomA is connected to roomB, but roomB is not connected to roomA), CRS will disconnect both rooms between each other and log and error.
-* Gates won't open if the next region is not loaded.
+	* If there is a connection that only goes one way (roomA is connected to roomB, but roomB is not connected to roomA), CRS will disconnect both rooms between each other and log and error. Click [here](#fixer) for more information.
+* Gates won't open if the next region is not loaded, they will blink red.
 * You can select which items Scavengers will trade / spawn with from the `CustomConfig.json` file.
 * You can make batflies glow in dark areas with a custom color, configured in the `CustomConfig.json` file.
+* CustomConfig.json now will be merged.
+* Added conditional region links:
+	* Check the [here](#links) for more information.
+
 
 #### Fixes
 * Fixed a parse error when ommiting DISCONNECT in the world merging.
@@ -471,6 +563,7 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 * Corruption scits should be now colored as well.
 * Prevents the game from crashing when using the Dev's Sound tab.
 * Cleaned CRS menu.
+* MainLoopProcess.Update was missing the orig call.
 
 ***
 #### [0.8.40] - January 2021
