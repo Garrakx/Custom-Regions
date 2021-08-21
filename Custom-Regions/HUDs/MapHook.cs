@@ -62,7 +62,7 @@ namespace CustomRegions.HUDs
                 if (File.Exists(pathToMapFile))
                 {
                     CustomWorldMod.Log($"Loading map data from {keyValues.Key} in region [{self.RegionName}]. Path [{pathToMapFile}]");
-                    self.mapConnections = new List<Map.OnMapConnection>();
+                    //self.mapConnections = new List<Map.OnMapConnection>();
                     string[] array = File.ReadAllLines(pathToMapFile);
                     for (int i = 0; i < array.Length; i++)
                     {
@@ -89,9 +89,9 @@ namespace CustomRegions.HUDs
                                 }
                                 if (num > 0 && num2 > 0)
                                 {
-                                    self.mapConnections.Add(new Map.OnMapConnection(self, num, num2, 
+                                    self.mapConnections.Insert(0, (new Map.OnMapConnection(self, num, num2, 
                                         new IntVector2(int.Parse(array3[2]), int.Parse(array3[3])), 
-                                        new IntVector2(int.Parse(array3[4]), int.Parse(array3[5])), int.Parse(array3[6]), int.Parse(array3[7])));
+                                        new IntVector2(int.Parse(array3[4]), int.Parse(array3[5])), int.Parse(array3[6]), int.Parse(array3[7]))) );
                                 }
                             }
                         }
