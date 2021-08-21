@@ -328,6 +328,11 @@ namespace CustomRegions.Mod
                 else if (signal.Equals(OptionSignal.ReloadRegions.ToString()))
                 {
                     CRExtras.TryPlayMenuSound(SoundID.HUD_Exit_Game);
+                    OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
+                    if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
+                    {
+                        CreateWindowPopUp(tab, $"Reloading regions...", CustomWorldOption.OptionSignal.Empty, "", true).ShouldShowLoading = true;
+                    }
                     CustomWorldMod.LoadCustomWorldResources();
                 }
                 // Downnload a pack X
@@ -614,13 +619,16 @@ namespace CustomRegions.Mod
 
                 try
                 {
-                    update = raindb && !activated && pack.checksum != null && pack.checksum != string.Empty &&
+                    update = raindb && !activated && pack.checksum != null && pack.checksum != string.Empty && 
+                        CustomWorldMod.installedPacks.ContainsKey(pack.name) && CustomWorldMod.installedPacks[pack.name].checksum != null &&
                         !pack.checksum.Equals(CustomWorldMod.installedPacks[pack.name].checksum);
+                    /*
                     if (pack.checksum != null)
                     {
                         CustomWorldMod.Log($"[UPDATE] [{pack.name}] at [{pack.folderName}] needs update [{update}]. " +
                             $"Local [{pack.checksum}] <-> RainDB [{CustomWorldMod.installedPacks[pack.name].checksum}]");
                     }
+                    */
                 }
                 catch (Exception e) { CustomWorldMod.Log($"Error checking the checksum for updates {e}"); }
 
@@ -903,7 +911,7 @@ namespace CustomRegions.Mod
         /// <param name="signal"></param>
         /// <param name="buttonText1"></param>
         /// <param name="error"></param>
-        public static void CreateWindowPopUp(OpTab tab, string contentText, string signalEnum1, string buttonText1, bool error, string buttonText2 = null)
+        public static WindowCM CreateWindowPopUp(OpTab tab, string contentText, string signalEnum1, string buttonText1, bool error, string buttonText2 = null)
         {
             WindowCM foundWindow = null;
             foreach (WindowCM window in windows)
@@ -926,12 +934,14 @@ namespace CustomRegions.Mod
                 // Update window contents
                 foundWindow.UpdateWindow(contentText, signalEnum1, buttonText1, error, buttonCancelText: buttonText2);
             }
+
+            return foundWindow;
         }
 
-        public static void CreateWindowPopUp(OpTab tab, string contentText, CustomWorldOption.OptionSignal signalEnum1, string buttonText1, bool error,
+        public static WindowCM CreateWindowPopUp(OpTab tab, string contentText, CustomWorldOption.OptionSignal signalEnum1, string buttonText1, bool error,
            string buttonText2 = null)
         {
-            CreateWindowPopUp(tab, contentText, signalEnum1.ToString(), buttonText1, error, buttonText2: buttonText2);
+            return CreateWindowPopUp(tab, contentText, signalEnum1.ToString(), buttonText1, error, buttonText2: buttonText2);
         }
 
         public WindowCM GetActiveWindow()
@@ -1125,6 +1135,7 @@ namespace CustomRegions.Mod
         public OpTab tab;
 
         bool doubleButton;
+        bool shouldShowLoading;
 
         public WindowCM(OpTab tab, string contentText, string signal1, string buttonText1, bool error, string buttonCancelText = null)
         {
@@ -1198,6 +1209,11 @@ namespace CustomRegions.Mod
                 this.buttonCancel.Hide();
             }
 
+            if (signal1.Equals(CustomWorldOption.OptionSignal.Empty.ToString()))
+            {
+                button1.Hide();
+            }
+
             label.text = contentText;
             string symbol = error ? "Menu_Symbol_Clear_All" : "Menu_Symbol_CheckBox";
 
@@ -1221,6 +1237,8 @@ namespace CustomRegions.Mod
             }
         }
 
+        public bool ShouldShowLoading { get => shouldShowLoading; set => shouldShowLoading = value; }
+
         public void HideWindow()
         {
             CustomWorldMod.Log("[WINDOW] Hiding window...", false, CustomWorldMod.DebugLevel.MEDIUM);
@@ -1238,7 +1256,14 @@ namespace CustomRegions.Mod
         {
             CustomWorldMod.Log("[WINDOW] Showing window...", false, CustomWorldMod.DebugLevel.MEDIUM);
             var fieldValues = WindowContents;
-            this.loading.Hide();
+            if (!ShouldShowLoading)
+            {
+                this.loading.Hide();
+            }
+            else
+            {
+                ShowLoading();
+            }
             if (!doubleButton)
             {
                 this.buttonCancel.Hide();
@@ -1253,6 +1278,11 @@ namespace CustomRegions.Mod
                 }
                 item.Show();
             }
+            if (this.button1.signal.Equals(CustomWorldOption.OptionSignal.Empty.ToString()))
+            {
+                button1.Hide();
+            }
+
             this.opened = true;
         }
 
