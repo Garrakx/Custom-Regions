@@ -21,6 +21,7 @@ namespace CustomRegions
         {
             CustomWorldMod.LoadCustomWorldResources();
             CustomWorldMod.rainWorldInstance = self;
+            CustomWorldMod.Log($"Assigning RW instance. Null [{CustomWorldMod.rainWorldInstance == null}]", false, CustomWorldMod.DebugLevel.MEDIUM);
 
             orig(self);
 
