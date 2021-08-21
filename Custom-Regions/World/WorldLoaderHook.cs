@@ -161,6 +161,13 @@ namespace CustomRegions.CWorld
                 }
             }
 
+            // Filter by activated regions
+            /* if (Regex.IsMatch(newRoomName, "^" + Regex.Escape("(*").Replace("\\*", ".*") + "$"))
+             {
+             }*/
+
+
+
             // Line that has same room name, but different connections or different ending
             oldLine = oldLines.Find(x => x.roomName.Equals(newRoomName));
 
@@ -776,6 +783,7 @@ namespace CustomRegions.CWorld
             List<WorldDataLine> CREATURES = new List<WorldDataLine>();
             List<WorldDataLine> BATS = new List<WorldDataLine>();
 
+            // Game loaded a world_XX.txt file from vanilla
             if (selfLines.Count > 0)
             {
                 // Fill ROOMS with vanilla rooms
@@ -892,88 +900,155 @@ namespace CustomRegions.CWorld
                 string worldXXFile = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: selfWorldName,
                     file: "world_" + selfWorldName + ".txt");
 
-                if (File.Exists(worldXXFile))
+                if (!File.Exists(worldXXFile))
                 {
-                    CustomWorldMod.Log($"Custom Regions: Found world_{selfWorldName}.txt from {keyValues.Value}");
-                    foundAnyCustomRegion = true;
-                    //self.lines = new List<string>();
-                    string[] array = File.ReadAllLines(worldXXFile);
-                    if (!array.Contains("ROOMS") && !array.Contains("CREATURES") && !array.Contains("BLOCKAGES"))
+                    continue;
+                }
+
+                CustomWorldMod.Log($"Custom Regions: Found world_{selfWorldName}.txt from {keyValues.Value}");
+                foundAnyCustomRegion = true;
+                string[] readLines = File.ReadAllLines(worldXXFile);
+
+                if (!readLines.Contains("ROOMS") && !readLines.Contains("CREATURES") && !readLines.Contains("BLOCKAGES"))
+                {
+                    CustomWorldMod.Log($"RegionPack [{keyValues.Key}] has corrupted world_{selfWorldName}.txt file: " +
+                        $"Missing any ROOMS/CREATURES/BLOCKAGES delimiters", true);
+                    continue;
+                }
+
+                for (int i = 0; i < readLines.Length; i++)
+                {
+                    if (readLines[i].Length <= 1 || readLines[i].Substring(0, 2) == "//")
                     {
-                        CustomWorldMod.Log($"RegionPack [{keyValues.Key}] has corrupted world_{selfWorldName}.txt file: " +
-                            $"Missing any ROOMS/CREATURES/BLOCKAGES delimiters", true);
+                        // Ignore comments and corrupted lines
+                        continue;
                     }
-                    for (int i = 0; i < array.Length; i++)
+
+                    // Determines if line will be included
+                    bool shouldInclude = true;
+
+                    // Determines if it meets character requeriment (default false)
+                    bool meetsCharReq = false;
+                    // Determines if there are any character requeriments
+                    bool hasCharReq = false;
+
+                    // Determines if it meets region requeriments (is installed and not excluding)
+                    bool meetsRegionReq = true;
+
+                    string roomNameAndReq = Regex.Split(readLines[i], " : ")[0];
+
+
+                    int indexConditional = roomNameAndReq.IndexOf(')');
+                    if (indexConditional > 0)
                     {
-                        if (array[i].Length > 1 && array[i].Substring(0, 2) != "//")
+                        string conditionalElements = roomNameAndReq.Substring(0, indexConditional);
+
+                        // Make sure it is a conditional region
+                        if (conditionalElements.Contains('('))
                         {
-                            bool flag = true;
-                            if (array[i][0] == '(')
+                            conditionalElements = conditionalElements.Replace("(", "").Replace(" ", "");
+
+                            CustomWorldMod.Log($"[WorldMerging]: Conditional elements found [{conditionalElements}]", false,
+                                CustomWorldMod.DebugLevel.FULL);
+                            foreach (var conditionalElement in Regex.Split(conditionalElements, (",")))
                             {
-                                flag = false;
-                                for (int j = 1; j < 20; j++)
+                                bool isNumeric = int.TryParse(conditionalElement, out int n);
+                                if (isNumeric)
                                 {
-                                    if (array[i][j] == ')')
+                                    hasCharReq = true;
+                                    if (conditionalElement.Equals(selfPlayerCharacter.ToString()))
                                     {
-                                        string[] array2 = Regex.Split(array[i].Substring(1, j - 1), ",");
-                                        for (int k = 0; k < array2.Length; k++)
-                                        {
-                                            if (array2[k] == selfPlayerCharacter.ToString())
-                                            {
-                                                array[i] = array[i].Substring(j + 1, array[i].Length - j - 1);
-                                                if (array[i][0] == ' ')
-                                                {
-                                                    array[i] = array[i].Substring(1, array[i].Length - 1);
-                                                }
-                                                flag = true;
-                                                break;
-                                            }
-                                        }
+                                        // Meets character requeriment
+                                        meetsCharReq = true;
                                         break;
                                     }
                                 }
-                            }
-                            if (flag)
-                            {
+                                else
+                                {
+                                    bool exclude = conditionalElement.Contains("!");
+                                    bool isInstalled = CustomWorldMod.activeModdedRegions.Contains(conditionalElement.Replace("!", ""));
 
-                                if (array[i] == "ROOMS")
-                                {
-                                    CustomWorldMod.Log($"\n[{keyValues.Key}]: Merging rooms...", false, CustomWorldMod.DebugLevel.MEDIUM);
-                                    status = MergeStatus.ROOMS;
-                                }
-                                else if (array[i] == "CREATURES")
-                                {
-                                    CustomWorldMod.Log($"\n[{keyValues.Key}]: Merging creatures...", false, CustomWorldMod.DebugLevel.MEDIUM);
-                                    status = MergeStatus.CREATURES;
-                                }
-                                else if (array[i] == "BAT MIGRATION BLOCKAGES")
-                                {
-                                    CustomWorldMod.Log($"\n[{keyValues.Key}]: Merging bats...", false, CustomWorldMod.DebugLevel.MEDIUM);
-                                    status = MergeStatus.BATS;
-                                }
-                                else if (array[i] != "END ROOMS" && array[i] != "END CREATURES" && array[i] != "END BAT MIGRATION BLOCKAGES")
-                                {
-                                    switch (status)
+                                    ///
+                                    /// XNOR GATE
+                                    /// Installed      Exclude  Action
+                                    /// -------------------------------
+                                    /// True           True     Ignore 
+                                    /// False          True     Include
+                                    /// True           False    Include
+                                    /// False          False    Ignore
+                                    ///
+
+                                    CustomWorldMod.Log($"[{conditionalElement}] -> Installed requirement [{isInstalled}]. Should be excluded [{exclude}]",
+                                        false, CustomWorldMod.DebugLevel.FULL);
+
+                                    if ((exclude && isInstalled) || (!exclude && !isInstalled))
                                     {
-                                        case MergeStatus.ROOMS:
-                                            // MERGE ROOMS
-                                            ROOMS = AddNewRoom(array[i], ROOMS, keyValues.Key);
-                                            break;
-                                        case MergeStatus.CREATURES:
-                                            // MERGE CREATURES
-                                            CREATURES = AddNewCreature(array[i], CREATURES, keyValues.Key);
-                                            break;
-                                        case MergeStatus.BATS:
-                                            // MERGE BATS
-                                            BATS = AddNewBatBlockage(array[i], BATS);
-                                            break;
+                                        // should be excluded
+                                        meetsRegionReq = false;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        // do nothing
                                     }
                                 }
+                            }
+
+                        }
+                        // Should include if meetsRegionReq (default true) and either meetsCharReq (default false) or doesn't have charReq
+                        shouldInclude = (meetsCharReq || !hasCharReq) && meetsRegionReq;
+
+                        // Clean requeriments from room
+                        if (shouldInclude)
+                        {
+                            readLines[i] = readLines[i].Substring(indexConditional + 1);
+                        }
+                    }
+
+                    if (!shouldInclude)
+                    {
+                        CustomWorldMod.Log($"[WorldMerging]: Line is ignored [{readLines[i]}]. Meets character requirement [{meetsCharReq || !hasCharReq}]. " +
+                            $"Meets region requirement [{meetsRegionReq}]");
+                    }
+                    else
+                    {
+
+                        if (readLines[i] == "ROOMS")
+                        {
+                            CustomWorldMod.Log($"\n[{keyValues.Key}]: Merging rooms...", false, CustomWorldMod.DebugLevel.MEDIUM);
+                            status = MergeStatus.ROOMS;
+                        }
+                        else if (readLines[i] == "CREATURES")
+                        {
+                            CustomWorldMod.Log($"\n[{keyValues.Key}]: Merging creatures...", false, CustomWorldMod.DebugLevel.MEDIUM);
+                            status = MergeStatus.CREATURES;
+                        }
+                        else if (readLines[i] == "BAT MIGRATION BLOCKAGES")
+                        {
+                            CustomWorldMod.Log($"\n[{keyValues.Key}]: Merging bats...", false, CustomWorldMod.DebugLevel.MEDIUM);
+                            status = MergeStatus.BATS;
+                        }
+                        else if (readLines[i] != "END ROOMS" && readLines[i] != "END CREATURES" && readLines[i] != "END BAT MIGRATION BLOCKAGES")
+                        {
+                            switch (status)
+                            {
+                                case MergeStatus.ROOMS:
+                                    // MERGE ROOMS
+                                    ROOMS = AddNewRoom(readLines[i], ROOMS, keyValues.Key);
+                                    break;
+                                case MergeStatus.CREATURES:
+                                    // MERGE CREATURES
+                                    CREATURES = AddNewCreature(readLines[i], CREATURES, keyValues.Key);
+                                    break;
+                                case MergeStatus.BATS:
+                                    // MERGE BATS
+                                    BATS = AddNewBatBlockage(readLines[i], BATS);
+                                    break;
                             }
                         }
                     }
                 }
-
+                CustomWorldMod.Log($"\nFinished merging world_{selfWorldName}.txt from {keyValues.Value}\n");
             }
 
             // Check for problems
@@ -1034,7 +1109,7 @@ namespace CustomRegions.CWorld
 
             //  List<WorldDataLine> linesProcessed = new List<WorldDataLine>(lines);
 
-            List<string> connections;
+            List<string> currentConnections;
             List<WorldDataLine> otherConnectedLines;
             List<WorldDataLine> fixedLines = new List<WorldDataLine>(lines);
             WorldDataLine currentLine;
@@ -1047,12 +1122,8 @@ namespace CustomRegions.CWorld
                 CustomWorldMod.Log($"Analyzing line [{currentLine.line}]", false, CustomWorldMod.DebugLevel.FULL);
 
                 // All lines that contain current room in their connections
-                /*
-                otherConnectedLines = lines.FindAll(x => !x.roomName.Equals(currentLine.roomName)).
-                    FindAll(x => FromConnectionsToList(x.connections).Contains(currentLine.roomName));
-                */
-                otherConnectedLines = lines.FindAll(x => !x.roomName.Equals(currentLine.roomName) &&
-                FromConnectionsToList(x.connections).Contains(currentLine.roomName));
+                otherConnectedLines = lines.FindAll(x => !x.roomName.Equals(currentLine.roomName) 
+                && FromConnectionsToList(x.connections).Contains(currentLine.roomName));
 
                 // Check if current room is connected to any other room
                 if (otherConnectedLines.Count == 0)
@@ -1091,8 +1162,7 @@ namespace CustomRegions.CWorld
                             FindAll(x => x.connections.Contains(currentLine.roomName));*/
 
                         otherConnectedLine = otherConnectedLines[j];
-
-                        connections = Regex.Split(otherConnectedLine.connections, ", ").ToList();
+                        //connections = Regex.Split(otherConnectedLine.connections, ", ").ToList();
 
                         // Check if connection is reciprocal
                         if (!FromConnectionsToList(currentLine.connections).Contains(otherConnectedLine.roomName))
@@ -1154,6 +1224,30 @@ namespace CustomRegions.CWorld
                          }
                         */
 
+                    }
+                    // check if all our connections appear elsewhere
+                    currentConnections = FromConnectionsToList(currentLine.connections);
+                    for (int l = 0; l < currentConnections.Count(); l++)
+                    {
+                        if (lines.FindAll(x => !x.roomName.Equals(currentLine.roomName)
+                             && FromConnectionsToList(x.connections).Contains(currentConnections[l])).Count() == 0)
+                        {
+                            // current line is connected to nowwhere
+                            CustomWorldMod.Log($"          Broken connection. Current line has a broken connection [{currentConnections[l]}]. " +
+                                $"Disconnecting...", false, CustomWorldMod.DebugLevel.FULL);
+
+                            // Disconnect current broken connection
+                            WorldDataLine temp1;
+                            int currentRoom = fixedLines.FindIndex(x => x.roomName.Equals(currentLine.roomName));
+                            brokenLines.Add(currentLine);
+                            temp1 = currentLine;
+                            temp1.line = fixedLines[currentRoom].line.Replace(currentConnections[l], "DISCONNECT");
+                            fixedLines[currentRoom] = temp1;
+
+
+                            CustomWorldMod.Log($"               Fixed current line [{fixedLines[currentRoom].line}]", false, CustomWorldMod.DebugLevel.FULL);
+
+                        }
                     }
                 }
 
