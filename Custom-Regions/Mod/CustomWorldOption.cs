@@ -582,7 +582,7 @@ namespace CustomRegions.Mod
             loading.anchor = new Vector2(0.5f, 0.5f);
             loading.description = "Script []";
 
-            OpLabel scriptLabel = new OpLabel(position + loading.sprite.width-5, 600f - position-7, "", false)
+            OpLabel scriptLabel = new OpLabel(position + loading.sprite.width-5, 600f - position-10f, "", false)
             {
                 description = "Script action"
             };
