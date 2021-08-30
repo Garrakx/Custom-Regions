@@ -44,7 +44,8 @@ namespace CustomRegions.CWorld
                     }
                 }
 
-                if (!self.room.game.overWorld.regions.Select(x => x.name).Contains(text))
+                if (!self.room.game.overWorld.regions.Select(x => x.name).Contains(text) &&
+                    !text.Equals("ERROR!"))
                 {
                     return true;
                 }
@@ -61,7 +62,6 @@ namespace CustomRegions.CWorld
             AbstractRoom abstractRoom = self.room.abstractRoom;
 
             // Old World
-            //Debug.Log("Old world: " + name);
             string name = self.room.game.overWorld.activeWorld.name;
 
             string[] arrayName = Regex.Split(abstractRoom.name, "_");
@@ -78,10 +78,22 @@ namespace CustomRegions.CWorld
                 }
             }
 
+            if (text.Equals("ERROR!"))
+            {
+                if (!loggedError)
+                {
+                    // Extended gates support
+                    CustomWorldMod.Log($"Gate [{abstractRoom.name}] does not follow naming GATE_XX_YY. " +
+                        $"If you are using Extended Gates you can ignore this error", true);
+                    loggedError = true;
+                }
+                return;
+            }
+
             if (!self.room.game.overWorld.regions.Select(x => x.name).Contains(text))
             {
                 self.dontOpen = true;
-                if(!loggedError)
+                if (!loggedError)
                 {
                     CustomWorldMod.Log($"Gate is blocked. Trying to load a region which is not available [{text}]. " +
                         $"Loaded regions [{string.Join(", ", self.room.game.overWorld.regions.Select(x => x.name).ToArray())}] ", true);
