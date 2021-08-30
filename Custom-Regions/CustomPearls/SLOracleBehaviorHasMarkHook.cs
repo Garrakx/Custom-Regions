@@ -146,7 +146,7 @@ namespace CustomRegions.CustomPearls
                 }
                 else
                 {
-                    CustomWorldMod.Log($"Corrupted dialogue file...[{Regex.Split(array[0], " - ")[1]}]", true);
+                    CustomWorldMod.Log($"Corrupted dialogue file...[{Regex.Split(array[0], "-")[1]}]", true);
                 }
             }
             catch
