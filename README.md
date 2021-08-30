@@ -462,7 +462,6 @@ CR adds the ability to add custom data pearls without any code, and even include
 	* the color of the Monster Kelp .
 	* the color of Daddy / Brother Long legs.
 	* *(new)* if Batflies should glow in the dark and their color.
-	* *(new)* which items should scavenger spawn in and trade with.
 * Download [this file](./Example%20Config%20Files/CustomConfig.json) and place it next to the world_XX.txt file of the region you want to configure `Rain World\Mods\CustomResources\"Your Region"\World\Regions\"RegionInitials"\`(if you want to configure a vanilla region, just create an empty folder with the region initials and place the file).
 * You have to put the color in HEX format (00FF00).
 * Leaving an empty string ("") next to the color means to use vanilla.
@@ -547,7 +546,6 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 * CRS is will now to fix broken connections:
 	* If there is a connection that only goes one way (roomA is connected to roomB, but roomB is not connected to roomA), CRS will disconnect both rooms between each other and log and error. Click [here](#fixer) for more information.
 * Gates won't open if the next region is not loaded, they will blink red.
-* You can select which items Scavengers will trade / spawn with from the `CustomConfig.json` file.
 * You can make batflies glow in dark areas with a custom color, configured in the `CustomConfig.json` file.
 * CustomConfig.json now will be merged.
 * Added conditional region links:
