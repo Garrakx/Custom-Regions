@@ -53,7 +53,7 @@ namespace CustomRegions.Mod
         {
             mod = this;
             ModID = "Custom Regions Mod";
-            Version = "0.9." + version + "-experimental.4";
+            Version = "0.9." + version + "-experimental.5";
             author = "Garrakx";
             versionCR = $"v{Version}";
         }
@@ -92,10 +92,8 @@ namespace CustomRegions.Mod
                         CustomWorldMod.debugLevel = DebugLevel.FULL;
                     }
                 }
-            } catch (Exception e) { CustomWorldMod.Log($"Could not read debug level file \n{e}", true); }
-
-            CustomWorldMod.debugLevel = DebugLevel.FULL;
-            CustomWorldMod.Log("Forcing DEBUG, don't forget to remove for release", true);
+            } 
+            catch (Exception e) { CustomWorldMod.Log($"Could not read debug level file \n{e}", true); }
 
             bool usingBepinex = false;
             try
