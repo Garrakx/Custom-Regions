@@ -57,7 +57,7 @@ namespace CustomRegions.HUDs
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 string pathToMapFile = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.RegionName,
-                        file: "map_" + self.RegionName + ".png");
+                        file: "map_" + self.RegionName + ".txt");
 
                 if (File.Exists(pathToMapFile))
                 {
