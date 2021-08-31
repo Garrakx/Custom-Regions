@@ -16,7 +16,7 @@ namespace CustomRegions.Creatures
             On.ScavengerAbstractAI.UpdateMissionAppropriateGear -= ScavengerAbstractAI_UpdateMissionAppropriateGear;
             On.ScavengerAbstractAI.TradeItem -= ScavengerAbstractAI_TradeItem;
             On.ScavengerAbstractAI.InitGearUp -= ScavengerAbstractAI_InitGearUp;
-            On.ScavengerAI.CollectScore_1 -= ScavengerAI_CollectScore_1; ;
+            On.ScavengerAI.CollectScore_1 -= ScavengerAI_CollectScore_1;
         }
 
         public static void ApplyHooks()
@@ -24,10 +24,12 @@ namespace CustomRegions.Creatures
             On.ScavengerAbstractAI.UpdateMissionAppropriateGear += ScavengerAbstractAI_UpdateMissionAppropriateGear;
             On.ScavengerAbstractAI.TradeItem += ScavengerAbstractAI_TradeItem;
             On.ScavengerAbstractAI.InitGearUp += ScavengerAbstractAI_InitGearUp;
-            On.ScavengerAI.CollectScore_1 += ScavengerAI_CollectScore_1; ;
+            On.ScavengerAI.CollectScore_1 += ScavengerAI_CollectScore_1; // Fixes: scav not holding item assigned for trade
         }
 
-        // Helper
+        // Helpers
+
+        // Gets the configured regions special scavenger item. Affects init gearup and trader's specialty.
         private static bool TryGetSpecialScavItem(string regionName, out AbstractPhysicalObject.AbstractObjectType type)
         {
             type = default;
@@ -54,6 +56,7 @@ namespace CustomRegions.Creatures
             return false;
         }
 
+        // Get the configured chance of a scav to equip the regions special on init gearup, not limited to traders
         private static float GetChanceOfSpecialItemOnGear(string regionName)
         {
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
@@ -72,6 +75,7 @@ namespace CustomRegions.Creatures
 
         // Hook me :)
         // Returns null on failure to instantiate
+        // Instantiates an item of type inside ~~mind of scav~~ probably in offscreen den where scav is
         private static AbstractPhysicalObject InstantiateCustomScavItemAbstract(AbstractPhysicalObject.AbstractObjectType type, ScavengerAbstractAI self)
         {
             EntityID id = self.world.game.GetNewID();
@@ -144,10 +148,13 @@ namespace CustomRegions.Creatures
 
         // Hook me :)
         // Returns 0 on unknown
+        // Score of items that scavs wouldn't normally hold, for the region they're trade specials.
+        // Picked some values myself rather than making it a setting -- hen
         private static int GetScoreOfMissingItem(AbstractPhysicalObject.AbstractObjectType specialItem)
         {
             switch (specialItem)
             {
+                // Commented out: already handled by the game, OR non-spawnable
                 //case AbstractPhysicalObject.AbstractObjectType.Creature:
                 //case AbstractPhysicalObject.AbstractObjectType.Rock:
                 //case AbstractPhysicalObject.AbstractObjectType.Spear:
@@ -184,7 +191,7 @@ namespace CustomRegions.Creatures
                 case AbstractPhysicalObject.AbstractObjectType.DartMaggot:
                     return 2;
                 case AbstractPhysicalObject.AbstractObjectType.BubbleGrass:
-                    return 4;
+                    return 3;
                 case AbstractPhysicalObject.AbstractObjectType.NSHSwarmer:
                     return 7;
                 //case AbstractPhysicalObject.AbstractObjectType.OverseerCarcass:
@@ -193,6 +200,9 @@ namespace CustomRegions.Creatures
             }
         }
 
+        // Called on scav spawn while offscreen
+        // If region has special && roll random chance of special on gerup: equip special
+        // Causes scav to drop a rock or spear if inventory full. If inventory full of other stuff, skip special.
         private static void ScavengerAbstractAI_InitGearUp(On.ScavengerAbstractAI.orig_InitGearUp orig, ScavengerAbstractAI self)
         {
             orig(self);
@@ -251,6 +261,7 @@ namespace CustomRegions.Creatures
             }
         }
 
+        // Called on re-gear for Trade-mission scavs. If the region has a special item assigned, re-gear with that.
         private static AbstractPhysicalObject ScavengerAbstractAI_TradeItem(On.ScavengerAbstractAI.orig_TradeItem orig, ScavengerAbstractAI self, bool main)
         {
             if (main)
@@ -273,6 +284,8 @@ namespace CustomRegions.Creatures
             return orig(self, main);
         }
 
+        // Determine if the scav is well-suited for its mission. In vanilla this will ensure the trader has the region's special.
+        // We do the same for traders here.
         private static void ScavengerAbstractAI_UpdateMissionAppropriateGear(On.ScavengerAbstractAI.orig_UpdateMissionAppropriateGear orig,
             ScavengerAbstractAI self)
         {
@@ -298,6 +311,8 @@ namespace CustomRegions.Creatures
                 }
             }
         }
+
+        // Fixes: scavengers not holding onto the region's special
         private static int ScavengerAI_CollectScore_1(On.ScavengerAI.orig_CollectScore_1 orig, ScavengerAI self, PhysicalObject obj, bool weaponFiltered)
         {
             int val = orig(self, obj, weaponFiltered);
