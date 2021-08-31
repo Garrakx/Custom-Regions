@@ -100,7 +100,7 @@ namespace CustomRegions.CustomMenu
                                         }  
                                         else
                                         {
-                                            fullRegionName = entry.Value; 
+                                            fullRegionName = entry.Key; 
                                             CustomWorldMod.Log($"Displaying pack name: [{fullRegionName}].");
                                                 //[OUTDATED] If you pack contains multiple regions, contact @Garrakx.");
                                         }
