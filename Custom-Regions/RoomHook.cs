@@ -20,13 +20,13 @@ namespace CustomRegions
 
         private static void Room_Loaded(On.Room.orig_Loaded orig, Room self)
         {
-            if (self.game == null)
+            bool firstTimeRealized = self.abstractRoom?.firstTimeRealized ?? false;
+            orig(self);
+
+            if (self.game == null) // Room preprocessor loading room for baking/fakebake
             {
                 return;
             }
-
-            bool firstTimeRealized = self.abstractRoom.firstTimeRealized;
-            orig(self);
 
             if (firstTimeRealized)
             {
@@ -123,15 +123,10 @@ namespace CustomRegions
 
         private static void Room_AddObject(On.Room.orig_AddObject orig, Room self, UpdatableAndDeletable obj)
         {
-            if (self.game == null)
-            {
-                return;
-            }
-
-            if (obj is WaterGate)
+            if (self.game != null && obj is WaterGate waterGate)
             {
                 // Add electric gate
-                if (self.abstractRoom.gate)
+                if (self.abstractRoom != null && self.abstractRoom.gate)
                 {
                     CustomWorldMod.Log("Water gate created, checking if it should be electric...");
                     foreach (KeyValuePair<string, string> regions in CustomWorldMod.activatedPacks)
@@ -140,7 +135,8 @@ namespace CustomRegions
                         {
                             if (CustomWorldMod.installedPacks[regions.Key].electricGates.ContainsKey(self.abstractRoom.name))
                             {
-                                (obj as WaterGate).Destroy();
+                                waterGate.Destroy();
+                                self.drawableObjects.Remove(waterGate.graphics.water);
                                 CustomWorldMod.Log($"Added electric gate [{self.abstractRoom.name}] from [{regions.Value}]");
                                 self.regionGate = new ElectricGate(self);
                                 (self.regionGate as ElectricGate).meterHeight = CustomWorldMod.installedPacks[regions.Key].electricGates[self.abstractRoom.name];
