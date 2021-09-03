@@ -513,12 +513,12 @@ Do you have a suggestion? Have you found a bug? The best way is to open a github
 ***
 ### <a name="credits"></a>Credits
 
-Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick](https://classick-ii.tumblr.com/post/634237640578859008/boopbeep) Thanks to `LeeMoriya`, `bee` and `dual curly potato noodles` for helping and suggestions. Thanks to `Thalber` and `LB Gamer` for the translations. Thanks `Slime_Cubed` for the idea of using a separate process to download the packs and helping with some crucial fixes. Thanks to `carrotpudding`, `LB Gamer`, `Precipitator`, `Stero`, `laura`, `Thrithralas` and `Wrayk` for testing.
+Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick](https://classick-ii.tumblr.com/post/634237640578859008/boopbeep) Thanks to `LeeMoriya`, `bee` and `dual curly potato noodles` for helping and suggestions. Thanks to `Thalber` and `LB Gamer` for the translations. Thanks `Slime_Cubed` for the idea of using a separate process to download the packs and helping with some crucial fixes. Thanks to `carrotpudding`, `LB Gamer`, `Precipitator`, `Stero`, `laura`, `Thrithralas` and `Wrayk` for testing. Scav trade items was made with the help from `Henpemaz`, and they also provided crutial bugfixes.
 
 ***
 ### <a name="changelog"></a>Changelog
 
-#### [0.9.XX] - August 2021
+#### [0.9.XX] - September 2021
 
 #### Changes
 * New field in `packInfo.json`, **`useRegionName`**. Used to read from the Properties Subregion field in the continue save menu instead of the pack name.
