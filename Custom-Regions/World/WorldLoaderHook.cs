@@ -1154,7 +1154,8 @@ namespace CustomRegions.CWorld
                         {
                             currentConnections[n] = "DISCONNECTED";
                         }
-                        temp1.line = FromListToConnectionsString(currentLine.roomName, currentConnections) + currentLine.endingString;
+                        string endingString = currentLine.endingString != string.Empty ? (" : " + currentLine.endingString) : "";
+                        temp1.line = FromListToConnectionsString(currentLine.roomName, currentConnections) + endingString;
                         temp1.BuildRoomFromWholeLine(temp1.line);
                         fixedLines[currentRoom] = temp1;
 
