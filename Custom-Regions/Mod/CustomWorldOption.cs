@@ -4,6 +4,7 @@ using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -29,6 +30,7 @@ namespace CustomRegions.Mod
         public override void Initialize()
         {
             base.Initialize();
+
             updateAvailableTabWarning = false;
             errorTabWarning = false;
 
@@ -36,11 +38,37 @@ namespace CustomRegions.Mod
 
             windows = new List<WindowCM>();
 
+            Stopwatch watch = new Stopwatch();
+            DateTime date;
+
+            watch.Start();
             MainTabRedux(0, "Main Tab");
-            //PackManager(1, "Pack Manager");
+
+            watch.Stop();
+            date = new DateTime(watch.ElapsedTicks);
+            CustomWorldMod.Log($"[CM Menu] Finished loading Main tab [{date.ToString("s.ffff")}s]", false, CustomWorldMod.DebugLevel.MEDIUM);
+            watch.Reset();
+
+            watch.Start();
             AnalyserSaveTab(1, "Analyzer");
+            watch.Stop();
+            date = new DateTime(watch.ElapsedTicks);
+            CustomWorldMod.Log($"[CM Menu] Finished loading AnalyserTab tab [{date.ToString("s.ffff")}s]", false, CustomWorldMod.DebugLevel.MEDIUM);
+            watch.Reset();
+
+            watch.Start();
             PackBrowser(2, "Browse RainDB");
+            watch.Stop();
+            date = new DateTime(watch.ElapsedTicks);
+            CustomWorldMod.Log($"[CM Menu] Finished loading PackBrowser tab [{date.ToString("s.ffff")}s]", false, CustomWorldMod.DebugLevel.MEDIUM);
+            watch.Reset();
+
+            watch.Start();
             NewsTab(3, "News");
+            watch.Stop();
+            date = new DateTime(watch.ElapsedTicks);
+            CustomWorldMod.Log($"[CM Menu] Finished loading NewsTab tab [{date.ToString("s.ffff")}s]", false, CustomWorldMod.DebugLevel.MEDIUM);
+            watch.Reset();
         }
 
         private void NewsTab(int tab, string tabName)
@@ -138,6 +166,7 @@ namespace CustomRegions.Mod
         private bool updatedNews = false;
         Color updateBlinkColor = Color.white;
         float counter = 0;
+        public float rotationClockCounter;
 
         public override void Update(float dt)
         {
@@ -205,7 +234,9 @@ namespace CustomRegions.Mod
                         }
                         if (window.opened && window.showLoading)
                         {
-                            window.UpdateLoadingRotation(dt);
+                            rotationClockCounter = Mathf.Lerp(rotationClockCounter, rotationClockCounter + 10, dt * 10);
+                            window.UpdateLoadingRotation(dt, rotationClockCounter);
+                            //window.loading.sprite.rotation = rotationClockCounter;
                         }
                     }
                 }
@@ -252,6 +283,7 @@ namespace CustomRegions.Mod
             {
                 CustomWorldMod.Log($"Received menu signal [{signal}]");
 
+                
                 // Refresh config menu list
                 if (signal.Equals(OptionSignal.Refresh.ToString()))
                 {
@@ -339,8 +371,22 @@ namespace CustomRegions.Mod
                         }
                     }
                 }
+                else if ((signal.Contains(OptionSignal.TryDisableToggle.ToString()) || signal.Contains(OptionSignal.TryUninstall.ToString()))
+                    && (CustomWorldMod.scripts.FindAll(x => x is PackDownloader).Count != 0))
+                {
+                    CustomWorldMod.Log("Pack downloader in process");
+
+                    CRExtras.TryPlayMenuSound(SoundID.MENU_Player_Unjoin_Game);
+                    OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
+                    if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
+                    {
+                        CreateWindowPopUp(tab, $"A pack is currently being downloaded.\n\nPlease wait until it finishes.",
+                            CustomWorldOption.OptionSignal.CloseWindow, "OK", true);
+                    }
+                }
                 else if (signal.Contains(OptionSignal.TryUninstall.ToString()))
                 {
+
                     try
                     {
                         string packName = Regex.Split(signal, "_")[1];
@@ -439,7 +485,7 @@ namespace CustomRegions.Mod
 
             // Create pack list
             CreateRegionPackList(Tabs[tab], CustomWorldMod.rainDbPacks.Where(x => x.Value.shownInBrowser).ToDictionary(x => x.Key, x => x.Value),
-                CustomWorldMod.downloadedThumbnails, true);
+                CustomWorldMod.processedThumbnails, true);
 
             AddScriptIndicator(Tabs[tab]);
 
@@ -469,7 +515,7 @@ namespace CustomRegions.Mod
             };
 
             Tabs[tab].AddItems(errorLabel);
-            CreateRegionPackList(Tabs[tab], CustomWorldMod.installedPacks, CustomWorldMod.downloadedThumbnails, false);
+            CreateRegionPackList(Tabs[tab], CustomWorldMod.installedPacks, CustomWorldMod.processedThumbnails, false);
 
             AddScriptIndicator(Tabs[tab]);
         }
@@ -489,7 +535,7 @@ namespace CustomRegions.Mod
             opTab.AddItems(loading, scriptLabel);
         }
 
-        private void CreateRegionPackList(OpTab tab, Dictionary<string, RegionPack> packs, Dictionary<string, byte[]> thumbnails, bool raindb)
+        private void CreateRegionPackList(OpTab tab, Dictionary<string, RegionPack> packs, Dictionary<string, ProcessedThumbnail> processedThumbs, bool raindb)
         {
             //How Many Options
             int numberOfOptions = packs.Count;
@@ -599,83 +645,45 @@ namespace CustomRegions.Mod
                 // ---------------------------------- //
 
 
-                if (thumbnails.TryGetValue(pack.name, out byte[] fileData) && fileData.Length > 0)
+                //if (thumbnails.TryGetValue(pack.name, out byte[] fileData) && fileData.Length > 0)
+                if (processedThumbs.TryGetValue(pack.name, out ProcessedThumbnail procThumb) )
                 {
+                    /*
                     Texture2D oldTex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
                     oldTex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
 
-                    Texture2D newTex = new Texture2D(oldTex.width, oldTex.height, TextureFormat.RGBA32, false);
-                    Color[] convertedImage = oldTex.GetPixels();
-                    List<HSLColor> hslColors = new List<HSLColor>();
-                    int numberOfPixels = convertedImage.Length;
-                    for (int c = 0; c < numberOfPixels; c++)
-                    {
-                        // Change opacity if not active
-                        if (!activated && !raindb)
-                        {
-                            convertedImage[c].a *= 0.65f;
-                        }
-                        HSLColor hslColor = CRExtras.RGB2HSL(convertedImage[c]);
-                        if (hslColor.saturation > 0.25 && hslColor.lightness > 0.25 && hslColor.lightness < 0.75f)
-                        {
-                            hslColors.Add(hslColor);
-                        }
-                    }
-                    float averageLight = 0f;
-                    float averageSat = 0f;
-                    float medianHue = 0f;
+                    Texture2D procTex = CRExtras.ProccessThumbnail(oldTex, pack, thumbSize, activated, raindb);
+                    */
 
-                    // Calculate average light and sat
-                    if (hslColors.Count > 0)
+                    float alpha = 1f;
+                    if (!activated && !raindb)
                     {
-                        foreach (HSLColor color in hslColors)
-                        {
-                            averageLight += color.lightness / hslColors.Count;
-                            averageSat += color.saturation / hslColors.Count;
-                        }
+                        alpha = 0.65f;
                     }
-                    // Calculate median hue
-                    int half = hslColors.Count() / 2;
-                    var sortedColors = hslColors.OrderBy(x => x.hue);
-                    if (half != 0 && half < sortedColors.Count())
+                    else
                     {
-                        try
-                        {
-                            if ((hslColors.Count % 2) == 0)
-                            {
-                                medianHue = (sortedColors.ElementAt(half).hue + sortedColors.ElementAt(half - 1).hue) / 2;
-                            }
-                            else
-                            {
-                                medianHue = sortedColors.ElementAt(half).hue;
-                            }
-                        }
-                        catch (Exception e) { CustomWorldMod.Log($"Cannot calculate median hue [{e}] for [{pack.name}]", true); }
+                        colorEdge = procThumb.mainColor;
                     }
 
-                    if ((activated || raindb))
+                    if (procThumb.data == null)
                     {
-                        if (averageSat > 0.15f)
-                        {
-                            colorEdge = Color.Lerp(Custom.HSL2RGB(medianHue, averageSat, Mathf.Lerp(averageLight, 0.6f, 0.5f)), Color.white, 0.175f);
-                        }
-                        else
-                        {
-                            colorEdge = Custom.HSL2RGB(UnityEngine.Random.Range(0.1f, 0.75f), 0.4f, 0.75f);
-                        }
-                        CustomWorldMod.Log($"Color for [{pack.name}] - MedianHue [{medianHue}] averageSat [{averageSat}] averagelight [{averageLight}] " +
-                            $"- Number of pixels [{numberOfPixels}] Colors [{hslColors.Count()}]", false, CustomWorldMod.DebugLevel.FULL);
+                        CustomWorldMod.Log($"[CM MENU] {pack.name} had null thumbnail texture", true);
                     }
-                    hslColors.Clear();
+                    else
+                    {
+                        Texture2D texture = new Texture2D(4, 4, TextureFormat.RGBA32, false);
+                        texture.LoadImage(procThumb.data); //..this will auto-resize the texture dimensions.
 
-                    newTex.SetPixels(convertedImage);
-                    newTex.Apply();
-                    TextureScale.Point(newTex, (int)(thumbSize.x), (int)(thumbSize.y));
-                    oldTex = newTex;
+                        TextureScale.Point(texture, (int)(thumbSize.x), (int)(thumbSize.y));
 
-                    OpImage thumbnail = new OpImage(thumbPos, oldTex);
+                        //thumbnail.sprite.scaleX *= thumbnail.sprite.x / thumbSize.x;
+                        //thumbnail.sprite.scaleY *= thumbnail.sprite.y / thumbSize.y;
 
-                    mainScroll.AddItems(thumbnail);
+                        OpImage thumbnail = new OpImage(thumbPos, texture);
+                        thumbnail.sprite.alpha = alpha;
+
+                        mainScroll.AddItems(thumbnail);
+                    }
                 }
                 else
                 {
@@ -864,7 +872,8 @@ namespace CustomRegions.Mod
         /// <param name="signal"></param>
         /// <param name="buttonText1"></param>
         /// <param name="error"></param>
-        public static WindowCM CreateWindowPopUp(OpTab tab, string contentText, string signalEnum1, string buttonText1, bool error, string buttonText2 = null)
+        public static WindowCM CreateWindowPopUp(OpTab tab, string contentText, string signalEnum1, string buttonText1, 
+            bool error, string buttonText2 = null)
         {
             WindowCM foundWindow = null;
             foreach (WindowCM window in windows)
@@ -1255,10 +1264,11 @@ namespace CustomRegions.Mod
             ShowWindow();
         }
 
-        internal void UpdateLoadingRotation(float dt)
+        internal void UpdateLoadingRotation(float dt, float rotation)
         {
             //CustomWorldMod.Log($"[WINDOW] Rotating loading... [{this.loading.sprite.rotation}]", false, CustomWorldMod.DebugLevel.FULL);
-            this.loading.sprite.rotation = Mathf.Lerp(this.loading.sprite.rotation, this.loading.sprite.rotation + 10, dt * 10);
+            //this.loading.sprite.rotation = Mathf.Lerp(this.loading.sprite.rotation, this.loading.sprite.rotation + 10, dt * 10);
+            this.loading.sprite.rotation = rotation;
             this.loading.GrafUpdate(dt);
         }
     }

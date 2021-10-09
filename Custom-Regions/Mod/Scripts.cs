@@ -24,14 +24,26 @@ namespace CustomRegions.Mod
         public string name;
         public int ID;
         public string action;
+        public Stopwatch stopwatch;
+
         public CustomWorldScript()
         {
             this.ID = (int)(UnityEngine.Random.Range(1, int.MaxValue));
         }
 
-        public virtual void Init() { CustomWorldMod.Log($"Init [{this.name}] [{this.ID}]"); }
+        public virtual void Init()
+        {
+            CustomWorldMod.Log($"Init [{this.name}] [{this.ID}]");
+            stopwatch = new Stopwatch();
+            stopwatch.Start();
+        }
 
-        public virtual void Clear() { CustomWorldMod.Log($"Clearing [{this.name}] [{this.ID}]"); }
+        public virtual void Clear()
+        {
+            stopwatch.Stop();
+            DateTime date2 = new DateTime(stopwatch.ElapsedTicks);
+            CustomWorldMod.Log($"[{this.name}] Clearing [{this.ID}]. Total time Elapsed [{date2.ToString("s.ffff")}s]", false, CustomWorldMod.DebugLevel.RELEASE);
+        }
 
         public virtual void Log(string log, bool error) { CustomWorldMod.Log($"[{this.name}] {log}", error, CustomWorldMod.DebugLevel.MEDIUM); }
 
@@ -55,7 +67,7 @@ namespace CustomRegions.Mod
         private static readonly string progressDivider = "<progDivider>";
         private static readonly string downloadDivider = "<downStat>";
         private static readonly string unzipDivider = "<zipStat>";
-        private static readonly string finishedDivider = "<finStat>";
+        //private static readonly string finishedDivider = "<finStat>";
         private bool movedDependencies;
         private bool errorGrabbingPack;
         private List<string> dependenciesName;
@@ -503,20 +515,23 @@ namespace CustomRegions.Mod
         int currentThumb;
         WWW www;
         bool next;
+        bool refreshedConfigScreen;
         //string path;
+
         private List<string> packNames;
         private List<string> urls;
         private Dictionary<string, byte[]> thumbOutput;
-        bool refreshedConfigScreen;
-        public ThumbnailDownloader(Dictionary<string, string> thumbInfo, ref Dictionary<string, byte[]> thumbOutput)
+        private Dictionary<string, ProcessedThumbnail> procThumbs;
+
+        public ThumbnailDownloader(Dictionary<string, string> thumbInfo, ref Dictionary<string, byte[]> thumbOutput, ref Dictionary<string, ProcessedThumbnail> procThumbs)
         {
             this.refreshedConfigScreen = false;
             this.name = "ThumbnailDownloader";
             this.action = "Downloading thumbnails";
-            this.Init(thumbInfo, ref thumbOutput);
+            this.Init(thumbInfo, ref thumbOutput, ref procThumbs);
         }
 
-        public void Init(Dictionary<string, string> thumbInfo, ref Dictionary<string, byte[]> thumbOutput)
+        public void Init(Dictionary<string, string> thumbInfo, ref Dictionary<string, byte[]> thumbOutput, ref Dictionary<string, ProcessedThumbnail> procThumbs)
         {
             base.Init();
             if (thumbInfo == null || thumbInfo.Count < 1)
@@ -529,15 +544,56 @@ namespace CustomRegions.Mod
             currentThumb = 0;
             this.packNames = thumbInfo.Keys.ToList();
             this.urls = thumbInfo.Values.ToList();
-            this.www = new WWW(urls[currentThumb]);
             this.readyToDelete = false;
             this.next = false;
             this.thumbOutput = thumbOutput;
+            this.procThumbs = procThumbs;
+
+
+            bool shouldDownload = false;
+            while (!shouldDownload && currentThumb < this.urls.Count)
+            {
+                string currentPackName = this.packNames[currentThumb];
+                DateTime current = DateTime.UtcNow;
+                if (CustomWorldMod.processedThumbnails.TryGetValue(currentPackName, out ProcessedThumbnail procThumb))
+                {
+                    TimeSpan diff = current - procThumb.dateDownloaded;
+                    this.Log($"[{currentPackName}]'s thumb was downloaded [{diff.TotalMinutes}] mins ago");
+
+                    if (Math.Abs(diff.TotalMinutes) > 5)
+                    {
+                        this.Log($"Downloading [{currentPackName}]'s thumb");
+                        shouldDownload = true;
+                        CustomWorldMod.processedThumbnails.Remove(currentPackName);
+                        break;
+                    }
+                    else
+                    {
+                        this.Log($"Skipping [{currentPackName}]'s thumb");
+                        currentThumb++;
+                    }
+
+                }
+                else
+                {
+                    shouldDownload = true;
+                    break;
+                }
+            }
+            if (currentThumb < this.urls.Count)
+            {
+                this.www = new WWW(urls[currentThumb]);
+            }
+            else
+            {
+                readyToDelete = true;
+            }
+
         }
 
         public override void Update()
         {
-            if (urls == null || currentThumb >= this.urls.Count || packNames == null)
+            if (urls == null || currentThumb >= this.urls.Count || packNames == null || www == null)
             {
                 readyToDelete = true;
                 return;
@@ -551,6 +607,7 @@ namespace CustomRegions.Mod
                     {
                         Log($"Downloaded thumb [{packNames[currentThumb]}]");
                         thumbOutput.Add(packNames[currentThumb], www.bytes);
+                        Texture2D tex = null;
 
                         if (CustomWorldMod.installedPacks.TryGetValue(packNames[currentThumb], out RegionPack value))
                         {
@@ -559,7 +616,6 @@ namespace CustomRegions.Mod
                             if (!File.Exists(path))
                             {
                                 Log($"Saving thumb from [{packNames[currentThumb]}]... Path [{path}]");
-                                Texture2D tex;
                                 tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
                                 tex.LoadImage(www.bytes);
                                 tex.Apply();
@@ -567,8 +623,55 @@ namespace CustomRegions.Mod
                                 File.WriteAllBytes(path, file);
                             }
                         }
+                        // Proccess thumbnail
+                        if (tex == null)
+                        {
+                            tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
+                            tex.LoadImage(www.bytes); //..this will auto-resize the texture dimensions.
+                        }
+
+                        ProcessedThumbnail procThumb = CRExtras.ProccessThumbnail(tex, www.bytes, packNames[currentThumb]);
+                        Log($"Adding processed thumbnail [{packNames[currentThumb]}]");
+                        if (CustomWorldMod.processedThumbnails.ContainsKey(packNames[currentThumb]) )
+                        {
+                            CustomWorldMod.processedThumbnails[packNames[currentThumb]] = procThumb;
+                        }
+                        else
+                        {
+                            CustomWorldMod.processedThumbnails.Add(packNames[currentThumb], procThumb);
+                        }
+                        
+
                         next = true;
                         currentThumb++;
+
+                        bool shouldDownload = false;
+                        while (!shouldDownload && currentThumb < this.urls.Count)
+                        {
+                            string currentPackName = this.packNames[currentThumb];
+                            DateTime current = DateTime.UtcNow;
+                            Log($"[{currentPackName}] Checking if thumbnail needs to be downloaded...");
+                            if (CustomWorldMod.processedThumbnails.TryGetValue(currentPackName, out ProcessedThumbnail tempThumb))
+                            {
+                                TimeSpan diff = current - tempThumb.dateDownloaded;
+                                this.Log($"[{currentPackName}]'s thumb was downloaded [{diff.TotalMinutes}] mins ago");
+                                if (Math.Abs(diff.TotalMinutes) > 2)
+                                {
+                                    shouldDownload = true;
+                                    break;
+                                }
+                                else
+                                {
+                                    currentThumb++;
+                                }
+
+                            }
+                            else
+                            {
+                                shouldDownload = true;
+                                break;
+                            }
+                        }
                     }
                     else
                     {
@@ -603,7 +706,9 @@ namespace CustomRegions.Mod
             {
                 if (this.packNames != null)
                 { this.packNames.Clear(); }
-                this.www.Dispose();
+
+                if (this.www != null)
+                { this.www.Dispose(); }
             }
             catch (Exception e) { Log(e.Message, true); }
 

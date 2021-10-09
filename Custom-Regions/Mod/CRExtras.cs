@@ -4,6 +4,9 @@ using System.Threading;
 using System.IO;
 using System.Reflection;
 using MonoMod.RuntimeDetour;
+using System.Collections.Generic;
+using System.Linq;
+using RWCustom;
 
 namespace CustomRegions.Mod
 {
@@ -47,6 +50,91 @@ namespace CustomRegions.Mod
             Songs
 
         }
+
+        public static CustomWorldStructs.ProcessedThumbnail ProccessThumbnail(Texture2D oldTex, byte[] data, string packName)//,  bool activated, bool raindb)
+        {
+            Color colorEdge;
+            Texture2D newTex = new Texture2D(oldTex.width, oldTex.height, TextureFormat.RGBA32, false);
+            Color[] convertedImage = oldTex.GetPixels();
+            List<HSLColor> hslColors = new List<HSLColor>();
+            int numberOfPixels = convertedImage.Length;
+            for (int c = 0; c < numberOfPixels; c++)
+            {
+                /*
+                // Change opacity if not active
+                if (!activated && !raindb)
+                {
+                    convertedImage[c].a *= 0.65f;
+                }
+                */
+                HSLColor hslColor = CRExtras.RGB2HSL(convertedImage[c]);
+                if (hslColor.saturation > 0.25 && hslColor.lightness > 0.25 && hslColor.lightness < 0.75f)
+                {
+                    hslColors.Add(hslColor);
+                }
+            }
+            float averageLight = 0f;
+            float averageSat = 0f;
+            float medianHue = 0f;
+
+            // Calculate average light and sat
+            if (hslColors.Count > 0)
+            {
+                foreach (HSLColor color in hslColors)
+                {
+                    averageLight += color.lightness / hslColors.Count;
+                    averageSat += color.saturation / hslColors.Count;
+                }
+            }
+            // Calculate median hue
+            int half = hslColors.Count() / 2;
+            var sortedColors = hslColors.OrderBy(x => x.hue);
+            if (half != 0 && half < sortedColors.Count())
+            {
+                try
+                {
+                    if ((hslColors.Count % 2) == 0)
+                    {
+                        medianHue = (sortedColors.ElementAt(half).hue + sortedColors.ElementAt(half - 1).hue) / 2;
+                    }
+                    else
+                    {
+                        medianHue = sortedColors.ElementAt(half).hue;
+                    }
+                }
+                catch (Exception e) { CustomWorldMod.Log($"Cannot calculate median hue [{e}] for [{packName}]", true); }
+            }
+            
+            //if ((activated || raindb))
+            {
+                if (averageSat > 0.15f)
+                {
+                    colorEdge = Color.Lerp(Custom.HSL2RGB(medianHue, averageSat, Mathf.Lerp(averageLight, 0.6f, 0.5f)), Color.white, 0.175f);
+                }
+                else
+                {
+                    colorEdge = Custom.HSL2RGB(UnityEngine.Random.Range(0.1f, 0.75f), 0.4f, 0.75f);
+                }
+                CustomWorldMod.Log($"Color for [{packName}] - MedianHue [{medianHue}] averageSat [{averageSat}] averagelight [{averageLight}] " +
+                    $"- Number of pixels [{numberOfPixels}]]", false, CustomWorldMod.DebugLevel.FULL);
+            }
+
+            hslColors.Clear();
+
+            //newTex.SetPixels(convertedImage);
+            //newTex.Apply();
+            //TextureScale.Point(newTex, (int)(thumbSize.x), (int)(thumbSize.y));
+            CustomWorldStructs.ProcessedThumbnail procThumb = new CustomWorldStructs.ProcessedThumbnail();
+
+            procThumb.dateDownloaded = DateTime.UtcNow;
+            procThumb.mainColor = colorEdge;
+            procThumb.data = data;
+
+            CustomWorldMod.Log($"Processed thumbnail for [{packName}] at [{procThumb.dateDownloaded}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+
+            return procThumb;
+        }
+
 
         /// <summary>
         /// Builds a folder path. It will return a specific file if specified, otherwise it will end with backslash.

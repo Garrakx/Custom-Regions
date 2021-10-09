@@ -343,5 +343,12 @@ namespace CustomRegions.Mod
             }
             */
         }
+
+        public struct ProcessedThumbnail
+        {
+            public DateTime dateDownloaded;
+            public Color mainColor;
+            public byte[] data;
+        }
     }
 }
