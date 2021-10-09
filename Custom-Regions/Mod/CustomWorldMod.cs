@@ -53,7 +53,7 @@ namespace CustomRegions.Mod
         {
             mod = this;
             ModID = "Custom Regions Mod";
-            Version = "0.9." + version + "-experimental.6";
+            Version = "0.9." + version + "-experimental.6.1";
             author = "Garrakx";
             versionCR = $"v{Version}";
         }
@@ -146,13 +146,6 @@ namespace CustomRegions.Mod
             }
         }
 
-        public override void OnDisable()
-        {
-            base.OnDisable();
-            Hooks.RemoveAllHooks();
-        }
-
-
 
         public static CustomWorldOption LoadOI()
         {
@@ -203,26 +196,20 @@ namespace CustomRegions.Mod
         public static List<string> activeModdedRegions;
 
         /// <summary>
-        /// Dictionary containing the thumbnails. Key is the pack name and value is the thumb in byte array.
+        /// Dictionary containing the thumbnails bytes. Key is the pack name and value is the thumb in byte array.
         /// </summary>
         public static Dictionary<string, byte[]> downloadedThumbnails;
 
+        /// <summary>
+        /// Dictionary containing the thumbnails struct. Key is the pack name and value is the thumb struct.
+        /// </summary>
+        public static Dictionary<string, ProcessedThumbnail> processedThumbnails;
 
         /// <summary>
         /// List containing Custom Regions scripts
         /// </summary>
         public static List<CustomWorldScript> scripts;
 
-        /// <summary>
-        /// Dictionary with all installed regions, where the Key is the region ID and the value is a struct with its information.
-        /// </summary>
-        //public static Dictionary<string, RegionPack> availableRegions;
-
-
-        /// <summary>
-        /// Dictionary with all installed regions, where the Key is the region ID and the value is a struct with its configuration.
-        /// </summary>
-        //public static Dictionary<string, RegionConfiguration> configurationRegions;
 
         readonly static string[] ResourceFolders = {
             "Atlases", "Audio", "Decals", "Illustrations", "LoadedSoundEffects", "Music", "Palettes", "Projections"
@@ -290,6 +277,8 @@ namespace CustomRegions.Mod
         /// Bool that displays if the user is using BepInEx modloader or no
         /// </summary>
         internal static bool usingBepinex;
+
+        public static bool crashPlacedObjects;
 
 
         public static readonly string customUnlocksFileName = "customUnlocks";
@@ -500,11 +489,15 @@ namespace CustomRegions.Mod
             }
         }
 
+        static System.Diagnostics.Stopwatch crsPackIntializationWatch = null;
         /// <summary>
         /// Builds available regions, loaded regions and save analyzer
         /// </summary>
         public static void LoadCustomWorldResources()
         {
+            crsPackIntializationWatch = new System.Diagnostics.Stopwatch();
+            crsPackIntializationWatch.Start();
+
             InitializeDictionaries();
 
             if (OfflineMode)
@@ -537,7 +530,7 @@ namespace CustomRegions.Mod
 
             CustomWorldMod.LoadInstalledPacks();
 
-            CustomWorldMod.BuildModRegionsDictionary();
+            CustomWorldMod.BuildModRegionsDictionary(); 
 
             if (OfflineMode) { CustomWorldMod.LoadThumbnails(); }
 
@@ -553,6 +546,13 @@ namespace CustomRegions.Mod
             }
             catch (Exception e) { CustomWorldMod.Log($"Could not reload player progression [{e}]"); }
 
+            crsPackIntializationWatch.Stop();
+
+            DateTime date2 = new DateTime(crsPackIntializationWatch.ElapsedTicks);
+            CustomWorldMod.Log($"Finished loading CRS. Total time Elapsed [{date2.ToString("s.ffff")}s]", false, 
+                CustomWorldMod.DebugLevel.RELEASE);
+
+
         }
 
         private static void InitializeDictionaries()
@@ -562,6 +562,14 @@ namespace CustomRegions.Mod
             CustomWorldMod.activatedPacks = new Dictionary<string, string>();
             CustomWorldMod.downloadedThumbnails = new Dictionary<string, byte[]>();
             CustomWorldMod.levelUnlocks = new Dictionary<string, string>();
+
+            // Only initialize it first time
+            if (CustomWorldMod.processedThumbnails == null)
+            {
+                CustomWorldMod.processedThumbnails = new Dictionary<string, ProcessedThumbnail>();
+            }
+
+            crashPlacedObjects = false;
         }
 
         /// <summary>
@@ -1365,7 +1373,7 @@ namespace CustomRegions.Mod
                         
                         else
                         {
-                            Log($"Convo already encrypted: [{k}]", false, DebugLevel.FULL);
+                            Log($"Convo already encrypted: [{(InGameTranslator.LanguageID)j}] ({k})", false, DebugLevel.FULL);
                         }
                         
 
@@ -1710,6 +1718,18 @@ namespace CustomRegions.Mod
                     byte[] fileData;
                     fileData = File.ReadAllBytes(thumbPath);
                     downloadedThumbnails.Add(entry.Value.name, fileData);
+
+                    Texture2D tex = new Texture2D(4, 4, TextureFormat.RGBA32, false);
+                    tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
+                    ProcessedThumbnail procThumb = CRExtras.ProccessThumbnail(tex, fileData, entry.Value.name);
+                    if (CustomWorldMod.processedThumbnails.ContainsKey(entry.Value.name))
+                    {
+                        CustomWorldMod.processedThumbnails[entry.Value.name] = procThumb;
+                    }
+                    else
+                    {
+                        CustomWorldMod.processedThumbnails.Add(entry.Value.name, procThumb);
+                    }
                 }
                 else
                 {
@@ -1717,13 +1737,14 @@ namespace CustomRegions.Mod
                     {
                         try
                         {
-                            Log($"Queue thumb for [{entry.Value.name}] - {entry.Value.thumbUrl} (Folder [{thumbPath}])", false, DebugLevel.MEDIUM);
+                            Log($"Queue thumb for local [{entry.Value.name}] - {entry.Value.thumbUrl} (Folder [{thumbPath}])", false, DebugLevel.MEDIUM);
                             thumbInfo.Add(entry.Value.name, entry.Value.thumbUrl);
                         }
                         catch (Exception e) { Log($"Error queuing thumbs [{e}] [{entry.Value.thumbUrl}]", true); }
                     }
                     // No thumbnail to load, no url to grab
                     Log($"[{entry.Value.name}] does not have local thumbnail, nor URL to download");
+                    throw new Exception("[LoadingThumbnails] Bad logic, contact mod author");
                 }
             }
 
@@ -1743,7 +1764,7 @@ namespace CustomRegions.Mod
             // Create thumbnail downloader
             if (scripts.FindAll(x => x is ThumbnailDownloader).Count == 0 && !CustomWorldMod.OfflineMode)
             {
-                scripts.Add(new ThumbnailDownloader(thumbInfo, ref downloadedThumbnails));
+                scripts.Add(new ThumbnailDownloader(thumbInfo, ref downloadedThumbnails, ref processedThumbnails));
             }
         }
 
