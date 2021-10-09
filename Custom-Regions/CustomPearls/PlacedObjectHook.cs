@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace CustomRegions.CustomPearls
 {
@@ -35,8 +36,19 @@ namespace CustomRegions.CustomPearls
             }
             catch (Exception e)
             {
-                CustomWorldMod.Log("Error loading placed objects " + e, true);
+                CustomWorldMod.Log($"Error loading placed objects {e}", true);
+                Debug.LogError("[CustomRegions] " + e);
+                CustomWorldMod.crashPlacedObjects = true;
             }
+            /*
+            // Log error
+            Menu.PauseMenu pause = (CustomWorldMod.rainWorldInstance.processManager.currentMainLoop as RainWorldGame).pauseMenu;
+            string textError = "Error while loading placedObjects, you might be missing .dll dependencies";
+            Menu.MenuLabel errorLabel = new Menu.MenuLabel(pause, pause.pages[0], textError, new Vector2(50f, (CustomWorldMod.rainWorldInstance.options.ScreenSize.y - 20f)), default(Vector2), true);
+            errorLabel.label.color = Color.red;
+            pause.pages[0].subObjects.Add(errorLabel);
+            */
+            
         }
 
         private static string DataPearlData_ToString(On.PlacedObject.DataPearlData.orig_ToString orig, PlacedObject.DataPearlData self)

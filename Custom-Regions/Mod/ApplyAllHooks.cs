@@ -38,6 +38,7 @@ namespace CustomRegions.Mod
             MenuIllustrationHook.ApplyHooks();
             MenuSceneHook.ApplyHooks();
             MultiplayerMenuHook.ApplyHooks();
+            PauseMenuHook.ApplyHooks();
             SlugcatSelectMenuHook.ApplyHooks();
 
             /// CUSTOM PEARLS ///
@@ -83,81 +84,6 @@ namespace CustomRegions.Mod
             WinStateHook.ApplyHooks();
             // WWW
             WWWHook.ApplyHooks();
-        }
-
-        public static void RemoveAllHooks()
-        {
-            if (!CustomWorldMod.usingBepinex)
-            {
-                CustomWorldMod.Log($"Could not disable hooks since you are using Partiality! Consider upgrading to BepInEx", true);
-                // Partiality crashes with -=
-                return;
-                // :(
-            }
-
-            /// ARENAS ///
-            ArenaCreatureSpawnerHook.RemoveHooks();
-            MultiplayerUnlocksHook.RemoveHooks();
-
-            /// CREATURES ///
-            BigEelHook.RemoveHooks();
-            DaddyLongLegsHook.RemoveHooks();
-            DaddyCorruptionHook.RemoveHooks();
-            FlyGraphicsHook.RemoveHooks();
-            LizardGraphicsHook.RemoveHooks();
-            ScavengerAbstractAIHook.RemoveHooks();
-            TentaclePlantGraphicsHook.RemoveHooks();
-
-            /// CUSTOM MENU ///
-            FastTravelScreenHook.RemoveHooks();
-            MenuIllustrationHook.RemoveHooks();
-            MenuSceneHook.RemoveHooks();
-            MultiplayerMenuHook.RemoveHooks();
-            SlugcatSelectMenuHook.RemoveHooks();
-
-            /// CUSTOM PEARLS ///
-            DataPearlHook.RemoveHooks();
-            PlacedObjectHook.RemoveHooks();
-            SLOracleBehaviorHasMarkHook.RemoveHooks();
-
-            /// DEV INTERFACE ///
-            MapPageHook.RemoveHooks();
-            MapRenderOutputHook.RemoveHooks();
-            CustomDecalRepresentationHook.RemoveHooks();
-            SoundPageHook.RemoveHooks();
-            TriggersPageHook.RemoveHooks();
-
-            /// HUD ///
-            MapHook.RemoveHooks();
-
-            /// MUSIC ///
-            MultiplayerDJHook.RemoveHooks();
-            MusicPieceHook.RemoveHooks();
-            ProceduralMusicInstructionsHook.RemoveHooks();
-            SoundLoaderHook.RemoveHooks();
-
-
-            /// WORLD ///
-            OverWorldHook.RemoveHooks();
-            RegionGateHook.RemoveHooks();
-            RegionHook.RemoveHooks();
-            WorldHook.RemoveHooks();
-            WorldLoaderHook.RemoveHooks();
-
-
-            MainLoopProcessHook.RemoveHooks();
-            PlayerProgressionHook.RemoveHooks();
-            // Rain world instance
-            RainWorldHook.RemoveHooks();
-            // Custom Palette
-            RoomCameraHook.RemoveHooks();
-            RoomHook.RemoveHooks();
-            RoomSettingsHook.RemoveHooks();
-            SaveStateHook.RemoveHooks();
-            // WinState - achievement
-            WinStateHook.RemoveHooks();
-            // WWW
-            WWWHook.RemoveHooks();
         }
     }
 }
