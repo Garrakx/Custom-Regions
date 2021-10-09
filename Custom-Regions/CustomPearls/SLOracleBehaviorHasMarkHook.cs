@@ -99,13 +99,13 @@ namespace CustomRegions.CustomPearls
             orig(self);
         }
 
-        private static void LoadCustomEventsFromFile(int fileName, string regionPack, Conversation self)
+        private static void LoadCustomEventsFromFile(int fileName, string regionPackFolder, Conversation self)
         {
             CustomWorldMod.Log("~~~LOAD CONVO " + fileName);
 
             string file = "Text_" + LocalizationTranslator.LangShort(CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage)
                 + Path.DirectorySeparatorChar + fileName + ".txt";
-            string convoPath = CRExtras.BuildPath(regionPack, CRExtras.CustomFolder.Text, file: file);
+            string convoPath = CRExtras.BuildPath(regionPackFolder, CRExtras.CustomFolder.Text, file: file);
 
             if (!File.Exists(convoPath))
             {
@@ -115,11 +115,11 @@ namespace CustomRegions.CustomPearls
             string text2 = File.ReadAllText(convoPath, Encoding.Default);
             if (text2[0] == '0')
             {
-                CustomWorldMod.EncryptCustomDialogue(CRExtras.BuildPath(regionPack, CRExtras.CustomFolder.Text), regionPack);
+                CustomWorldMod.EncryptCustomDialogue(CRExtras.BuildPath(regionPackFolder, CRExtras.CustomFolder.Text), regionPackFolder);
             }
             else
             {
-                CustomWorldMod.Log($"Decrypting file [{fileName}] from [{regionPack}] in [{CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage}]");
+                CustomWorldMod.Log($"Decrypting file [{fileName}] at [{regionPackFolder}] in [{CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage}]");
                 text2 = Custom.xorEncrypt(text2, (int)(54 + fileName + (int)CustomWorldMod.rainWorldInstance.inGameTranslator.currentLanguage * 7));
             }
             string[] array = Regex.Split(text2, Environment.NewLine);

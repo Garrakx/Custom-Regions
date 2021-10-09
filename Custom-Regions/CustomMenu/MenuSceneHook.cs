@@ -122,16 +122,13 @@ namespace CustomRegions.CustomMenu
                 // Load positions
                 LoadScenePositionSettings(self, sceneFolder, regionID);
             }
-            string packName = "N/A";
-            try
-            {
-                 packName = CustomWorldMod.installedPacks.First(x => x.Value.regions.Contains(regionID)).Value.folderName;
-            } catch { }
+            string packFolder = CustomWorldMod.installedPacks.First(x => x.Value.regions.Contains(regionID)).Value.folderName;
+
             /*
             string path = CustomWorldMod.resourcePath + packName + Path.DirectorySeparatorChar;
             string titleFolderName = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Illustrations"+ Path.DirectorySeparatorChar;
             */
-            string titleFolderName = CRExtras.BuildPath(packName, CRExtras.CustomFolder.Illustrations);
+            string titleFolderName = CRExtras.BuildPath(packFolder, CRExtras.CustomFolder.Illustrations);
             if (Directory.Exists(titleFolderName))
             {
                 if (self.menu.ID == ProcessManager.ProcessID.FastTravelScreen || self.menu.ID == ProcessManager.ProcessID.RegionsOverviewScreen)
@@ -197,15 +194,15 @@ namespace CustomRegions.CustomMenu
                 }
                 catch (Exception e) { CustomWorldMod.Log($"Error trimming regionID [{self.sceneID}] {e}", true); return; }
 
-                string regionFolder = string.Empty;
+                string regionPackFolder = string.Empty;
                 try
                 {
                     // This might be slow
-                    regionFolder = CustomWorldMod.installedPacks.FirstOrDefault(x=>(x.Value.activated && x.Value.regions.Contains(regionID))).Key; 
+                    regionPackFolder = CustomWorldMod.installedPacks.FirstOrDefault(x=>(x.Value.activated && x.Value.regions.Contains(regionID))).Value.folderName; 
                 }
                 catch (Exception e) { CustomWorldMod.Log($"Error finding regionName [{self.sceneID}] {e}", true); return; }
 
-                string sceneFolder = CRExtras.BuildPath(regionFolder, CRExtras.CustomFolder.Scenes, folder: $"Landscape - {regionID}");
+                string sceneFolder = CRExtras.BuildPath(regionPackFolder, CRExtras.CustomFolder.Scenes, folder: $"Landscape - {regionID}");
                 CustomWorldMod.Log($"Custom Regions: Searching assets at {sceneFolder}", false, CustomWorldMod.DebugLevel.MEDIUM);
                 if (Directory.Exists(sceneFolder))
                 {
