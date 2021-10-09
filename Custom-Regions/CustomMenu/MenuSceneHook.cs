@@ -128,7 +128,7 @@ namespace CustomRegions.CustomMenu
             string path = CustomWorldMod.resourcePath + packName + Path.DirectorySeparatorChar;
             string titleFolderName = path + "Assets" + Path.DirectorySeparatorChar + "Futile" + Path.DirectorySeparatorChar + "Resources" + Path.DirectorySeparatorChar + "Illustrations"+ Path.DirectorySeparatorChar;
             */
-            string titleFolderName = CRExtras.BuildPath(packFolder, CRExtras.CustomFolder.Illustrations);
+            string titleFolderName = CRExtras.BuildPath(packFolder, CRExtras.CustomFolder.Illustrations, includeRoot: false);
             if (Directory.Exists(titleFolderName))
             {
                 if (self.menu.ID == ProcessManager.ProcessID.FastTravelScreen || self.menu.ID == ProcessManager.ProcessID.RegionsOverviewScreen)
@@ -202,7 +202,7 @@ namespace CustomRegions.CustomMenu
                 }
                 catch (Exception e) { CustomWorldMod.Log($"Error finding regionName [{self.sceneID}] {e}", true); return; }
 
-                string sceneFolder = CRExtras.BuildPath(regionPackFolder, CRExtras.CustomFolder.Scenes, folder: $"Landscape - {regionID}");
+                string sceneFolder = CRExtras.BuildPath(regionPackFolder, CRExtras.CustomFolder.Scenes, folder: $"Landscape - {regionID}", includeRoot: false);
                 CustomWorldMod.Log($"Custom Regions: Searching assets at {sceneFolder}", false, CustomWorldMod.DebugLevel.MEDIUM);
                 if (Directory.Exists(sceneFolder))
                 {
