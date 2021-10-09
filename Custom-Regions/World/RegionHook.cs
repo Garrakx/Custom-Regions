@@ -56,7 +56,7 @@ namespace CustomRegions.CWorld
         {
             CustomWorldMod.Log($"Creating region {name}", false, CustomWorldMod.DebugLevel.FULL);
             orig(self, name, firstRoomIndex, regionNumber);
-            string[] vanillaTemplateNames = (string[]) self.roomSettingTemplateNames.Clone();
+            string[] vanillaTemplateNames = (string[])self.roomSettingTemplateNames.Clone();
 
             self.roomSettingTemplateNames = null;
             self.roomSettingsTemplates = null;
@@ -134,17 +134,17 @@ namespace CustomRegions.CWorld
                                             }
 
                                             currentTemplateNames = new List<string>(self.roomSettingTemplateNames);
-                                            
+
                                             for (int j = 0; j < array2.Length; j++)
                                             {
                                                 string newTemplate = array2[j];
                                                 if (!currentTemplateNames.Contains(newTemplate))
                                                 {
                                                     CustomWorldMod.Log(
-                                                        $"Adding new custom templates [{newTemplate}] at ({j+previousIndex}) for [{keyValues.Key}]", 
+                                                        $"Adding new custom templates [{newTemplate}] at ({j + previousIndex}) for [{keyValues.Key}]",
                                                         false, CustomWorldMod.DebugLevel.FULL);
 
-                                                    self.roomSettingTemplateNames[j+previousIndex] = newTemplate;
+                                                    self.roomSettingTemplateNames[j + previousIndex] = newTemplate;
                                                     self.ReloadRoomSettingsTemplate(newTemplate);
                                                 }
                                             }
@@ -205,7 +205,7 @@ namespace CustomRegions.CWorld
             {
                 // merge
                 currentTemplateNames = new List<string>(self.roomSettingTemplateNames);
-                
+
             }
             else
             {
@@ -235,10 +235,10 @@ namespace CustomRegions.CWorld
         {
             bool customRegion = false;
             int totalRooms = 0;
-            
+
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                string worldFilePath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: name, file: "world_"+name+".txt");
+                string worldFilePath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: name, file: "world_" + name + ".txt");
                 if (File.Exists(worldFilePath))
                 {
                     customRegion = true;
