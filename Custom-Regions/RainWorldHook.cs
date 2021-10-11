@@ -32,16 +32,26 @@ namespace CustomRegions
         private static void RainWorldGame_RestartGame(On.RainWorldGame.orig_RestartGame orig, RainWorldGame self)
         {
             orig(self);
-            CustomWorldMod.LoadCustomWorldResources();
-            // Line above resets progression, including map discovery textures...
-            // Fix nullref on map discovery in the frame of the reset lol
-            for (int num = 0; num < self.cameras.Length; num++)
+
+            if (UnityEngine.Input.GetKey(UnityEngine.KeyCode.LeftShift))
             {
-                self.cameras[num].hud.ResetMap(new HUD.Map.MapData(self.world, self.rainWorld));
-                if (self.cameras[num].hud.textPrompt.subregionTracker != null)
+                CustomWorldMod.Log("\nResetting CRS ... \n");
+                CustomWorldMod.LoadCustomWorldResources();
+
+                // Line above resets progression, including map discovery textures...
+                // Fix nullref on map discovery in the frame of the reset lol
+                for (int num = 0; num < self.cameras.Length; num++)
                 {
-                    self.cameras[num].hud.textPrompt.subregionTracker.lastShownRegion = 0;
+                    self.cameras[num].hud.ResetMap(new HUD.Map.MapData(self.world, self.rainWorld));
+                    if (self.cameras[num].hud.textPrompt.subregionTracker != null)
+                    {
+                        self.cameras[num].hud.textPrompt.subregionTracker.lastShownRegion = 0;
+                    }
                 }
+            }
+            else
+            {
+                CustomWorldMod.Log("Hold [shift]+[r] to also reset CRS packs and configuration");
             }
         }
 
