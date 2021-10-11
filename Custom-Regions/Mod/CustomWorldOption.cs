@@ -658,7 +658,7 @@ namespace CustomRegions.Mod
                     float alpha = 1f;
                     if (!activated && !raindb)
                     {
-                        alpha = 0.65f;
+                        alpha = 0.75f;
                     }
                     else
                     {
@@ -674,13 +674,13 @@ namespace CustomRegions.Mod
                         Texture2D texture = new Texture2D(4, 4, TextureFormat.RGBA32, false);
                         texture.LoadImage(procThumb.data); //..this will auto-resize the texture dimensions.
 
-                        TextureScale.Point(texture, (int)(thumbSize.x), (int)(thumbSize.y));
+                        //TextureScale.Point(texture, (int)(thumbSize.x), (int)(thumbSize.y));
 
-                        //thumbnail.sprite.scaleX *= thumbnail.sprite.x / thumbSize.x;
-                        //thumbnail.sprite.scaleY *= thumbnail.sprite.y / thumbSize.y;
+                        //thumbnail.scale *= thumbnail.sprite.y / thumbSize.y;
 
                         OpImage thumbnail = new OpImage(thumbPos, texture);
-                        thumbnail.sprite.alpha = alpha;
+                        thumbnail.scale = new Vector2(thumbSize.x / texture.width, thumbSize.y / texture.height);
+                        thumbnail.alpha = alpha;
 
                         mainScroll.AddItems(thumbnail);
                     }
