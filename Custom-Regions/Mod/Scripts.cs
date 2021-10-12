@@ -699,7 +699,7 @@ namespace CustomRegions.Mod
                 }
                 catch (Exception e)
                 {
-                    Log("Error reloading config menu: " + e, true);
+                    Log("Error reloading config menu: " + e);
                 }
             }
             try
