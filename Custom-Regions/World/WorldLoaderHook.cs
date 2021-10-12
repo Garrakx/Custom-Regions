@@ -54,6 +54,18 @@ namespace CustomRegions.CWorld
             absRoomLoadWatch.Start();
             orig(world, roomName, room, setupValues);
             absRoomLoadWatch.Stop();
+            
+            try
+            {
+                string[] levelText = File.ReadAllLines(WorldLoader.FindRoomFileDirectory(roomName, false) + ".txt");
+                int baked = int.Parse(levelText[9].Split(new char[] { '|' })[0]);
+                //CustomWorldMod.Log($"[WORLD LOADER] Room baked: {]", false, CustomWorldMod.DebugLevel.MEDIUM);
+                if (baked == 0)
+                {
+                    CustomWorldMod.unbakedRooms.Add($"{roomName}");
+                }
+            } catch { }
+
             /*
             DateTime date = new DateTime(absRoomWatch.ElapsedTicks);
             CustomWorldMod.Log($"[WorldLoader]: Loading AbstractRoom [{roomName}]. Time Elapsed [{date.ToString("s.ffff")}s]", false, CustomWorldMod.DebugLevel.FULL);
@@ -93,6 +105,12 @@ namespace CustomRegions.CWorld
             {
                 DateTime date2 = new DateTime(worldLoaderWatch.ElapsedTicks);
                 CustomWorldMod.Log($"[WorldLoader]: Finished loading world [{self.worldName}]. Total time Elapsed [{date2.ToString("s.ffff")}s]", false, CustomWorldMod.DebugLevel.RELEASE);
+
+                if (CustomWorldMod.unbakedRooms.Count > 0)
+                {
+                    string unbakedRooms = string.Join(", ", CustomWorldMod.unbakedRooms.ToArray());
+                CustomWorldMod.Log($"Found unbaked rooms from [{self.worldName}]. \n[{unbakedRooms}]", true);
+                }
             }
         }
         #endregion
@@ -1450,6 +1468,8 @@ namespace CustomRegions.CWorld
             pendingToLoadCustomRegion = false;
             CustomWorldMod.Log($"Custom Regions: Creating WorldLoader : Game [{game}]. PlayerCharacter [{playerCharacter}]. " +
                 $"SingleRoomWorld [{singleRoomWorld}]. WorldName [{worldName}]", false, CustomWorldMod.DebugLevel.FULL);
+
+            CustomWorldMod.unbakedRooms.Clear();
 
             worldLoaderWatch = new Stopwatch();
             absRoomLoadWatch = new Stopwatch();

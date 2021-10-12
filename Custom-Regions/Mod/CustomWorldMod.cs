@@ -53,7 +53,7 @@ namespace CustomRegions.Mod
         {
             mod = this;
             ModID = "Custom Regions Mod";
-            Version = "0.9." + version + "-experimental.6.1";
+            Version = "0.9." + version + "-pre-release.2";
             author = "Garrakx";
             versionCR = $"v{Version}";
         }
@@ -204,6 +204,11 @@ namespace CustomRegions.Mod
         /// Dictionary containing the thumbnails struct. Key is the pack name and value is the thumb struct.
         /// </summary>
         public static Dictionary<string, ProcessedThumbnail> processedThumbnails;
+
+        /// <summary>
+        /// List with unbaked rooms.
+        /// </summary>
+        public static List<string> unbakedRooms;
 
         /// <summary>
         /// List containing Custom Regions scripts
@@ -562,7 +567,7 @@ namespace CustomRegions.Mod
             CustomWorldMod.activatedPacks = new Dictionary<string, string>();
             CustomWorldMod.downloadedThumbnails = new Dictionary<string, byte[]>();
             CustomWorldMod.levelUnlocks = new Dictionary<string, string>();
-
+            CustomWorldMod.unbakedRooms = new List<string>();
             // Only initialize it first time
             if (CustomWorldMod.processedThumbnails == null)
             {
@@ -1744,7 +1749,6 @@ namespace CustomRegions.Mod
                     }
                     // No thumbnail to load, no url to grab
                     Log($"[{entry.Value.name}] does not have local thumbnail, nor URL to download");
-                    throw new Exception("[LoadingThumbnails] Bad logic, contact mod author");
                 }
             }
 
