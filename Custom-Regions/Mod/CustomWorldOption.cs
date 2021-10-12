@@ -371,8 +371,7 @@ namespace CustomRegions.Mod
                         }
                     }
                 }
-                else if ((signal.Contains(OptionSignal.TryDisableToggle.ToString()) || signal.Contains(OptionSignal.TryUninstall.ToString()))
-                    && (CustomWorldMod.scripts.FindAll(x => x is PackDownloader).Count != 0))
+                else if (signal.Contains("Try") && (CustomWorldMod.scripts.Count > 0 && CustomWorldMod.scripts.FindAll(x => x is PackDownloader).Count != 0))
                 {
                     CustomWorldMod.Log("Pack downloader in process");
 
@@ -398,7 +397,7 @@ namespace CustomRegions.Mod
                             CreateWindowPopUp(tab, text, $"{OptionSignal.Uninstall}_{packName}", "Uninstall", true, buttonText2: "Cancel");
                         }
                     }
-                    catch (Exception e) { CustomWorldMod.Log("A " + e); }
+                    catch (Exception e) { CustomWorldMod.Log("Uninstall failed: " + e); }
                 }
                 else if (signal.Contains(OptionSignal.Uninstall.ToString()))
                 {
@@ -440,7 +439,7 @@ namespace CustomRegions.Mod
                             CreateWindowPopUp(tab, text, $"{OptionSignal.DisableToggle}_{packName}", action, true, buttonText2: "Cancel");
                         }
                     }
-                    catch (Exception e) { CustomWorldMod.Log("A " + e); }
+                    catch (Exception e) { CustomWorldMod.Log("DisabelToggled failed: " + e); }
                 }
                 else if (signal.Contains(OptionSignal.DisableToggle.ToString()))
                 {
@@ -462,6 +461,41 @@ namespace CustomRegions.Mod
 
                     }
                     catch (Exception e) { CustomWorldMod.Log($"Could not disable pack [{signal}] {e}", true); }
+                }
+                else if (signal.Contains(OptionSignal.TryWipeProgress.ToString()))
+                {
+
+                    try
+                    {
+                        string text = $"Do you want to reset all progress?\n" +
+                            $"WARNING!\n" +
+                            $"This will reset all progress in the selected save slot,\n" +
+                            $"including map exploration. Unlocked arenas and\n" +
+                            $"sandbox items are retained.";
+                        OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
+
+                        if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
+                        {
+                            CreateWindowPopUp(tab, text, $"{OptionSignal.WipeProgress}", "Wipe", true, buttonText2: "Cancel");
+                        }
+                    }
+                    catch (Exception e) { CustomWorldMod.Log("Wipe failed: " + e); }
+                }
+                else if (signal.Contains(OptionSignal.WipeProgress.ToString()))
+                {
+                    // Wipe progress
+                    try
+                    {
+                        CRExtras.TryPlayMenuSound(SoundID.MENU_Switch_Page_In);
+                        WindowCM current = GetActiveWindow();
+                        if (current != null)
+                        {
+                            current.ShowLoading();
+                        }
+                        CustomWorldMod.rainWorldInstance.progression.WipeAll();
+                        this.Signal(trigger, OptionSignal.Refresh.ToString());
+                    }
+                    catch (Exception e) { CustomWorldMod.Log($"Could not wipe progress [{signal}] {e}", true); }
                 }
                 else
                 {
@@ -518,6 +552,13 @@ namespace CustomRegions.Mod
             CreateRegionPackList(Tabs[tab], CustomWorldMod.installedPacks, CustomWorldMod.processedThumbnails, false);
 
             AddScriptIndicator(Tabs[tab]);
+
+            if (CustomWorldMod.debugLevel == CustomWorldMod.DebugLevel.FULL)
+            {
+                // Wipe progress this.manager.rainWorld.progression.WipeAll();
+                OpSimpleButton wipeProgress = new OpSimpleButton(new Vector2(525, 0), new Vector2(60, 25), OptionSignal.TryWipeProgress.ToString(), "Wipe");
+                Tabs[tab].AddItems(wipeProgress);
+            }
         }
 
         private void AddScriptIndicator(OpTab opTab)
@@ -852,6 +893,7 @@ namespace CustomRegions.Mod
         public enum OptionSignal
         {
             Empty,
+            // Refresh config menu list
             Refresh,
             ReloadRegions,
             Download,
@@ -861,7 +903,9 @@ namespace CustomRegions.Mod
             TryDisableToggle,
             TryUninstall,
             DisableToggle,
-            Uninstall
+            Uninstall,
+            TryWipeProgress,
+            WipeProgress
         }
 
         /// <summary>
