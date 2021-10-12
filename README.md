@@ -553,6 +553,11 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 * Added conditional region links:
 	* Check the [here](#links) for more information.
 * CRS settings are now reloaded when restarting a game session through Dev-Tools.
+* Significally improved loading times. CRS will cache online thumbnails for 5 minutes, instead of downloading them each time.
+* CRS will show an error on the pause screen when there is a crash while loading placed objects.
+* Thumbnails should be much crisper and load faster.
+* CRS will log which rooms are unbaked when loading a region.
+* When using debug mode FULL, a new button will appear in the CRS menu to wipe save progress.
 
 
 #### Fixes
@@ -565,6 +570,8 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 * Prevents the game from crashing when using the Dev's Sound tab.
 * Cleaned CRS menu.
 * MainLoopProcess.Update was missing the orig call.
+* Fixed FastTravelScreen.
+* No longer will log an exception when reloading CM.
 
 ***
 #### [0.8.40] - January 2021
