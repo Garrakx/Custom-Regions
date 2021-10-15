@@ -518,7 +518,7 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 ***
 ### <a name="changelog"></a>Changelog
 
-#### [0.9.XX] - September 2021
+#### [0.9.XX] - October 2021
 
 #### Changes
 * New field in `packInfo.json`, **`useRegionName`**. Used to read from the Properties Subregion field in the continue save menu instead of the pack name.
@@ -558,6 +558,7 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 * Thumbnails should be much crisper and load faster.
 * CRS will log which rooms are unbaked when loading a region.
 * When using debug mode FULL, a new button will appear in the CRS menu to wipe save progress.
+* CRS will track pack downloads and display them on the browser. The count is updated daily.
 
 
 #### Fixes
