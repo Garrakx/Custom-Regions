@@ -53,7 +53,7 @@ namespace CustomRegions.Mod
         {
             mod = this;
             ModID = "Custom Regions Mod";
-            Version = "0.9." + version + "-pre-release.2";
+            Version = "0.9." + version + "-pre-release.3";
             author = "Garrakx";
             versionCR = $"v{Version}";
         }
