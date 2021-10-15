@@ -51,6 +51,7 @@ namespace CustomRegions.Mod
 
         }
 
+
         public static CustomWorldStructs.ProcessedThumbnail ProccessThumbnail(Texture2D oldTex, byte[] data, string packName)//,  bool activated, bool raindb)
         {
             Color colorEdge;
@@ -104,7 +105,7 @@ namespace CustomRegions.Mod
                 }
                 catch (Exception e) { CustomWorldMod.Log($"Cannot calculate median hue [{e}] for [{packName}]", true); }
             }
-            
+
             //if ((activated || raindb))
             {
                 if (averageSat > 0.15f)
@@ -145,7 +146,7 @@ namespace CustomRegions.Mod
         /// <param name="file"> If specified, it will append a file after the folder path.</param>
         /// <param name="folder"> If specified, it will append an additional folder path.</param>
         /// <returns>Path built.</returns>
-        public static string BuildPath(string regionPackFolder, CustomFolder folderEnum, string regionID = null, 
+        public static string BuildPath(string regionPackFolder, CustomFolder folderEnum, string regionID = null,
             string file = null, string folder = null, bool includeRoot = true, bool recursive = false)
         {
             char div = Path.DirectorySeparatorChar;
@@ -250,13 +251,13 @@ namespace CustomRegions.Mod
                 CustomWorldMod.Log($"[PathBuilder] Could not find request folder [{folderEnum}]", true);
                 return string.Empty;
             }
-            
+
             if (!recursive)
             {
                 path += folder != null ? (div.ToString() + folder + div.ToString()) : div.ToString();
                 path += file != null ? file : string.Empty;
             }
-                
+
             return path;
         }
 
