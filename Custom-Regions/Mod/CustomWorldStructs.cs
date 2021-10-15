@@ -31,6 +31,7 @@ namespace CustomRegions.Mod
             public string requirements;
             public bool expansion;
             public bool shownInBrowser;
+            public int downloads;
 
             /// <summary>If true, region name will be used for slugcat page menu.
             ///</summary>
@@ -38,7 +39,7 @@ namespace CustomRegions.Mod
 
             public RegionPack(string name, string description, string author, bool activated, string checksum, string folderName, string url, 
                 Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig, List<string> regions, int loadOrder, 
-                int packNumber, string version, string packUrl, string requirements, bool usePackName, bool expansion, bool shownInBrowser)
+                int packNumber, string version, string packUrl, string requirements, bool usePackName, bool expansion, bool shownInBrowser, int downloads)
             {
                 this.name = name;
                 this.description = description;
@@ -58,6 +59,7 @@ namespace CustomRegions.Mod
                 this.useRegionName = usePackName;
                 this.expansion = expansion;
                 this.shownInBrowser = shownInBrowser;
+                this.downloads = downloads;
             }
             /// <summary>Initializes everything.
             ///</summary>
@@ -81,6 +83,7 @@ namespace CustomRegions.Mod
                 this.useRegionName = false;
                 this.expansion = false;
                 this.shownInBrowser = true;
+                this.downloads = 0;
             }
 
             /// <summary>Initializes everything to null except ctor arguments. Used for the save inof
@@ -105,6 +108,7 @@ namespace CustomRegions.Mod
                 this.useRegionName = false;
                 this.expansion = false;
                 this.shownInBrowser = true;
+                this.downloads = 0;
             }
         }
 

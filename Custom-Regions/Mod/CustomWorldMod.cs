@@ -243,6 +243,7 @@ namespace CustomRegions.Mod
         public readonly static string hashOnlineUrl = @"http://garrakx.pythonanywhere.com/executable_hash.txt";
         public readonly static string executableUrl = @"http://garrakx.pythonanywhere.com/RegionPackDownloader.exe";
         public readonly static string newsUrl = @"http://garrakx.pythonanywhere.com/news.txt";
+        public readonly static string crsDBUrl = @"https://garrakx.pythonanywhere.com/pack_download/";
 
         /// <summary>
         /// Divider A used for CR save
@@ -500,6 +501,8 @@ namespace CustomRegions.Mod
         /// </summary>
         public static void LoadCustomWorldResources()
         {
+            //CRExtras.LogStartup();
+
             crsPackIntializationWatch = new System.Diagnostics.Stopwatch();
             crsPackIntializationWatch.Start();
 
@@ -1137,6 +1140,10 @@ namespace CustomRegions.Mod
                 if (packDictionary.TryGetValue("shownInBrowser", out value) && value != null)
                 {
                     pack.shownInBrowser = bool.Parse(value.ToString());
+                }
+                if (packDictionary.TryGetValue("downloads", out value) && value != null)
+                {
+                    pack.downloads = int.Parse(value.ToString());
                 }
             }
 

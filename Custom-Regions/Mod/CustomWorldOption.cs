@@ -556,7 +556,7 @@ namespace CustomRegions.Mod
             if (CustomWorldMod.debugLevel == CustomWorldMod.DebugLevel.FULL)
             {
                 // Wipe progress this.manager.rainWorld.progression.WipeAll();
-                OpSimpleButton wipeProgress = new OpSimpleButton(new Vector2(525, 0), new Vector2(60, 25), OptionSignal.TryWipeProgress.ToString(), "Wipe");
+                OpSimpleButton wipeProgress = new OpSimpleButton(new Vector2(0, 0), new Vector2(60, 25), OptionSignal.TryWipeProgress.ToString(), "Wipe");
                 Tabs[tab].AddItems(wipeProgress);
             }
         }
@@ -737,6 +737,7 @@ namespace CustomRegions.Mod
                 }
 
 
+
                 // REGION NAME LABEL
                 string nameText = pack.name;
                 if (!pack.author.Equals(string.Empty))
@@ -769,6 +770,18 @@ namespace CustomRegions.Mod
                 };
                 mainScroll.AddItems(labelDesc);
                 // ---------------------------------- //
+
+                // DOWNLOADS
+                if (raindb && pack.downloads > 50)
+                {
+                    int mag = (int)(Math.Floor(Math.Log10(pack.downloads)) / 3); // Truncates to 6, divides to 2
+                    double divisor = Math.Pow(10, mag * 3);
+                    double shortNumber = pack.downloads / divisor;
+                    string result = shortNumber.ToString().Replace(".", ",");
+
+                    OpLabel totalDownloads = new OpLabel(new Vector2(descLabelPos.x, downloadButtonPos.y), nameLabelSize, $"Downloads: {result}",FLabelAlignment.Left, false);
+                    mainScroll.AddItems(totalDownloads);
+                }
 
 
                 rectOption.colorEdge = colorEdge;

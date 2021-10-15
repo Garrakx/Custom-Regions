@@ -139,6 +139,11 @@ namespace CustomRegions.Mod
             if (process == null || process.HasExited && !readyToDelete)
             {
                 Log("RegionPackDownloader console has exited");
+                if (!errorGrabbingPack)
+                {
+                    LogPackDownload(CustomWorldMod.rainDbPacks[this.packName], CustomWorldMod.exeDownloaderLocation);
+                }
+
                 CheckForDependencies();
                 if (movedDependencies)
                 {
@@ -160,6 +165,47 @@ namespace CustomRegions.Mod
             if (downloadButton != null)
             {
                 downloadButton.text = stringStatus;
+            }
+        }
+
+        public void LogPackDownload(CustomWorldStructs.RegionPack pack, string executableName)
+        {
+            string divider = "<div>";
+
+            string url = $"{CustomWorldMod.crsDBUrl}{pack.name.Replace(" ", "_")}";
+
+            Dictionary<string, object> postData = new Dictionary<string, object>();
+            postData.Add("crs_version", CustomWorldMod.mod.Version);
+            postData.Add("bepinex", CustomWorldMod.usingBepinex);
+            postData.Add("pack_version", pack.version);
+            postData.Add("pack_checksum", pack.checksum);
+
+            string postDataString = postData.toJson();
+            //string arguments = $"{url}{divider}\"{packName}\"{divider}{ID}{divider}\" + CustomWorldMod.resourcePath + (signal.Contains("update") ? $"{divider}update" : "");
+
+            string arguments = $"<logD>{divider}{url}{divider}{postDataString}";
+
+            Log($"Logging succesfuly download, arguments [{arguments}");
+
+            try
+            {
+                var request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
+                request.ContentType = "application/json";
+                request.Method = "POST";
+                using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+                {
+                    /*
+                    string json = "{\"crsVersion\": \"" + CustomWorldMod.mod.version.ToString() + "\", \n" +
+                             "\"bepinex\": \"" + CustomWorldMod.usingBepinex.ToString() + "\"}";
+                    CustomWorldMod.Log(json);
+                    */
+
+                    streamWriter.Write(postData.toJson());
+                }
+            }
+            catch (Exception e)
+            {
+                CustomWorldMod.Log("Mono crashed after request, this is fine :) " + e);
             }
         }
 
@@ -759,22 +805,25 @@ namespace CustomRegions.Mod
                 {
                     Log($"Fetching RainDB data... path [{url}]");
                     string file = www.text;
-                    List<object> json = file.listFromJson();
-                    Dictionary<string, RegionPack> tempRainDb = new Dictionary<string, RegionPack>();
-                    foreach (object jsonPack in json)
+                    List<object> json;
+                    try
                     {
-                        RegionPack regionPack = new RegionPack("");
-                        //CustomWorldMod.Log($"Obtained data [{jsonPack.ToString()}]");
-                        CustomWorldMod.FromDictionaryToPackInfo(jsonPack as Dictionary<string, object>, ref regionPack, authorative: true);
-                        try
-                        {
-                            regionPack.activated = true;
-                            //regionPack.activated = CustomWorldMod.installedRegionPacks.ContainsKey(regionPack.name);
-                            tempRainDb.Add(regionPack.name, regionPack);
-                        }
-                        catch (Exception e) { Log($"Exception when adding fetched region [{e}]", true); }
-                    }
+                        json = file.listFromJson();
 
+                        Dictionary<string, RegionPack> tempRainDb = new Dictionary<string, RegionPack>();
+                        foreach (object jsonPack in json)
+                        {
+                            RegionPack regionPack = new RegionPack("");
+                            //CustomWorldMod.Log($"Obtained data [{jsonPack.ToString()}]");
+                            CustomWorldMod.FromDictionaryToPackInfo(jsonPack as Dictionary<string, object>, ref regionPack, authorative: true);
+                            try
+                            {
+                                regionPack.activated = true;
+                                //regionPack.activated = CustomWorldMod.installedRegionPacks.ContainsKey(regionPack.name);
+                                tempRainDb.Add(regionPack.name, regionPack);
+                            }
+                            catch (Exception e) { Log($"Exception when adding fetched region [{e}]", true); }
+                        }
                     var date = DateTime.UtcNow.Date;
                     var seed = date.Year * 1000 + date.DayOfYear;
                     var random1 = new System.Random(seed);
@@ -786,8 +835,12 @@ namespace CustomRegions.Mod
                         CustomWorldMod.rainDbPacks.Add(tempItem.Key, tempItem.Value);
                     }
 
-
-                    Log($"Added fetched regions [{string.Join(", ", CustomWorldMod.rainDbPacks.Keys.ToArray())}]");
+                        Log($"Added fetched regions [{string.Join(", ", CustomWorldMod.rainDbPacks.Keys.ToArray())}]");
+                    }
+                    catch (Exception e)
+                    {
+                        Log("Error fetching regions " + e, true);
+                    }
                     ready = false;
                     readyToDelete = true;
                     CustomWorldMod.UpdateLocalPackWithOnline();
