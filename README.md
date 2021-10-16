@@ -3,8 +3,8 @@
 ***
 ## Lets you install and browse region packs without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms
 [![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)](https://twitter.com/garrakx)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/latest)
-[![Donate](https://img.shields.io/badge/-Donate-orange)](https://www.buymeacoffee.com/garrakx)
-![Custom Regions!](./Images/CRS_thumb.jpg)
+[![Donate](https://img.shields.io/badge/support-DONATE-orange?style=flat-square)](https://www.buymeacoffee.com/garrakx)
+![Custom Regions!](./Images/CRS_thumb.png)
 
 Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/flag-spain_1f1ea-1f1f8.png" alt="drawing" width="15"/>](./README-ES.md), [Russian <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="15"/>](./README-RU.md) and [French <img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="15"/>](./README-FR.md)
 
@@ -95,28 +95,36 @@ If it is the browser tab, it means you have an updated available for a pack. If 
 
  ***Attention:** Most instructions from the modded regions are outdated. If you want to use Custom Regions Mod, you should follow these instructions.*
 
-If you want to install a Region Pack using the in-game browser, just click the download button and wait.
-1) Run the game once with CRS installed and activated. If everything went well, you should see a new folder inside Rain World\Mods called "`CustomResources`".
-2) Create a new folder inside Rain World\Mods\CustomResources with the name of your region pack (i.e. `Rain World\Mods\CustomResources\Underbelly`).
-3) Inside this folder (i.e. `Underbelly`) you must place the "`World`", "`Assets`" and / or "`Levels`" folders from the region pack you are installing.
-**Note:** Make sure inside this folder there is not a intermediate folder!
+There are two ways of installing region packs:
+* `Automatic installation (recommended)` Installing using the in-game browse:
+	1) Open the game and go to the Config Machine menu (click [here](#browserScreen) if you don't know what it is)
+	2) Click on the `"Browse RainDB"` tab.
+	3) Pick the pack you want to download, and hit download.
+	4) If the pack had dependencies, you will have to restart the game.
+* `Manual`
 
-	```
-	Correct folder structure:
-	├──Mods\CustomResources\
-	│          └──Underbelly\
-	│                ├── Assets
-	│                ├── Levels
-	│                ├── World
-	¦                ¦
-	```
+	1) Run the game once with CRS installed and activated. If everything went well, you should see a new folder inside Rain World\Mods called "`CustomResources`".
+	2) Create a new folder inside Rain World\Mods\CustomResources with the name of your region pack (i.e. `Rain World\Mods\CustomResources\Underbelly`).
+	3) Inside this folder (i.e. `Underbelly`) you must place the "`World`", "`Assets`" and / or "`Levels`" folders from the region pack you are installing.
+	**Note:** Make sure inside this folder there is not a intermediate folder!
 
-4) If the region pack was made with CRS in mind, it should come with a file caled `packInfo.json` (previously known as `regionInfo.json`, [click here](#regionInfo) for more info). If it doesn't come with it, Custom Regions Support should create it for you. You can open this file with any file editor (try notepad). If the file was included with the region pack, the only fields you need to worry about are:
-    * `activated`: If true, it means the region pack is activated and will be loaded. Set it to false to disable the pack.
-	* `loadOrder`: It determines (relatively to other packs) the order in which this region pack will be loaded. You should only change it if you know what are you doing, or if you are having incompatibilities.
-**WARNING: Making any modifications to any of this two fields (as well as installing or uninstalling new regions) will corrupt your save, and you will have to reset progress from the game's options menu**. [More info](#corrupted)
+		```
+		Correct folder structure:
+		├──Mods\CustomResources\
+		│          └──Underbelly\
+		│                ├── Assets
+		│                ├── Levels
+		│                ├── World
+		¦                ¦
+		```
 
-5) If you go to the config screen aka CRS pack overview, you can see the order in which pack are loaded and if they are enabled (disabled regions will appear with a dark thumbnail, in red, and a "disabled" label).
+	4) If the region pack was made with CRS in mind, it should come with a file caled `packInfo.json` (previously known as `regionInfo.json`, [click here](#regionInfo) for more info). If it doesn't come with it, Custom Regions Support should create it for you. You can open this file with any file editor (try notepad). If the file was included with the region pack, the only fields you need to worry about are:
+		* `activated`: If true, it means the region pack is activated and will be loaded. Set it to false to disable the pack.
+		* `loadOrder`: It determines (relatively to other packs) the order in which this region pack will be loaded. You should only change it if you know what are you doing, or if you are having incompatibilities.
+		
+		**WARNING: Making any modifications to any of this two fields (as well as installing or uninstalling new regions) will corrupt your save, and you will have to reset progress from the game's options menu**. [More info](#corrupted)
+
+	5) If you go to the config screen aka CRS pack overview, you can see the order in which pack are loaded and if they are enabled (disabled regions will appear with a dark thumbnail, in red, and a "disabled" label).
 
 ##### HELP MY GAME BROKE!
 If something went wrong, try these steps:
@@ -125,11 +133,12 @@ If something went wrong, try these steps:
 * If you need assistance, joing the official Rain World server (click [here](https://www.discord.gg/rainworld)) and ping @garrakx in `#modding-support`. You will need `customWorldLog.txt` and `exceptionLog.txt`, both located next to the game executable (Default path: `C:\Program Files (x86)\Steam\steamapps\common\Rain World`)
 
 ***
-### <a name="index3"></a>Uninstalling a Region Pack (two options, pick one)
+### <a name="index3"></a>Uninstalling a Region Pack (three options, pick one)
+* Option a) Uninstall the pack using the Config Menu.
 
-Option a). Go to `Rain World\Mods\CustomResources\Your Region\packInfo.json` and set activated to false.
+* Option b). Go to `Rain World\Mods\CustomResources\Your Region\packInfo.json` and set activated to false.
 
-Option b). Delete the folder created in step 2 (`i.e. Rain World\Mods\CustomResources\Underbelly`)
+* Option c). Delete the folder created in step 2 (`i.e. Rain World\Mods\CustomResources\Underbelly`)
 
 ***
 ### <a name="browserScreen"></a>CRS Pack Screen
@@ -219,7 +228,9 @@ D: A
 
 ***
 ### <a name="index6"></a>Useful information for modders
+* *(new)* RELOADING / RESETTING CRS IN-GAME:
 
+	While using DevTools, pressing `SHIFT+R` will reload the game and also all packs.
 * CR will compare each room connection. If your room connection is being compared to a vanilla connection (i.e. it is the first one to load or the only one installed), it will replace completly the vanilla connection with the modded one.
 
 ```
@@ -371,6 +382,8 @@ Furthermore, you want to make a connection that only appears if the user has ins
 	[WorldMerging]: Line is ignored [(PY, 0)TR_ROOT07 : TR_ROOT03, TR_ROOT11, TR_ROOT08]. Meets character requirement [True]. Meets region requirement [False]
 	[...]
 
+#### **IMPORTANT DISCLAIMER**
+When using the `Fast Travel Screen`/`Region Menu`/`Passage Menu` the game will load the world as character `-1`, so it is important that you make sure the game has a valid `world_XX.txt` with that character.
 
 ### <a name="fixer"></a>*(new)* CONNECTION FIXER
 
@@ -498,12 +511,13 @@ Creature spawns from world_xx.txt are merged too, but more simpler than world me
 
 
 ### <a name ="music"></a>*(new)* CUSTOM MUSIC AND AMBIENT SOUNDEFFECTS
-* For adding new songs or replacing vanilla one, create the appropiate folders following the vanilla structure. Both `.ogg`and `.mp3` formats are supported.
-* For adding or replacing SoundEffects/AmbientSFX, make sure to use the `Assets\Futile\Resources\LoadedSoundEffects\Ambient` and not the `SoundEffects`folder. Both `.ogg`and **`.wav`** formats are supported. Careful since `.mp3` is currently **not** supported.
+* For adding new songs or replacing vanilla one, create the appropiate folders following the vanilla structure. Both `.ogg` and `.mp3` formats are supported.
+* For adding or replacing SoundEffects/AmbientSFX, make sure to use the `Assets\Futile\Resources\LoadedSoundEffects\Ambient` and not the `SoundEffects`folder. Both `.ogg` and **`.wav`** formats are supported. Careful since `.mp3` is currently **not** supported.
 ***
 
+
 ### <a name ="suggesting"></a>SUGGESTIONS
-Do you have a suggestion? Have you found a bug? The best way is to open a github issue. Doing that will ensure my tiny brain does not forget about it. Thanks!.
+Do you have a suggestion? Have you found a bug? The best way is to open a github issue. Doing that will ensure my tiny brain does not forget about it. Thanks!
 ***
 
 ### <a name="issues"></a>Known issues
@@ -518,10 +532,10 @@ Do you have a suggestion? Have you found a bug? The best way is to open a github
 Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick](https://classick-ii.tumblr.com/post/634237640578859008/boopbeep) Thanks to `LeeMoriya`, `bee` and `dual curly potato noodles` for helping and suggestions. Thanks to `Thalber` and `LB Gamer` for the translations. Thanks `Slime_Cubed` for the idea of using a separate process to download the packs and helping with some crucial fixes. Thanks to `carrotpudding`, `LB Gamer`, `Precipitator`, `Stero`, `laura`, `Thrithralas` and `Wrayk` for testing. Scav trade items was made with the help from `Henpemaz`, and they also provided crutial bugfixes.
 
 ***
-### <a name="donate"></a>Donate
+### <a name="donate"></a>DONATE
 
-If you enjoy CRS and want to support its developing, consider buying me a coffee:
-<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="garrakx" data-color="#FF5F5F" data-emoji="🍞"  data-font="Lato" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#ffffff" data-coffee-color="#FFDD00" ></script>
+I have put hundred of hours in making `CRS`. If you enjoy it and want to support its development, consider donating:
+<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="garrakx" data-color="#e17714" data-emoji="🍞"  data-font="Poppins" data-text="DONATE" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#FFDD00" ></script>
 
 ***
 ### <a name="changelog"></a>Changelog
@@ -529,47 +543,47 @@ If you enjoy CRS and want to support its developing, consider buying me a coffee
 #### [0.9.XX] - October 2021
 
 #### Changes
-* New field in `packInfo.json`, **`useRegionName`**. Used to read from the Properties Subregion field in the continue save menu instead of the pack name.
-* Creature merging improved:
-    * Offscreen dens should not get duplicated anymore.
-    * You can remove lines by adding `_REMOVECRS` tag to the line.
-* Room properties improved:
-	* Room templates are now merged between region packs.
-	* Saving as template if file does not exist should not crash the game.
-* `MPMusic.txt` is now supported.
-* LoadedSoundEffects/Ambient is now supported.
-* Added support for custom songs in `mp3` format.
-* WorldLoader orig constructor will now be called, increasing compatibility.
-* "Update button" should now be more noticeable.
-* If you are using Partiality, it will log an error urging to upgrade.
-* A random load order value will be assigned (once) when left blank.
 * Revamped CRS config menu:
-	* Packs can now be uninstalled / installed in-game.
-	* Packs can now be activated / deactivated in-game.
-	* Add a warning pop-up when you try to download a pack when another is downloading.
+	* Packs can now be uninstalled / deactivated in-game.
+    * Significally improved loading times. CRS will cache online thumbnails for 5 minutes, instead of downloading them each time.
+    * CRS will track pack downloads and display them on the browser. The count is updated daily.
 	* Mod expansions will show a big thumbnail (contact @garrakx if you are making a mod expansion).
+    * Thumbnails should be much crisper and load faster.
 	* RainDB browser order is randomized each day.
 	* An indicator of the current job is added on the top left of the screen.
 	* Improved the error messages.
 	* You can now skip restarting the game while you are downloading packs.
+	* Add a warning pop-up when you try to download a pack when another is downloading.
+    * When using debug mode FULL, a new button will appear in the CRS menu to wipe save progress.
+    * `"Update button"` should now be more noticeable.
 * CRS is will now to fix broken connections:
 	* If there is a connection that only goes one way (roomA is connected to roomB, but roomB is not connected to roomA), CRS will disconnect both rooms between each other and log and error. Click [here](#fixer) for more information.
-* Gates won't open if the next region is not loaded, they will blink red.
-* You can make batflies glow in dark areas with a custom color, configured in the `CustomConfig.json` file.
-* You can select which items Scavengers will trade / spawn with from the `CustomConfig.json` file.
-* CustomConfig.json now will be merged.
+* Creature merging improved:
+    * Offscreen dens should not get duplicated anymore.
+    * You can remove lines by adding `_REMOVECRS` tag to the line.
 * Added conditional region links:
 	* Check the [here](#links) for more information.
-* CRS settings are now reloaded when restarting a game session through Dev-Tools.
-* Significally improved loading times. CRS will cache online thumbnails for 5 minutes, instead of downloading them each time.
+* Room properties improved:
+	* Room templates are now merged between region packs.
+	* Saving as template if file does not exist should not crash the game.
+* Gates won't open if the next region is not loaded, they will blink red.
+* `MPMusic.txt` is now supported.
+* `LoadedSoundEffects/Ambient` is now supported.
+* Added support for custom songs in `mp3` format.
+* New field in `packInfo.json`, **`useRegionName`**. Used to read from the Properties Subregion field in the continue save menu instead of the pack name.
+* If you are using Partiality, it will log an error urging to upgrade.
+* A random load order value will be assigned (once) when left blank.
+* New `CustomConfig.json` changes:
+    * You can make batflies glow in dark areas with a custom color, configured in the `CustomConfig.json` file.
+    * You can select which items Scavengers will trade / spawn with from the `CustomConfig.json` file.
+    * CustomConfig.json now will be merged.
+* CRS settings are now reloaded when restarting a game session through Dev-Tools (pressing `SHIFT+R`).
 * CRS will show an error on the pause screen when there is a crash while loading placed objects.
-* Thumbnails should be much crisper and load faster.
 * CRS will log which rooms are unbaked when loading a region.
-* When using debug mode FULL, a new button will appear in the CRS menu to wipe save progress.
-* CRS will track pack downloads and display them on the browser. The count is updated daily.
 
 
 #### Fixes
+* WorldLoader orig constructor will now be called, increasing compatibility.
 * Fixed a parse error when ommiting DISCONNECT in the world merging.
 * Pearl color will be displayed properly in the map view.
 * CRS should not complain about having a Patch/Patches folder.
