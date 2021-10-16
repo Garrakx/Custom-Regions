@@ -3,6 +3,7 @@
 ***
 ## Lets you install and browse region packs without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms
 [![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)](https://twitter.com/garrakx)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/latest)
+[![Donate](https://img.shields.io/badge/-Donate-orange)](https://www.buymeacoffee.com/garrakx)
 ![Custom Regions!](./Images/CRS_thumb.jpg)
 
 Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/flag-spain_1f1ea-1f1f8.png" alt="drawing" width="15"/>](./README-ES.md), [Russian <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="15"/>](./README-RU.md) and [French <img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="15"/>](./README-FR.md)
@@ -33,7 +34,8 @@ Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3
 9) [Suggestions](#suggesting)
 10) [Known issues](#issues)
 11) [Credits](#credits)
-12) [Changelog](#changelog)
+12) [Donate](#donate)
+13) [Changelog](#changelog)
 ***
 
 ### <a name="FAQ"></a>Introduction and FAQ
@@ -514,6 +516,12 @@ Do you have a suggestion? Have you found a bug? The best way is to open a github
 ### <a name="credits"></a>Credits
 
 Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick](https://classick-ii.tumblr.com/post/634237640578859008/boopbeep) Thanks to `LeeMoriya`, `bee` and `dual curly potato noodles` for helping and suggestions. Thanks to `Thalber` and `LB Gamer` for the translations. Thanks `Slime_Cubed` for the idea of using a separate process to download the packs and helping with some crucial fixes. Thanks to `carrotpudding`, `LB Gamer`, `Precipitator`, `Stero`, `laura`, `Thrithralas` and `Wrayk` for testing. Scav trade items was made with the help from `Henpemaz`, and they also provided crutial bugfixes.
+
+***
+### <a name="donate"></a>Donate
+
+If you enjoy CRS and want to support its developing, consider buying me a coffee:
+<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="garrakx" data-color="#FF5F5F" data-emoji="🍞"  data-font="Lato" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#ffffff" data-coffee-color="#FFDD00" ></script>
 
 ***
 ### <a name="changelog"></a>Changelog
