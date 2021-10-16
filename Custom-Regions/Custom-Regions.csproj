@@ -75,6 +75,7 @@
     <Compile Include="Creatures\DaddyCorruptionHook.cs" />
     <Compile Include="Creatures\FlyGraphicsHook.cs" />
     <Compile Include="Creatures\ScavengerAbstractAIHook.cs" />
+    <Compile Include="CustomMenu\PauseMenuHook.cs" />
     <Compile Include="DevInterface\TriggersPageHook.cs" />
     <Compile Include="Music\MultiplayerDJHook.cs" />
     <Compile Include="Arena\MultiplayerUnlocksHook.cs" />

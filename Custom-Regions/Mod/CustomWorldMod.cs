@@ -47,7 +47,7 @@ namespace CustomRegions.Mod
         {
             mod = this;
             ModID = "Custom Regions Mod";
-            Version = "0.9." + version + "-pre-release.3";
+            Version = $"0.9.{version}";
             author = "Garrakx";
             versionCR = $"v{Version}";
         }
@@ -56,7 +56,7 @@ namespace CustomRegions.Mod
 
         // Update URL - don't touch!
         public string updateURL = "http://beestuff.pythonanywhere.com/audb/api/mods/3/0";
-        public int version = 41;//NEEDS UPDATE, should be 42
+        public int version = 42;//NEEDS UPDATE, should be 42
 
         // Public key in base64 - don't touch!
         public string keyE = "AQAB";
