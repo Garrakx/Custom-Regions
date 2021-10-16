@@ -579,7 +579,7 @@ namespace CustomRegions.Mod
         {
             //How Many Options
             int numberOfOptions = packs.Count;
-            int numberOfExpansions = packs.Values.ToList().FindAll(x => x.expansion).Count(); // CHANGE
+            int numberOfExpansions = packs.Values.ToList().FindAll(x => x.expansion).Count();
 
             CustomWorldMod.Log($"Number of packs [{numberOfOptions}]. Number of expansions [{numberOfExpansions}]", false, CustomWorldMod.DebugLevel.MEDIUM);
 
