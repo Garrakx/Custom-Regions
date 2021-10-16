@@ -6,10 +6,6 @@ using CustomRegions.CWorld;
 using CustomRegions.DevInterface;
 using CustomRegions.HUDs;
 using CustomRegions.Music;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CustomRegions.Mod
 {

@@ -1,5 +1,4 @@
 ﻿using CustomRegions.Mod;
-using RWCustom;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;

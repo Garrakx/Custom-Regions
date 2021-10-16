@@ -1,13 +1,11 @@
 ﻿using CustomRegions.Mod;
 using RWCustom;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using UnityEngine;
 using static CustomRegions.Mod.CustomWorldStructs;
 
 namespace CustomRegions.CustomPearls

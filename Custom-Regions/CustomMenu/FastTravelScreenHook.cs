@@ -1,6 +1,5 @@
 ﻿using CustomRegions.Mod;
 using Menu;
-using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.IO;

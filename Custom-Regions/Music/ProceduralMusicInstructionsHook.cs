@@ -3,7 +3,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using CustomRegions.Mod;
 using Music;
-using RWCustom;
 
 namespace CustomRegions.Music
 {

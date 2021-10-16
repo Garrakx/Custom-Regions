@@ -12,13 +12,7 @@ using System.Linq;
 using System.Text;
 using Menu;
 using static CustomRegions.Mod.CustomWorldStructs;
-using CustomRegions.CustomPearls;
-using CustomRegions.Creatures;
-using CustomRegions.Music;
-using CustomRegions.DevInterface;
-using CustomRegions.CustomMenu;
 using PastebinMachine.EnumExtender;
-using System.Net;
 
 // Delete Publicity Stunt requirement by pastebee
 [assembly: IgnoresAccessChecksTo("Assembly-CSharp")]
