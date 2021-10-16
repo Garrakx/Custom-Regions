@@ -15,11 +15,6 @@ namespace CustomRegions.Arena
             On.ArenaCreatureSpawner.SpawnArenaCreatures += ArenaCreatureSpawner_SpawnArenaCreatures;
         }
 
-        public static void RemoveHooks()
-        {
-            On.ArenaCreatureSpawner.SpawnArenaCreatures -= ArenaCreatureSpawner_SpawnArenaCreatures;
-        }
-
         public static Dictionary<string, int> tempDictionary = null;
         public static Dictionary<string, int> tempDictionary2 = null;
 

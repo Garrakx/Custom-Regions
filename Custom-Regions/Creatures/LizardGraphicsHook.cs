@@ -10,11 +10,6 @@ namespace CustomRegions.Creatures
             On.LizardGraphics.ctor += LizardGraphics_ctor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.LizardGraphics.ctor -= LizardGraphics_ctor;
-        }
-
         /// <summary>
         /// Adjust chance of spawning black salamanders
         /// </summary>

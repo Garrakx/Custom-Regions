@@ -11,11 +11,6 @@ namespace CustomRegions.Arena
             On.Music.MultiplayerDJ.ctor += MultiplayerDJ_ctor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.Music.MultiplayerDJ.ctor -= MultiplayerDJ_ctor;
-        }
-
         private static void MultiplayerDJ_ctor(On.Music.MultiplayerDJ.orig_ctor orig, global::Music.MultiplayerDJ self, global::Music.MusicPlayer musicPlayer)
         {
             orig(self, musicPlayer);

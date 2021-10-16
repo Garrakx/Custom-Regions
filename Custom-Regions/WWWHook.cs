@@ -19,11 +19,6 @@ namespace CustomRegions
             hookWWWctor = new Hook(typeof(WWW).GetConstructor(new Type[] { typeof(string) }), typeof(WWWHook).GetMethod("WWW_ctor"));
         }
 
-        public static void RemoveHooks()
-        {
-            hookWWWctor.Undo();
-        }
-
         public static void WWW_ctor(orig_WWW_ctor orig, WWW self, string url)
         {
             MultiplayerMenuHook.MultiplayerMenuUrl(ref url);

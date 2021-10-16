@@ -20,13 +20,6 @@ namespace CustomRegions
 
         }
 
-        public static void RemoveHooks()
-        {
-            // If a custom room uses vanilla textures
-            On.RoomCamera.MoveCamera2 -= RoomCamera_MoveCamera2;
-            On.RoomCamera.PreLoadTexture -= RoomCamera_PreLoadTexture;
-        }
-
         /// <summary>
         /// Searchs the CustomResources folder for a custom palette if its name is greater than 35. 
         /// CAREFUL! If two mods use the same palette number it will pick the first one it loads.

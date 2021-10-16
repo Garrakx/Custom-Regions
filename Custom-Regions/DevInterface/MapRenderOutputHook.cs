@@ -12,11 +12,6 @@ namespace CustomRegions.DevInterface
             On.DevInterface.MapRenderOutput.Signal += MapRenderOutput_Signal;
         }
 
-        public static void RemoveHooks()
-        {
-            On.DevInterface.MapRenderOutput.Signal -= MapRenderOutput_Signal;
-        }
-
         private static void MapRenderOutput_Signal(On.DevInterface.MapRenderOutput.orig_Signal orig, global::DevInterface.MapRenderOutput self, global::DevInterface.DevUISignalType type, global::DevInterface.DevUINode sender, string message)
         {
             string pathToMapFile = string.Empty;

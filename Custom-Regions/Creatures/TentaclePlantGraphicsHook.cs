@@ -13,12 +13,6 @@ namespace CustomRegions.Creatures
             On.TentaclePlantGraphics.ApplyPalette += TentaclePlantGraphics_ApplyPalette;
         }
 
-        public static void RemoveHooks()
-        {
-            On.TentaclePlantGraphics.ctor -= TentaclePlantGraphics_ctor;
-            On.TentaclePlantGraphics.ApplyPalette -= TentaclePlantGraphics_ApplyPalette;
-        }
-
         private static Color[] customColor;
 
         /// <summary>

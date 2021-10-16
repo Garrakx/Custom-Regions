@@ -7,11 +7,6 @@ namespace CustomRegions.Music
 {
     static class SoundLoaderHook
     {
-        public static void RemoveHooks()
-        {
-            On.SoundLoader.RequestAmbientAudioClip -= SoundLoader_RequestAmbientAudioClip;
-        }
-
         public static void ApplyHooks()
         {
             On.SoundLoader.RequestAmbientAudioClip += SoundLoader_RequestAmbientAudioClip;

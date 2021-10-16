@@ -14,13 +14,6 @@ namespace CustomRegions.CustomMenu
             On.Menu.SlugcatSelectMenu.ctor += SlugcatSelectMenu_ctor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.Menu.SlugcatSelectMenu.SlugcatPageContinue.ctor -= SlugcatPageContinue_ctor;
-            On.Menu.SlugcatSelectMenu.ctor -= SlugcatSelectMenu_ctor;
-        }
-
-
         private static void SlugcatSelectMenu_ctor(On.Menu.SlugcatSelectMenu.orig_ctor orig, SlugcatSelectMenu self, ProcessManager manager)
         {
             orig(self, manager);

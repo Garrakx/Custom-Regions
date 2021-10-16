@@ -20,16 +20,6 @@ namespace CustomRegions
             On.RoomSettings.ctor += RoomSettings_ctor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.RoomSettings.LoadPlacedObjects -= RoomSettings_LoadPlacedObjects;
-
-            On.RoomSettings.FindParent -= RoomSettings_FindParent;
-            On.RoomSettings.Save -= RoomSettings_Save;
-            On.RoomSettings.Reset -= RoomSettings_Reset;
-            On.RoomSettings.ctor -= RoomSettings_ctor;
-        }
-
         private static string regionName = null;
         private static void RoomSettings_ctor(On.RoomSettings.orig_ctor orig, 
             RoomSettings self, string name, Region region, bool template, bool firstTemplate, int playerChar)

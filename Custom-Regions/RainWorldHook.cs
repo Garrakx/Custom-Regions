@@ -10,12 +10,6 @@ namespace CustomRegions
             On.RainWorldGame.RestartGame += RainWorldGame_RestartGame;
         }
 
-        public static void RemoveHooks()
-        {
-            On.RainWorld.Start -= RainWorld_Start;
-            On.RainWorldGame.RestartGame -= RainWorldGame_RestartGame;
-        }
-
         private static void RainWorld_Start(On.RainWorld.orig_Start orig, RainWorld self)
         {
             CustomWorldMod.LoadCustomWorldResources();

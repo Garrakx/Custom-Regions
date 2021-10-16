@@ -10,11 +10,6 @@ namespace CustomRegions
             On.WinState.CreateAndAddTracker += WinState_CreateAndAddTracker;
         }
 
-        public static void RemoveHooks()
-        {
-            On.WinState.CreateAndAddTracker -= WinState_CreateAndAddTracker;
-        }
-
         private static WinState.EndgameTracker WinState_CreateAndAddTracker(On.WinState.orig_CreateAndAddTracker orig, WinState.EndgameID ID, List<WinState.EndgameTracker> endgameTrackers)
         {
             WinState.EndgameTracker endgameTracker = null;

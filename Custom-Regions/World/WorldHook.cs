@@ -21,18 +21,6 @@ namespace CustomRegions.CWorld
             On.World.GetNode += World_GetNode;
         }
 
-        public static void RemoveHooks()
-        {
-            On.World.LoadMapConfig -= World_LoadMapConfig;
-
-            // Albino Jetfish
-            On.World.RegionNumberOfSpawner -= World_RegionNumberOfSpawner;
-
-            // Debug
-            On.World.GetNode -= World_GetNode;
-        }
-
-
         private static int World_RegionNumberOfSpawner(On.World.orig_RegionNumberOfSpawner orig, World self, EntityID ID)
         {
             //CustomWorldMod.Log($"Creating jetfish...Spawner: [{ID.spawner}] ");

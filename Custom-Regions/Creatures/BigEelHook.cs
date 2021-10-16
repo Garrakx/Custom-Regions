@@ -10,11 +10,6 @@ namespace CustomRegions.Creatures
             On.BigEel.ctor += BigEel_ctor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.BigEel.ctor -= BigEel_ctor;
-        }
-
         /// <summary>
         /// Checks if the region has albino leviathans configured
         /// </summary>

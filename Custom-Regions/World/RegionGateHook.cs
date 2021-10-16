@@ -16,13 +16,6 @@ namespace CustomRegions.CWorld
             On.RegionGate.KarmaBlinkRed += RegionGate_KarmaBlinkRed;
         }
 
-        public static void RemoveHooks()
-        {
-            On.RegionGate.ctor -= RegionGate_ctor;
-            On.RegionGate.Update -= RegionGate_Update;
-            On.RegionGate.KarmaBlinkRed -= RegionGate_KarmaBlinkRed;
-        }
-
         private static bool RegionGate_KarmaBlinkRed(On.RegionGate.orig_KarmaBlinkRed orig, RegionGate self)
         {
             int num = self.PlayersInZone();

@@ -13,11 +13,6 @@ namespace CustomRegions.DevInterface
             On.DevInterface.CustomDecalRepresentation.ctor += CustomDecalRepresentation_ctor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.DevInterface.CustomDecalRepresentation.ctor -= CustomDecalRepresentation_ctor;
-        }
-
         private static void CustomDecalRepresentation_ctor(On.DevInterface.CustomDecalRepresentation.orig_ctor orig, 
             global::DevInterface.CustomDecalRepresentation self, global::DevInterface.DevUI owner, string IDstring, 
             global::DevInterface.DevUINode parentNode, PlacedObject pObj, string name)

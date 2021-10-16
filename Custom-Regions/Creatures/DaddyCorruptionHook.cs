@@ -10,11 +10,6 @@ namespace CustomRegions.Creatures
             On.DaddyCorruption.ctor += DaddyCorruption_ctor;
         }
 
-        internal static void RemoveHooks()
-        {
-            On.DaddyCorruption.ctor -= DaddyCorruption_ctor;
-        }
-
         /// <summary>
         ///  Thank you Thrithralas.
         /// </summary>

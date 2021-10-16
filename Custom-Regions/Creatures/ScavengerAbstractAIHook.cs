@@ -8,14 +8,6 @@ namespace CustomRegions.Creatures
 {
     static class ScavengerAbstractAIHook
     {
-        public static void RemoveHooks()
-        {
-            On.ScavengerAbstractAI.UpdateMissionAppropriateGear -= ScavengerAbstractAI_UpdateMissionAppropriateGear;
-            On.ScavengerAbstractAI.TradeItem -= ScavengerAbstractAI_TradeItem;
-            On.ScavengerAbstractAI.InitGearUp -= ScavengerAbstractAI_InitGearUp;
-            On.ScavengerAI.CollectScore_1 -= ScavengerAI_CollectScore_1;
-        }
-
         public static void ApplyHooks()
         {
             On.ScavengerAbstractAI.UpdateMissionAppropriateGear += ScavengerAbstractAI_UpdateMissionAppropriateGear;

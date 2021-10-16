@@ -8,11 +8,6 @@ namespace CustomRegions.DevInterface
 {
     static class TriggersPageHook
     {
-        public static void RemoveHooks()
-        {
-            On.DevInterface.TriggersPage.ctor -= TriggersPage_ctor;
-        }
-
         public static void ApplyHooks()
         {
             On.DevInterface.TriggersPage.ctor += TriggersPage_ctor;

@@ -13,16 +13,6 @@ namespace CustomRegions.CWorld
         public static string textLoadWorld = null;
         public static bool? singleWorld = null;
 
-
-        public static void RemoveHooks()
-        {
-            On.OverWorld.LoadFirstWorld -= OverWorld_LoadFirstWorld;
-
-            On.OverWorld.GetRegion_1 -= OverWorld_GetRegion_1;
-            On.OverWorld.LoadWorld -= OverWorld_LoadWorld;
-
-        }
-
         public static void ApplyHooks()
         {
             On.OverWorld.LoadFirstWorld += OverWorld_LoadFirstWorld;

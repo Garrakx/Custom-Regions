@@ -23,21 +23,6 @@ namespace CustomRegions
             On.PlayerProgression.SaveToDisk += PlayerProgression_SaveToDisk;
             On.PlayerProgression.WipeAll += PlayerProgression_WipeAll;
         }
-
-        public static void RemoveHooks()
-        {
-            On.PlayerProgression.LoadProgression -= PlayerProgression_LoadProgression;
-            On.PlayerProgression.InitiateProgression -= PlayerProgression_InitiateProgression;
-
-            // Debug
-            On.PlayerProgression.MiscProgressionData.SaveDiscoveredShelter -= MiscProgressionData_SaveDiscoveredShelter;
-            On.PlayerProgression.MiscProgressionData.ToString -= MiscProgressionData_ToString;
-            On.PlayerProgression.MiscProgressionData.FromString -= MiscProgressionData_FromString;
-
-            On.PlayerProgression.SaveToDisk -= PlayerProgression_SaveToDisk;
-            On.PlayerProgression.WipeAll -= PlayerProgression_WipeAll;
-        }
-
         private static void PlayerProgression_WipeAll(On.PlayerProgression.orig_WipeAll orig, PlayerProgression self)
         {
             orig(self);

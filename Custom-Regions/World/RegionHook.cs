@@ -13,13 +13,6 @@ namespace CustomRegions.CWorld
             On.Region.ctor += Region_ctor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.Region.NumberOfRoomsInRegion -= Region_NumberOfRoomsInRegion;
-            On.Region.ctor -= Region_ctor;
-        }
-
-
         public static string GetSubRegionName(string packName, string regID)
         {
             string propertiesPath = CRExtras.BuildPath(packName, CRExtras.CustomFolder.RegionID, regionID: regID, file: "Properties.txt");

@@ -13,11 +13,6 @@ namespace CustomRegions.Music
 			On.Music.ProceduralMusic.ProceduralMusicInstruction.ctor += ProceduralMusicInstruction_ctor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.Music.ProceduralMusic.ProceduralMusicInstruction.ctor -= ProceduralMusicInstruction_ctor;
-        }
-
         private static void ProceduralMusicInstruction_ctor(On.Music.ProceduralMusic.ProceduralMusicInstruction.orig_ctor orig, ProceduralMusic.ProceduralMusicInstruction self, string name)
 		{
             orig(self, name);

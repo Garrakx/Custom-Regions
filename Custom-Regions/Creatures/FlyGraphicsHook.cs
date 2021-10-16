@@ -8,17 +8,6 @@ namespace CustomRegions.Creatures
 {
     static class FlyGraphicsHook
     {
-
-        public static void RemoveHooks()
-        {
-            On.Fly.Update -= Fly_Update;
-
-            On.FlyGraphics.ctor -= FlyGraphics_ctor;
-            On.FlyGraphics.ApplyPalette -= FlyGraphics_ApplyPalette;
-
-            On.FlyGraphics.InitiateSprites -= FlyGraphics_InitiateSprites;
-        }
-
         public static void ApplyHooks()
         {
             On.Fly.Update += Fly_Update;

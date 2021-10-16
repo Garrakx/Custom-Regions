@@ -16,12 +16,6 @@ namespace CustomRegions.HUDs
             On.HUD.Map.LoadConnectionPositions += Map_LoadConnectionPositions;
         }
 
-        public static void RemoveHooks()
-        {
-            On.HUD.Map.Update -= Map_Update;
-            On.HUD.Map.LoadConnectionPositions -= Map_LoadConnectionPositions;
-        }
-
         /// <summary>
         /// Loads custom map texture if there is one.
         /// </summary>

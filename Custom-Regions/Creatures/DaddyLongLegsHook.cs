@@ -10,11 +10,6 @@ namespace CustomRegions.Creatures
             On.DaddyLongLegs.ctor += DaddyLongLegs_ctor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.DaddyLongLegs.ctor -= DaddyLongLegs_ctor;
-        }
-
         /// <summary>
         /// Checks if the region has colored BLLs/DLLs configured
         /// </summary>

@@ -24,22 +24,6 @@ namespace CustomRegions
             }
         }
 
-        public static void RemoveHooks()
-        {
-            On.SaveState.ctor -= SaveState_ctor;
-            On.SaveState.LoadGame -= SaveState_LoadGame;
-
-            // Pearl
-            if (CustomWorldMod.usingBepinex)
-            {
-                On.SaveState.AbstractPhysicalObjectFromString -= SaveState_AbstractPhysicalObjectFromString;
-            }
-            else
-            {
-                APOFSFix.On_SaveState_AbstractPhysicalObjectFromString -= SaveState_AbstractPhysicalObjectFromString;
-            }
-        }
-
         private static AbstractPhysicalObject SaveState_AbstractPhysicalObjectFromString(On.SaveState.orig_AbstractPhysicalObjectFromString orig, World world, string objString)
         {
             AbstractPhysicalObject result = orig(world, objString);

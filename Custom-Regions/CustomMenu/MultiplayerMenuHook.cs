@@ -13,11 +13,6 @@ namespace CustomRegions.CustomMenu
             On.Menu.MultiplayerMenu.ctor += MultiplayerMenu_ctor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.Menu.MultiplayerMenu.ctor -= MultiplayerMenu_ctor;
-        }
-
         // Thumbnail
         // THIS IS CALLED IN WWWCTOR
         // EXTREMELY CURSED

@@ -14,11 +14,6 @@ namespace CustomRegions.DevInterface
             On.DevInterface.SoundPage.ctor += SoundPage_ctor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.DevInterface.SoundPage.ctor -= SoundPage_ctor;
-        }
-
         private static void SoundPage_ctor(On.DevInterface.SoundPage.orig_ctor orig, SoundPage self, 
             DevUI owner, string IDstring, DevUINode parentNode, string name)
         {

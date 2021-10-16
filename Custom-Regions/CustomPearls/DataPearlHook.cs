@@ -19,16 +19,6 @@ namespace CustomRegions.CustomPearls
             On.DataPearl.UniquePearlHighLightColor += DataPearl_UniquePearlHighLightColor;
         }
 
-        public static void RemoveHooks()
-        {
-            On.DataPearl.ApplyPalette -= DataPearl_ApplyPalette;
-            On.DataPearl.AbstractDataPearl.ToString -= AbstractDataPearl_ToString;
-
-            On.DataPearl.UniquePearlMainColor -= DataPearl_UniquePearlMainColor;
-            On.DataPearl.UniquePearlHighLightColor -= DataPearl_UniquePearlHighLightColor;
-
-        }
-
         private static string AbstractDataPearl_ToString(On.DataPearl.AbstractDataPearl.orig_ToString orig, DataPearl.AbstractDataPearl self)
         {
 
