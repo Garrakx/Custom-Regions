@@ -535,7 +535,8 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 ### <a name="donate"></a>DONATE
 
 I have put hundred of hours in making `CRS`. If you enjoy it and want to support its development, consider donating:
-<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="garrakx" data-color="#e17714" data-emoji="🍞"  data-font="Poppins" data-text="DONATE" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#FFDD00" ></script>
+
+[![Donate](./Images/donate.png)](https://www.buymeacoffee.com/garrakx)
 
 ***
 ### <a name="changelog"></a>Changelog
