@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 namespace CustomRegions.Mod
@@ -10,7 +8,7 @@ namespace CustomRegions.Mod
     {
         /// <summary>
         /// Struct with information of available regions 
-        /// [regionID, regionName, description, activated, checksum, loadOrder(Default is 100)]
+        /// [regionID, regionName, description, activated, checksum, loadOrder(Default is random)]
         /// </summary>
         public struct RegionPack
         {
@@ -29,10 +27,17 @@ namespace CustomRegions.Mod
             public string version;
             public string packUrl;
             public string requirements;
+            public bool expansion;
+            public bool shownInBrowser;
+            public int downloads;
+
+            /// <summary>If true, region name will be used for slugcat page menu.
+            ///</summary>
+            public bool useRegionName;
 
             public RegionPack(string name, string description, string author, bool activated, string checksum, string folderName, string url, 
                 Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig, List<string> regions, int loadOrder, 
-                int packNumber, string version, string packUrl, string requirements)
+                int packNumber, string version, string packUrl, string requirements, bool usePackName, bool expansion, bool shownInBrowser, int downloads)
             {
                 this.name = name;
                 this.description = description;
@@ -49,7 +54,13 @@ namespace CustomRegions.Mod
                 this.version = version;
                 this.packUrl = packUrl;
                 this.requirements = requirements;
+                this.useRegionName = usePackName;
+                this.expansion = expansion;
+                this.shownInBrowser = shownInBrowser;
+                this.downloads = downloads;
             }
+            /// <summary>Initializes everything.
+            ///</summary>
             public RegionPack(string folderName)
             {
                 this.name = "";
@@ -62,13 +73,19 @@ namespace CustomRegions.Mod
                 this.electricGates = new Dictionary<string, float>();
                 this.regionConfig = new Dictionary<string, RegionConfiguration>();
                 this.regions = new List<string>();
-                this.loadOrder = int.MaxValue;
-                this.loadNumber = int.MaxValue;
+                this.loadOrder = (int)(UnityEngine.Random.value*500);
+                this.loadNumber = this.loadOrder;
                 this.version = "1.0";
                 this.packUrl = "";
                 this.requirements = "";
+                this.useRegionName = false;
+                this.expansion = false;
+                this.shownInBrowser = true;
+                this.downloads = 0;
             }
 
+            /// <summary>Initializes everything to null except ctor arguments. Used for the save inof
+            ///</summary>
             public RegionPack(string name, string checkSum, int packNumber)
             {
                 this.name = name;
@@ -86,24 +103,12 @@ namespace CustomRegions.Mod
                 this.version = null;
                 this.packUrl = null;
                 this.requirements = null;
+                this.useRegionName = false;
+                this.expansion = false;
+                this.shownInBrowser = true;
+                this.downloads = 0;
             }
         }
-
-        /*
-        public struct CustomRegion
-        {
-            public string regionID;
-            public int loadOrder;
-            public int regionNumber;
-
-            public CustomRegion(string regionID, int loadOrder, int regionNumber)
-            {
-                this.regionID = regionID;
-                this.loadOrder = loadOrder;
-                this.regionNumber = regionNumber;
-            }
-        }
-        */
 
         public struct RegionConfiguration
         {
@@ -114,10 +119,14 @@ namespace CustomRegions.Mod
             public Color? kelpColor;
             public bool bllVanilla;
             public Color? bllColor;
+            public Color? batFlyColor;
+            public bool batVanilla;
             public float blackSalamanderChance;
+            public string scavTradeItem;
+            public float scavGearChance;
 
-            public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, 
-                bool kelpVanilla, Color? kelpColor, bool bllVanilla, Color? bllColor, float blackSalamanderChance)
+            public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, bool kelpVanilla, Color? kelpColor, bool bllVanilla, 
+                Color? bllColor, float blackSalamanderChance, Color? batFlyColor, bool batVanilla, string scavTradeItems, float scavGearChance)
             {
                 this.regionID = regionID;
                 this.albinoLevi = albinoLevi;
@@ -127,21 +136,51 @@ namespace CustomRegions.Mod
                 this.bllVanilla = bllVanilla;
                 this.bllColor = bllColor;
                 this.blackSalamanderChance = blackSalamanderChance;
+                this.batFlyColor = batFlyColor;
+                this.batVanilla = batVanilla;
+                this.scavTradeItem = scavTradeItems;
+                this.scavGearChance = scavGearChance;
             }
         }
 
         /// <summary>
         /// Struct with information of world lines, used in region merging and loading.
-        /// [Data: holds the line itself, Vanilla: comes from vanilla or is it modified, modID: last mod which loaded or modified the line (empty if vanilla)]
         /// </summary>
         public struct WorldDataLine
         {
+            /// <summary>
+            /// Holds the whole line (room + connections + ending string)
+            /// </summary>
             public string line;
+            /// <summary>
+            /// Room of the connection
+            /// </summary>
             public string roomName;
+            /// <summary>
+            /// Connections (everything after : without the ending)
+            /// </summary>
             public string connections;
+            /// <summary>
+            /// If connection has ending string (GATE, SHELTER, etc)
+            /// </summary>
             public string endingString;
+            public bool lineage;
             public bool vanilla;
+            /// <summary>
+            /// Last packName that modified this connection
+            /// </summary>
             public string packName;
+
+            public WorldDataLine(string line, string roomName, string connections, string endingString, bool lineage, bool vanilla, string modID)
+            {
+                this.line = line;
+                this.roomName = roomName;
+                this.connections = connections;
+                this.endingString = endingString;
+                this.lineage = lineage;
+                this.vanilla = vanilla;
+                this.packName = modID;
+            }
 
             public WorldDataLine(string line, string roomName, string connections, string endingString, bool vanilla, string modID)
             {
@@ -149,17 +188,64 @@ namespace CustomRegions.Mod
                 this.roomName = roomName;
                 this.connections = connections;
                 this.endingString = endingString;
+                this.lineage = false;
                 this.vanilla = vanilla;
                 this.packName = modID;
             }
+
             public WorldDataLine(string line, bool vanilla)
             {
                 this.line = line;
                 this.roomName = null;
                 this.connections = null;
                 this.endingString = null;
+                this.lineage = false;
                 this.vanilla = vanilla;
                 this.packName = null;
+            }
+
+            public void BuildRoomFromWholeLine(string line)
+            {
+                //CustomWorldMod.Log($"Rebuilding WorldData from line [{this}]", false, CustomWorldMod.DebugLevel.FULL);
+                WorldDataLine updatedLine = this;
+                string[] split = System.Text.RegularExpressions.Regex.Split(line, " : ");
+                string roomName = string.Empty;
+                string connections = string.Empty;
+                string endingString = string.Empty;
+
+                // Corrupted line (this should not happen)
+                if (split.Length < 2 || split.Length > 3)
+                {
+                    CustomWorldMod.Log($"Corrupted vanilla line [{line}]", true);
+                }
+                else
+                {
+                    roomName = split[0];
+                    connections = split[1];
+                    if (connections.Contains("DISCONNECT"))
+                    {
+                        connections.Replace("DISCONNECT", "DISCONNECTED");
+                    }
+
+                    // Line has ending
+                    if (split.Length == 3)
+                    {
+                        endingString = split[2];
+                    }
+                }
+                updatedLine.roomName = roomName;
+                updatedLine.connections = connections;
+                updatedLine.endingString = endingString;
+                this = updatedLine;
+                //CustomWorldMod.Log($"Result after rebuilding [{this}]", false, CustomWorldMod.DebugLevel.FULL);
+            }
+
+
+            public override string ToString()
+            {
+                string formatedName = $"LINE [{this.line}] ROOMNAME [{this.roomName}] CONNECTIONS [{this.connections}] ENDINGSTRING [{this.endingString}] " +
+                    $"PACK [{this.packName}]";
+                return formatedName;
             }
         }
 
@@ -258,6 +344,13 @@ namespace CustomRegions.Mod
                 this.type = type;
             }
             */
+        }
+
+        public struct ProcessedThumbnail
+        {
+            public DateTime dateDownloaded;
+            public Color mainColor;
+            public byte[] data;
         }
     }
 }

@@ -10,8 +10,7 @@ namespace CustomRegions.HUDs
 {
     static class MapHook
     {
-
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.HUD.Map.Update += Map_Update;
             On.HUD.Map.LoadConnectionPositions += Map_LoadConnectionPositions;
@@ -26,14 +25,13 @@ namespace CustomRegions.HUDs
             {
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
-                    string pathToCustomFolder = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                    string test = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +
-                        self.RegionName + Path.DirectorySeparatorChar + "map_" + self.RegionName + ".png";
+                    string pathToMapFile = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.RegionName,
+                        file: "map_" + self.RegionName + ".png");
 
-                    if (File.Exists(test))
+                    if (File.Exists(pathToMapFile))
                     {
-                        CustomWorldMod.Log($"Loading map texture from {keyValues.Value} in region [{self.RegionName}]. Path [{test}]");
-                        self.www = new WWW("file:///" + test);
+                        CustomWorldMod.Log($"Loading map texture from {keyValues.Value} in region [{self.RegionName}]. Path [{pathToMapFile}]");
+                        self.www = new WWW("file:///" + pathToMapFile);
                         break;
                     }
                 }
@@ -47,22 +45,19 @@ namespace CustomRegions.HUDs
         /// </summary>
         private static void Map_LoadConnectionPositions(On.HUD.Map.orig_LoadConnectionPositions orig, HUD.Map self)
         {
-            //List<Map.OnMapConnection> backUpConnections = self.mapConnections;
 
             orig(self);
 
-            //self.mapConnections = new List<Map.OnMapConnection>();
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                string pathToCustomFolder = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-                string test = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar +
-                    self.RegionName + Path.DirectorySeparatorChar + "map_" + self.RegionName + ".txt";
+                string pathToMapFile = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.RegionName,
+                        file: "map_" + self.RegionName + ".txt");
 
-                if (File.Exists(test))
+                if (File.Exists(pathToMapFile))
                 {
-                    CustomWorldMod.Log($"Loading map data from {keyValues.Key} in region [{self.RegionName}]. Path [{test}]");
+                    CustomWorldMod.Log($"Loading map data from {keyValues.Key} in region [{self.RegionName}]. Path [{pathToMapFile}]");
                     self.mapConnections = new List<Map.OnMapConnection>();
-                    string[] array = File.ReadAllLines(test);
+                    string[] array = File.ReadAllLines(pathToMapFile);
                     for (int i = 0; i < array.Length; i++)
                     {
                         string[] array2 = Regex.Split(array[i], ": ");
@@ -88,7 +83,9 @@ namespace CustomRegions.HUDs
                                 }
                                 if (num > 0 && num2 > 0)
                                 {
-                                    self.mapConnections.Add(new Map.OnMapConnection(self, num, num2, new IntVector2(int.Parse(array3[2]), int.Parse(array3[3])), new IntVector2(int.Parse(array3[4]), int.Parse(array3[5])), int.Parse(array3[6]), int.Parse(array3[7])));
+                                    self.mapConnections.Add(new Map.OnMapConnection(self, num, num2, 
+                                        new IntVector2(int.Parse(array3[2]), int.Parse(array3[3])), 
+                                        new IntVector2(int.Parse(array3[4]), int.Parse(array3[5])), int.Parse(array3[6]), int.Parse(array3[7])));
                                 }
                             }
                         }

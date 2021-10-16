@@ -5,7 +5,7 @@ namespace CustomRegions
 {
     static class WinStateHook
     {
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.WinState.CreateAndAddTracker += WinState_CreateAndAddTracker;
         }

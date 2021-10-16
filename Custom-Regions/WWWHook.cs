@@ -5,8 +5,6 @@ using RWCustom;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace CustomRegions
@@ -14,10 +12,11 @@ namespace CustomRegions
     static class WWWHook
     {
         public delegate void orig_WWW_ctor(WWW self, string url);
+        private static IDetour hookWWWctor;
 
         public static void ApplyHooks()
         {
-            IDetour hookWWWctor = new Hook(typeof(WWW).GetConstructor(new Type[] { typeof(string) }), typeof(WWWHook).GetMethod("WWW_ctor"));
+            hookWWWctor = new Hook(typeof(WWW).GetConstructor(new Type[] { typeof(string) }), typeof(WWWHook).GetMethod("WWW_ctor"));
         }
 
         public static void WWW_ctor(orig_WWW_ctor orig, WWW self, string url)

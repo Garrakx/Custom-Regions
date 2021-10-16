@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using CustomRegions.Mod;
-
+using System.Linq;
 
 namespace CustomRegions.CWorld
 {
@@ -12,39 +12,106 @@ namespace CustomRegions.CWorld
         public static void ApplyHooks()
         {
             On.RegionGate.ctor += RegionGate_ctor;
+            On.RegionGate.Update += RegionGate_Update;
+            On.RegionGate.KarmaBlinkRed += RegionGate_KarmaBlinkRed;
         }
 
+        private static bool RegionGate_KarmaBlinkRed(On.RegionGate.orig_KarmaBlinkRed orig, RegionGate self)
+        {
+            int num = self.PlayersInZone();
+            if (num > 0)
+            {
+                AbstractRoom abstractRoom = self.room.abstractRoom;
+                string name = self.room.game.overWorld.activeWorld.name;
+                string[] arrayName = Regex.Split(abstractRoom.name, "_");
+                string text = "ERROR!";
+                if (arrayName.Length == 3)
+                {
+                    for (int i = 1; i < 3; i++)
+                    {
+                        if (arrayName[i] != name)
+                        {
+                            text = arrayName[i];
+                            break;
+                        }
+                    }
+                }
+
+                if (!self.room.game.overWorld.regions.Select(x => x.name).Contains(text) &&
+                    !text.Equals("ERROR!"))
+                {
+                    return true;
+                }
+
+            }
+            return orig(self);
+        }
+
+        static bool loggedError = false;
+        private static void RegionGate_Update(On.RegionGate.orig_Update orig, RegionGate self, bool eu)
+        {
+            orig(self, eu);
+
+            AbstractRoom abstractRoom = self.room.abstractRoom;
+
+            // Old World
+            string name = self.room.game.overWorld.activeWorld.name;
+
+            string[] arrayName = Regex.Split(abstractRoom.name, "_");
+            string text = "ERROR!";
+            if (arrayName.Length == 3)
+            {
+                for (int i = 1; i < 3; i++)
+                {
+                    if (arrayName[i] != name)
+                    {
+                        text = arrayName[i];
+                        break;
+                    }
+                }
+            }
+
+            if (text.Equals("ERROR!"))
+            {
+                if (!loggedError)
+                {
+                    // Extended gates support
+                    CustomWorldMod.Log($"Gate [{abstractRoom.name}] does not follow naming GATE_XX_YY. " +
+                        $"If you are using Extended Gates you can ignore this error", true);
+                    loggedError = true;
+                }
+                return;
+            }
+
+            if (!self.room.game.overWorld.regions.Select(x => x.name).Contains(text))
+            {
+                self.dontOpen = true;
+                if (!loggedError)
+                {
+                    CustomWorldMod.Log($"Gate is blocked. Trying to load a region which is not available [{text}]. " +
+                        $"Loaded regions [{string.Join(", ", self.room.game.overWorld.regions.Select(x => x.name).ToArray())}] ", true);
+                    loggedError = true;
+                }
+            }
+        }
 
         /// <summary>
         /// Loads karmaGate requirements
         /// </summary>
         private static void RegionGate_ctor(On.RegionGate.orig_ctor orig, RegionGate self, Room room)
         {
+
             orig(self, room);
+
+            loggedError = false;
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
                 CustomWorldMod.Log($"Custom Regions: Loading karmaGate requirement for {keyValues.Key}", false, CustomWorldMod.DebugLevel.FULL);
-                string path = CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-
-                /*
-                string text = string.Concat(new object[]
+                string karmaLocksText = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Gates, file: "locks.txt");
+                if (File.Exists(karmaLocksText)) 
                 {
-                Custom.RootFolderDirectory(),
-                path.Replace('/', Path.DirectorySeparatorChar),
-                "World",
-                Path.DirectorySeparatorChar,
-                "selfs",
-                Path.DirectorySeparatorChar,
-                "locks.txt"
-                });
-                */
-
-                string path2 = path + "World" + Path.DirectorySeparatorChar + "Gates" + Path.DirectorySeparatorChar + "locks.txt";
-                bool foundKarma = false;
-                if (File.Exists(path2))
-                {
-                    string[] array = File.ReadAllLines(path2);
+                    string[] array = File.ReadAllLines(karmaLocksText);
 
                     for (int i = 0; i < array.Length; i++)
                     {
@@ -61,12 +128,11 @@ namespace CustomRegions.CWorld
                                 room.AddObject(self.karmaGlyphs[j]);
                             }
 
-                            CustomWorldMod.Log($"Custom Regions: Found custom karmaGate requirement for {keyValues.Key}. Gate [{self.karmaRequirements[0]}/{self.karmaRequirements[1]}]");
-                            foundKarma = true;
-                            break;
+                            CustomWorldMod.Log($"Custom Regions: Found custom karmaGate requirement for {keyValues.Key}. " +
+                                $"Gate [{self.karmaRequirements[0]}/{self.karmaRequirements[1]}]");
+                            return;
                         }
                     }
-                    if (foundKarma) { break; }
                 }
             }
         }

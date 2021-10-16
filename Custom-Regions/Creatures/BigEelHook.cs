@@ -21,17 +21,19 @@ namespace CustomRegions.Creatures
             {
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
-                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, 
+                        out CustomWorldStructs.RegionConfiguration config))
                     {
-                        //CustomWorldMod.Log($"Albino leviathan in [{world.region.name}]");
                         if (config.albinoLevi)
                         {
+                            CustomWorldMod.Log($"Albino leviathan in [{world.region.name}] from [{CustomWorldMod.installedPacks[keyValues.Key].name}]", 
+                                false, CustomWorldMod.DebugLevel.FULL);
                             self.albino = true;
                             self.iVars.patternColorB = new HSLColor(0f, 0.6f, 0.75f);
                             self.iVars.patternColorA.hue = 0.5f;
                             self.iVars.patternColorA = HSLColor.Lerp(self.iVars.patternColorA, new HSLColor(0.97f, 0.8f, 0.75f), 0.9f);
+                            break;
                         }
-                        break;
                     }
                 }
             }

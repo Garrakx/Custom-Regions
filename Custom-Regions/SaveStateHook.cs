@@ -1,14 +1,12 @@
 ﻿using CustomRegions.Mod;
 using System;
-using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 
 namespace CustomRegions
 {
     static class SaveStateHook
     {
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.SaveState.ctor += SaveState_ctor;
             On.SaveState.LoadGame += SaveState_LoadGame;

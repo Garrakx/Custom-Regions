@@ -6,10 +6,6 @@ using CustomRegions.CWorld;
 using CustomRegions.DevInterface;
 using CustomRegions.HUDs;
 using CustomRegions.Music;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CustomRegions.Mod
 {
@@ -17,72 +13,73 @@ namespace CustomRegions.Mod
     {
         public static void ApplyAllHooks()
         {
-            MapHook.ApplyHook();
-            RegionGateHook.ApplyHooks();
-            RegionHook.ApplyHook();
-            RoomSettingsHook.ApplyHook();
-            WorldHook.ApplyHook();
-            WorldLoaderHook.ApplyHooks();
-            OverWorldHook.ApplyHooks();
-            PlayerProgressionHook.ApplyHooks();
+            // Ordered by folders in alphabetic
 
-            // Pearl
-            DataPearlHook.ApplyHooks();
-            SLOracleBehaviorHasMarkHook.ApplyHooks();
-            PlacedObjectHook.ApplyHooks();
 
-            // Rain world instance
-            RainWorldHook.ApplyHooks();
+            /// ARENAS ///
+            ArenaCreatureSpawnerHook.ApplyHooks();
+            MultiplayerUnlocksHook.ApplyHooks();
 
-            // Custom Palette
-            RoomCameraHook.ApplyHook();
+            /// CREATURES ///
+            BigEelHook.ApplyHooks();
+            DaddyCorruptionHook.ApplyHooks();
+            DaddyLongLegsHook.ApplyHooks();
+            FlyGraphicsHook.ApplyHooks();
+            LizardGraphicsHook.ApplyHooks();
+            ScavengerAbstractAIHook.ApplyHooks();
+            TentaclePlantGraphicsHook.ApplyHooks();
 
-            // Electric gate
-            RoomHook.ApplyHooks();
-            WaterGateHook.ApplyHooks();
-
-            // Custom Decal
-            //CustomDecalHook.ApplyHook();
-
-            MainLoopProcessHook.ApplyHooks();
-
-            // Scene
+            /// CUSTOM MENU ///
             FastTravelScreenHook.ApplyHooks();
-            //MainMenuHook.ApplyHooks();
-            MenuSceneHook.ApplyHook();
-            MenuIllustrationHook.ApplyHook();
+            MenuIllustrationHook.ApplyHooks();
+            MenuSceneHook.ApplyHooks();
+            MultiplayerMenuHook.ApplyHooks();
+            PauseMenuHook.ApplyHooks();
             SlugcatSelectMenuHook.ApplyHooks();
 
-            // DevInterface
+            /// CUSTOM PEARLS ///
+            DataPearlHook.ApplyHooks();
+            PlacedObjectHook.ApplyHooks();
+            SLOracleBehaviorHasMarkHook.ApplyHooks();
+
+            /// DEV INTERFACE ///
             MapPageHook.ApplyHooks();
             MapRenderOutputHook.ApplyHooks();
             CustomDecalRepresentationHook.ApplyHooks();
+            SoundPageHook.ApplyHooks();
+            TriggersPageHook.ApplyHooks();
 
-            // Arena
-            MultiplayerMenuHook.ApplyHook();
-            ArenaCreatureSpawnerHook.ApplyHook();
+            /// HUD ///
+            MapHook.ApplyHooks();
 
-            // WinState - achievement
-            WinStateHook.ApplyHook();
-
-            SaveStateHook.ApplyHook();
-
-            // MusicPiece
+            /// MUSIC ///
+            MultiplayerDJHook.ApplyHooks();
             MusicPieceHook.ApplyHooks();
             ProceduralMusicInstructionsHook.ApplyHooks();
+            SoundLoaderHook.ApplyHooks();
 
-            BigEelHook.ApplyHooks();
-            TentaclePlantGraphicsHook.ApplyHooks();
-            DaddyLongLegsHook.ApplyHooks();
-            LizardGraphicsHook.ApplyHooks();
 
+            /// WORLD ///
+            OverWorldHook.ApplyHooks();
+            RegionGateHook.ApplyHooks();
+            RegionHook.ApplyHooks();
+            WorldHook.ApplyHooks();
+            WorldLoaderHook.ApplyHooks();
+
+
+            MainLoopProcessHook.ApplyHooks();
+            PlayerProgressionHook.ApplyHooks();
+            // Rain world instance
+            RainWorldHook.ApplyHooks();
+            // Custom Palette
+            RoomCameraHook.ApplyHooks();
+            RoomHook.ApplyHooks();
+            RoomSettingsHook.ApplyHooks();
+            SaveStateHook.ApplyHooks();
+            // WinState - achievement
+            WinStateHook.ApplyHooks();
             // WWW
             WWWHook.ApplyHooks();
-
-            RegionStateHook.ApplyHooks();
-
-            // Unlocks ID
-            MultiplayerUnlocksHook.ApplyHooks();
         }
     }
 }

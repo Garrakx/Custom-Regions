@@ -1,23 +1,21 @@
 ﻿using CustomRegions.Mod;
-using MonoMod.RuntimeDetour;
 using RWCustom;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 
 namespace CustomRegions.CustomMenu
 {
     static class MultiplayerMenuHook
     {
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.Menu.MultiplayerMenu.ctor += MultiplayerMenu_ctor;
         }
 
-       // Thumbnail
-       // THIS IS CALLED IN WWWCTOR
+        // Thumbnail
+        // THIS IS CALLED IN WWWCTOR
+        // EXTREMELY CURSED
         public static void MultiplayerMenuUrl(ref string url)
         {
             if (url.Contains("file:///" + Custom.RootFolderDirectory() + "Levels") && url.Contains("_1.png"))
@@ -58,8 +56,11 @@ namespace CustomRegions.CustomMenu
                     foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                     {
                         CustomWorldMod.Log($"Custom Regions: WWWW trimmed path [{path}]");
-
-                        string updatedPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels" + Path.DirectorySeparatorChar;
+                        /*
+                        string updatedPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + 
+                            "Levels" + Path.DirectorySeparatorChar;
+                        */
+                        string updatedPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Levels);
                         if (File.Exists(updatedPath + path + "_Thumb.png"))
                         {
                             url = "file:///" + updatedPath + path + "_Thumb.png";
@@ -73,7 +74,7 @@ namespace CustomRegions.CustomMenu
 
 
         /// <summary>
-        /// 
+        /// CURSED
         /// </summary>
         private static void MultiplayerMenu_ctor(On.Menu.MultiplayerMenu.orig_ctor orig, Menu.MultiplayerMenu self, ProcessManager manager)
         {
@@ -81,7 +82,11 @@ namespace CustomRegions.CustomMenu
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
+                /*
                 string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar + "Levels";
+                */
+                string path = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.Levels);
+
                 if (Directory.Exists(path))
                 {
                     CustomWorldMod.Log($"Custom Regions: Loading arena(s) from [{keyValues.Value}]");
@@ -90,7 +95,8 @@ namespace CustomRegions.CustomMenu
 
                     for (int i = 0; i < files.Length; i++)
                     {
-                        if (files[i].Substring(files[i].Length - 4, 4) == ".txt" && files[i].Substring(files[i].Length - 13, 13) != "_Settings.txt" && files[i].Substring(files[i].Length - 10, 10) != "_Arena.txt" && !files[i].Contains(CustomWorldMod.customUnlocksFileName) )
+                        if (files[i].Substring(files[i].Length - 4, 4) == ".txt" && files[i].Substring(files[i].Length - 13, 13) != "_Settings.txt" 
+                            && files[i].Substring(files[i].Length - 10, 10) != "_Arena.txt" && !files[i].Contains(CustomWorldMod.customUnlocksFileName) )
                         {
                             string[] array = files[i].Substring(0, files[i].Length - 4).Split(new char[]
                             {
@@ -105,7 +111,9 @@ namespace CustomRegions.CustomMenu
                                 self.allLevels.RemoveAt(j);
                             }
                         }
-                        self.allLevels.Sort((string A, string B) => self.multiplayerUnlocks.LevelListSortString(A).CompareTo(self.multiplayerUnlocks.LevelListSortString(B)));
+                        self.allLevels.Sort((string A, string B) => 
+                        self.multiplayerUnlocks.LevelListSortString(A).CompareTo(self.multiplayerUnlocks.LevelListSortString(B)));
+
                         foreach (string level in self.allLevels)
                         {
                             if (!self.thumbsToBeLoaded.Contains(level))

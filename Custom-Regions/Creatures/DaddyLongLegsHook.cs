@@ -18,20 +18,20 @@ namespace CustomRegions.Creatures
             orig(self, abstractCreature, world);
             if (world != null && !world.singleRoomWorld)
             {
-                //CustomWorldMod.Log($"Region Name [{self.region.name}]");
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
-                    //CustomWorldMod.Log($"Checking in [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
-                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(world.region.name, 
+                        out CustomWorldStructs.RegionConfiguration config))
                     {
                         if (!config.bllVanilla)
                         {
-                            //CustomWorldMod.Log($"Spawning custom DDL/BLL in [{world.region.name}] from [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
+                            CustomWorldMod.Log($"Spawning custom DDL/BLL in [{world.region.name}] from " +
+                                $"[{CustomWorldMod.installedPacks[keyValues.Key].name}]", false, CustomWorldMod.DebugLevel.FULL);
                             self.colorClass = true;
                             self.effectColor = config.bllColor ?? new UnityEngine.Color(0, 0, 1);
                             self.eyeColor = self.effectColor;
+                            break;
                         }
-                        break;
                     }
                 }
             }

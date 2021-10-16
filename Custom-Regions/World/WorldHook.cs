@@ -10,7 +10,7 @@ namespace CustomRegions.CWorld
 {
     static class WorldHook
     {
-        public static void ApplyHook()
+        public static void ApplyHooks()
         {
             On.World.LoadMapConfig += World_LoadMapConfig;
 
@@ -30,11 +30,13 @@ namespace CustomRegions.CWorld
                 foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
                 {
                     //CustomWorldMod.Log($"Checking in [{CustomWorldMod.availableRegions[keyValues.Key].regionName}]");
-                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(self.region.name, out CustomWorldStructs.RegionConfiguration config))
+                    if (CustomWorldMod.installedPacks[keyValues.Key].regionConfig.TryGetValue(self.region.name, 
+                        out CustomWorldStructs.RegionConfiguration config))
                     {
                         if (config.albinoJet)
                         {
-                            CustomWorldMod.Log($"Spawning albino jetfish [{ID}] in [{self.region.name}] from [{CustomWorldMod.installedPacks[keyValues.Key].name}]");
+                            CustomWorldMod.Log($"Spawning albino jetfish [{ID}] in [{self.region.name}] from " +
+                                $"[{CustomWorldMod.installedPacks[keyValues.Key].name}]");
                             return 10;
                         }
                         break;
@@ -46,20 +48,23 @@ namespace CustomRegions.CWorld
 
         private static AbstractRoomNode World_GetNode(On.World.orig_GetNode orig, World self, WorldCoordinate c)
         {
-            // this.GetAbstractRoom(c.room).nodes[c.abstractNode];
+            bool foundError = false;
             try
             {
                 if (self.GetAbstractRoom(c.room) == null)
                 {
+                    foundError = true;
                     CustomWorldMod.Log("ERROR at GetNode !!! c.room Abstract is null", true);
                 }
 
                 else if (self.GetAbstractRoom(c.room).nodes == null)
                 {
+                    foundError = true;
                     CustomWorldMod.Log("ERROR at GetNode !!! abstractRoomNodes is null", true);
                 }
                 else if (self.GetAbstractRoom(c.room).nodes.Length < 1)
                 {
+                    foundError = true;
                     CustomWorldMod.Log("ERROR at GetNode !!! abstractRoomNodes is empty", true);
                 }
             }
@@ -67,20 +72,11 @@ namespace CustomRegions.CWorld
             {
                 CustomWorldMod.Log("ERROR!" + e, true);
             }
-
-            /*
-            string debug = $"Custom Regions: Nodes in [{self.GetAbstractRoom(c.room).name}]"+" {";
-            for (int i = 0; i < self.GetAbstractRoom(c.room).nodes.Length; i++)
+            if (foundError)
             {
-                try
-                {
-                    debug += self.GetAbstractRoom(c.room).nodes[i] + "/";
-                }
-                catch (Exception e) { }
+                CustomWorldMod.Log("Fatal error while loading the world. This is probably caused by a broken connection. " +
+                    "Make sure you are not missing a comp patch.", true);
             }
-            CustomWorldMod.CustomWorldLog(debug + "}");
-            */
-
             return orig(self, c);
         }
 
@@ -91,27 +87,21 @@ namespace CustomRegions.CWorld
         {
             orig(self, slugcatNumber);
             bool loadedMapConfig = false;
-            bool loadedProperties = false;
-            string[] array;
+            string[] propertiesLines;
 
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
-
-                string pathToRegionFolder = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.name + Path.DirectorySeparatorChar;
-                string mapPath = pathToRegionFolder + "map_" + self.name + ".txt";
-
-                //CustomWorldMod.CustomWorldLog($"Custom Regions: Loading room map_config and properties for {keyValues.Key}. Paths: \n {mapPath} \n {propertyPath}");
+                string mapPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.name, file: "map_" + self.name + ".txt");
 
                 //Mapconfig
                 if (File.Exists(mapPath))
                 {
                     CustomWorldMod.Log($"Custom Regions: Loaded mapconfig for {self.name} from {keyValues.Value}");
                     loadedMapConfig = true;
-                    array = File.ReadAllLines(mapPath);
-                    for (int i = 0; i < array.Length; i++)
+                    propertiesLines = File.ReadAllLines(mapPath);
+                    for (int i = 0; i < propertiesLines.Length; i++)
                     {
-                        string[] array2 = Regex.Split(array[i], ": ");
+                        string[] array2 = Regex.Split(propertiesLines[i], ": ");
                         if (array2.Length == 2)
                         {
                             for (int j = 0; j < self.NumberOfRooms; j++)
@@ -138,44 +128,41 @@ namespace CustomRegions.CWorld
             }
             foreach (KeyValuePair<string, string> keyValues in CustomWorldMod.activatedPacks)
             {
-                string pathToCustomFolder = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + CustomWorldMod.resourcePath + keyValues.Value + Path.DirectorySeparatorChar;
+                string propertyPath = CRExtras.BuildPath(keyValues.Value, CRExtras.CustomFolder.RegionID, regionID: self.name, file: "Properties.txt");
 
-                string pathToRegionFolder = pathToCustomFolder + "World" + Path.DirectorySeparatorChar + "Regions" + Path.DirectorySeparatorChar + self.name + Path.DirectorySeparatorChar;
-
-                string propertyPath = pathToRegionFolder + "Properties.txt";
                 // Properties.
                 if (File.Exists(propertyPath))
                 {
-                    CustomWorldMod.Log($"Custom Regions: Loaded properties for {self.name} from {keyValues.Value}");
-                    loadedProperties = true;
-                    array = File.ReadAllLines(propertyPath);
-                    for (int k = 0; k < array.Length; k++)
+                    CustomWorldMod.Log($"Custom Regions: Loaded properties (Room Attr and broken shelters) for [{self.name}] from [{keyValues.Value}]");
+                    propertiesLines = File.ReadAllLines(propertyPath);
+                    for (int k = 0; k < propertiesLines.Length; k++)
                     {
-                        string[] array3 = Regex.Split(array[k], ": ");
-                        if (array3.Length == 3)
+                        string[] propertyLine = Regex.Split(propertiesLines[k], ": ");
+                        if (propertyLine.Length == 3)
                         {
-                            if (array3[0] == "Room_Attr")
+                            if (propertyLine[0] == "Room_Attr")
                             {
                                 for (int l = 0; l < self.NumberOfRooms; l++)
                                 {
-                                    if (self.abstractRooms[l].name == array3[1])
+                                    if (self.abstractRooms[l].name == propertyLine[1])
                                     {
-                                        string[] array4 = Regex.Split(array3[2], ",");
+                                        string[] array4 = Regex.Split(propertyLine[2], ",");
                                         for (int m = 0; m < array4.Length; m++)
                                         {
                                             if (array4[m] != string.Empty)
                                             {
                                                 string[] array5 = Regex.Split(array4[m], "-");
-                                                self.abstractRooms[l].roomAttractions[(int)Custom.ParseEnum<CreatureTemplate.Type>(array5[0])] = Custom.ParseEnum<AbstractRoom.CreatureRoomAttraction>(array5[1]);
+                                                self.abstractRooms[l].roomAttractions[(int)Custom.ParseEnum<CreatureTemplate.Type>(array5[0])] = 
+                                                    Custom.ParseEnum<AbstractRoom.CreatureRoomAttraction>(array5[1]);
                                             }
                                         }
                                         break;
                                     }
                                 }
                             }
-                            else if (array3[0] == "Broken Shelters" && slugcatNumber == int.Parse(array3[1]))
+                            else if (propertyLine[0] == "Broken Shelters" && slugcatNumber == int.Parse(propertyLine[1]))
                             {
-                                string[] array4 = Regex.Split(array3[2], ", ");
+                                string[] array4 = Regex.Split(propertyLine[2], ", ");
                                 for (int n = 0; n < array4.Length; n++)
                                 {
                                     if (self.GetAbstractRoom(array4[n]) != null && self.GetAbstractRoom(array4[n]).shelter)
@@ -218,13 +205,6 @@ namespace CustomRegions.CWorld
                     self.abstractRooms[num2].mapPos -= b;
                 }
             }
-            /*
-            // YOU MUST INCLUDE BOTH PROPERTIES AND MAP CONFIG TO MAKE CHANGES TO VANILLA
-            if (!(loadedMapConfig && loadedProperties))
-            {
-                CustomWorldMod.Log($"You are missing either the mapconfig or properties file to make changes to vanilla. Loaded MapConfig [{loadedMapConfig}]. Loaded Properties [{loadedProperties}]");
-            }
-            */;
         }
     }
 }

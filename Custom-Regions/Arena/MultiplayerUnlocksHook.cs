@@ -1,8 +1,5 @@
 ﻿using CustomRegions.Mod;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CustomRegions.Arena
 {
@@ -28,6 +25,7 @@ namespace CustomRegions.Arena
                 {
                     CustomWorldMod.Log($"Error parsing levelUnlockID enum [{levelName}] - [{e}]", true);
                 }
+
                 if (unlockID >= 0)
                 {
                     return unlockID;

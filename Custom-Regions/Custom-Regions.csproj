@@ -72,6 +72,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arena\ArenaCreatureSpawnerHook.cs" />
+    <Compile Include="Creatures\DaddyCorruptionHook.cs" />
+    <Compile Include="Creatures\FlyGraphicsHook.cs" />
+    <Compile Include="Creatures\ScavengerAbstractAIHook.cs" />
+    <Compile Include="CustomMenu\PauseMenuHook.cs" />
+    <Compile Include="DevInterface\TriggersPageHook.cs" />
+    <Compile Include="Music\MultiplayerDJHook.cs" />
     <Compile Include="Arena\MultiplayerUnlocksHook.cs" />
     <Compile Include="Creatures\BigEelHook.cs" />
     <Compile Include="Creatures\DaddyLongLegsHook.cs" />
@@ -84,14 +90,13 @@
     <Compile Include="DevInterface\CustomDecalRepresentationHook.cs" />
     <Compile Include="DevInterface\MapPageHook.cs" />
     <Compile Include="DevInterface\MapRenderOutputHook.cs" />
+    <Compile Include="DevInterface\SoundPageHook.cs" />
     <Compile Include="EnumExtender.cs" />
     <Compile Include="MainLoopProcessHook.cs" />
     <Compile Include="Mod\ApplyAllHooks.cs" />
     <Compile Include="Mod\CustomWorldStructs.cs" />
     <Compile Include="Mod\Scripts.cs" />
     <Compile Include="Music\ProceduralMusicInstructionsHook.cs" />
-    <Compile Include="World\RegionStateHook.cs" />
-    <Compile Include="World\WaterGateHook.cs" />
     <Compile Include="HUDs\MapHook.cs" />
     <Compile Include="CustomMenu\MenuIllustrationHook.cs" />
     <Compile Include="CustomMenu\MenuSceneHook.cs" />
@@ -100,6 +105,7 @@
     <Compile Include="Mod\CustomWorldOption.cs" />
     <Compile Include="CustomMenu\MultiplayerMenuHook.cs" />
     <Compile Include="Music\MusicPieceHook.cs" />
+    <Compile Include="Music\SoundLoaderHook.cs" />
     <Compile Include="World\OverWorldHook.cs" />
     <Compile Include="PlayerProgressionHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

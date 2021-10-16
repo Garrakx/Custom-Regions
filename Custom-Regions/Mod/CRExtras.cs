@@ -4,11 +4,264 @@ using System.Threading;
 using System.IO;
 using System.Reflection;
 using MonoMod.RuntimeDetour;
+using System.Collections.Generic;
+using System.Linq;
+using RWCustom;
 
 namespace CustomRegions.Mod
 {
+
+
     public static class CRExtras
     {
+        public enum CustomFolder
+        {
+            // Depth 0
+            None,
+            // Depth 1
+            Assets,
+            World,
+            Levels,
+            // Depth 2.1
+            Gates_Shelters,
+            Gates,
+            Regions,
+            // Depth 2.2
+            Futile,
+            Text,
+            // Depth 3
+            RegionID,
+            // Depth 4.1
+            Rooms,
+            // Depth 4.2
+            Resources,
+            // Depth 5
+            Illustrations,
+            LoadedSoundEffects,
+            Scenes,
+            Atlases,
+            Music,
+            Decals,
+            Palettes,
+            // Depth 6
+            ///<summary>LoadedSoundEffects/Ambient!!!!</summary>
+            Ambient,
+            Procedural,
+            Songs
+
+        }
+
+
+        public static CustomWorldStructs.ProcessedThumbnail ProccessThumbnail(Texture2D oldTex, byte[] data, string packName)//,  bool activated, bool raindb)
+        {
+            Color colorEdge;
+            Texture2D newTex = new Texture2D(oldTex.width, oldTex.height, TextureFormat.RGBA32, false);
+            Color[] convertedImage = oldTex.GetPixels();
+            List<HSLColor> hslColors = new List<HSLColor>();
+            int numberOfPixels = convertedImage.Length;
+            for (int c = 0; c < numberOfPixels; c++)
+            {
+                /*
+                // Change opacity if not active
+                if (!activated && !raindb)
+                {
+                    convertedImage[c].a *= 0.65f;
+                }
+                */
+                HSLColor hslColor = CRExtras.RGB2HSL(convertedImage[c]);
+                if (hslColor.saturation > 0.25 && hslColor.lightness > 0.25 && hslColor.lightness < 0.75f)
+                {
+                    hslColors.Add(hslColor);
+                }
+            }
+            float averageLight = 0f;
+            float averageSat = 0f;
+            float medianHue = 0f;
+
+            // Calculate average light and sat
+            if (hslColors.Count > 0)
+            {
+                foreach (HSLColor color in hslColors)
+                {
+                    averageLight += color.lightness / hslColors.Count;
+                    averageSat += color.saturation / hslColors.Count;
+                }
+            }
+            // Calculate median hue
+            int half = hslColors.Count() / 2;
+            var sortedColors = hslColors.OrderBy(x => x.hue);
+            if (half != 0 && half < sortedColors.Count())
+            {
+                try
+                {
+                    if ((hslColors.Count % 2) == 0)
+                    {
+                        medianHue = (sortedColors.ElementAt(half).hue + sortedColors.ElementAt(half - 1).hue) / 2;
+                    }
+                    else
+                    {
+                        medianHue = sortedColors.ElementAt(half).hue;
+                    }
+                }
+                catch (Exception e) { CustomWorldMod.Log($"Cannot calculate median hue [{e}] for [{packName}]", true); }
+            }
+
+            //if ((activated || raindb))
+            {
+                if (averageSat > 0.15f)
+                {
+                    colorEdge = Color.Lerp(Custom.HSL2RGB(medianHue, averageSat, Mathf.Lerp(averageLight, 0.6f, 0.5f)), Color.white, 0.175f);
+                }
+                else
+                {
+                    colorEdge = Custom.HSL2RGB(UnityEngine.Random.Range(0.1f, 0.75f), 0.4f, 0.75f);
+                }
+                CustomWorldMod.Log($"Color for [{packName}] - MedianHue [{medianHue}] averageSat [{averageSat}] averagelight [{averageLight}] " +
+                    $"- Number of pixels [{numberOfPixels}]]", false, CustomWorldMod.DebugLevel.FULL);
+            }
+
+            hslColors.Clear();
+
+            //newTex.SetPixels(convertedImage);
+            //newTex.Apply();
+            //TextureScale.Point(newTex, (int)(thumbSize.x), (int)(thumbSize.y));
+            CustomWorldStructs.ProcessedThumbnail procThumb = new CustomWorldStructs.ProcessedThumbnail();
+
+            procThumb.dateDownloaded = DateTime.UtcNow;
+            procThumb.mainColor = colorEdge;
+            procThumb.data = data;
+
+            CustomWorldMod.Log($"Processed thumbnail for [{packName}] at [{procThumb.dateDownloaded}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+
+            return procThumb;
+        }
+
+
+        /// <summary>
+        /// Builds a folder path. It will return a specific file if specified, otherwise it will end with backslash.
+        /// </summary>
+        /// <param name="regionPackFolder"> Folder name of the region pack. Use null for vanilla path. </param>
+        /// <param name="folderEnum"> Folder which to retreive.</param>
+        /// <param name="regionID"> Region ID needed for Rooms or RegionID folder.</param>
+        /// <param name="file"> If specified, it will append a file after the folder path.</param>
+        /// <param name="folder"> If specified, it will append an additional folder path.</param>
+        /// <returns>Path built.</returns>
+        public static string BuildPath(string regionPackFolder, CustomFolder folderEnum, string regionID = null,
+            string file = null, string folder = null, bool includeRoot = true, bool recursive = false)
+        {
+            char div = Path.DirectorySeparatorChar;
+
+            if (folderEnum == CustomFolder.RegionID || folderEnum == CustomFolder.Rooms)
+            {
+                if (string.IsNullOrEmpty(regionID))
+                {
+                    CustomWorldMod.Log($"Called BuildPath without regionID", true);
+                    return null;
+                }
+            }
+            string path = string.Empty;
+            string recursivePath = string.Empty;
+            switch (folderEnum)
+            {
+
+                // Depth 1
+                case CustomFolder.None:
+                case CustomFolder.Assets:
+                case CustomFolder.Levels:
+                case CustomFolder.World:
+                    if (includeRoot)
+                    {
+                        // Rain World/
+                        path = RWCustom.Custom.RootFolderDirectory() + path;
+                    }
+
+                    // Requesting custom folder
+                    if (regionPackFolder != null)
+                    {
+                        // includeRoot?/Mods/CustomResources/RegionPack
+                        path = path + CustomWorldMod.resourcePath + regionPackFolder;
+                    }
+                    if (folderEnum != CustomFolder.None)
+                    {
+                        path = path + div + folderEnum.ToString();
+                    }
+                    break;
+
+                // Depth 2
+                case CustomFolder.Gates_Shelters:
+                case CustomFolder.Gates:
+                case CustomFolder.Regions:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.World, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString().Replace("_", " ");
+                    break;
+                case CustomFolder.Futile:
+                case CustomFolder.Text:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.Assets, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+
+                // Special case
+                case CustomFolder.RegionID:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.Regions, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + regionID;
+                    break;
+
+                case CustomFolder.Rooms:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.RegionID, regionID: regionID, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+
+                // Depth 3
+                case CustomFolder.Resources:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.Futile, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+
+                //  Depth 4
+                case CustomFolder.Illustrations:
+                case CustomFolder.LoadedSoundEffects:
+                case CustomFolder.Scenes:
+                case CustomFolder.Atlases:
+                case CustomFolder.Music:
+                case CustomFolder.Decals:
+                case CustomFolder.Palettes:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.Resources, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+
+                // Depth 5.1
+                case CustomFolder.Ambient:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.LoadedSoundEffects, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+                // Depth 5.2
+                case CustomFolder.Procedural:
+                case CustomFolder.Songs:
+                    recursivePath = BuildPath(regionPackFolder, CustomFolder.Music, includeRoot: includeRoot, recursive: true);
+                    path = recursivePath + div + folderEnum.ToString();
+                    break;
+
+                default:
+                    path = null;
+                    break;
+            }
+
+            if (path == null)
+            {
+                CustomWorldMod.Log($"[PathBuilder] Could not find request folder [{folderEnum}]", true);
+                return string.Empty;
+            }
+
+            if (!recursive)
+            {
+                path += folder != null ? (div.ToString() + folder + div.ToString()) : div.ToString();
+                path += file != null ? file : string.Empty;
+            }
+
+            return path;
+        }
+
+
         // Source: https://www.programmingalgorithms.com/algorithm/rgb-to-hsl/
         public static HSLColor RGB2HSL(Color color)
         {
@@ -64,19 +317,12 @@ namespace CustomRegions.Mod
 
         }
 
-        public static void CopyTo(this Stream input, Stream output)
-        {
-            byte[] buffer = new byte[16 * 1024]; // Fairly arbitrary size
-            int bytesRead;
-
-            while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                output.Write(buffer, 0, bytesRead);
-            }
-        }
-
         public static void TrimString(ref string reference, float targetPixel, string endSequence)
         {
+            if (targetPixel < 0)
+            {
+                return;
+            }
             if (OptionalUI.LabelTest.GetWidth(reference, false) > targetPixel)
             {
                 reference = reference.Remove(reference.Length - 1);
@@ -91,7 +337,7 @@ namespace CustomRegions.Mod
             {
                 (CustomWorldMod.rainWorldInstance.processManager.currentMainLoop as Menu.Menu).PlaySound(soundID);
             }
-            catch (Exception e) { CustomWorldMod.Log("Exception " + e, true); }
+            catch (Exception e) { CustomWorldMod.Log("Exception " + e, false); }
         }
     }
 
