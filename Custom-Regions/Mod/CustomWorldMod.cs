@@ -70,16 +70,12 @@ namespace CustomRegions.Mod
 
             try
             {
-                if (File.Exists(Custom.RootFolderDirectory() + "debugCRS.txt"))
+                if (File.Exists(Custom.RootFolderDirectory() + CustomWorldMod.debugFileName))
                 {
-                    string debugLevel = File.ReadAllText(Custom.RootFolderDirectory() + "debugCRS.txt");
-                    if (debugLevel.Contains("FULL"))
+                    string debugLevel = File.ReadAllText(Custom.RootFolderDirectory() + CustomWorldMod.debugFileName);
+                    if (Enum.IsDefined(typeof(CustomWorldMod.DebugLevel), debugLevel))
                     {
-                        CustomWorldMod.debugLevel = DebugLevel.FULL;
-                    }
-                    else if (debugLevel.Contains("MEDIUM"))
-                    {
-                        CustomWorldMod.debugLevel = DebugLevel.MEDIUM;
+                        CustomWorldMod.debugLevel = (CustomWorldMod.DebugLevel)Enum.Parse(typeof(CustomWorldMod.DebugLevel), debugLevel);
                     }
                     else
                     {
@@ -230,14 +226,19 @@ namespace CustomRegions.Mod
         /// </summary>
         public readonly static string regionSavePath = "UserData" + Path.DirectorySeparatorChar + "CustomRegionSaveData" + Path.DirectorySeparatorChar;
 
-        /// <summary>
-        /// URL to grab region pack information
-        /// </summary>
+        /// <summary>URL to grab region pack information</summary>
         public readonly static string packFetcherUrl = @"http://garrakx.pythonanywhere.com/raindb.json";
+        /// <summary>URL to grab hash of the region downloader executable</summary>
         public readonly static string hashOnlineUrl = @"http://garrakx.pythonanywhere.com/executable_hash.txt";
+        /// <summary>URL to download the region downloader executable</summary>
         public readonly static string executableUrl = @"http://garrakx.pythonanywhere.com/RegionPackDownloader.exe";
+        /// <summary>URL to grab CRS news</summary>
         public readonly static string newsUrl = @"http://garrakx.pythonanywhere.com/news.txt";
+        /// <summary>URL to communicate with the CRS API</summary>
         public readonly static string crsDBUrl = @"https://garrakx.pythonanywhere.com/pack_download/";
+
+        /// <summary>URL to grab region pack information</summary>
+        public readonly static string debugFileName = "debugCRS.txt";
 
         /// <summary>
         /// Divider A used for CR save
@@ -248,6 +249,7 @@ namespace CustomRegions.Mod
         /// </summary>
         public readonly static string saveDividerB = "<CRdivB>";
 
+        /// <summary>Tag for ignoring creature spawn lines</summary>
         public readonly static string removeWorldLineDiv = "_REMOVECRS";
 
         /// <summary>
@@ -325,9 +327,6 @@ namespace CustomRegions.Mod
                         RegionPack regionPackUpdate = regionPack.Value;
                         foreach (string newRegion in regionPackUpdate.regions)
                         {
-                            //infoRegionUpdated.newRegions[newRegion.Key].regionNumber = regionNumber;
-                            //regionNumber++;
-
                             // Add new region
                             if (!CustomWorldMod.activeModdedRegions.Contains(newRegion))
                             {
@@ -1342,7 +1341,8 @@ namespace CustomRegions.Mod
         {
             for (int j = 0; j < Enum.GetNames(typeof(InGameTranslator.LanguageID)).Length; j++)
             {
-                string pathToConvoDir = Path.Combine(dir, "Text_" + LocalizationTranslator.LangShort((InGameTranslator.LanguageID)j)+Path.DirectorySeparatorChar);
+                string pathToConvoDir = Path.Combine(dir, "Text_" + LocalizationTranslator.LangShort((InGameTranslator.LanguageID)j)+
+                    Path.DirectorySeparatorChar);
 
                 if (Directory.Exists(pathToConvoDir))
                 {
