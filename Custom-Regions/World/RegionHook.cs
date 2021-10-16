@@ -113,7 +113,7 @@ namespace CustomRegions.CWorld
                                             }
                                             else
                                             {
-                                                CustomWorldMod.Log($"Extending templates for [{keyValues.Key}]." +
+                                                CustomWorldMod.Log($"Extending templates for [{keyValues.Key}]. " +
                                                     $"Previous index [{previousIndex}], " +
                                                     $"new size [{self.roomSettingsTemplates.Length + array2.Length}]", false, CustomWorldMod.DebugLevel.FULL);
 
@@ -126,17 +126,16 @@ namespace CustomRegions.CWorld
                                             }
 
                                             currentTemplateNames = new List<string>(self.roomSettingTemplateNames);
-
+                                         
                                             for (int j = 0; j < array2.Length; j++)
                                             {
                                                 string newTemplate = array2[j];
                                                 if (!currentTemplateNames.Contains(newTemplate))
                                                 {
-                                                    CustomWorldMod.Log(
-                                                        $"Adding new custom templates [{newTemplate}] at ({j + previousIndex}) for [{keyValues.Key}]",
+                                                    CustomWorldMod.Log($"Adding new custom templates [{newTemplate}] at ({j + previousIndex}) for [{keyValues.Key}]",
                                                         false, CustomWorldMod.DebugLevel.FULL);
 
-                                                    self.roomSettingTemplateNames[j + previousIndex] = newTemplate;
+                                                    self.roomSettingTemplateNames[previousIndex + j] = newTemplate;
                                                     self.ReloadRoomSettingsTemplate(newTemplate);
                                                 }
                                             }
