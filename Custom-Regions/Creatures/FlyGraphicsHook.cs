@@ -60,7 +60,7 @@ namespace CustomRegions.Creatures
             
             // scrapped
             return;
-
+            /*
             try
             {
                 Fly fly = self.owner as Fly;
@@ -77,30 +77,31 @@ namespace CustomRegions.Creatures
                 sLeaser.sprites[FlyFields.GetField(fly).bodySprite].scaleY *= -0.3f;
                 extra++;
 
-                /* Cant be bothered
-                //LizardBubble6
-                FlyFields.GetField(fly).wingEyeL = FlyFields.GetField(self.owner as Fly).numberOfOrigSprites + extra;
-                sLeaser.sprites[FlyFields.GetField(fly).wingEyeL] = new FSprite("LizardBubble6", true);
-                sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].scaleX *= 0.25f;
-                sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].scaleY *= 0.25f;
-                sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].anchorX -= 0.5f;
-                sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].anchorY -= 0.5f;
-                extra++;
+                // Cant be bothered
+                ////LizardBubble6
+                //FlyFields.GetField(fly).wingEyeL = FlyFields.GetField(self.owner as Fly).numberOfOrigSprites + extra;
+                //sLeaser.sprites[FlyFields.GetField(fly).wingEyeL] = new FSprite("LizardBubble6", true);
+                //sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].scaleX *= 0.25f;
+                //sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].scaleY *= 0.25f;
+                //sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].anchorX -= 0.5f;
+                //sLeaser.sprites[FlyFields.GetField(fly).wingEyeL].anchorY -= 0.5f;
+                //extra++;
+                //
+                //FlyFields.GetField(fly).wingEyeR = FlyFields.GetField(self.owner as Fly).numberOfOrigSprites + extra;
+                //sLeaser.sprites[FlyFields.GetField(fly).wingEyeR] = new FSprite("LizardBubble6", true);
+                //sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].scaleX *= 0.25f;
+                //sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].scaleY *= 0.25f;
+                //sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].anchorX -= 0.5f;
+                //sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].anchorY -= 0.5f;
+                //extra++;
 
-                FlyFields.GetField(fly).wingEyeR = FlyFields.GetField(self.owner as Fly).numberOfOrigSprites + extra;
-                sLeaser.sprites[FlyFields.GetField(fly).wingEyeR] = new FSprite("LizardBubble6", true);
-                sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].scaleX *= 0.25f;
-                sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].scaleY *= 0.25f;
-                sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].anchorX -= 0.5f;
-                sLeaser.sprites[FlyFields.GetField(fly).wingEyeR].anchorY -= 0.5f;
-                extra++;
-                */
                 self.AddToContainer(sLeaser, rCam, null);
             }
             catch (Exception e)
             {
                 CustomWorldMod.Log("Batfly crash " + e, true);
             }
+            */
         }
 
 

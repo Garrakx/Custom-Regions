@@ -601,8 +601,8 @@ namespace CustomRegions.Mod
             Vector2 thumbSize = new Vector2(225, 156);
             Vector2 rectSize = new Vector2(475, thumbSize.y + spacing / 2);
 
-            /// calculates new vertical size by: scaling factor = (rectHor / thumbHor)
-            /// verticalsize = scaling factor · thumbnailVer
+            // calculates new vertical size by: scaling factor = (rectHor / thumbHor)
+            // verticalsize = scaling factor · thumbnailVer
             Vector2 rectBigSize = new Vector2(rectSize.x, rectSize.y * 0.75f + (rectSize.x - spacing / 2) / thumbSize.x * thumbSize.y);
 
             float contentSize = (spacing + (rectSize.y + spacing) * (numberOfOptions - numberOfExpansions) + (rectBigSize.y * numberOfExpansions + spacing));
@@ -925,9 +925,10 @@ namespace CustomRegions.Mod
         /// </summary>
         /// <param name="contentText"></param>
         /// <param name="tab"></param>
-        /// <param name="signal"></param>
+        /// <param name="signalEnum1"></param>
         /// <param name="buttonText1"></param>
         /// <param name="error"></param>
+        /// <param name="buttonText2"></param>
         public static WindowCM CreateWindowPopUp(OpTab tab, string contentText, string signalEnum1, string buttonText1, 
             bool error, string buttonText2 = null)
         {

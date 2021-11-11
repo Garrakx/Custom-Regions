@@ -16,11 +16,11 @@ namespace CustomRegions.Mod
             // Ordered by folders in alphabetic
 
 
-            /// ARENAS ///
+            // ARENAS //
             ArenaCreatureSpawnerHook.ApplyHooks();
             MultiplayerUnlocksHook.ApplyHooks();
 
-            /// CREATURES ///
+            // CREATURES //
             BigEelHook.ApplyHooks();
             DaddyCorruptionHook.ApplyHooks();
             DaddyLongLegsHook.ApplyHooks();
@@ -29,7 +29,7 @@ namespace CustomRegions.Mod
             ScavengerAbstractAIHook.ApplyHooks();
             TentaclePlantGraphicsHook.ApplyHooks();
 
-            /// CUSTOM MENU ///
+            // CUSTOM MENU //
             FastTravelScreenHook.ApplyHooks();
             MenuIllustrationHook.ApplyHooks();
             MenuSceneHook.ApplyHooks();
@@ -37,29 +37,29 @@ namespace CustomRegions.Mod
             PauseMenuHook.ApplyHooks();
             SlugcatSelectMenuHook.ApplyHooks();
 
-            /// CUSTOM PEARLS ///
+            // CUSTOM PEARLS //
             DataPearlHook.ApplyHooks();
             PlacedObjectHook.ApplyHooks();
             SLOracleBehaviorHasMarkHook.ApplyHooks();
 
-            /// DEV INTERFACE ///
+            // DEV INTERFACE //
             MapPageHook.ApplyHooks();
             MapRenderOutputHook.ApplyHooks();
             CustomDecalRepresentationHook.ApplyHooks();
             SoundPageHook.ApplyHooks();
             TriggersPageHook.ApplyHooks();
 
-            /// HUD ///
+            // HUD //
             MapHook.ApplyHooks();
 
-            /// MUSIC ///
+            // MUSIC //
             MultiplayerDJHook.ApplyHooks();
             MusicPieceHook.ApplyHooks();
             ProceduralMusicInstructionsHook.ApplyHooks();
             SoundLoaderHook.ApplyHooks();
 
 
-            /// WORLD ///
+            // WORLD //
             OverWorldHook.ApplyHooks();
             RegionGateHook.ApplyHooks();
             RegionHook.ApplyHooks();

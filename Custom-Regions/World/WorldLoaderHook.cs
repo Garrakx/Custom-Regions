@@ -111,7 +111,7 @@ namespace CustomRegions.CWorld
         {
             //CustomWorldMod.Log($"Analyzing line [{newLine}]");
 
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             // Check if oldLines contains new line
             WorldDataLine oldLine = oldLines.Find(x => x.line.Equals(newLine));
             if (!oldLine.Equals(default(WorldDataLine)))
@@ -120,7 +120,7 @@ namespace CustomRegions.CWorld
                 CustomWorldMod.Log($"Connection already existed, skipping... [{newLine}]", false, CustomWorldMod.DebugLevel.FULL);
                 return oldLines;
             }
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
 
             bool modifiedNewLine = false;
             bool modifiedOldLine = false;
@@ -129,13 +129,13 @@ namespace CustomRegions.CWorld
             // If false, lane will be added
             bool replaceOrMerge = false;
 
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             // Pre-processing
             string[] split = Regex.Split(newLine, " : ");
             string newRoomName = string.Empty;
             string newConnections = string.Empty;
             string newEndingString = string.Empty;
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
 
 
             // DataLine to add to oldLlist
@@ -177,17 +177,17 @@ namespace CustomRegions.CWorld
             // Line that has same room name, but different connections or different ending
             oldLine = oldLines.Find(x => x.roomName.Equals(newRoomName));
 
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             // pack added a new room connection (no line with same room found)
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             if (oldLine.Equals(default(WorldDataLine)))
             {
                 replaceOrMerge = false;
                 newWorldDataLine = new WorldDataLine(newLine, newRoomName, newConnections, newEndingString, false, newPackName);
             }
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             // connections are the same, different ending
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             else if (oldLine.connections.Equals(newConnections))
             {
                 replaceOrMerge = true;
@@ -205,9 +205,9 @@ namespace CustomRegions.CWorld
                 }
 
             }
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             // Line needs merging, since the roomName is the same, but the connections are different
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             else
             {
                 replaceOrMerge = true;
@@ -222,17 +222,17 @@ namespace CustomRegions.CWorld
                 List<string> oldConnList = FromConnectionsToList(oldLine.connections);
                 List<string> newConnList = FromConnectionsToList(newConnections);
 
-                ///------------------------------------------------------------------------------------------------------------///
-                /// HOW IT WORKS (subject to change)                                
-                /// 
-                /// If the mod is modifying a vanilla room, it will replace it completly. 
-                /// Modders should make sure they don't occuppy all the pipes for that room.
-                /// 
-                /// If the mod is modifying a room that is either modded or modified by another mod, CR will try to merge both.
-                /// 
-                /// If this room does not have any empty exits, the two mods will be incompatible.
-                /// 
-                ///------------------------------------------------------------------------------------------------------------///
+                //------------------------------------------------------------------------------------------------------------///
+                // HOW IT WORKS (subject to change)                                
+                // 
+                // If the mod is modifying a vanilla room, it will replace it completely. 
+                // Modders should make sure they don't occuppy all the pipes for that room.
+                // 
+                // If the mod is modifying a room that is either modded or modified by another mod, CR will try to merge both.
+                // 
+                // If this room does not have any empty exits, the two mods will be incompatible.
+                // 
+                //------------------------------------------------------------------------------------------------------------///
 
                 // -------------------------------------- //
                 // Replace old line since it was vanilla  //
@@ -350,9 +350,9 @@ namespace CustomRegions.CWorld
 
             if (newWorldDataLine != null)
             {
-                ///------------------------------------------------------------------------------------- ///
+                //------------------------------------------------------------------------------------- //
                 // Added new connection
-                ///------------------------------------------------------------------------------------- ///
+                //------------------------------------------------------------------------------------- //
                 if (!replaceOrMerge)
                 {
                     // if (!oldLines.Find(x => x.roomName.Equals(newWorldDataLine.Value.roomName)).Equals(default(WorldDataLine)))
@@ -368,9 +368,9 @@ namespace CustomRegions.CWorld
                         CustomWorldMod.Log($"[WorldMerging]: Fatal error when merging, line to be added already existed [{newWorldDataLine.Value.line}]", true);
                     }
                 }
-                ///------------------------------------------------------------------------------------- ///
+                //------------------------------------------------------------------------------------- //
                 // Modified existing connection (replace or merge)
-                ///------------------------------------------------------------------------------------- ///
+                //------------------------------------------------------------------------------------- //
                 else
                 {
                     int index = oldLines.IndexOf(oldLines.Find(x => x.roomName.Equals(newRoomName)));
@@ -403,7 +403,7 @@ namespace CustomRegions.CWorld
         {
             //CustomWorldMod.Log($"Analyzing line [{newLine}]");
 
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             // Check if oldSpawn contains new line or is removing a spawn
             bool removingLine = false;
             if (newSpawn.Contains(CustomWorldMod.removeWorldLineDiv))
@@ -427,7 +427,7 @@ namespace CustomRegions.CWorld
                 }
                 return oldSpawnLines;
             }
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
 
             bool modifiedNewSpawn = false;
             bool modifiedOldSpawn = false;
@@ -436,12 +436,12 @@ namespace CustomRegions.CWorld
             // If false, lane will be added
             bool replaceOrMerge = false;
 
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             // Pre-processing
             string[] split = Regex.Split(newSpawn, " : ");
             string newRoomName = string.Empty;
             string newSpawns = string.Empty;
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
 
 
             // DataLine to add to oldLSpawnlist
@@ -472,17 +472,17 @@ namespace CustomRegions.CWorld
 
             // Line that has same room name, but different spawn
             oldSpawnLine = oldSpawnLines.Find(x => x.roomName.Equals(newRoomName));
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             // pack added a new spawn
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             if (oldSpawnLine.Equals(default(WorldDataLine)))
             {
                 replaceOrMerge = false;
                 newWorldDataLine = new WorldDataLine(newSpawn, newRoomName, newSpawns, "", lineage, false, newPackName);
             }
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             // connections are the same, different ending
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             else if (oldSpawnLine.connections.Equals(newSpawns))
             {
                 // SHOULD NEVER HAPPEN
@@ -491,9 +491,9 @@ namespace CustomRegions.CWorld
             {
                 // One of them is lineage and the other is not
             }
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             // Spawn needs merging, since the roomName is the same, but the connections are different
-            ///-------------------------------------------------------------------------------------///
+            //-------------------------------------------------------------------------------------//
             else
             {
                 replaceOrMerge = true;
@@ -509,14 +509,14 @@ namespace CustomRegions.CWorld
                 List<string> oldSpawnList = FromConnectionsToList(oldSpawnLine.connections);
                 List<string> newSpawnList = FromConnectionsToList(newSpawns);
 
-                ///------------------------------------------------------------------------------------------------------------///
-                /// HOW IT WORKS (subject to change)                                
-                /// 
-                /// If the mod is modifying a vanilla spawn, it will replace it completly. 
-                /// 
-                /// If the mod is modifying a spawn that is either modded or modified by another mod, CR will try to merge both.
-                /// 
-                ///------------------------------------------------------------------------------------------------------------///
+                //------------------------------------------------------------------------------------------------------------///
+                // HOW IT WORKS (subject to change)                                
+                // 
+                // If the mod is modifying a vanilla spawn, it will replace it completely. 
+                // 
+                // If the mod is modifying a spawn that is either modded or modified by another mod, CR will try to merge both.
+                // 
+                //------------------------------------------------------------------------------------------------------------///
 
                 // -------------------------------------- //
                 // Replace old spawn since it was vanilla  //
@@ -590,9 +590,9 @@ namespace CustomRegions.CWorld
 
             if (newWorldDataLine != null)
             {
-                ///------------------------------------------------------------------------------------- ///
+                //------------------------------------------------------------------------------------- //
                 // Added new connection
-                ///------------------------------------------------------------------------------------- ///
+                //------------------------------------------------------------------------------------- //
                 if (!replaceOrMerge)
                 {
                     // if (!oldLines.Find(x => x.roomName.Equals(newWorldDataLine.Value.roomName)).Equals(default(WorldDataLine)))
@@ -609,9 +609,9 @@ namespace CustomRegions.CWorld
                             $"[{newWorldDataLine.Value.line}]", true);
                     }
                 }
-                ///------------------------------------------------------------------------------------- ///
+                //------------------------------------------------------------------------------------- //
                 // Modified existing connection (replace or merge)
-                ///------------------------------------------------------------------------------------- ///
+                //------------------------------------------------------------------------------------- //
                 else
                 {
                     int index = oldSpawnLines.IndexOf(oldSpawnLines.Find(x => x.roomName.Equals(newRoomName)));
@@ -974,15 +974,15 @@ namespace CustomRegions.CWorld
                                     bool exclude = conditionalElement.Contains("!");
                                     bool isInstalled = CustomWorldMod.activeModdedRegions.Contains(conditionalElement.Replace("!", ""));
 
-                                    ///
-                                    /// XNOR GATE
-                                    /// Installed      Exclude  Action
-                                    /// -------------------------------
-                                    /// True           True     Ignore 
-                                    /// False          True     Include
-                                    /// True           False    Include
-                                    /// False          False    Ignore
-                                    ///
+                                    //
+                                    // XNOR GATE
+                                    // Installed      Exclude  Action
+                                    // -------------------------------
+                                    // True           True     Ignore 
+                                    // False          True     Include
+                                    // True           False    Include
+                                    // False          False    Ignore
+                                    //
 
                                     CustomWorldMod.Log($"[{conditionalElement}] -> Installed requirement [{isInstalled}]. Should be excluded [{exclude}]",
                                         false, CustomWorldMod.DebugLevel.FULL);
@@ -1359,7 +1359,7 @@ namespace CustomRegions.CWorld
         /// <summary>
         /// Builds the world from the merged world_XX.txt files.
         /// </summary>
-        /// <returns>Returns a List<string> with room connections, creatures and bat migration blockages.</returns>
+        /// <returns>Returns a List&lt;string&gt; with room connections, creatures and bat migration blockages.</returns>
         internal static List<string> BuildWorldText(List<string> ROOMS, List<string> CREATURES, List<string> BATS)
         {
             List<string> list = new List<string>();

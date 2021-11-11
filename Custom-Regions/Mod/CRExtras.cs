@@ -145,6 +145,8 @@ namespace CustomRegions.Mod
         /// <param name="regionID"> Region ID needed for Rooms or RegionID folder.</param>
         /// <param name="file"> If specified, it will append a file after the folder path.</param>
         /// <param name="folder"> If specified, it will append an additional folder path.</param>
+        /// <param name="includeRoot"> If true, then the game's root folder directory will be prepended.</param>
+        /// <param name="recursive"> Only true when called from within this method. Don't set this yourself.</param>
         /// <returns>Path built.</returns>
         public static string BuildPath(string regionPackFolder, CustomFolder folderEnum, string regionID = null,
             string file = null, string folder = null, bool includeRoot = true, bool recursive = false)
