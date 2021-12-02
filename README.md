@@ -3,7 +3,7 @@
 ***
 ## Lets you install and browse region packs without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms
 [![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)](https://twitter.com/garrakx)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/latest)
-[![Donate](https://img.shields.io/badge/support-DONATE-orange?style=flat-square)](https://www.buymeacoffee.com/garrakx)
+[![Donate](https://img.shields.io/badge/support-DONATE-orange?style=flat-square)](https://ko-fi.com/garrakx)
 ![Custom Regions!](./Images/CRS_thumb.png)
 
 Read this in other languages: [Spanish (soon) <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/259/flag-spain_1f1ea-1f1f8.png" alt="drawing" width="15"/>](./README-ES.md), [Russian <img src="https://twemoji.maxcdn.com/2/svg/1f1f7-1f1fa.svg" alt="drawing" width="15"/>](./README-RU.md) and [French <img src="https://twemoji.maxcdn.com/2/svg/1f1eb-1f1f7.svg" alt="drawing" width="15"/>](./README-FR.md)
@@ -536,7 +536,7 @@ Please be patient with bugs and errors. Amazing thumbnail / banner by [Classick]
 
 I have put hundred of hours in making `CRS`. If you enjoy it and want to support its development, consider donating:
 
-[![Donate](./Images/donate.png)](https://www.buymeacoffee.com/garrakx)
+[![Donate](./Images/donate.png)](https://ko-fi.com/garrakx)
 
 ***
 ### <a name="changelog"></a>Changelog
