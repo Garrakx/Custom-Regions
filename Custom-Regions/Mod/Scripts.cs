@@ -95,7 +95,7 @@ namespace CustomRegions.Mod
 
 
         /// <summary>
-        /// Arguments: {url}{divider}\{packName}\{divider}\{RW process ID} where divider is &lt;div&gt;
+        /// Arguments: {url}{divider}\{packName}\{divider}\{RW process ID} where divider is <div>
         /// </summary>
         public PackDownloader(string arguments, string packName)
         {
