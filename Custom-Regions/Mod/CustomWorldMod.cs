@@ -186,6 +186,11 @@ namespace CustomRegions.Mod
         public static List<string> activeModdedRegions;
 
         /// <summary>
+        /// List containing installed dependencies
+        /// </summary>
+        public static List<PackDependency> installedDependencies;
+
+        /// <summary>
         /// Dictionary containing the thumbnails bytes. Key is the pack name and value is the thumb in byte array.
         /// </summary>
         public static Dictionary<string, byte[]> downloadedThumbnails;
@@ -204,6 +209,11 @@ namespace CustomRegions.Mod
         /// List containing Custom Regions scripts
         /// </summary>
         public static List<CustomWorldScript> scripts;
+
+        /// <summary>
+        /// Missing / corrupted dependencies, key is packName and value are the dependencies
+        /// </summary>
+        public static Dictionary<string, List<string>> missingDependencies;
 
 
         readonly static string[] ResourceFolders = {
@@ -489,6 +499,8 @@ namespace CustomRegions.Mod
         }
 
         static System.Diagnostics.Stopwatch crsPackIntializationWatch = null;
+
+
         /// <summary>
         /// Builds available regions, loaded regions and save analyzer
         /// </summary>
@@ -531,7 +543,11 @@ namespace CustomRegions.Mod
 
             CustomWorldMod.LoadInstalledPacks();
 
-            CustomWorldMod.BuildModRegionsDictionary(); 
+            CustomWorldMod.BuildModRegionsDictionary();
+
+            CustomWorldMod.LoadInstalledDependencies();
+
+            CustomWorldMod.VerifyDependencies();
 
             if (OfflineMode) { CustomWorldMod.LoadThumbnails(); }
 
@@ -553,6 +569,138 @@ namespace CustomRegions.Mod
             CustomWorldMod.Log($"Finished loading CRS. Total time Elapsed [{date2.ToString("s.ffff")}s]", false, 
                 CustomWorldMod.DebugLevel.RELEASE);
 
+
+        }
+
+        private static void VerifyDependencies()
+        {
+            CustomWorldMod.missingDependencies = new Dictionary<string, List<string>>();
+
+            foreach (var keyPar in CustomWorldMod.activatedPacks)
+            {
+                // Verify if dependencyPack exists
+                string pathToDependencies = CRExtras.BuildPath(keyPar.Value, CRExtras.CustomFolder.PackDependencies);
+                if (Directory.Exists(pathToDependencies))
+                {
+                    RegionPack pack = CustomWorldMod.installedPacks[keyPar.Key];
+                    CustomWorldMod.Log($"Verifying dependencies for [{pack.name}]");
+                    foreach (var file in Directory.GetFiles(CRExtras.BuildPath(keyPar.Value, CRExtras.CustomFolder.PackDependencies)))
+                    {
+                        if (!file.Contains(".dll")) { continue; }
+                        PackDependency dependency = new PackDependency();
+                        try
+                        {
+                            //dependency.assemblyInfo = System.Reflection.Assembly.LoadFile(file);
+                            dependency.assemblyName = System.Reflection.AssemblyName.GetAssemblyName(file).Name;
+                            dependency.location = file;
+                            dependency.SetHash();
+                            CustomWorldMod.Log($"PackDependency: [{dependency.assemblyName}]", false, DebugLevel.MEDIUM);
+                        }
+                        catch (Exception e)
+                        {
+                            CustomWorldMod.Log($"Could not load dependency at [{file}]: {e}", true);
+                            continue;
+                        }
+
+                        if (CustomWorldMod.installedDependencies.FindAll(x => x.hash.Equals(dependency.hash)).Count == 0)
+                        {
+                            // could not found installed dependency with same hash
+
+                            // search dependencies with same name
+                            PackDependency installedDependency = CustomWorldMod.installedDependencies.Find(x => x.assemblyName.Equals(dependency.assemblyName));
+                            if (!installedDependency.Equals(default) && installedDependency.assemblyName != null && installedDependency.assemblyName != string.Empty)
+                            {
+                                // Dependency installed but different hash
+
+                                if (installedDependency.audbVersion > dependency.audbVersion)
+                                {
+                                    // Outdated dependency inside pack folder
+                                    CustomWorldMod.Log($"Pack [{pack.name}] has an outdated reference inside the PackDependencies folder. " +
+                                        $"CRS found [{installedDependency.assemblyName}] installed with version [{installedDependency.audbVersion}], and the packs comes with " +
+                                        $"version [{dependency.audbVersion}]", false, DebugLevel.MEDIUM);
+                                }
+                                else
+                                {
+                                    // Corrupted dependency
+                                        CustomWorldMod.Log($"Found outdated / corrupted dependency for [{pack.name}]. Please reinstall with CRS and make sure to download AutoUpdate. " +
+                                            $"Dependency: [{installedDependency.assemblyName}], installed audbVersion [{installedDependency.audbVersion}]", true);
+                                    /*
+                                    packsAffected.Add(pack.name);
+                                    dependenciesAffected.Add(dependency.assemblyName);
+                                    */
+                                    if (!CustomWorldMod.missingDependencies.ContainsKey(pack.name))
+                                    {
+                                        CustomWorldMod.missingDependencies.Add(pack.name, new List<string>()) ;
+                                    }
+                                    CustomWorldMod.missingDependencies[pack.name].Add(dependency.assemblyName);
+                                }
+                            }
+                            else
+                            {
+                                // dependency missing
+                                CustomWorldMod.Log($"Missing dependency for [{pack.name}]. Please reinstall with CRS and make sure to download AutoUpdate. " +
+                                           $"Dependency: [{dependency.assemblyName}]", true);
+
+                                if (!CustomWorldMod.missingDependencies.ContainsKey(pack.name))
+                                {
+                                    CustomWorldMod.missingDependencies.Add(pack.name, new List<string>());
+                                }
+                                CustomWorldMod.missingDependencies[pack.name].Add(dependency.assemblyName);
+                            }
+
+                        }
+                        else
+                        {
+                            // dependency found
+                        }
+                    }
+                }
+                else
+                {
+                    CustomWorldMod.Log($"Pack [{keyPar.Key}] does not have dependencies folder.");
+                }
+            }
+
+            CustomWorldMod.Log($"Missing dependencies: [{string.Join(", ", CustomWorldMod.missingDependencies.Values.SelectMany(i => i).Distinct().ToArray())}]");
+        }
+
+        private static void LoadInstalledDependencies()
+        {
+            CustomWorldMod.installedDependencies = new List<PackDependency>();
+            
+            foreach (var mod in Partiality.PartialityManager.Instance.modManager.loadedMods)
+            {
+                PackDependency dependency = new PackDependency();
+                System.Reflection.FieldInfo version = mod.GetType().GetField("version");
+                if (version != null && version.FieldType == typeof(int))
+                {
+                    dependency.audbVersion = (int)version.GetValue(mod);
+                }
+                //dependency.assemblyInfo = mod.GetType().Assembly;
+                dependency.assemblyName = mod.GetType().Assembly.GetName().Name;
+                dependency.location = mod.GetType().Assembly.Location;
+
+                dependency.SetHash();
+
+                installedDependencies.Add(dependency);
+            }
+
+            foreach (var mod in UnityEngine.Object.FindObjectsOfType<BepInEx.BaseUnityPlugin>())
+            {
+                PackDependency dependency = new PackDependency();
+                System.Reflection.FieldInfo version = mod.GetType().GetField("version");
+                if (version != null && version.FieldType == typeof(int))
+                {
+                    dependency.audbVersion = (int)version.GetValue(mod);
+                }
+                //dependency.assemblyInfo = mod.GetType().Assembly;
+                dependency.assemblyName = mod.GetType().Assembly.GetName().Name;
+                dependency.location = mod.GetType().Assembly.Location;
+
+                dependency.SetHash();
+
+                installedDependencies.Add(dependency);
+            }
 
         }
 

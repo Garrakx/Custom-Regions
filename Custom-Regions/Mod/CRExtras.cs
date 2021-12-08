@@ -22,6 +22,7 @@ namespace CustomRegions.Mod
             Assets,
             World,
             Levels,
+            PackDependencies,
             // Depth 2.1
             Gates_Shelters,
             Gates,
@@ -169,6 +170,7 @@ namespace CustomRegions.Mod
                 case CustomFolder.Assets:
                 case CustomFolder.Levels:
                 case CustomFolder.World:
+                case CustomFolder.PackDependencies:
                     if (includeRoot)
                     {
                         // Rain World/
