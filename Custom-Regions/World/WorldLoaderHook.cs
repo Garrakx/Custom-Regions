@@ -794,6 +794,21 @@ namespace CustomRegions.CWorld
             {
                 // Fill ROOMS with vanilla rooms
                 CustomWorldMod.Log("Custom Regions: Found vanilla room, filling lines");
+
+                API.RegionInfo worldInfo = new API.RegionInfo();
+
+                worldInfo.PackName = string.Empty;
+                worldInfo.RegionID = selfWorldName;
+                worldInfo.Lines = selfLines;
+                worldInfo.Vanilla = true;
+
+                CustomWorldMod.Log($"[Vanilla] Loading line filters by other mods... count [{CustomWorldMod.regionPreprocessors.Count}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+                foreach (var filter in CustomWorldMod.regionPreprocessors)
+                {
+                    filter(worldInfo);
+                }
+
+
                 bool startRooms = false;
                 bool startCreatures = false;
                 bool startBats = false;
@@ -913,7 +928,25 @@ namespace CustomRegions.CWorld
 
                 CustomWorldMod.Log($"Custom Regions: Found world_{selfWorldName}.txt from {keyValues.Value}");
                 foundAnyCustomRegion = true;
+
                 string[] readLines = File.ReadAllLines(worldXXFile);
+
+                //List<API.RegionPreprocessor> filters = 
+                // CustomWorldMod.regionFilters.First( x => x.Key.PackName.Equals(worldInfo.PackName) && x.Key.PackName.Equals(worldInfo.RegionID) ).Value;
+
+                API.RegionInfo worldInfo = new API.RegionInfo();
+
+                worldInfo.PackName = keyValues.Key;
+                worldInfo.RegionID = selfWorldName;
+                worldInfo.Lines = new List<string>(readLines);
+
+                CustomWorldMod.Log($"Loading line filters by other mods... count [{CustomWorldMod.regionPreprocessors.Count}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+                foreach (var filter in CustomWorldMod.regionPreprocessors)
+                {
+                    filter(worldInfo);
+                }
+
+                readLines = worldInfo.Lines.ToArray();
 
                 if (!readLines.Contains("ROOMS") && !readLines.Contains("CREATURES") && !readLines.Contains("BLOCKAGES"))
                 {

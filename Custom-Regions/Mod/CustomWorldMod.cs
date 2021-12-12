@@ -215,6 +215,11 @@ namespace CustomRegions.Mod
         /// </summary>
         public static Dictionary<string, List<string>> missingDependencies;
 
+        /// <summary>
+        /// List of all filters to be applied
+        /// </summary>
+        public static List<API.RegionPreprocessor> regionPreprocessors;
+
 
         readonly static string[] ResourceFolders = {
             "Atlases", "Audio", "Decals", "Illustrations", "LoadedSoundEffects", "Music", "Palettes", "Projections"
@@ -607,7 +612,7 @@ namespace CustomRegions.Mod
                             // could not found installed dependency with same hash
 
                             // search dependencies with same name
-                            PackDependency installedDependency = CustomWorldMod.installedDependencies.Find(x => x.assemblyName.Equals(dependency.assemblyName));
+                            PackDependency installedDependency = CustomWorldMod.installedDependencies.FirstOrDefault(x => x.assemblyName.Equals(dependency.assemblyName));
                             if (!installedDependency.Equals(default) && installedDependency.assemblyName != null && installedDependency.assemblyName != string.Empty)
                             {
                                 // Dependency installed but different hash
@@ -717,6 +722,7 @@ namespace CustomRegions.Mod
             {
                 CustomWorldMod.processedThumbnails = new Dictionary<string, ProcessedThumbnail>();
             }
+            CustomWorldMod.regionPreprocessors = new List<API.RegionPreprocessor>();
 
             crashPlacedObjects = false;
         }

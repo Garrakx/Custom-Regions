@@ -52,6 +52,16 @@ namespace CustomRegions.Mod
 
         }
 
+        public static void DisableTogglePack(string packName)
+        {
+            // Disable
+
+            CustomWorldStructs.RegionPack pack = CustomWorldMod.installedPacks[packName];
+            pack.activated = !pack.activated;
+            CustomWorldMod.SerializePackInfoJSON(CRExtras.BuildPath(pack.folderName, CRExtras.CustomFolder.None, file: "packInfo.json"), pack);
+            CustomWorldMod.LoadCustomWorldResources();
+        }
+
 
         public static CustomWorldStructs.ProcessedThumbnail ProccessThumbnail(Texture2D oldTex, byte[] data, string packName)//,  bool activated, bool raindb)
         {

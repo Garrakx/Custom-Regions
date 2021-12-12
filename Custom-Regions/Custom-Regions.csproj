@@ -81,6 +81,7 @@
     <Compile Include="Creatures\ScavengerAbstractAIHook.cs" />
     <Compile Include="CustomMenu\PauseMenuHook.cs" />
     <Compile Include="DevInterface\TriggersPageHook.cs" />
+    <Compile Include="Mod\API.cs" />
     <Compile Include="Music\MultiplayerDJHook.cs" />
     <Compile Include="Arena\MultiplayerUnlocksHook.cs" />
     <Compile Include="Creatures\BigEelHook.cs" />
