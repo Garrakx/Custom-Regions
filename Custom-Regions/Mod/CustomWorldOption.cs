@@ -442,7 +442,6 @@ namespace CustomRegions.Mod
                 }
                 else if (signal.Contains(OptionSignal.DisableToggle.ToString()))
                 {
-                    // Disable
                     try
                     {
                         CRExtras.TryPlayMenuSound(SoundID.HUD_Exit_Game);
@@ -453,11 +452,7 @@ namespace CustomRegions.Mod
                         }
                         OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
                         string packName = Regex.Split(signal, "_")[1];
-                        RegionPack pack = CustomWorldMod.installedPacks[packName];
-                        pack.activated = !pack.activated;
-                        CustomWorldMod.SerializePackInfoJSON(CRExtras.BuildPath(pack.folderName, CRExtras.CustomFolder.None, file: "packInfo.json"), pack);
-                        CustomWorldMod.LoadCustomWorldResources();
-
+                        CRExtras.DisableTogglePack(packName);
                     }
                     catch (Exception e) { CustomWorldMod.Log($"Could not disable pack [{signal}] {e}", true); }
                 }

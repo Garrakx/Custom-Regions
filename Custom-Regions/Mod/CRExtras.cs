@@ -22,6 +22,7 @@ namespace CustomRegions.Mod
             Assets,
             World,
             Levels,
+            PackDependencies,
             // Depth 2.1
             Gates_Shelters,
             Gates,
@@ -49,6 +50,16 @@ namespace CustomRegions.Mod
             Procedural,
             Songs
 
+        }
+
+        public static void DisableTogglePack(string packName)
+        {
+            // Disable
+
+            CustomWorldStructs.RegionPack pack = CustomWorldMod.installedPacks[packName];
+            pack.activated = !pack.activated;
+            CustomWorldMod.SerializePackInfoJSON(CRExtras.BuildPath(pack.folderName, CRExtras.CustomFolder.None, file: "packInfo.json"), pack);
+            CustomWorldMod.LoadCustomWorldResources();
         }
 
 
@@ -169,6 +180,7 @@ namespace CustomRegions.Mod
                 case CustomFolder.Assets:
                 case CustomFolder.Levels:
                 case CustomFolder.World:
+                case CustomFolder.PackDependencies:
                     if (includeRoot)
                     {
                         // Rain World/

@@ -279,7 +279,9 @@ namespace CustomRegions.Mod
                             Log($"Deleting old [{dependencyName}]...");
                             File.Delete(pathToMoveDependencies + dependencyName);
                         }
-                        File.Move(dependency, pathToMoveDependencies + dependencyName);
+
+                        // Copy dependencies
+                        File.Copy(dependency, pathToMoveDependencies + dependencyName);
                         Log($"Saving [{dependencyName}]...");
                         movedDependencies = true;
                     }
@@ -306,6 +308,24 @@ namespace CustomRegions.Mod
 
         public void Init(string arguments, string executableName)
         {
+            // Delete old folder
+            if (CustomWorldMod.installedPacks.ContainsKey(this.packName))
+            {
+                string folderName = CustomWorldMod.installedPacks[this.packName].folderName;
+                string pathToPackFolder = CRExtras.BuildPath(folderName, CRExtras.CustomFolder.None);
+                CustomWorldMod.Log($"Updating pack, check if folder exists at: [{pathToPackFolder}]...", false, CustomWorldMod.DebugLevel.MEDIUM);
+                if (Directory.Exists(pathToPackFolder)) 
+                {
+                    try
+                    {
+                        Directory.Delete(pathToPackFolder, true);
+                    } catch (Exception e)
+                    {
+                        CustomWorldMod.Log(e.ToString(), true);
+                    }
+                }
+            } 
+
             base.Init();
             Log($"Executing console app [{executableName}]");
 

@@ -29,11 +29,15 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="BepInEx">
+      <HintPath>..\References\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="ConfigMachine, Version=1.4.4.4, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -77,6 +81,7 @@
     <Compile Include="Creatures\ScavengerAbstractAIHook.cs" />
     <Compile Include="CustomMenu\PauseMenuHook.cs" />
     <Compile Include="DevInterface\TriggersPageHook.cs" />
+    <Compile Include="Mod\API.cs" />
     <Compile Include="Music\MultiplayerDJHook.cs" />
     <Compile Include="Arena\MultiplayerUnlocksHook.cs" />
     <Compile Include="Creatures\BigEelHook.cs" />

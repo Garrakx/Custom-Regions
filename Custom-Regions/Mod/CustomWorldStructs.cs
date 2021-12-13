@@ -1,11 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace CustomRegions.Mod
 {
     public class CustomWorldStructs
     {
+
+        public struct PackDependency
+        {
+            //public System.Reflection.Assembly assemblyInfo;
+            public string assemblyName;
+            public string location;
+
+            public int audbVersion;
+            public string hash;
+            public void SetHash()
+            {
+                using (var md5 = System.Security.Cryptography.MD5.Create())
+                {
+                    using (var stream = File.OpenRead(this.location))
+                    {
+                        hash = BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
+                    }
+                }
+
+            }
+
+        }
+
         /// <summary>
         /// Struct with information of available regions 
         /// [regionID, regionName, description, activated, checksum, loadOrder(Default is random)]

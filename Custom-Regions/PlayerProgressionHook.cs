@@ -1,6 +1,7 @@
 ﻿using CustomRegions.Mod;
 using RWCustom;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -22,7 +23,44 @@ namespace CustomRegions
 
             On.PlayerProgression.SaveToDisk += PlayerProgression_SaveToDisk;
             On.PlayerProgression.WipeAll += PlayerProgression_WipeAll;
+
+            On.PlayerProgression.GetProgLines += PlayerProgression_GetProgLines;
         }
+
+        // Remove map progression for regions that don't exist
+        private static bool removeMapLines = false;
+        private static string[] PlayerProgression_GetProgLines(On.PlayerProgression.orig_GetProgLines orig, PlayerProgression self)
+        {
+            const string mapHeader = "MAP<progDivB>";
+            bool WillCrashUponSave(string line)
+            {
+                return line.StartsWith(mapHeader)
+                    && !self.regionNames.Any(acro => line.Length >= mapHeader.Length + acro.Length
+                                                  && line.Substring(mapHeader.Length, acro.Length) == acro);
+            }
+
+            string[] lines = orig(self);
+            if (removeMapLines && lines.Any(WillCrashUponSave))
+            {
+                foreach(var line in lines.Where(WillCrashUponSave))
+                {
+                    string regionName;
+                    try
+                    {
+                        regionName = line.Substring(mapHeader.Length, 2);
+                    }
+                    catch
+                    {
+                        regionName = "ERROR";
+                    }
+                    CustomWorldMod.Log($"Removed map progression for region: {regionName}");
+                }
+                lines = lines.Where(line => !WillCrashUponSave(line)).ToArray();
+            }
+
+            return lines;
+        }
+
         private static void PlayerProgression_WipeAll(On.PlayerProgression.orig_WipeAll orig, PlayerProgression self)
         {
             orig(self);
@@ -66,7 +104,16 @@ namespace CustomRegions
                 }
             }
 
-            orig(self, saveCurrentState, saveMaps, saveMiscProg);
+            // Set a flag to remove faulty map lines
+            try
+            {
+                removeMapLines = true;
+                orig(self, saveCurrentState, saveMaps, saveMiscProg);
+            }
+            finally
+            {
+                removeMapLines = false;
+            }
         }
 
         public static void UpdateProgresionCRS(PlayerProgression self)
