@@ -538,6 +538,10 @@ I have put hundred of hours in making `CRS`. If you enjoy it and want to support
 
 [![Donate](./Images/donate.png)](https://ko-fi.com/garrakx)
 
+Truly thankful for these supporters, you are the best❤️ 
+- LeeMoriya
+- sarkos
+
 ***
 ### <a name="changelog"></a>Changelog
 
