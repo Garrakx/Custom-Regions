@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Mono.Cecil;
+using Mono.Cecil.Cil;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace CustomRegions.Mod
@@ -10,13 +13,17 @@ namespace CustomRegions.Mod
 
         public struct PackDependency
         {
-            //public System.Reflection.Assembly assemblyInfo;
+            /// <summary>
+            /// List containing which region packs use this dependency.
+            /// </summary>
+            public List<string> usedBy;
+
             public string assemblyName;
             public string location;
 
             public int audbVersion;
             public string hash;
-            public void SetHash()
+            internal void SetHash()
             {
                 using (var md5 = System.Security.Cryptography.MD5.Create())
                 {
@@ -26,6 +33,90 @@ namespace CustomRegions.Mod
                     }
                 }
 
+            }
+
+            public void LoadDependency(string fileLocation)
+            {
+                usedBy = new List<string>();
+                this.audbVersion = -1;
+                CustomWorldMod.Log($"Loading dependency at [{fileLocation}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+                ModuleDefinition module = ModuleDefinition.ReadModule(fileLocation);
+                var list = module.Types.Where(x => x != null && x.IsPublic && x.HasFields).ToList();
+                try
+                {
+                    foreach (TypeDefinition type in list.Where(type => type.BaseType.FullName.Equals("Partiality.Modloader.PartialityMod") ||
+                                                                        type.BaseType.FullName.Equals("BepInEx.BaseUnityPlugin")).ToList())
+                    {
+
+                        CustomWorldMod.Log($"Found mod or plugin [{type.FullName}]", false, CustomWorldMod.DebugLevel.FULL);
+                        //CustomWorldMod.Log($"[{string.Join(", ", type.Methods.Select(x => x.FullName).ToArray())}]");
+
+                        var method = type.Methods.FirstOrDefault(x => x != null && x.Name.Equals(".ctor"));
+
+                        if (method.Equals(default))
+                        {
+                            CustomWorldMod.Log($"Dependency [{type.FullName}] does not support AutoUpdate");
+                            this.audbVersion = -1;
+
+                        }
+                        else
+                        {
+                            var processor = method.Body.GetILProcessor();
+                            var newInstruction = processor.Create(OpCodes.Call, method);
+                            //var firstInstruction = method.Body.Instructions[0];
+
+                            var instruction = method.Body.Instructions.FirstOrDefault(l => l.OpCode == OpCodes.Stfld && l.Operand.ToString().Contains("version"));
+
+                            if (instruction != null && !instruction.Equals(default))
+                            {
+                                CustomWorldMod.Log($"Instruction: [{instruction}]", false, CustomWorldMod.DebugLevel.FULL);
+                                var previous = instruction.Previous;
+                                CustomWorldMod.Log($"previous instruction: [{previous}]", false, CustomWorldMod.DebugLevel.FULL);
+                                //CustomWorldMod.Log($"{previous.OpCode}");
+                                if (previous.Operand != null && int.TryParse(previous.Operand.ToString(), out int result))
+                                {
+                                    this.audbVersion = result;
+
+                                }
+                                else
+                                {
+                                    // cursed
+                                    if (int.TryParse(previous.OpCode.ToString().Replace($"{OpCodes.Ldc_I4}.", ""), out int result2))
+                                    {
+
+                                        this.audbVersion = result2;
+                                    }
+                                }
+                                CustomWorldMod.Log("Audb version: " + this.audbVersion, false, CustomWorldMod.DebugLevel.MEDIUM);
+
+                            }
+                            else
+                            {
+                                // no autoupdate
+                            }
+                        }
+
+
+                    }
+
+
+                    this.assemblyName = System.Reflection.AssemblyName.GetAssemblyName(fileLocation).Name;
+                    /*
+                    System.Reflection.Assembly loadedAssembly = System.Reflection.Assembly.LoadFile(fileLocation);
+                    System.Reflection.FieldInfo version = loadedAssembly.GetType().GetField("version");
+                    if (version != null && version.FieldType == typeof(int))
+                    {
+                        this.audbVersion = (int)version.GetValue(loadedAssembly);
+                    }
+                    */
+                    this.location = fileLocation;
+                    this.SetHash();
+                    CustomWorldMod.Log($"Loaded assembly [{this.assemblyName}]. AUDB version {this.audbVersion}. Hash {this.hash}. Location [{this.assemblyName}]", false, CustomWorldMod.DebugLevel.MEDIUM);
+                }
+                catch (Exception e)
+                {
+                    CustomWorldMod.Log($"Failed loaded assembly, {e}", true);
+                }
             }
 
         }
@@ -59,8 +150,8 @@ namespace CustomRegions.Mod
             ///</summary>
             public bool useRegionName;
 
-            public RegionPack(string name, string description, string author, bool activated, string checksum, string folderName, string url, 
-                Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig, List<string> regions, int loadOrder, 
+            public RegionPack(string name, string description, string author, bool activated, string checksum, string folderName, string url,
+                Dictionary<string, float> electricGates, Dictionary<string, RegionConfiguration> regionConfig, List<string> regions, int loadOrder,
                 int packNumber, string version, string packUrl, string requirements, bool usePackName, bool expansion, bool shownInBrowser, int downloads)
             {
                 this.name = name;
@@ -97,7 +188,7 @@ namespace CustomRegions.Mod
                 this.electricGates = new Dictionary<string, float>();
                 this.regionConfig = new Dictionary<string, RegionConfiguration>();
                 this.regions = new List<string>();
-                this.loadOrder = (int)(UnityEngine.Random.value*500);
+                this.loadOrder = (int)(UnityEngine.Random.value * 500);
                 this.loadNumber = this.loadOrder;
                 this.version = "1.0";
                 this.packUrl = "";
@@ -149,7 +240,7 @@ namespace CustomRegions.Mod
             public string scavTradeItem;
             public float scavGearChance;
 
-            public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, bool kelpVanilla, Color? kelpColor, bool bllVanilla, 
+            public RegionConfiguration(string regionID, bool albinoLevi, bool albinoJet, bool kelpVanilla, Color? kelpColor, bool bllVanilla,
                 Color? bllColor, float blackSalamanderChance, Color? batFlyColor, bool batVanilla, string scavTradeItems, float scavGearChance)
             {
                 this.regionID = regionID;
