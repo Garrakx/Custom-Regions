@@ -388,7 +388,15 @@ namespace CustomRegions.Mod
                     try
                     {
                         string packName = Regex.Split(signal, "_")[1];
-                        string text = $"Do you want to uninstall [{packName}]?\n\n Uninstalling will permanently delete the pack folder.";
+                        string text = $"Do you want to uninstall [{packName}]?\n\n Uninstalling will permanently delete the pack folder. ";
+                        string safelyDeleteDependencies = 
+                           $"You will be able to safely disable/uninstall the following dependencies:\n" +
+                           $"[{string.Join(", ",CustomWorldMod.installedDependencies.FindAll(x => x.usedBy.Contains(packName) && x.usedBy.Count == 1).Select(x => x.assemblyName).ToArray())}]";
+                        if (CustomWorldMod.activatedPacks.ContainsKey(packName))
+                        {
+                            text += safelyDeleteDependencies;
+                        }
+
                         OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
 
                         if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
@@ -430,7 +438,11 @@ namespace CustomRegions.Mod
                         RegionPack pack = CustomWorldMod.installedPacks[packName];
                         string action = pack.activated ? "Disable" : "Enable";
                         string text = $"Do you want to {action.ToLower()} [{packName}]?\n\n Enabling / disabling packs might corrupt your saves! " +
-                            $"You can always enable / disable it again if problems arise.";
+                            $"You can always enable / disable it again if problems arise.\n";
+                        string safelyDeleteDependencies =
+                           $"You will be able to safely disable/uninstall the following dependencies:\n" +
+                           $"[{string.Join(", ", CustomWorldMod.installedDependencies.FindAll(x => x.usedBy.Contains(packName) && x.usedBy.Count == 1).Select(x => x.assemblyName).ToArray())}]";
+                        text += safelyDeleteDependencies;
 
                         OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
                         if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
@@ -452,6 +464,7 @@ namespace CustomRegions.Mod
                         }
                         OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
                         string packName = Regex.Split(signal, "_")[1];
+                        
                         CRExtras.DisableTogglePack(packName);
                     }
                     catch (Exception e) { CustomWorldMod.Log($"Could not disable pack [{signal}] {e}", true); }
