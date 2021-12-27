@@ -11,7 +11,6 @@ using RWCustom;
 namespace CustomRegions.Mod
 {
 
-
     public static class CRExtras
     {
         public enum CustomFolder
@@ -174,7 +173,6 @@ namespace CustomRegions.Mod
             string recursivePath = string.Empty;
             switch (folderEnum)
             {
-
                 // Depth 1
                 case CustomFolder.None:
                 case CustomFolder.Assets:
