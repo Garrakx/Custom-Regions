@@ -211,7 +211,7 @@ namespace CustomRegions.Mod
             {
                 string labelText = "N/A";
                 string buttonText = "ERROR";
-                string buttonText2 = null; 
+                string buttonText2 = null;
                 CustomWorldOption.OptionSignal signal = CustomWorldOption.OptionSignal.Empty;
                 if (!error)
                 {
@@ -259,18 +259,6 @@ namespace CustomRegions.Mod
             {
                 CustomWorldMod.Log($"Pack doesn't have dependencies [{this.packName}]");
                 return;
-
-                /* Should CRS delete PackDepencencies folder? */
-                /*
-                if (movedDependencies)
-                {
-                    try
-                    {
-                        Directory.Delete(pathToDependencies);
-                    }
-                    catch (Exception e) { CustomWorldMod.Log($"Error deleting dependency folder [{pathToDependencies}] {e}"); }
-                }
-                */
             }
 
             string[] dependenciesFullPath = Directory.GetFiles(pathToDependencies);
@@ -288,7 +276,7 @@ namespace CustomRegions.Mod
             foreach (string dependencyPath in dependenciesFullPath)
             {
                 string dependencyName = new FileInfo(dependencyPath).Name;
-                
+
                 try
                 {
                     if (File.Exists(pathToMoveDependencies + dependencyName))
@@ -345,36 +333,6 @@ namespace CustomRegions.Mod
                             File.Delete(pathToMoveDependencies + dependencyName);
                         }
 
-                        /*
-                        //if (installedDependency.Equals(default)) { CustomWorldMod.Log($"Error! corrupted analyzed dependencies: {downloadedDependency.location}", true); }
-                        if (!installedDependency.assemblyName.Equals(string.Empty))
-                        {
-                            CustomWorldMod.Log($"Dependency already installed, [{installedDependency.assemblyName}]. " +
-                                $"AUDB version installed: [{installedDependency.audbVersion}] vs downloaded [{downloadedDependency.audbVersion}]");
-
-                            if (installedDependency.hash.Equals(downloadedDependency.hash) || downloadedDependency.audbVersion < installedDependency.audbVersion)
-                            {
-                                // installed dependency is more recent or equal
-                                shouldDelete = false;
-                            }
-
-
-                            if (shouldDelete)
-                            {
-                                Log($"Deleting old [{dependencyName}]...");
-                                File.Delete(pathToMoveDependencies + dependencyName);
-                            }
-                            else
-                            {
-                                // should not replace dependency
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            // move dependency ?
-                        }
-                        */
                     }
                     else
                     {
@@ -402,17 +360,18 @@ namespace CustomRegions.Mod
                 string folderName = CustomWorldMod.installedPacks[this.packName].folderName;
                 string pathToPackFolder = CRExtras.BuildPath(folderName, CRExtras.CustomFolder.None);
                 CustomWorldMod.Log($"Updating pack, check if folder exists at: [{pathToPackFolder}]...", false, CustomWorldMod.DebugLevel.MEDIUM);
-                if (Directory.Exists(pathToPackFolder)) 
+                if (Directory.Exists(pathToPackFolder))
                 {
                     try
                     {
                         Directory.Delete(pathToPackFolder, true);
-                    } catch (Exception e)
+                    }
+                    catch (Exception e)
                     {
                         CustomWorldMod.Log(e.ToString(), true);
                     }
                 }
-            } 
+            }
 
             base.Init();
             Log($"Executing console app [{executableName}]");
@@ -470,40 +429,9 @@ namespace CustomRegions.Mod
                 {
                     Log(log);
                 }
-                /*
-                else if (log.Contains(downloadDivider))
-                {
-                    
-                }
-                else if(log.Contains(unzipDivider))
-                {
-                    if (log.Contains(OK.ToString()))
-                    {
-                        status = LogStatus.Unzipped;
-                    }
-                }
-                */
             }
         }
 
-        /*
-        public LogStatus ParseStatus(string s, string divider)
-        {
-            string status = s.Replace(divider, "");
-            if (int.TryParse(status, out int intStatus))
-            {
-                switch (intStatus)
-                {
-                    case OK:
-                        break;
-                    case ERROR:
-                        break;
-                        case 
-                }
-            }
-            return LogStatus.Error;
-        }
-        */
     }
 
     public class ExeUpdater : CustomWorldScript
@@ -759,7 +687,7 @@ namespace CustomRegions.Mod
 
                         if (CustomWorldMod.installedPacks.TryGetValue(packNames[currentThumb], out RegionPack value))
                         {
-                            string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + value.folderName + 
+                            string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + value.folderName +
                                 Path.DirectorySeparatorChar + "thumb.png";
                             if (!File.Exists(path))
                             {
@@ -780,7 +708,7 @@ namespace CustomRegions.Mod
 
                         ProcessedThumbnail procThumb = CRExtras.ProccessThumbnail(tex, www.bytes, packNames[currentThumb]);
                         Log($"Adding processed thumbnail [{packNames[currentThumb]}]");
-                        if (CustomWorldMod.processedThumbnails.ContainsKey(packNames[currentThumb]) )
+                        if (CustomWorldMod.processedThumbnails.ContainsKey(packNames[currentThumb]))
                         {
                             CustomWorldMod.processedThumbnails[packNames[currentThumb]] = procThumb;
                         }
@@ -788,7 +716,7 @@ namespace CustomRegions.Mod
                         {
                             CustomWorldMod.processedThumbnails.Add(packNames[currentThumb], procThumb);
                         }
-                        
+
 
                         next = true;
                         currentThumb++;
@@ -926,16 +854,16 @@ namespace CustomRegions.Mod
                             }
                             catch (Exception e) { Log($"Exception when adding fetched region [{e}]", true); }
                         }
-                    var date = DateTime.UtcNow.Date;
-                    var seed = date.Year * 1000 + date.DayOfYear;
-                    var random1 = new System.Random(seed);
+                        var date = DateTime.UtcNow.Date;
+                        var seed = date.Year * 1000 + date.DayOfYear;
+                        var random1 = new System.Random(seed);
 
-                    var seq = Enumerable.Range(0, tempRainDb.Count()).OrderBy(x=> random1.Next()).Take(tempRainDb.Count()).ToList();
-                    foreach (int item in seq)
-                    {
-                        KeyValuePair<string, RegionPack> tempItem = tempRainDb.ElementAt(item);
-                        CustomWorldMod.rainDbPacks.Add(tempItem.Key, tempItem.Value);
-                    }
+                        var seq = Enumerable.Range(0, tempRainDb.Count()).OrderBy(x => random1.Next()).Take(tempRainDb.Count()).ToList();
+                        foreach (int item in seq)
+                        {
+                            KeyValuePair<string, RegionPack> tempItem = tempRainDb.ElementAt(item);
+                            CustomWorldMod.rainDbPacks.Add(tempItem.Key, tempItem.Value);
+                        }
 
                         Log($"Added fetched regions [{string.Join(", ", CustomWorldMod.rainDbPacks.Keys.ToArray())}]");
                     }
