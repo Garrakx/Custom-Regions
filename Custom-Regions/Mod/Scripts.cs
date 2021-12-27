@@ -253,44 +253,12 @@ namespace CustomRegions.Mod
 
         private void CheckForDependencies()
         {
+
             string pathToDependencies = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + this.packName + @"/PackDependencies";
-            if (Directory.Exists(pathToDependencies))
+            if (!Directory.Exists(pathToDependencies))
             {
-                string[] dependenciesFullPath = Directory.GetFiles(pathToDependencies);
-                Log($"Found dependencies [{string.Join(", ", dependenciesFullPath)}] for [{this.packName}]");
-                string pathToMoveDependencies;
-                if (CustomWorldMod.usingBepinex)
-                {
-                    pathToMoveDependencies = Custom.RootFolderDirectory() + @"BepInEx/plugins/";
-                }
-                else
-                {
-                    pathToMoveDependencies = Custom.RootFolderDirectory() + @"Mods/";
-                }
-
-                foreach (string dependency in dependenciesFullPath)
-                {
-                    string dependencyName = new FileInfo(dependency).Name;
-                    this.dependenciesName.Add(dependencyName);
-                    try
-                    {
-                        if (File.Exists(pathToMoveDependencies + dependencyName) ) 
-                        {
-                            Log($"Deleting old [{dependencyName}]...");
-                            File.Delete(pathToMoveDependencies + dependencyName);
-                        }
-
-                        // Copy dependencies
-                        File.Copy(dependency, pathToMoveDependencies + dependencyName);
-                        Log($"Saving [{dependencyName}]...");
-                        movedDependencies = true;
-                    }
-                    catch (Exception e)
-                    {
-                        CustomWorldMod.Log($"Error moving dependency [{dependencyName}] {e}");
-                    }
-                }
-
+                CustomWorldMod.Log($"Pack doesn't have dependencies [{this.packName}]");
+                return;
 
                 /* Should CRS delete PackDepencencies folder? */
                 /*
@@ -303,6 +271,126 @@ namespace CustomRegions.Mod
                     catch (Exception e) { CustomWorldMod.Log($"Error deleting dependency folder [{pathToDependencies}] {e}"); }
                 }
                 */
+            }
+
+            string[] dependenciesFullPath = Directory.GetFiles(pathToDependencies);
+            Log($"Found dependencies [{string.Join(", ", dependenciesFullPath)}] for [{this.packName}]");
+            string pathToMoveDependencies;
+            if (CustomWorldMod.usingBepinex)
+            {
+                pathToMoveDependencies = Custom.RootFolderDirectory() + @"BepInEx/plugins/";
+            }
+            else
+            {
+                pathToMoveDependencies = Custom.RootFolderDirectory() + @"Mods/";
+            }
+
+            foreach (string dependencyPath in dependenciesFullPath)
+            {
+                string dependencyName = new FileInfo(dependencyPath).Name;
+                
+                try
+                {
+                    if (File.Exists(pathToMoveDependencies + dependencyName))
+                    {
+
+                        PackDependency downloadedDependency = new PackDependency();
+                        downloadedDependency.LoadDependency(dependencyPath);
+
+                        bool shouldDelete = true;
+                        bool shouldSkip = false;
+
+                        // Installed dependency
+                        var installedDependencies = CustomWorldMod.installedDependencies.FindAll(x => x.assemblyName.Equals(downloadedDependency.assemblyName)).ToList();
+
+                        if (installedDependencies.Count != 0)
+                        {
+                            // found dependency with same name
+                            // check if installed version is greater than downloaded 
+
+                            foreach (var installedDep in installedDependencies)
+                            {
+                                if (installedDep.audbVersion < downloadedDependency.audbVersion)
+                                {
+                                    // needs upgrade
+                                    shouldDelete = true;
+                                }
+                                else if (!installedDep.hash.Equals(downloadedDependency.hash))
+                                {
+                                    // hash is different, using downloaded version
+                                    shouldDelete = true;
+                                }
+                                else
+                                {
+                                    CustomWorldMod.Log($"Dependency [{installedDep.assemblyName}] already installed and up-to-date. " +
+                                        $"AUDB Ver [{installedDep.audbVersion}] vs.[{downloadedDependency.audbVersion}]");
+                                    shouldSkip = true;
+                                    break;
+                                }
+                            }
+                            if (shouldSkip) { continue; }
+
+                        }
+                        else
+                        {
+                            // no installed depency with same name
+                            // should copy new one
+                            CustomWorldMod.Log($"Dependency [{downloadedDependency.assemblyName}], [{dependencyName}] not found, installing...");
+                            shouldDelete = true;
+                        }
+
+                        if (shouldDelete)
+                        {
+                            Log($"Deleting old [{dependencyName}]...");
+                            File.Delete(pathToMoveDependencies + dependencyName);
+                        }
+
+                        /*
+                        //if (installedDependency.Equals(default)) { CustomWorldMod.Log($"Error! corrupted analyzed dependencies: {downloadedDependency.location}", true); }
+                        if (!installedDependency.assemblyName.Equals(string.Empty))
+                        {
+                            CustomWorldMod.Log($"Dependency already installed, [{installedDependency.assemblyName}]. " +
+                                $"AUDB version installed: [{installedDependency.audbVersion}] vs downloaded [{downloadedDependency.audbVersion}]");
+
+                            if (installedDependency.hash.Equals(downloadedDependency.hash) || downloadedDependency.audbVersion < installedDependency.audbVersion)
+                            {
+                                // installed dependency is more recent or equal
+                                shouldDelete = false;
+                            }
+
+
+                            if (shouldDelete)
+                            {
+                                Log($"Deleting old [{dependencyName}]...");
+                                File.Delete(pathToMoveDependencies + dependencyName);
+                            }
+                            else
+                            {
+                                // should not replace dependency
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            // move dependency ?
+                        }
+                        */
+                    }
+                    else
+                    {
+                        // new dependency
+                    }
+
+                    // Copy dependencies
+                    Log($"Saving [{dependencyName}], from [{dependencyPath}] to [{pathToMoveDependencies + dependencyName}]...");
+                    File.Copy(dependencyPath, pathToMoveDependencies + dependencyName);
+                    movedDependencies = true;
+                    this.dependenciesName.Add(dependencyName);
+                }
+                catch (Exception e)
+                {
+                    CustomWorldMod.Log($"Error moving dependency [{dependencyName}] {e}");
+                }
             }
         }
 
