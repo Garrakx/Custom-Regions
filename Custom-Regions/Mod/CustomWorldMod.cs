@@ -82,7 +82,7 @@ namespace CustomRegions.Mod
                         CustomWorldMod.debugLevel = DebugLevel.FULL;
                     }
                 }
-            } 
+            }
             catch (Exception e) { CustomWorldMod.Log($"Could not read debug level file \n{e}", true); }
 
             bool usingBepinex = false;
@@ -123,17 +123,43 @@ namespace CustomRegions.Mod
             Hooks.ApplyAllHooks();
 
             // Create exe updater
-            if (scripts.FindAll(x => x is ExeUpdater).Count == 0 && !OfflineMode) 
-            { 
-               CustomWorldMod.scripts.Add(new ExeUpdater(CustomWorldMod.hashOnlineUrl, CustomWorldMod.executableUrl));
-               CustomWorldMod.Log($"Creating pack downloader...");
+            if (scripts.FindAll(x => x is ExeUpdater).Count == 0 && !OfflineMode)
+            {
+                CustomWorldMod.scripts.Add(new ExeUpdater(CustomWorldMod.hashOnlineUrl, CustomWorldMod.executableUrl));
+                CustomWorldMod.Log($"Creating pack downloader...");
             }
 
             // Grab news
-            if (scripts.FindAll(x=> x is NewsFetcher).Count == 0 && !OfflineMode)
+            if (scripts.FindAll(x => x is NewsFetcher).Count == 0 && !OfflineMode)
             {
                 CustomWorldMod.scripts.Add(new NewsFetcher(CustomWorldMod.newsUrl));
             }
+        }
+
+        public override void OnDisable()
+        {
+            base.OnDisable();
+
+            try
+            {
+                var fields = typeof(CustomWorldMod).GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+
+                foreach (var field in fields)
+                {
+                    field.SetValue(null, default);
+                }
+            }
+            catch (Exception e) { CustomWorldMod.Log(e.ToString(), true); }
+
+            /*
+            Settings.Lookup lookup = (Settings.Lookup)field.GetValue(null);
+
+            obj.GetType()
+              .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+              .Where(f => f.FieldType == typeof(string))
+              */
+            /*.ToDictionary(f => f.Name,
+                          f => (string)f.GetValue(null));*/
         }
 
 
@@ -250,7 +276,7 @@ namespace CustomRegions.Mod
         /// <summary>URL to grab CRS news</summary>
         public readonly static string newsUrl = @"http://garrakx.pythonanywhere.com/news.txt";
         /// <summary>URL to communicate with the CRS API</summary>
-        public readonly static string crsDBUrl = @"https://garrakx.pythonanywhere.com/pack_download/";
+        public readonly static string crsDBUrl = @"http://garrakx.pythonanywhere.com/pack_download/";
 
         /// <summary>URL to grab region pack information</summary>
         public readonly static string debugFileName = "debugCRS.txt";
@@ -302,18 +328,18 @@ namespace CustomRegions.Mod
 
         public static bool OfflineMode { get; set; } = File.Exists(Custom.RootFolderDirectory() + resourcePath + "offline.txt");
 
-        
-        public enum DebugLevel {RELEASE, MEDIUM, FULL}
+
+        public enum DebugLevel { RELEASE, MEDIUM, FULL }
 
         public static DebugLevel debugLevel = DebugLevel.RELEASE;
-        
+
 
         /// <summary>
         /// Method used for translating with Config Machine
         /// </summary>
         public static string Translate(string orig)
         {
-            if (customWorldOption != null) 
+            if (customWorldOption != null)
             {
                 return customWorldOption.Translate(orig);
             }
@@ -351,10 +377,10 @@ namespace CustomRegions.Mod
                             {
                                 CustomWorldMod.Log($"The region pack [{regionPack.Key}] is adding a duplicate region!. " +
                                     $"The field (regions) in packInfo.json should *only* include new regions added by the pack.", false, DebugLevel.MEDIUM);
-                            } 
+                            }
 
-                            try{EnumExtender.AddDeclaration(typeof(MenuScene.SceneID), "Landscape_" + newRegion);}
-                            catch (Exception e){CustomWorldMod.Log("Error extending enums " + e, true);}
+                            try { EnumExtender.AddDeclaration(typeof(MenuScene.SceneID), "Landscape_" + newRegion); }
+                            catch (Exception e) { CustomWorldMod.Log("Error extending enums " + e, true); }
                         }
 
                         regionPackUpdate.loadNumber = packNumber;
@@ -504,6 +530,7 @@ namespace CustomRegions.Mod
         }
 
         static System.Diagnostics.Stopwatch crsPackIntializationWatch = null;
+        internal static List<PackDependency> unusedDependencies;
 
 
         /// <summary>
@@ -571,7 +598,7 @@ namespace CustomRegions.Mod
             crsPackIntializationWatch.Stop();
 
             DateTime date2 = new DateTime(crsPackIntializationWatch.ElapsedTicks);
-            CustomWorldMod.Log($"Finished loading CRS. Total time Elapsed [{date2.ToString("s.ffff")}s]", false, 
+            CustomWorldMod.Log($"Finished loading CRS. Total time Elapsed [{date2.ToString("s.ffff")}s]", false,
                 CustomWorldMod.DebugLevel.RELEASE);
 
 
@@ -580,91 +607,132 @@ namespace CustomRegions.Mod
         private static void VerifyDependencies()
         {
             CustomWorldMod.missingDependencies = new Dictionary<string, List<string>>();
+            CustomWorldMod.Log($"Installed dependencies: [{string.Join(", ", CustomWorldMod.installedDependencies.Select(x => x.assemblyName).ToArray())}]");
+
+            /*
+            // Check for CRS dependencies
+            if (CustomWorldMod.installedDependencies.FindAll(x => x.assemblyName.Equals("EnumExtender")).Count == 0)
+            {
+                if (!CustomWorldMod.missingDependencies.ContainsKey("CRS"))
+                {
+                    CustomWorldMod.missingDependencies.Add("CRS", new List<string>());
+                }
+                CustomWorldMod.missingDependencies["CRS"].Add("EnumExtender");
+            }
+            if (CustomWorldMod.installedDependencies.FindAll(x => x.assemblyName.Equals("ConfigMachine")).Count == 0)
+            {
+                if (!CustomWorldMod.missingDependencies.ContainsKey("CRS"))
+                {
+                    CustomWorldMod.missingDependencies.Add("CRS", new List<string>());
+                }
+                CustomWorldMod.missingDependencies["CRS"].Add("ConfigMachine");
+            }
+            */
 
             foreach (var keyPar in CustomWorldMod.activatedPacks)
             {
                 // Verify if dependencyPack exists
                 string pathToDependencies = CRExtras.BuildPath(keyPar.Value, CRExtras.CustomFolder.PackDependencies);
-                if (Directory.Exists(pathToDependencies))
+                if (!Directory.Exists(pathToDependencies)) { CustomWorldMod.Log($"Pack [{keyPar.Key}] does not have dependencies folder."); continue; }
+
+                RegionPack pack = CustomWorldMod.installedPacks[keyPar.Key];
+                CustomWorldMod.Log($"Verifying dependencies for [{pack.name}] ...");
+                foreach (var file in Directory.GetFiles(CRExtras.BuildPath(keyPar.Value, CRExtras.CustomFolder.PackDependencies)))
                 {
-                    RegionPack pack = CustomWorldMod.installedPacks[keyPar.Key];
-                    CustomWorldMod.Log($"Verifying dependencies for [{pack.name}]");
-                    foreach (var file in Directory.GetFiles(CRExtras.BuildPath(keyPar.Value, CRExtras.CustomFolder.PackDependencies)))
+                    if (!file.Contains(".dll")) { continue; }
+                    PackDependency dependency = new PackDependency();
+                    try
                     {
-                        if (!file.Contains(".dll")) { continue; }
-                        PackDependency dependency = new PackDependency();
-                        try
+                        //dependency.assemblyInfo = System.Reflection.Assembly.LoadFile(file);
+
+                        dependency.LoadDependency(file);
+                        if (dependency.assemblyName.Equals(string.Empty))
                         {
-                            //dependency.assemblyInfo = System.Reflection.Assembly.LoadFile(file);
-                            dependency.assemblyName = System.Reflection.AssemblyName.GetAssemblyName(file).Name;
-                            dependency.location = file;
-                            dependency.SetHash();
-                            CustomWorldMod.Log($"PackDependency: [{dependency.assemblyName}]", false, DebugLevel.MEDIUM);
-                        }
-                        catch (Exception e)
-                        {
-                            CustomWorldMod.Log($"Could not load dependency at [{file}]: {e}", true);
                             continue;
                         }
+                        CustomWorldMod.Log($"Loaded PackDependency: [{dependency.assemblyName}]", false, DebugLevel.MEDIUM);
+                    }
+                    catch (Exception e)
+                    {
+                        CustomWorldMod.Log($"Could not load dependency at [{file}]: {e}", true);
+                        continue;
+                    }
 
-                        if (CustomWorldMod.installedDependencies.FindAll(x => x.hash.Equals(dependency.hash)).Count == 0)
+                    if (CustomWorldMod.installedDependencies.FindAll(x => x.hash.Equals(dependency.hash)).Count == 0)
+                    {
+                        // could not found installed dependency with same hash
+
+                        // search dependencies with same name
+                        PackDependency installedDependency = CustomWorldMod.installedDependencies.FirstOrDefault(x => x.assemblyName.Equals(dependency.assemblyName));
+                        if (!installedDependency.Equals(default) && installedDependency.assemblyName != null && installedDependency.assemblyName != string.Empty)
                         {
-                            // could not found installed dependency with same hash
+                            // Dependency installed but different hash
 
-                            // search dependencies with same name
-                            PackDependency installedDependency = CustomWorldMod.installedDependencies.FirstOrDefault(x => x.assemblyName.Equals(dependency.assemblyName));
-                            if (!installedDependency.Equals(default) && installedDependency.assemblyName != null && installedDependency.assemblyName != string.Empty)
+                            if (installedDependency.audbVersion > dependency.audbVersion)
                             {
-                                // Dependency installed but different hash
-
-                                if (installedDependency.audbVersion > dependency.audbVersion)
-                                {
-                                    // Outdated dependency inside pack folder
-                                    CustomWorldMod.Log($"Pack [{pack.name}] has an outdated reference inside the PackDependencies folder. " +
-                                        $"CRS found [{installedDependency.assemblyName}] installed with version [{installedDependency.audbVersion}], and the packs comes with " +
-                                        $"version [{dependency.audbVersion}]", false, DebugLevel.MEDIUM);
-                                }
-                                else
-                                {
-                                    // Corrupted dependency
-                                        CustomWorldMod.Log($"Found outdated / corrupted dependency for [{pack.name}]. Please reinstall with CRS and make sure to download AutoUpdate. " +
-                                            $"Dependency: [{installedDependency.assemblyName}], installed audbVersion [{installedDependency.audbVersion}]", true);
-                                    /*
-                                    packsAffected.Add(pack.name);
-                                    dependenciesAffected.Add(dependency.assemblyName);
-                                    */
-                                    if (!CustomWorldMod.missingDependencies.ContainsKey(pack.name))
-                                    {
-                                        CustomWorldMod.missingDependencies.Add(pack.name, new List<string>()) ;
-                                    }
-                                    CustomWorldMod.missingDependencies[pack.name].Add(dependency.assemblyName);
-                                }
+                                // Outdated dependency inside pack folder
+                                CustomWorldMod.Log($"Pack [{pack.name}] has an outdated reference inside the PackDependencies folder. " +
+                                    $"CRS found [{installedDependency.assemblyName}] installed with version [{installedDependency.audbVersion}], and the packs comes with " +
+                                    $"version [{dependency.audbVersion}]", false, DebugLevel.MEDIUM);
                             }
                             else
                             {
-                                // dependency missing
-                                CustomWorldMod.Log($"Missing dependency for [{pack.name}]. Please reinstall with CRS and make sure to download AutoUpdate. " +
-                                           $"Dependency: [{dependency.assemblyName}]", true);
-
+                                // Corrupted dependency
+                                CustomWorldMod.Log($"Found outdated / corrupted dependency for [{pack.name}]. Please reinstall with CRS and make sure to download AutoUpdate. " +
+                                    $"Dependency: [{installedDependency.assemblyName}], installed audbVersion [{installedDependency.audbVersion}]", true);
+                                /*
+                                packsAffected.Add(pack.name);
+                                dependenciesAffected.Add(dependency.assemblyName);
+                                */
                                 if (!CustomWorldMod.missingDependencies.ContainsKey(pack.name))
                                 {
                                     CustomWorldMod.missingDependencies.Add(pack.name, new List<string>());
                                 }
                                 CustomWorldMod.missingDependencies[pack.name].Add(dependency.assemblyName);
                             }
-
                         }
                         else
                         {
-                            // dependency found
+                            // dependency missing
+                            CustomWorldMod.Log($"Missing dependency for [{pack.name}]. Please reinstall with CRS and make sure to download AutoUpdate. " +
+                                       $"Dependency: [{dependency.assemblyName}]", true);
+
+                            if (!CustomWorldMod.missingDependencies.ContainsKey(pack.name))
+                            {
+                                CustomWorldMod.missingDependencies.Add(pack.name, new List<string>());
+                            }
+                            CustomWorldMod.missingDependencies[pack.name].Add(dependency.assemblyName);
                         }
+
+                    }
+                    else
+                    {
+                        // dependency found
+                        try
+                        {
+                            PackDependency found = installedDependencies.Find(x => x.hash.Equals(dependency.hash));
+                            if (!found.usedBy.Contains(keyPar.Key))
+                            {
+                                int index = installedDependencies.IndexOf(found);
+                                found.usedBy.Add(keyPar.Key);
+                                installedDependencies[index] = found;
+                            }
+                            if (found.assemblyName.Contains("EnumExtender") || found.assemblyName.Contains("ConfigMachine"))
+                            {
+                                if (!found.usedBy.Contains("CRS"))
+                                {
+                                    int index = installedDependencies.IndexOf(found);
+                                    found.usedBy.Add(keyPar.Key);
+                                    installedDependencies[index] = found;
+                                }
+                            }
+                        }
+                        catch (Exception e) { CustomWorldMod.Log($"Error adding pack name field {e}", true); }
                     }
                 }
-                else
-                {
-                    CustomWorldMod.Log($"Pack [{keyPar.Key}] does not have dependencies folder.");
-                }
+
             }
+
 
             CustomWorldMod.Log($"Missing dependencies: [{string.Join(", ", CustomWorldMod.missingDependencies.Values.SelectMany(i => i).Distinct().ToArray())}]");
         }
@@ -672,9 +740,24 @@ namespace CustomRegions.Mod
         private static void LoadInstalledDependencies()
         {
             CustomWorldMod.installedDependencies = new List<PackDependency>();
-            
             foreach (var mod in Partiality.PartialityManager.Instance.modManager.loadedMods)
             {
+                CustomWorldMod.Log($"Installed partiality mod: [{mod}]");
+                PackDependency dependency = new PackDependency();
+                dependency.LoadDependency(mod.GetType().Assembly.Location);
+                if (!CustomWorldMod.installedDependencies.Contains(dependency)) { CustomWorldMod.installedDependencies.Add(dependency); }
+
+            }
+            foreach (var mod in UnityEngine.Object.FindObjectsOfType<BepInEx.BaseUnityPlugin>())
+            {
+                CustomWorldMod.Log($"Installed bep plugin: [{mod}]");
+                PackDependency dependency = new PackDependency();
+                dependency.LoadDependency(mod.GetType().Assembly.Location);
+                if (!CustomWorldMod.installedDependencies.Contains(dependency)) { CustomWorldMod.installedDependencies.Add(dependency); }
+            }
+            /*
+            foreach (var mod in Partiality.PartialityManager.Instance.modManager.loadedMods)
+            { 
                 PackDependency dependency = new PackDependency();
                 System.Reflection.FieldInfo version = mod.GetType().GetField("version");
                 if (version != null && version.FieldType == typeof(int))
@@ -706,6 +789,7 @@ namespace CustomRegions.Mod
 
                 installedDependencies.Add(dependency);
             }
+            */
 
         }
 
@@ -722,7 +806,10 @@ namespace CustomRegions.Mod
             {
                 CustomWorldMod.processedThumbnails = new Dictionary<string, ProcessedThumbnail>();
             }
-            CustomWorldMod.regionPreprocessors = new List<API.RegionPreprocessor>();
+            if (CustomWorldMod.regionPreprocessors == null)
+            {
+                CustomWorldMod.regionPreprocessors = new List<API.RegionPreprocessor>();
+            }
 
             crashPlacedObjects = false;
         }
@@ -801,7 +888,7 @@ namespace CustomRegions.Mod
             {
 
                 string CRSsaveFilePath = Custom.RootFolderDirectory() + CustomWorldMod.regionSavePath + $"CRsav_{saveSlot + 1}.txt";
-                string vanilaFilePath = Custom.RootFolderDirectory() + 
+                string vanilaFilePath = Custom.RootFolderDirectory() +
                     "UserData" + Path.DirectorySeparatorChar + ((saveSlot != 0) ? ("sav_" + (saveSlot + 1)) : "sav") + ".txt";
 
                 if (!File.Exists(vanilaFilePath))
@@ -1039,7 +1126,7 @@ namespace CustomRegions.Mod
                 bool noRegions = pack.regions.Count == 0;
                 if (pack.regions.Count == 0)
                 {
-                    string regionsFile = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar + 
+                    string regionsFile = dir + Path.DirectorySeparatorChar + "World" + Path.DirectorySeparatorChar +
                         "Regions" + Path.DirectorySeparatorChar + "regions.txt";
 
                     if (File.Exists(regionsFile))
@@ -1103,7 +1190,7 @@ namespace CustomRegions.Mod
                     needSerialize = true;
                     Log($"Checksum: [{pack.name}] was modified, generating new checksum...");
                     pack.checksum = newChecksum;
-                       
+
                 }
 
 
@@ -1451,7 +1538,8 @@ namespace CustomRegions.Mod
                     try
                     {
                         CustomWorldMod.customPearls.Add(hash, new CustomPearl(pearlName, fileNumber, pearlColor, secondaryColor, regionPack.name));
-                    } catch (Exception e)
+                    }
+                    catch (Exception e)
                     {
                         CustomWorldMod.Log($"Could not add pearl [{pearlName}] from [{regionPack.name}]. Make sure the hash is not duplicated. " +
                             $"You can try deleting the last long number after the color in [{pathToPearls}] and relaunch the game. \n {e}", true);
@@ -1495,7 +1583,7 @@ namespace CustomRegions.Mod
         {
             for (int j = 0; j < Enum.GetNames(typeof(InGameTranslator.LanguageID)).Length; j++)
             {
-                string pathToConvoDir = Path.Combine(dir, "Text_" + LocalizationTranslator.LangShort((InGameTranslator.LanguageID)j)+
+                string pathToConvoDir = Path.Combine(dir, "Text_" + LocalizationTranslator.LangShort((InGameTranslator.LanguageID)j) +
                     Path.DirectorySeparatorChar);
 
                 if (Directory.Exists(pathToConvoDir))
@@ -1530,12 +1618,12 @@ namespace CustomRegions.Mod
                                     $"Try removing all new lines and pressing enter to separate them.", true);
                             }
                         }
-                        
+
                         else
                         {
                             Log($"Convo already encrypted: [{(InGameTranslator.LanguageID)j}] ({k})", false, DebugLevel.FULL);
                         }
-                        
+
 
                     }
                 }
@@ -1589,15 +1677,16 @@ namespace CustomRegions.Mod
 
                         // Load region information
                         CustomWorldMod.Log($"Adding configuration for region [{regionConfiguration.regionID}] from [{packInfo.name}]");
-                        
+
                         if (packInfo.name != string.Empty)
                         {
                             try
                             {
                                 packInfo.regionConfig.Add(regionConfiguration.regionID, regionConfiguration);
                             }
-                            catch (Exception dic) { 
-                                CustomWorldMod.Log($"Custom Regions: Error in adding config [{regionConfiguration.regionID}] => {dic}"); 
+                            catch (Exception dic)
+                            {
+                                CustomWorldMod.Log($"Custom Regions: Error in adding config [{regionConfiguration.regionID}] => {dic}");
                             };
                         }
 
@@ -1609,7 +1698,7 @@ namespace CustomRegions.Mod
         private static void LoadArenaUnlocks(RegionPack pack)
         {
             Log($"Loading arena unlocks...", false, DebugLevel.MEDIUM);
-            
+
             string pathToRegionsDir = CRExtras.BuildPath(pack.folderName, CRExtras.CustomFolder.Levels);
             if (!Directory.Exists(pathToRegionsDir))
             {
@@ -1868,7 +1957,7 @@ namespace CustomRegions.Mod
             Log($"Loading thumbnails. Installed regions [{string.Join(", ", CustomWorldMod.installedPacks.Keys.ToArray())}]");
             foreach (KeyValuePair<string, RegionPack> entry in CustomWorldMod.installedPacks)
             {
-                string thumbPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + 
+                string thumbPath = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath +
                     entry.Value.folderName + Path.DirectorySeparatorChar + "thumb.png";
 
                 Log("Thumbnail path " + thumbPath, false, DebugLevel.FULL);
