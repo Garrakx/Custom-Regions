@@ -37,6 +37,10 @@ namespace CustomRegions.Mod
 
             public void LoadDependency(string fileLocation)
             {
+                if (!File.Exists(fileLocation))
+                {
+                    return;
+                }
                 usedBy = new List<string>();
                 this.audbVersion = -1;
                 CustomWorldMod.Log($"Loading dependency at [{fileLocation}]", false, CustomWorldMod.DebugLevel.MEDIUM);
