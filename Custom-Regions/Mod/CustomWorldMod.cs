@@ -47,7 +47,8 @@ namespace CustomRegions.Mod
         {
             mod = this;
             ModID = "Custom Regions Mod";
-            Version = $"0.9.{version}";
+            //Version = $"0.9.{version}";
+            Version = $"0.9.43-experimental.1";
             author = "Garrakx";
             versionCR = $"v{Version}";
         }
@@ -530,7 +531,6 @@ namespace CustomRegions.Mod
         }
 
         static System.Diagnostics.Stopwatch crsPackIntializationWatch = null;
-        internal static List<PackDependency> unusedDependencies;
 
 
         /// <summary>
@@ -744,7 +744,7 @@ namespace CustomRegions.Mod
             {
                 CustomWorldMod.Log($"Installed partiality mod: [{mod}]");
                 PackDependency dependency = new PackDependency();
-                dependency.LoadDependency(mod.GetType().Assembly.Location);
+                dependency.LoadDependency(mod);
                 if (!CustomWorldMod.installedDependencies.Contains(dependency)) { CustomWorldMod.installedDependencies.Add(dependency); }
 
             }
