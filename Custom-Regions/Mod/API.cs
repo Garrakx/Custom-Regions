@@ -61,7 +61,7 @@ namespace CustomRegions.Mod
         /// <summary>
         /// List containing unused dependencies, no region pack is using them so they can be disabled.
         /// </summary>
-        public static List<CustomWorldStructs.PackDependency> UnusedDependencies { get => CustomWorldMod.unusedDependencies; }
+        public static List<CustomWorldStructs.PackDependency> UnusedDependencies { get => CustomWorldMod.installedDependencies.FindAll(x=>x.usedBy.Count() == 0); }
 
         /// <summary>
         /// Indicates wheter CRS is currently downloading a pack or not.
