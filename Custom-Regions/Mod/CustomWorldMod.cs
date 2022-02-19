@@ -48,7 +48,7 @@ namespace CustomRegions.Mod
             mod = this;
             ModID = "Custom Regions Mod";
             //Version = $"0.9.{version}";
-            Version = $"0.9.43-experimental.1";
+            Version = $"0.9.43-experimental.2";
             author = "Garrakx";
             versionCR = $"v{Version}";
         }
@@ -105,6 +105,12 @@ namespace CustomRegions.Mod
                 CustomWorldMod.Log($"Error checking the modloaer \n{e}", true);
             }
 
+            if (usingBepinex)
+            {
+
+                usingRealm = File.Exists($"{assemblyLocation}/../patchers/Realm.dll");
+            }
+
 
             // Initialize scripts
             scripts = new List<CustomWorldScript>();
@@ -152,15 +158,6 @@ namespace CustomRegions.Mod
             }
             catch (Exception e) { CustomWorldMod.Log(e.ToString(), true); }
 
-            /*
-            Settings.Lookup lookup = (Settings.Lookup)field.GetValue(null);
-
-            obj.GetType()
-              .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-              .Where(f => f.FieldType == typeof(string))
-              */
-            /*.ToDictionary(f => f.Name,
-                          f => (string)f.GetValue(null));*/
         }
 
 
@@ -321,6 +318,11 @@ namespace CustomRegions.Mod
         /// Bool that displays if the user is using BepInEx modloader or no
         /// </summary>
         internal static bool usingBepinex;
+
+        /// <summary>
+        /// Bool that displays if the user is using Realm
+        /// </summary>
+        internal static bool usingRealm;
 
         public static bool crashPlacedObjects;
 
@@ -579,7 +581,14 @@ namespace CustomRegions.Mod
 
             CustomWorldMod.LoadInstalledDependencies();
 
-            CustomWorldMod.VerifyDependencies();
+            if (!usingRealm)
+            {
+                CustomWorldMod.VerifyDependencies();
+            } 
+            else
+            {
+                CustomWorldMod.Log("Realm is not fully compatible with CRS yet! D; skipping dependency checker...", true);
+            }
 
             if (OfflineMode) { CustomWorldMod.LoadThumbnails(); }
 
@@ -744,7 +753,7 @@ namespace CustomRegions.Mod
             {
                 CustomWorldMod.Log($"Installed partiality mod: [{mod}]");
                 PackDependency dependency = new PackDependency();
-                dependency.LoadDependency(mod);
+                dependency.LoadDependency(mod.GetType().Assembly.Location);
                 if (!CustomWorldMod.installedDependencies.Contains(dependency)) { CustomWorldMod.installedDependencies.Add(dependency); }
 
             }
