@@ -512,7 +512,7 @@ namespace CustomRegions.Mod
                     {
                         this.www.Dispose();
                         this.www = new WWW(this.fileURL);
-                        this.action = "Updating RegionPackDownloader.exe";
+                        this.action = "Updating \nRegionPackDownloader.exe";
                     }
                     else
                     {
