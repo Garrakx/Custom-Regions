@@ -67,7 +67,17 @@ namespace CustomRegions.Mod
         /// Indicates wheter CRS is currently downloading a pack or not.
         /// </summary>
         public static bool DownloadInProcess { get => (CustomWorldMod.scripts.Count > 0 && CustomWorldMod.scripts.FindAll(x => x is PackDownloader).Count != 0); }
-        
+
+        /// <summary>
+        /// Indicates wheter BepInEx is installed or not.
+        /// </summary>
+        public static bool UsingBepinex { get => CustomWorldMod.usingBepinex; }
+
+        /// <summary>
+        /// Indicates wheter Realm modloader is installed or not.
+        /// </summary>
+        public static bool UsingRealm { get => CustomWorldMod.usingRealm; }
+
 
         /// <summary>
         /// Enables/Disables the provided pack. Make sure to check if there is a download in process first
