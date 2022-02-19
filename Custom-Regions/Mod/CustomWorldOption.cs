@@ -283,22 +283,29 @@ namespace CustomRegions.Mod
                 CustomWorldMod.Log($"Received menu signal [{signal}]");
 
                 
-                // Refresh config menu list
+                //
+                // config menu list
                 if (signal.Equals(OptionSignal.Refresh.ToString()))
                 {
-                    CRExtras.TryPlayMenuSound(SoundID.MENU_Player_Unjoin_Game);
-                    ConfigMenu.ResetCurrentConfig();
+                    if (CustomWorldMod.scripts.Count == 0)
+                    {
+                        CRExtras.TryPlayMenuSound(SoundID.MENU_Player_Unjoin_Game);
+                        ConfigMenu.ResetCurrentConfig();
+                    }
                 }
                 // Reload pack list
                 else if (signal.Equals(OptionSignal.ReloadRegions.ToString()))
                 {
-                    CRExtras.TryPlayMenuSound(SoundID.HUD_Exit_Game);
-                    OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
-                    if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
+                    if (CustomWorldMod.scripts.Count == 0)
                     {
-                        CreateWindowPopUp(tab, $"Reloading regions...", CustomWorldOption.OptionSignal.Empty, "", true).ShouldShowLoading = true;
+                        CRExtras.TryPlayMenuSound(SoundID.HUD_Exit_Game);
+                        OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
+                        if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
+                        {
+                            CreateWindowPopUp(tab, $"Reloading regions...", CustomWorldOption.OptionSignal.Empty, "", true).ShouldShowLoading = true;
+                        }
+                        CustomWorldMod.LoadCustomWorldResources();
                     }
-                    CustomWorldMod.LoadCustomWorldResources();
                 }
                 // Downnload a pack X
                 else if (signal.Contains(OptionSignal.Download.ToString()) || signal.Contains(OptionSignal.Update.ToString()))
@@ -1228,6 +1235,7 @@ namespace CustomRegions.Mod
             if (buttonCancelText != null)
             {
                 doubleButtonOffset = buttonSize.x / 2f + spacing / 2f;
+                this.buttonCancel.text = buttonCancelText;
                 this.buttonCancel.Show();
             }
             else
@@ -1249,6 +1257,7 @@ namespace CustomRegions.Mod
             button1.signal = signal1;
             button1.text = buttonText1;
             button1.pos = button1Pos - new Vector2(doubleButtonOffset, 0);
+            buttonCancel.pos = button1Pos + new Vector2(doubleButtonOffset, 0);
 
 
         }
