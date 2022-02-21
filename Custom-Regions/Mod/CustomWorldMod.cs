@@ -237,7 +237,7 @@ namespace CustomRegions.Mod
         /// <summary>
         /// Missing / corrupted dependencies, key is packName and value are the dependencies
         /// </summary>
-        public static Dictionary<string, List<string>> missingDependencies;
+        public static Dictionary<string, List<string>> missingDependencies = new Dictionary<string, List<string>>();
 
         /// <summary>
         /// List of all filters to be applied
