@@ -320,7 +320,7 @@ CRS will fetch and update the local description, thumbnail and author from the f
 	
 4) If your pack requires additional .dll files, place them in the `PackDependencies` folder. CRS will automatically move them to either plugin folder (if the user is using BepInEx) or to the Mods folder.
 5) Upload your file to [mediafire.com](https://www.mediafire.com/) (a free account is required). For technical reasons, Mediafire is the only site that was compatible.
-6) Contact me with the download link (i.e. `https://www.mediafire.com/file/abunchofcharacters/RegionPackName.zip/file`) and the checksum you wrote down.
+6) Contact me with the download link (i.e. `https://www.mediafire.com/file/abunchofcharacters/RegionPackName.zip/file`) and **send me the `packInfo.json` file**.
 
 ### <a name="links"></a>*(new)* CONDITIONAL ROOM LINKS
 In the vanilla game, you can wire your region depend on which character is being played (same as with CREATURE spawns). With CRS, you can also configure your connections based on which regions are installed.
