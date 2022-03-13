@@ -48,7 +48,7 @@ namespace CustomRegions.Mod
             mod = this;
             ModID = "Custom Regions Mod";
             //Version = $"0.9.{version}";
-            Version = $"0.9.43-experimental.2";
+            Version = $"0.9.43-experimental.3";
             author = "Garrakx";
             versionCR = $"v{Version}";
         }
@@ -579,16 +579,10 @@ namespace CustomRegions.Mod
 
             CustomWorldMod.BuildModRegionsDictionary();
 
+
             CustomWorldMod.LoadInstalledDependencies();
 
-            if (!usingRealm)
-            {
-                CustomWorldMod.VerifyDependencies();
-            } 
-            else
-            {
-                CustomWorldMod.Log("Realm is not fully compatible with CRS yet! D; skipping dependency checker...", true);
-            }
+            CustomWorldMod.VerifyDependencies();
 
             if (OfflineMode) { CustomWorldMod.LoadThumbnails(); }
 
@@ -749,6 +743,12 @@ namespace CustomRegions.Mod
         private static void LoadInstalledDependencies()
         {
             CustomWorldMod.installedDependencies = new List<PackDependency>();
+            if (usingRealm)
+            {
+                CustomWorldMod.Log("Realm is not fully compatible with CRS yet! D; skipping dependency checker...", true);
+                return;
+            }
+
             foreach (var mod in Partiality.PartialityManager.Instance.modManager.loadedMods)
             {
                 CustomWorldMod.Log($"Installed partiality mod: [{mod}]");
