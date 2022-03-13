@@ -612,6 +612,11 @@ namespace CustomRegions.Mod
             CustomWorldMod.missingDependencies = new Dictionary<string, List<string>>();
             CustomWorldMod.Log($"Installed dependencies: [{string.Join(", ", CustomWorldMod.installedDependencies.Select(x => x.assemblyName).ToArray())}]");
 
+            if (usingRealm)
+            {
+                //CustomWorldMod.Log("Realm is not fully compatible with CRS yet! D; skipping dependency checker...", true);
+                return;
+            }
             /*
             // Check for CRS dependencies
             if (CustomWorldMod.installedDependencies.FindAll(x => x.assemblyName.Equals("EnumExtender")).Count == 0)
