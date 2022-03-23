@@ -211,7 +211,7 @@ namespace CustomRegions.Mod
             {
                 string labelText = "N/A";
                 string buttonText = "ERROR";
-                string buttonText2 = null; 
+                string buttonText2 = null;
                 CustomWorldOption.OptionSignal signal = CustomWorldOption.OptionSignal.Empty;
                 if (!error)
                 {
@@ -253,59 +253,126 @@ namespace CustomRegions.Mod
 
         private void CheckForDependencies()
         {
-            string pathToDependencies = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + this.packName + @"/PackDependencies";
-            if (Directory.Exists(pathToDependencies))
-            {
-                string[] dependenciesFullPath = Directory.GetFiles(pathToDependencies);
-                Log($"Found dependencies [{string.Join(", ", dependenciesFullPath)}] for [{this.packName}]");
-                string pathToMoveDependencies;
-                if (CustomWorldMod.usingBepinex)
-                {
-                    pathToMoveDependencies = Custom.RootFolderDirectory() + @"BepInEx/plugins/";
-                }
-                else
-                {
-                    pathToMoveDependencies = Custom.RootFolderDirectory() + @"Mods/";
-                }
 
-                foreach (string dependency in dependenciesFullPath)
+            string pathToDependencies = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + this.packName + @"/PackDependencies";
+            if (!Directory.Exists(pathToDependencies))
+            {
+                CustomWorldMod.Log($"Pack doesn't have dependencies [{this.packName}]");
+                return;
+            }
+
+            string[] dependenciesFullPath = Directory.GetFiles(pathToDependencies);
+            Log($"Found dependencies [{string.Join(", ", dependenciesFullPath)}] for [{this.packName}]");
+            string pathToMoveDependencies;
+            if (CustomWorldMod.usingBepinex)
+            {
+                pathToMoveDependencies = Custom.RootFolderDirectory() + @"BepInEx/plugins/";
+            }
+            else
+            {
+                pathToMoveDependencies = Custom.RootFolderDirectory() + @"Mods/";
+            }
+
+            foreach (string dependencyPath in dependenciesFullPath)
+            {
+                string dependencyName = new FileInfo(dependencyPath).Name;
+
+                try
                 {
-                    string dependencyName = new FileInfo(dependency).Name;
-                    this.dependenciesName.Add(dependencyName);
-                    try
+                    if (File.Exists(pathToMoveDependencies + dependencyName))
                     {
-                        if (File.Exists(pathToMoveDependencies + dependencyName) ) 
+
+                        PackDependency downloadedDependency = new PackDependency();
+                        downloadedDependency.LoadDependency(dependencyPath);
+
+                        bool shouldDelete = true;
+                        bool shouldSkip = false;
+
+                        // Installed dependency
+                        var installedDependencies = CustomWorldMod.installedDependencies.FindAll(x => x.assemblyName.Equals(downloadedDependency.assemblyName)).ToList();
+
+                        if (installedDependencies.Count != 0)
+                        {
+                            // found dependency with same name
+                            // check if installed version is greater than downloaded 
+
+                            foreach (var installedDep in installedDependencies)
+                            {
+                                if (installedDep.audbVersion < downloadedDependency.audbVersion)
+                                {
+                                    // needs upgrade
+                                    shouldDelete = true;
+                                }
+                                else if (!installedDep.hash.Equals(downloadedDependency.hash))
+                                {
+                                    // hash is different, using downloaded version
+                                    shouldDelete = true;
+                                }
+                                else
+                                {
+                                    CustomWorldMod.Log($"Dependency [{installedDep.assemblyName}] already installed and up-to-date. " +
+                                        $"AUDB Ver [{installedDep.audbVersion}] vs.[{downloadedDependency.audbVersion}]");
+                                    shouldSkip = true;
+                                    break;
+                                }
+                            }
+                            if (shouldSkip) { continue; }
+
+                        }
+                        else
+                        {
+                            // no installed depency with same name
+                            // should copy new one
+                            CustomWorldMod.Log($"Dependency [{downloadedDependency.assemblyName}], [{dependencyName}] not found, installing...");
+                            shouldDelete = true;
+                        }
+
+                        if (shouldDelete)
                         {
                             Log($"Deleting old [{dependencyName}]...");
                             File.Delete(pathToMoveDependencies + dependencyName);
                         }
-                        File.Move(dependency, pathToMoveDependencies + dependencyName);
-                        Log($"Saving [{dependencyName}]...");
-                        movedDependencies = true;
+
                     }
-                    catch (Exception e)
+                    else
                     {
-                        CustomWorldMod.Log($"Error moving dependency [{dependencyName}] {e}");
+                        // new dependency
                     }
+
+                    // Copy dependencies
+                    Log($"Saving [{dependencyName}], from [{dependencyPath}] to [{pathToMoveDependencies + dependencyName}]...");
+                    File.Copy(dependencyPath, pathToMoveDependencies + dependencyName);
+                    movedDependencies = true;
+                    this.dependenciesName.Add(dependencyName);
                 }
-
-
-                /* Should CRS delete PackDepencencies folder? */
-                /*
-                if (movedDependencies)
+                catch (Exception e)
                 {
-                    try
-                    {
-                        Directory.Delete(pathToDependencies);
-                    }
-                    catch (Exception e) { CustomWorldMod.Log($"Error deleting dependency folder [{pathToDependencies}] {e}"); }
+                    CustomWorldMod.Log($"Error moving dependency [{dependencyName}] {e}");
                 }
-                */
             }
         }
 
         public void Init(string arguments, string executableName)
         {
+            // Delete old folder
+            if (CustomWorldMod.installedPacks.ContainsKey(this.packName))
+            {
+                string folderName = CustomWorldMod.installedPacks[this.packName].folderName;
+                string pathToPackFolder = CRExtras.BuildPath(folderName, CRExtras.CustomFolder.None);
+                CustomWorldMod.Log($"Updating pack, check if folder exists at: [{pathToPackFolder}]...", false, CustomWorldMod.DebugLevel.MEDIUM);
+                if (Directory.Exists(pathToPackFolder))
+                {
+                    try
+                    {
+                        Directory.Delete(pathToPackFolder, true);
+                    }
+                    catch (Exception e)
+                    {
+                        CustomWorldMod.Log(e.ToString(), true);
+                    }
+                }
+            }
+
             base.Init();
             Log($"Executing console app [{executableName}]");
 
@@ -362,40 +429,9 @@ namespace CustomRegions.Mod
                 {
                     Log(log);
                 }
-                /*
-                else if (log.Contains(downloadDivider))
-                {
-                    
-                }
-                else if(log.Contains(unzipDivider))
-                {
-                    if (log.Contains(OK.ToString()))
-                    {
-                        status = LogStatus.Unzipped;
-                    }
-                }
-                */
             }
         }
 
-        /*
-        public LogStatus ParseStatus(string s, string divider)
-        {
-            string status = s.Replace(divider, "");
-            if (int.TryParse(status, out int intStatus))
-            {
-                switch (intStatus)
-                {
-                    case OK:
-                        break;
-                    case ERROR:
-                        break;
-                        case 
-                }
-            }
-            return LogStatus.Error;
-        }
-        */
     }
 
     public class ExeUpdater : CustomWorldScript
@@ -476,7 +512,7 @@ namespace CustomRegions.Mod
                     {
                         this.www.Dispose();
                         this.www = new WWW(this.fileURL);
-                        this.action = "Updating RegionPackDownloader.exe";
+                        this.action = "Updating \nRegionPackDownloader.exe";
                     }
                     else
                     {
@@ -651,7 +687,7 @@ namespace CustomRegions.Mod
 
                         if (CustomWorldMod.installedPacks.TryGetValue(packNames[currentThumb], out RegionPack value))
                         {
-                            string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + value.folderName + 
+                            string path = Custom.RootFolderDirectory() + CustomWorldMod.resourcePath + value.folderName +
                                 Path.DirectorySeparatorChar + "thumb.png";
                             if (!File.Exists(path))
                             {
@@ -672,7 +708,7 @@ namespace CustomRegions.Mod
 
                         ProcessedThumbnail procThumb = CRExtras.ProccessThumbnail(tex, www.bytes, packNames[currentThumb]);
                         Log($"Adding processed thumbnail [{packNames[currentThumb]}]");
-                        if (CustomWorldMod.processedThumbnails.ContainsKey(packNames[currentThumb]) )
+                        if (CustomWorldMod.processedThumbnails.ContainsKey(packNames[currentThumb]))
                         {
                             CustomWorldMod.processedThumbnails[packNames[currentThumb]] = procThumb;
                         }
@@ -680,7 +716,7 @@ namespace CustomRegions.Mod
                         {
                             CustomWorldMod.processedThumbnails.Add(packNames[currentThumb], procThumb);
                         }
-                        
+
 
                         next = true;
                         currentThumb++;
@@ -818,16 +854,16 @@ namespace CustomRegions.Mod
                             }
                             catch (Exception e) { Log($"Exception when adding fetched region [{e}]", true); }
                         }
-                    var date = DateTime.UtcNow.Date;
-                    var seed = date.Year * 1000 + date.DayOfYear;
-                    var random1 = new System.Random(seed);
+                        var date = DateTime.UtcNow.Date;
+                        var seed = date.Year * 1000 + date.DayOfYear;
+                        var random1 = new System.Random(seed);
 
-                    var seq = Enumerable.Range(0, tempRainDb.Count()).OrderBy(x=> random1.Next()).Take(tempRainDb.Count()).ToList();
-                    foreach (int item in seq)
-                    {
-                        KeyValuePair<string, RegionPack> tempItem = tempRainDb.ElementAt(item);
-                        CustomWorldMod.rainDbPacks.Add(tempItem.Key, tempItem.Value);
-                    }
+                        var seq = Enumerable.Range(0, tempRainDb.Count()).OrderBy(x => random1.Next()).Take(tempRainDb.Count()).ToList();
+                        foreach (int item in seq)
+                        {
+                            KeyValuePair<string, RegionPack> tempItem = tempRainDb.ElementAt(item);
+                            CustomWorldMod.rainDbPacks.Add(tempItem.Key, tempItem.Value);
+                        }
 
                         Log($"Added fetched regions [{string.Join(", ", CustomWorldMod.rainDbPacks.Keys.ToArray())}]");
                     }

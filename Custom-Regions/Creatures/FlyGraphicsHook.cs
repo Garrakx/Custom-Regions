@@ -132,45 +132,48 @@ namespace CustomRegions.Creatures
             {
                 return;
             }
-
-            if (!self.dead)
+            try
             {
-                FlyFields.GetField(self).flickeringFac = 1f;
-                FlyFields.GetField(self).flickerDuration = Mathf.Lerp(10f, 30f, UnityEngine.Random.value);
-                if (UnityEngine.Random.value < 0.1f)
-                {
-                    FlyFields.GetField(self).flicker = Mathf.Max(FlyFields.GetField(self).flicker, UnityEngine.Random.value);
-                }
-            }
 
-            if (FlyFields.GetField(self).light != null)
-            {
-                if (FlyFields.GetField(self).light.slatedForDeletetion || self.room.Darkness(self.mainBodyChunk.pos) == 0f || self.dead || self.Stunned)
+                if (!self.dead)
                 {
-                    FlyFields.GetField(self).light = null;
+                    FlyFields.GetField(self).flickeringFac = 1f;
+                    FlyFields.GetField(self).flickerDuration = Mathf.Lerp(10f, 30f, UnityEngine.Random.value);
+                    if (UnityEngine.Random.value < 0.1f)
+                    {
+                        FlyFields.GetField(self).flicker = Mathf.Max(FlyFields.GetField(self).flicker, UnityEngine.Random.value);
+                    }
                 }
-                else
-                {
-                    FlyFields.GetField(self).sin += 1f / Mathf.Lerp(20f, 80f, UnityEngine.Random.value);
-                    float sin = FlyFields.GetField(self).sin;
-                    FlyFields.GetField(self).light.stayAlive = true;
-                    FlyFields.GetField(self).light.setPos = new UnityEngine.Vector2?(self.bodyChunks[0].pos);
-                    FlyFields.GetField(self).light.setRad = new float?(60f + 20f * UnityEngine.Mathf.Sin(sin * 3.14159274f * 2f));
-                    FlyFields.GetField(self).light.setAlpha = new float?(0.55f - 0.1f * UnityEngine.Mathf.Sin(sin * 3.14159274f * 2f));
-                    // float customColorHue = customColor == null ? 0.6f : CRExtras.RGB2HSL(customColor ?? UnityEngine.Color.white).hue;
-                    HSLColor color = CRExtras.RGB2HSL(customColor ?? UnityEngine.Color.white);
-                    FlyFields.GetField(self).light.color = RWCustom.Custom.HSL2RGB(color.hue, color.saturation, color.lightness - 0.2f * FlyFields.GetField(self).flicker);
-                }
-            }
-            else if (self.room.Darkness(self.bodyChunks[0].pos) > 0f && !self.dead)
-            {
-                Mod.CustomWorldMod.Log($"Creating light for [{self.abstractCreature.creatureTemplate}-{self.abstractPhysicalObject.ID.number}]", 
-                    false, CustomWorldMod.DebugLevel.FULL);
 
-                FlyFields.GetField(self).light = new LightSource(self.bodyChunks[0].pos, false, UnityEngine.Color.yellow, self);
-                FlyFields.GetField(self).light.requireUpKeep = true;
-                self.room.AddObject(FlyFields.GetField(self).light);
-            }
+                if (FlyFields.GetField(self).light != null)
+                {
+                    if (FlyFields.GetField(self).light.slatedForDeletetion || self.room.Darkness(self.mainBodyChunk.pos) == 0f || self.dead || self.Stunned)
+                    {
+                        FlyFields.GetField(self).light = null;
+                    }
+                    else
+                    {
+                        FlyFields.GetField(self).sin += 1f / Mathf.Lerp(20f, 80f, UnityEngine.Random.value);
+                        float sin = FlyFields.GetField(self).sin;
+                        FlyFields.GetField(self).light.stayAlive = true;
+                        FlyFields.GetField(self).light.setPos = new UnityEngine.Vector2?(self.bodyChunks[0].pos);
+                        FlyFields.GetField(self).light.setRad = new float?(60f + 20f * UnityEngine.Mathf.Sin(sin * 3.14159274f * 2f));
+                        FlyFields.GetField(self).light.setAlpha = new float?(0.55f - 0.1f * UnityEngine.Mathf.Sin(sin * 3.14159274f * 2f));
+                        // float customColorHue = customColor == null ? 0.6f : CRExtras.RGB2HSL(customColor ?? UnityEngine.Color.white).hue;
+                        HSLColor color = CRExtras.RGB2HSL(customColor ?? UnityEngine.Color.white);
+                        FlyFields.GetField(self).light.color = RWCustom.Custom.HSL2RGB(color.hue, color.saturation, color.lightness - 0.2f * FlyFields.GetField(self).flicker);
+                    }
+                }
+                else if (self.room.Darkness(self.bodyChunks[0].pos) > 0f && !self.dead)
+                {
+                    Mod.CustomWorldMod.Log($"Creating light for [{self.abstractCreature.creatureTemplate}-{self.abstractPhysicalObject.ID.number}]",
+                        false, CustomWorldMod.DebugLevel.FULL);
+
+                    FlyFields.GetField(self).light = new LightSource(self.bodyChunks[0].pos, false, UnityEngine.Color.yellow, self);
+                    FlyFields.GetField(self).light.requireUpKeep = true;
+                    self.room.AddObject(FlyFields.GetField(self).light);
+                }
+            } catch { /* I am lazy, sorry in advance */ }
         }
 
         // scrapped

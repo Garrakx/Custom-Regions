@@ -47,6 +47,34 @@ namespace CustomRegions.CustomMenu
 
                 self.pages[0].subObjects.Add(menuLabel);
             }
+            if (CustomWorldMod.missingDependencies.Count > 0)
+            {
+                string errorText = CustomWorldMod.Translate($"You have missing dependencies, please reinstall the following packs: " +
+                    $"[{string.Join(", ", CustomWorldMod.missingDependencies.Keys.ToArray())}]");
+
+                MenuLabel menuLabel = new MenuLabel(self, self.pages[0],
+                errorText,
+                new Vector2(self.manager.rainWorld.options.ScreenSize.x * 0.5f, self.manager.rainWorld.options.ScreenSize.y * 0.95f),
+                new Vector2(0, 0), true);
+
+                menuLabel.label.color = new Color((108f / 255f), 0.001f, 0.001f);
+                menuLabel.label.alignment = FLabelAlignment.Center;
+
+                self.pages[0].subObjects.Add(menuLabel);
+
+                // Second line
+                
+                MenuLabel menuLabel2 = new MenuLabel(self, self.pages[0],
+                $"Missing dependencies: [{string.Join(", ", CustomWorldMod.missingDependencies.Values.SelectMany(i => i).Distinct().ToArray())}]",
+               new Vector2(self.manager.rainWorld.options.ScreenSize.x * 0.5f, self.manager.rainWorld.options.ScreenSize.y * 0.91f),
+               new Vector2(0, 0), false);
+
+                menuLabel2.label.color = new Color((108f / 255f), 0.001f, 0.001f);
+                menuLabel2.label.alignment = FLabelAlignment.Center;
+
+                self.pages[0].subObjects.Add(menuLabel2);
+                
+            }
         }
 
         /// <summary>

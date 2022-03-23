@@ -283,22 +283,29 @@ namespace CustomRegions.Mod
                 CustomWorldMod.Log($"Received menu signal [{signal}]");
 
                 
-                // Refresh config menu list
+                //
+                // config menu list
                 if (signal.Equals(OptionSignal.Refresh.ToString()))
                 {
-                    CRExtras.TryPlayMenuSound(SoundID.MENU_Player_Unjoin_Game);
-                    ConfigMenu.ResetCurrentConfig();
+                    if (CustomWorldMod.scripts.Count == 0)
+                    {
+                        CRExtras.TryPlayMenuSound(SoundID.MENU_Player_Unjoin_Game);
+                        ConfigMenu.ResetCurrentConfig();
+                    }
                 }
                 // Reload pack list
                 else if (signal.Equals(OptionSignal.ReloadRegions.ToString()))
                 {
-                    CRExtras.TryPlayMenuSound(SoundID.HUD_Exit_Game);
-                    OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
-                    if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
+                    if (CustomWorldMod.scripts.Count == 0)
                     {
-                        CreateWindowPopUp(tab, $"Reloading regions...", CustomWorldOption.OptionSignal.Empty, "", true).ShouldShowLoading = true;
+                        CRExtras.TryPlayMenuSound(SoundID.HUD_Exit_Game);
+                        OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
+                        if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
+                        {
+                            CreateWindowPopUp(tab, $"Reloading regions...", CustomWorldOption.OptionSignal.Empty, "", true).ShouldShowLoading = true;
+                        }
+                        CustomWorldMod.LoadCustomWorldResources();
                     }
-                    CustomWorldMod.LoadCustomWorldResources();
                 }
                 // Downnload a pack X
                 else if (signal.Contains(OptionSignal.Download.ToString()) || signal.Contains(OptionSignal.Update.ToString()))
@@ -388,7 +395,15 @@ namespace CustomRegions.Mod
                     try
                     {
                         string packName = Regex.Split(signal, "_")[1];
-                        string text = $"Do you want to uninstall [{packName}]?\n\n Uninstalling will permanently delete the pack folder.";
+                        string text = $"Do you want to uninstall [{packName}]?\n\n Uninstalling will permanently delete the pack folder. ";
+                        string safelyDeleteDependencies = 
+                           $"You will be able to safely disable/uninstall the following dependencies:\n" +
+                           $"[{string.Join(", ",CustomWorldMod.installedDependencies.FindAll(x => x.usedBy.Contains(packName) && x.usedBy.Count == 1).Select(x => x.assemblyName).ToArray())}]";
+                        if (CustomWorldMod.activatedPacks.ContainsKey(packName))
+                        {
+                            text += safelyDeleteDependencies;
+                        }
+
                         OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
 
                         if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
@@ -430,7 +445,11 @@ namespace CustomRegions.Mod
                         RegionPack pack = CustomWorldMod.installedPacks[packName];
                         string action = pack.activated ? "Disable" : "Enable";
                         string text = $"Do you want to {action.ToLower()} [{packName}]?\n\n Enabling / disabling packs might corrupt your saves! " +
-                            $"You can always enable / disable it again if problems arise.";
+                            $"You can always enable / disable it again if problems arise.\n";
+                        string safelyDeleteDependencies =
+                           $"You will be able to safely disable/uninstall the following dependencies:\n" +
+                           $"[{string.Join(", ", CustomWorldMod.installedDependencies.FindAll(x => x.usedBy.Contains(packName) && x.usedBy.Count == 1).Select(x => x.assemblyName).ToArray())}]";
+                        text += safelyDeleteDependencies;
 
                         OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
                         if (OptionInterface.IsConfigScreen && !tab.Equals(default(OpTab)))
@@ -442,7 +461,6 @@ namespace CustomRegions.Mod
                 }
                 else if (signal.Contains(OptionSignal.DisableToggle.ToString()))
                 {
-                    // Disable
                     try
                     {
                         CRExtras.TryPlayMenuSound(SoundID.HUD_Exit_Game);
@@ -453,11 +471,8 @@ namespace CustomRegions.Mod
                         }
                         OpTab tab = CompletelyOptional.ConfigMenu.currentInterface.Tabs.First(x => !x.isHidden);
                         string packName = Regex.Split(signal, "_")[1];
-                        RegionPack pack = CustomWorldMod.installedPacks[packName];
-                        pack.activated = !pack.activated;
-                        CustomWorldMod.SerializePackInfoJSON(CRExtras.BuildPath(pack.folderName, CRExtras.CustomFolder.None, file: "packInfo.json"), pack);
-                        CustomWorldMod.LoadCustomWorldResources();
-
+                        
+                        CRExtras.DisableTogglePack(packName);
                     }
                     catch (Exception e) { CustomWorldMod.Log($"Could not disable pack [{signal}] {e}", true); }
                 }
@@ -1220,6 +1235,7 @@ namespace CustomRegions.Mod
             if (buttonCancelText != null)
             {
                 doubleButtonOffset = buttonSize.x / 2f + spacing / 2f;
+                this.buttonCancel.text = buttonCancelText;
                 this.buttonCancel.Show();
             }
             else
@@ -1241,6 +1257,7 @@ namespace CustomRegions.Mod
             button1.signal = signal1;
             button1.text = buttonText1;
             button1.pos = button1Pos - new Vector2(doubleButtonOffset, 0);
+            buttonCancel.pos = button1Pos + new Vector2(doubleButtonOffset, 0);
 
 
         }
