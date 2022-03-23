@@ -546,7 +546,30 @@ Truly thankful for these supporters, you are the best❤️
 ***
 ### <a name="changelog"></a>Changelog
 
-#### [0.9.XX] - October 2021
+#### [0.9.43] - March 2022
+
+#### Changes
+* CRS will now tell you which dependencies are not installed (in the slugcat selection menu).
+* CRS will now update your dependencies when installing a pack:
+   - If the dependency supports `AUDB`, CRS will pick the most recent version.
+   - If it doesn't, CRS will only update the dependency if it is different from the installed one.
+   - This is disabled if you are using Realm for now to avoid crashes.
+* CRS now has an API.
+   - Inside the `CustomRegions.Mod` namespace, the class `API`.
+   - If you were using reflection before, consider using the API now.
+   - You can add region preprocessors to filter world_XX lines before CRS merges them. (`AddRegionPreprocessor`).
+   - You can access installed packs, loaded dependencies, missing dependencies.
+   - You can Disable/Enable a pack., or force reload CRS.
+   - You can easily get paths to any folder using `BuildPath`.
+
+#### Fixes
+* Fix crash when trying to save the game after removing a region ( by @SlimeCubed, thank you! ).
+* Fix region packs not correctly updating.
+* Fix the `NaN` button bug.
+* You should not be able to reload the menu while downloading a pack.
+
+***
+#### [0.9.42] - October 2021
 
 #### Changes
 * Revamped CRS config menu:
