@@ -303,7 +303,7 @@ namespace CustomRegions.Mod
                                     // needs upgrade
                                     shouldDelete = true;
                                 }
-                                else if (!installedDep.hash.Equals(downloadedDependency.hash))
+                                else if (installedDep.audbVersion < 0 && !installedDep.hash.Equals(downloadedDependency.hash))
                                 {
                                     // hash is different, using downloaded version
                                     shouldDelete = true;
