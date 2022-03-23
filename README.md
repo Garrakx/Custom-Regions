@@ -541,6 +541,7 @@ I have put hundred of hours in making `CRS`. If you enjoy it and want to support
 Truly thankful for these supporters, you are the best❤️ 
 - `LeeMoriya`
 - `sarkos`
+- `Wryak`
 
 ***
 ### <a name="changelog"></a>Changelog
