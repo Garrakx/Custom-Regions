@@ -542,6 +542,7 @@ Truly thankful for these supporters, you are the best❤️
 - `LeeMoriya`
 - `sarkos`
 - `Wryak`
+- `Kaeporo`
 
 ***
 ### <a name="changelog"></a>Changelog
