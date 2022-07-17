@@ -2,7 +2,7 @@
 # Custom Regions Support
 ***
 ## Lets you install and browse region packs without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms
-[![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2Fgarrakx)](https://twitter.com/garrakx)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/latest)
+[![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2F)](https://twitter.com/)  [![Downloads](https://img.shields.io/github/downloads/Garrakx/Custom-Regions/total.svg?style=flat-square)]() [![Version](https://img.shields.io/github/release/Garrakx/Custom-Regions.svg?style=flat-square)](https://github.com/Garrakx/Custom-Regions/releases/latest)
 [![Donate](https://img.shields.io/badge/support-DONATE-orange?style=flat-square)](https://ko-fi.com/garrakx)
 ![Custom Regions!](./Images/CRS_thumb.png)
 
