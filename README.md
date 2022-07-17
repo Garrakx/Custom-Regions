@@ -46,13 +46,13 @@ Custom Regions Support (aka `Custom Regions Mod` or simply `CRS`) main goal is t
 A region pack (or just pack) is a mod that contains one or more modded regions, or alternatively, just modifications to vanilla regions. This means a pack could add two new regions to the game, and also modify the existing vanilla regions.
 In terms of compatibility, any region pack made with the outdated method of merging with the vanilla files will work with CRS. On the other hand, making a region pack specifically brings improvements that were not possible before.
 * **What's a region?**  
-Yes, I know this is obvious but let's go over the definition: a region is a recopilation of rooms, separated by gates, which has a two-letter acronym, and it's own `world_XX.txt` file. A region pack can include several regions.
+Yes, I know this is obvious but let's go over the definition: a region is a compilation of rooms, separated by gates, which has a two-letter acronym, and it's own `world_XX.txt` file. A region pack can include several regions.
 * <a name="browser"></a>**The in-game pack browser**  
 New in the latest updates, CRS adds an in-game region pack browser that let's you install region packs with just one click without even closing the game. If a pack is marked "unavailable", it means the author has not contacted me (Garrakx) to make the necessary arrangements to make their pack available, so let them know.
 * **How to run the mod in offline mode**  
 If you don't want the online features of CRS (pack downloader, pack info fetcher, thumb downloader...) you can place a empty text file called `offline.txt` in your resource folder (`Mods\CustomResources\`).
 * <a name="packInfo"></a>**What's `packInfo.json`**  
-This file contains information about the region pack. After you have made any modifications, you can restart the game to see the effects or use the `RELOAD`button located in the config screen / pack overview screen.
+This file contains information about the region pack. After you have made any modifications, you can restart the game to see the effects or use the `RELOAD` button located in the config screen / pack overview screen.
   * <u>`regionPackName`</u>: Name of the region pack. It's used as an identifier so it should always be the same and it shouldn't include any version numbers. For example:`"Underbelly"` (note: it doesn't have to match any in-game regions)
   * <u>`description`</u>: Provide a description for your region pack, will appear in the config screen.
   * <u>`author`</u>: Name(s) of the region pack creators.
@@ -99,7 +99,7 @@ There are two ways of installing region packs:
 * `Automatic installation (recommended)` Installing using the in-game browse:
 	1) Open the game and go to the Config Machine menu (click [here](#browserScreen) if you don't know what it is)
 	2) Click on the `"Browse RainDB"` tab.
-	3) Pick the pack you want to download, and hit download.
+	3) Pick the pack you want to download and hit download.
 	4) If the pack had dependencies, you will have to restart the game.
 * `Manual`
 
