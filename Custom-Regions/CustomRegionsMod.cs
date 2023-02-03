@@ -14,7 +14,7 @@ using System.Security.Permissions;
 
 namespace CustomRegionsMod
 {
-    [BepInPlugin("bro.crs", "Custom Regions Support", "0.1.0")]
+    [BepInPlugin("crs", "Custom Regions Support", "0.1.0")]
     public class CustomRegionsMod : BaseUnityPlugin
     {
         public void OnEnable()
