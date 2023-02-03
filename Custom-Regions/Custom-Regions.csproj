@@ -7,11 +7,12 @@
     <ProjectGuid>{13837869-9236-4D05-8841-E265AB15028C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CustomRegions</RootNamespace>
+    <RootNamespace>CustomRegionsMod</RootNamespace>
     <AssemblyName>CustomRegions</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,42 +32,36 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <LangVersion>default</LangVersion>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Assembly-CSharp.dll</HintPath>
-    </Reference>
     <Reference Include="BepInEx">
-      <HintPath>..\References\BepInEx.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\BepInEx.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="ConfigMachine, Version=1.4.4.4, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\ConfigMachine.dll</HintPath>
+    <Reference Include="HOOKS-Assembly-CSharp">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\plugins\HOOKS-Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="EnumExtender, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\EnumExtender.dll</HintPath>
+    <Reference Include="MonoMod">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\MonoMod.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="Mono.Cecil, Version=0.10.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Mono.Cecil.dll</HintPath>
+    <Reference Include="MonoMod.RuntimeDetour">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\MonoMod.RuntimeDetour.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="MonoMod, Version=18.6.0.33005, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\MonoMod.exe</HintPath>
+    <Reference Include="MonoMod.Utils">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\core\MonoMod.Utils.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="MonoMod.RuntimeDetour, Version=18.6.0.33006, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\MonoMod.RuntimeDetour.dll</HintPath>
+    <Reference Include="netstandard">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\Managed\netstandard.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="Partiality, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\Partiality.dll</HintPath>
-    </Reference>
-    <Reference Include="public-HOOKS-Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\public-HOOKS-Assembly-CSharp.dll</HintPath>
+    <Reference Include="PUBLIC-Assembly-CSharp">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\BepInEx\utils\PUBLIC-Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -73,66 +69,27 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\UnityEngine.dll</HintPath>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Arena\ArenaCreatureSpawnerHook.cs" />
-    <Compile Include="Creatures\DaddyCorruptionHook.cs" />
-    <Compile Include="Creatures\FlyGraphicsHook.cs" />
-    <Compile Include="Creatures\ScavengerAbstractAIHook.cs" />
-    <Compile Include="CustomMenu\PauseMenuHook.cs" />
-    <Compile Include="DevInterface\TriggersPageHook.cs" />
-    <Compile Include="Mod\API.cs" />
-    <Compile Include="Music\MultiplayerDJHook.cs" />
-    <Compile Include="Arena\MultiplayerUnlocksHook.cs" />
-    <Compile Include="Creatures\BigEelHook.cs" />
-    <Compile Include="Creatures\DaddyLongLegsHook.cs" />
-    <Compile Include="Creatures\LizardGraphicsHook.cs" />
-    <Compile Include="Creatures\TentaclePlantGraphicsHook.cs" />
-    <Compile Include="CustomMenu\FastTravelScreenHook.cs" />
-    <Compile Include="CustomPearls\DataPearlHook.cs" />
-    <Compile Include="CustomPearls\PlacedObjectHook.cs" />
-    <Compile Include="CustomPearls\SLOracleBehaviorHasMarkHook.cs" />
-    <Compile Include="DevInterface\CustomDecalRepresentationHook.cs" />
-    <Compile Include="DevInterface\MapPageHook.cs" />
-    <Compile Include="DevInterface\MapRenderOutputHook.cs" />
-    <Compile Include="DevInterface\SoundPageHook.cs" />
-    <Compile Include="EnumExtender.cs" />
-    <Compile Include="MainLoopProcessHook.cs" />
-    <Compile Include="Mod\ApplyAllHooks.cs" />
-    <Compile Include="Mod\CustomWorldStructs.cs" />
-    <Compile Include="Mod\Scripts.cs" />
-    <Compile Include="Music\ProceduralMusicInstructionsHook.cs" />
-    <Compile Include="HUDs\MapHook.cs" />
-    <Compile Include="CustomMenu\MenuIllustrationHook.cs" />
-    <Compile Include="CustomMenu\MenuSceneHook.cs" />
-    <Compile Include="Mod\CRExtras.cs" />
-    <Compile Include="Mod\CustomWorldMod.cs" />
-    <Compile Include="Mod\CustomWorldOption.cs" />
-    <Compile Include="CustomMenu\MultiplayerMenuHook.cs" />
-    <Compile Include="Music\MusicPieceHook.cs" />
-    <Compile Include="Music\SoundLoaderHook.cs" />
-    <Compile Include="World\OverWorldHook.cs" />
-    <Compile Include="PlayerProgressionHook.cs" />
+    <Compile Include="ArenaUnlocks\UnlockEnum.cs" />
+    <Compile Include="Menu\RegionLandscapes.cs" />
+    <Compile Include="CustomRegionsMod.cs" />
+    <Compile Include="Music\ProceduralMusic.cs" />
+    <Compile Include="Progression\SafariEnums.cs" />
+    <Compile Include="Progression\StoryRegionsMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RainWorldHook.cs" />
-    <Compile Include="World\RegionGateHook.cs" />
-    <Compile Include="World\RegionHook.cs" />
-    <Compile Include="RoomCameraHook.cs" />
-    <Compile Include="RoomHook.cs" />
-    <Compile Include="RoomSettingsHook.cs" />
-    <Compile Include="CustomMenu\SlugcatSelectMenuHook.cs" />
-    <Compile Include="SaveStateHook.cs" />
-    <Compile Include="WinStateHook.cs" />
-    <Compile Include="World\WorldHook.cs" />
-    <Compile Include="World\WorldLoaderHook.cs" />
-    <Compile Include="WWWHook.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>call "$(SolutionDir)..\References\build.bat"</PostBuildEvent>
+    <PostBuildEvent>copy /Y "$(TargetPath)" "C:\Program Files (x86)\Steam\steamapps\common\Rain World\RainWorld_Data\StreamingAssets\mods\CustomRegionSupport\Plugins\$(TargetName).dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>
