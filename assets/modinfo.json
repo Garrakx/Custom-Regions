@@ -1,0 +1,10 @@
+﻿{
+  "id": "crs",
+  "name": "Custom Regions Support",
+  "version": "",
+  "authors": "Garrakx & Bro",
+  "description": "Support for modded regions",
+  "requirements": [],
+  "requirements_names": [],
+  "checksum_override_version": false
+}

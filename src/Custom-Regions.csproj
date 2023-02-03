@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="../lib/*.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <Assets Include="$(ProjectDir)../assets/**/*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(Assets)" DestinationFiles="C:/Program Files (x86)/Steam/steamapps/common/Rain World/RainWorld_Data/StreamingAssets/mods/crs/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="C:/Program Files (x86)/Steam/steamapps/common/Rain World/RainWorld_Data/StreamingAssets/mods/crs/plugins" />
+  </Target>
+
+</Project>
