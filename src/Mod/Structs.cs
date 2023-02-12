@@ -283,51 +283,9 @@ namespace CustomRegions.Mod
         }
 
         /// <summary>
-        /// Struct with information about problems with save.
-        /// </summary>
-        public struct SaveProblems
-        {
-            public bool loadOrder;
-            public bool installedRegions;
-            public List<string> checkSum;
-            public List<string> extraRegions;
-            public List<string> missingRegions;
-
-            public SaveProblems(bool differntLoadOrder, bool differentInstalledRegion, List<string> problematicCheckSum, List<string> extraReg, List<string> misReg)
-            {
-                this.loadOrder = differntLoadOrder;
-                this.installedRegions = differentInstalledRegion;
-                this.checkSum = problematicCheckSum;
-                this.extraRegions = extraReg;
-                this.missingRegions = misReg;
-            }
-
-            public bool AnyProblems => this.loadOrder || this.installedRegions || (this.checkSum != null && this.checkSum.Count > 0);
-
-        }
-
-        /// <summary>
         /// Struct with information about custom pearls
         /// </summary>
         public struct CustomPearl
-        {
-            public string name;
-            public int ID;
-            public Color color;
-            public Color? secondaryColor;
-            public string packName;
-
-            public CustomPearl(string name, int iD, Color color, Color? secondaryColor, string packName)
-            {
-                this.name = name;
-                this.ID = iD;
-                this.color = color;
-                this.secondaryColor = secondaryColor;
-                this.packName = packName;
-            }
-        }
-
-        public struct CustomPearl2
         {
             public Conversation.ID conversationID;
             public DataPearl.AbstractDataPearl.DataPearlType type;
@@ -335,7 +293,7 @@ namespace CustomRegions.Mod
             public Color highlightColor;
             public string filePath;
 
-            public CustomPearl2(DataPearl.AbstractDataPearl.DataPearlType type, Color color, Color highlightColor, string filePath, Conversation.ID conversationID)
+            public CustomPearl(DataPearl.AbstractDataPearl.DataPearlType type, Color color, Color highlightColor, string filePath, Conversation.ID conversationID)
             {
                 this.type = type;
                 this.color = color;
@@ -343,33 +301,6 @@ namespace CustomRegions.Mod
                 this.filePath = filePath;
                 this.conversationID = conversationID;
             }
-        }
-
-        public struct News
-        {
-            public const string IGNORE = "[ignr]";
-            public const string BIGTEXT = "[bgTxT]";
-            public const string DATE = "[dte]";
-
-            /*
-            public DateTime date;
-            public string text;
-            public string type;
-
-            public News(DateTime date, string text, string type)
-            {
-                this.date = date;
-                this.text = text;
-                this.type = type;
-            }
-            */
-        }
-
-        public struct ProcessedThumbnail
-        {
-            public DateTime dateDownloaded;
-            public Color mainColor;
-            public byte[] data;
         }
     }
 }

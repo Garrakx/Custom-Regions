@@ -23,7 +23,7 @@ namespace CustomRegions.CustomPearls
         {
             try
             {
-                if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl2 customPearl))
+                if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl customPearl))
                 { return customPearl.color; }
                 else
                 { return orig(pearlType); }
@@ -35,7 +35,7 @@ namespace CustomRegions.CustomPearls
         {
             try
             {
-                if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl2 customPearl))
+                if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl customPearl))
                 { return customPearl.highlightColor; }
                 else
                 { return orig(pearlType); }
@@ -50,7 +50,7 @@ namespace CustomRegions.CustomPearls
                 DataPearl.AbstractDataPearl.DataPearlType pearlType = (self.abstractPhysicalObject as DataPearl.AbstractDataPearl).dataPearlType;
                 orig(self, sLeaser, rCam, palette);
 
-                if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl2 customPearl))
+                if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl customPearl))
                 {
                     self.color = customPearl.color;
                     self.highlightColor = customPearl.highlightColor;
