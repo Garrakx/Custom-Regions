@@ -35,6 +35,7 @@ namespace CustomRegions.Mod
                 CustomMusic.ProceduralMusicHooks.ApplyHooks();
                 ArenaUnlocks.UnlockEnum.ApplyHooks();
                 Progression.StoryRegionsMod.ApplyHooks();
+                CustomPearls.DataPearlColors.ApplyHooks();
             } catch (Exception ex) {
                 BepLogError("Error while applying Hooks: " + ex.ToString());
             }
@@ -56,6 +57,7 @@ namespace CustomRegions.Mod
             orig(self);
             CustomStaticCache.CheckForRefresh();
             ArenaUnlocks.UnlockEnum.RefreshArenaUnlocks();
+            CustomPearls.Data.Refresh();
         }
 
         public static void BepLog(string message)

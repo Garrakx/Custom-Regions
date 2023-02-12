@@ -327,6 +327,24 @@ namespace CustomRegions.Mod
             }
         }
 
+        public struct CustomPearl2
+        {
+            public Conversation.ID conversationID;
+            public DataPearl.AbstractDataPearl.DataPearlType type;
+            public Color color;
+            public Color highlightColor;
+            public string filePath;
+
+            public CustomPearl2(DataPearl.AbstractDataPearl.DataPearlType type, Color color, Color highlightColor, string filePath, Conversation.ID conversationID)
+            {
+                this.type = type;
+                this.color = color;
+                this.highlightColor = highlightColor;
+                this.filePath = filePath;
+                this.conversationID = conversationID;
+            }
+        }
+
         public struct News
         {
             public const string IGNORE = "[ignr]";
