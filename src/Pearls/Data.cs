@@ -86,7 +86,7 @@ namespace CustomRegions.CustomPearls
         }
 
 
-        public static Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl2> CustomDataPearlsList;
+        public static Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl2> CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl2>();
 
 
     }

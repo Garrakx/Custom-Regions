@@ -36,6 +36,7 @@ namespace CustomRegions.Mod
                 ArenaUnlocks.UnlockEnum.ApplyHooks();
                 Progression.StoryRegionsMod.ApplyHooks();
                 CustomPearls.DataPearlColors.ApplyHooks();
+                RainWorldHooks.ApplyHooks();
             } catch (Exception ex) {
                 BepLogError("Error while applying Hooks: " + ex.ToString());
             }
@@ -55,7 +56,12 @@ namespace CustomRegions.Mod
         private static void RainWorld_PostModsInit(On.RainWorld.orig_PostModsInit orig, RainWorld self)
         {
             orig(self);
-            CustomStaticCache.CheckForRefresh();
+            CRSRefresh();
+        }
+
+        public static void CRSRefresh(bool forceRefresh = false)
+        {
+            CustomStaticCache.CheckForRefresh(forceRefresh);
             ArenaUnlocks.UnlockEnum.RefreshArenaUnlocks();
             CustomPearls.Data.Refresh();
         }

@@ -20,26 +20,27 @@ namespace CustomRegions.Mod
 
         static List<string> currentRegionOrder = new List<string>();
 
-        public static void CheckForRefresh()
+        public static void CheckForRefresh(bool forceRefresh = false)
         {
             CustomRegionsMod.CustomLog("Checking if story regions need refresh", false, CustomRegionsMod.DebugLevel.FULL);
 
             //why does SequenceEquals throw an exception the first time, the list should be initialized
-            bool update = false;
-            try
+            if (!forceRefresh)
             {
-                update = !currentRegionOrder.SequenceEqual(Region.GetFullRegionOrder());
+                try
+                {
+                    forceRefresh = !currentRegionOrder.SequenceEqual(Region.GetFullRegionOrder());
+                }
+                catch { forceRefresh = true; }
             }
-            catch { update = true; }
 
-
-            if (update)
+            if (forceRefresh)
             {
-                RefreshCRS();
+                Refresh();
             }
         }
 
-        public static void RefreshCRS()
+        public static void Refresh()
         {
             CustomRegionsMod.CustomLog("refreshing", false, CustomRegionsMod.DebugLevel.MEDIUM);
 
@@ -129,8 +130,25 @@ namespace CustomRegions.Mod
 
                     }
                 }
+                LogCache();
             }
             catch (Exception e) { throw e; }
+        }
+
+        public static void LogCache()
+        {
+            CustomRegionsMod.CustomLog($"\nCUSTOM STORY REGIONS FOR EACH SLUGCAT");
+            foreach (KeyValuePair<SlugcatStats.Name, List<string>> slug in CustomStoryRegions)
+            {
+                CustomRegionsMod.CustomLog($"{slug.Key}: [{String.Join(", ", slug.Value.ToArray())}]");
+            }
+
+            CustomRegionsMod.CustomLog($"\nCUSTOM OPTIONAL REGIONS FOR EACH SLUGCAT");
+            foreach (KeyValuePair<SlugcatStats.Name, List<string>> slug in CustomOptionalRegions)
+            {
+                CustomRegionsMod.CustomLog($"{slug.Key}: [{String.Join(", ", slug.Value.ToArray())}]");
+            }
+            CustomRegionsMod.CustomLog("");
         }
     }
 }
