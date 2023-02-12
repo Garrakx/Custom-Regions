@@ -20,7 +20,7 @@ namespace CustomRegions.CustomPearls
         {
             Unregister();
             FindCustomPearlData();
-
+            Encryption.EncryptAllCustomPearls();
         }
 
 

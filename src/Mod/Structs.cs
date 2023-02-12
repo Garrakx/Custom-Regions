@@ -343,6 +343,17 @@ namespace CustomRegions.Mod
                 this.filePath = filePath;
                 this.conversationID = conversationID;
             }
+
+            public override string ToString()
+            {
+                return string.Join(", ", new string[] {
+                    this.type.ToString(),
+                    this.color.ToString(),
+                    this.highlightColor.ToString(),
+                    this.conversationID.ToString(),
+                    this.filePath
+                }) ;
+            }
         }
 
         public struct News

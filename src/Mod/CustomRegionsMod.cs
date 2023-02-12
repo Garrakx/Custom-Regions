@@ -5,6 +5,12 @@ using System.IO;
 using RWCustom;
 
 
+using System.Security;
+using System.Security.Permissions;
+[module: UnverifiableCode]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+
+
 namespace CustomRegions.Mod
 {
     [BepInPlugin(PLUGIN_ID, PLUGIN_NAME, PLUGIN_VERSION)]
@@ -36,6 +42,7 @@ namespace CustomRegions.Mod
                 ArenaUnlocks.UnlockEnum.ApplyHooks();
                 Progression.StoryRegionsMod.ApplyHooks();
                 CustomPearls.DataPearlColors.ApplyHooks();
+                CustomPearls.CustomConvo.ApplyHooks();
                 RainWorldHooks.ApplyHooks();
             } catch (Exception ex) {
                 BepLogError("Error while applying Hooks: " + ex.ToString());
