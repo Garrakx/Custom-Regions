@@ -67,7 +67,7 @@ namespace CustomRegions.CustomMenu
         {
             orig(self);
 
-            Progression.StoryRegionsMod.slugcatStoryStruct.CheckIfRegen();
+            CustomStaticCache.CheckForRefresh();
 
             if ((self.sceneFolder == "" || self.sceneFolder == null) && customLandscapes.Contains(self.sceneID)) { BuildCustomScene2(self); }
         }
@@ -160,7 +160,7 @@ namespace CustomRegions.CustomMenu
 
         private static global::Menu.MenuScene.SceneID Region_GetRegionLandscapeScene(On.Region.orig_GetRegionLandscapeScene orig, string regionAcro)
         {
-            Progression.StoryRegionsMod.slugcatStoryStruct.CheckIfRegen();
+            CustomStaticCache.CheckForRefresh();
 
             CustomRegionsMod.CustomLog("trying to load Landscape_" + regionAcro);
             if (ExtEnumBase.TryParse(typeof(global::Menu.MenuScene.SceneID), "Landscape_" + regionAcro, false, out ExtEnumBase result)) {
