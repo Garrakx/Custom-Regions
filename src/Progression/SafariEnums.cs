@@ -20,10 +20,10 @@ namespace CustomRegions.Progression
                 CustomRegionsMod.CustomLog("CRS Registering safari unlocks");
                 if (Region.GetFullRegionOrder() == null) { return; }
 
-                StoryRegionsMod.slugcatStoryStruct.CheckIfRegen();
+                CustomStaticCache.CheckForRefresh();
                 foreach (string regionName in Region.GetFullRegionOrder()) {
                     CustomRegionsMod.CustomLog($"Checking if region [{regionName}] has safari unlock...");
-                    if (!StoryRegionsMod.slugcatStoryStruct.NoSafariRegions.Contains(regionName) && !MultiplayerUnlocks.SafariUnlockID.values.entries.Contains(regionName)) {
+                    if (!CustomStaticCache.NoSafariRegions.Contains(regionName) && !MultiplayerUnlocks.SafariUnlockID.values.entries.Contains(regionName)) {
                         CustomRegionsMod.CustomLog("unlock is found!");
                         CustomSafariUnlocks.Add(new MultiplayerUnlocks.SafariUnlockID(regionName, true));
                     } else { CustomRegionsMod.CustomLog("No safari unlock found or already exists"); }

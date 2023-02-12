@@ -24,8 +24,10 @@ namespace CustomRegions.Mod
         public void Awake()
         {
             instance = this;
+            CreateCustomWorldLog();
 
             On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+            On.RainWorld.PostModsInit += RainWorld_PostModsInit;
             BepLog($"Test {PLUGIN_NAME} (v{PLUGIN_VERSION}) initialized, applying hooks...");
 
             try {
@@ -47,6 +49,13 @@ namespace CustomRegions.Mod
             //OptionInterface oi = MachineConnector.GetRegisteredOI("bubbleweedsaver");
             //cfgEven = oi.config.Bind<bool>("EvenUse", true, new ConfigurableInfo("Whether to use multiple BubbleGrasses evenly or not. Either use all BubbleGrasses in divided speed(true) or use one BubbleGrass at a time(false)."));
             CustomLog("Mod is Initialized.");
+        }
+
+        private static void RainWorld_PostModsInit(On.RainWorld.orig_PostModsInit orig, RainWorld self)
+        {
+            orig(self);
+            CustomStaticCache.CheckForRefresh();
+            ArenaUnlocks.UnlockEnum.RefreshArenaUnlocks();
         }
 
         public static void BepLog(string message)
