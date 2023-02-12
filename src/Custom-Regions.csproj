@@ -4,6 +4,7 @@
     <TargetFramework>net48</TargetFramework>
     <LangVersion>7.3</LangVersion>
     <AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
+    <AssemblyName>CustomRegionsSupport</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,12 +13,12 @@
     </Reference>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="Exists('$(RainWorldDir)')">
     <ItemGroup>
       <Assets Include="$(ProjectDir)../assets/**/*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(Assets)" DestinationFiles="C:/Program Files (x86)/Steam/steamapps/common/Rain World/RainWorld_Data/StreamingAssets/mods/crs/%(RecursiveDir)%(Filename)%(Extension)" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="C:/Program Files (x86)/Steam/steamapps/common/Rain World/RainWorld_Data/StreamingAssets/mods/crs/plugins" />
+    <Copy SourceFiles="@(Assets)" DestinationFiles="$(RainWorldDir)/RainWorld_Data/StreamingAssets/mods/crs/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(RainWorldDir)/RainWorld_Data/StreamingAssets/mods/crs/plugins" />
   </Target>
 
 </Project>

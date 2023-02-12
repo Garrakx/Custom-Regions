@@ -2,6 +2,14 @@
 # Custom Regions Support
 ***
 ## Adds various meta features to custom regions
+### <a name="HOW TO COMPILE"></a>How to compile
+1. Place references in "lib" folder
+
+Creating the System Variable:
+2. type env in the windows search bar, 
+3. choose the first one
+4. Press n
+5. add a new system variable called `RainWorldDir`
 
 ### <a name="FEATURES"></a>Feature List
 

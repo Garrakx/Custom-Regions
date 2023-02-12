@@ -1,6 +1,7 @@
 ﻿using CustomRegions.Mod;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Permissions;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
@@ -40,4 +41,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle(CustomRegionsMod.PLUGIN_NAME + " (" + CustomRegionsMod.PLUGIN_ID + ")")]
 [assembly: AssemblyProduct(CustomRegionsMod.PLUGIN_NAME)]
 
-
+// Allows access to private members
+#pragma warning disable CS0618
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+#pragma warning restore CS0618
