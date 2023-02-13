@@ -111,71 +111,71 @@ namespace CustomRegions.CustomPearls
             {
                 text3 = Custom.xorEncrypt(text3, 54 + fileName.GetHashCode() + (int)self.interfaceOwner.rainWorld.inGameTranslator.currentLanguage * 7);
             }
+
             string[] array = Regex.Split(text3, "\r\n");
             try
             {
-                if (Regex.Split(array[0], "-")[1] == fileName.ToString())
+
+                if (oneRandomLine)
                 {
-                    if (oneRandomLine)
+                    List<Conversation.TextEvent> list = new List<Conversation.TextEvent>();
+                    for (int i = 1; i < array.Length; i++)
                     {
-                        List<Conversation.TextEvent> list = new List<Conversation.TextEvent>();
-                        for (int i = 1; i < array.Length; i++)
+                        string[] array2 = LocalizationTranslator.ConsolidateLineInstructions(array[i]);
+                        if (array2.Length == 3)
                         {
-                            string[] array2 = LocalizationTranslator.ConsolidateLineInstructions(array[i]);
-                            if (array2.Length == 3)
-                            {
-                                list.Add(new Conversation.TextEvent(self, int.Parse(array2[0], NumberStyles.Any, CultureInfo.InvariantCulture), array2[2], int.Parse(array2[1], NumberStyles.Any, CultureInfo.InvariantCulture)));
-                            }
-                            else if (array2.Length == 1 && array2[0].Length > 0)
-                            {
-                                list.Add(new Conversation.TextEvent(self, 0, array2[0], 0));
-                            }
+                            list.Add(new Conversation.TextEvent(self, int.Parse(array2[0], NumberStyles.Any, CultureInfo.InvariantCulture), array2[2], int.Parse(array2[1], NumberStyles.Any, CultureInfo.InvariantCulture)));
                         }
-                        if (list.Count > 0) 
+                        else if (array2.Length == 1 && array2[0].Length > 0)
                         {
-                            Random.State state = Random.state;
-                            Random.InitState(randomSeed);
-                            Conversation.TextEvent item = list[Random.Range(0, list.Count)];
-                            Random.state = state;
-                            self.events.Add(item);
+                            list.Add(new Conversation.TextEvent(self, 0, array2[0], 0));
                         }
                     }
-                    else
+                    if (list.Count > 0)
                     {
-                        for (int j = 1; j < array.Length; j++)
+                        Random.State state = Random.state;
+                        Random.InitState(randomSeed);
+                        Conversation.TextEvent item = list[Random.Range(0, list.Count)];
+                        Random.state = state;
+                        self.events.Add(item);
+                    }
+                }
+                else
+                {
+                    for (int j = 1; j < array.Length; j++)
+                    {
+                        string[] array3 = LocalizationTranslator.ConsolidateLineInstructions(array[j]);
+                        if (array3.Length == 3)
                         {
-                            string[] array3 = LocalizationTranslator.ConsolidateLineInstructions(array[j]);
-                            if (array3.Length == 3)
+                            int num;
+                            int num2;
+                            if (ModManager.MSC && !int.TryParse(array3[1], NumberStyles.Any, CultureInfo.InvariantCulture, out num) && int.TryParse(array3[2], NumberStyles.Any, CultureInfo.InvariantCulture, out num2))
                             {
-                                int num;
-                                int num2;
-                                if (ModManager.MSC && !int.TryParse(array3[1], NumberStyles.Any, CultureInfo.InvariantCulture, out num) && int.TryParse(array3[2], NumberStyles.Any, CultureInfo.InvariantCulture, out num2))
-                                {
-                                    self.events.Add(new Conversation.TextEvent(self, int.Parse(array3[0], NumberStyles.Any, CultureInfo.InvariantCulture), array3[1], int.Parse(array3[2], NumberStyles.Any, CultureInfo.InvariantCulture)));
-                                }
-                                else
-                                {
-                                    self.events.Add(new Conversation.TextEvent(self, int.Parse(array3[0], NumberStyles.Any, CultureInfo.InvariantCulture), array3[2], int.Parse(array3[1], NumberStyles.Any, CultureInfo.InvariantCulture)));
-                                }
+                                self.events.Add(new Conversation.TextEvent(self, int.Parse(array3[0], NumberStyles.Any, CultureInfo.InvariantCulture), array3[1], int.Parse(array3[2], NumberStyles.Any, CultureInfo.InvariantCulture)));
                             }
-                            else if (array3.Length == 2)
+                            else
                             {
-                                if (array3[0] == "SPECEVENT")
-                                {
-                                    self.events.Add(new Conversation.SpecialEvent(self, 0, array3[1]));
-                                }
-                                else if (array3[0] == "PEBBLESWAIT")
-                                {
-                                    self.events.Add(new SSOracleBehavior.PebblesConversation.PauseAndWaitForStillEvent(self, null, int.Parse(array3[1], NumberStyles.Any, CultureInfo.InvariantCulture)));
-                                }
+                                self.events.Add(new Conversation.TextEvent(self, int.Parse(array3[0], NumberStyles.Any, CultureInfo.InvariantCulture), array3[2], int.Parse(array3[1], NumberStyles.Any, CultureInfo.InvariantCulture)));
                             }
-                            else if (array3.Length == 1 && array3[0].Length > 0)
+                        }
+                        else if (array3.Length == 2)
+                        {
+                            if (array3[0] == "SPECEVENT")
                             {
-                                self.events.Add(new Conversation.TextEvent(self, 0, array3[0], 0));
+                                self.events.Add(new Conversation.SpecialEvent(self, 0, array3[1]));
                             }
+                            else if (array3[0] == "PEBBLESWAIT")
+                            {
+                                self.events.Add(new SSOracleBehavior.PebblesConversation.PauseAndWaitForStillEvent(self, null, int.Parse(array3[1], NumberStyles.Any, CultureInfo.InvariantCulture)));
+                            }
+                        }
+                        else if (array3.Length == 1 && array3[0].Length > 0)
+                        {
+                            self.events.Add(new Conversation.TextEvent(self, 0, array3[0], 0));
                         }
                     }
                 }
+
             }
             catch
             {
