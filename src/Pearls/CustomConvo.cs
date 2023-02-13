@@ -22,7 +22,7 @@ namespace CustomRegions.CustomPearls
             {
                 orig(self);
 
-                foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl2> customPearl in Data.CustomDataPearlsList)
+                foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> customPearl in Data.CustomDataPearlsList)
                 {
                     if (self.id == customPearl.Value.conversationID)
                     {
@@ -39,12 +39,11 @@ namespace CustomRegions.CustomPearls
         {
             try
             {
-                if (Data.CustomDataPearlsList.TryGetValue(type, out CustomPearl2 customPearl))
+                if (Data.CustomDataPearlsList.TryGetValue(type, out CustomPearl customPearl))
                 {
-                    CustomRegionsMod.CustomLog($"Found pearl conversation {customPearl.conversationID}");
+                    CustomRegionsMod.CustomLog($"Found custom pearl conversation {customPearl.conversationID}");
                     return customPearl.conversationID; 
                 }
-                
             }
             catch (Exception e) { throw e; }
 

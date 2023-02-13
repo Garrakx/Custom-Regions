@@ -19,7 +19,7 @@ namespace CustomRegions.CustomPearls
     {
         public static void EncryptAllCustomPearls()
         {
-            foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl2> pearl in Data.CustomDataPearlsList)
+            foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> pearl in Data.CustomDataPearlsList)
             {
                 EncryptCustomDialogue(pearl.Value.filePath);
             }
