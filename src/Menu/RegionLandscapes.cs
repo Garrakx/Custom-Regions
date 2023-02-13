@@ -14,9 +14,9 @@ namespace CustomRegions.CustomMenu
         {
             On.Region.GetRegionLandscapeScene += Region_GetRegionLandscapeScene;
             On.Menu.MenuScene.BuildScene += MenuScene_BuildScene;
-        } 
+        }
 
-        public static List<global::Menu.MenuScene.SceneID> customLandscapes = new List<global::Menu.MenuScene.SceneID>();
+        public static List<Menu.MenuScene.SceneID> customLandscapes = new List<Menu.MenuScene.SceneID>();
 
         public static void RefreshLandscapes()
         {
@@ -27,9 +27,9 @@ namespace CustomRegions.CustomMenu
         public static void UnregisterLandscapes()
         {
             try {
-                foreach (global::Menu.MenuScene.SceneID landscape in customLandscapes) { if (landscape != null) { landscape.Unregister(); } }
+                foreach (Menu.MenuScene.SceneID landscape in customLandscapes) { if (landscape != null) { landscape.Unregister(); } }
 
-                customLandscapes = new List<global::Menu.MenuScene.SceneID>();
+                customLandscapes = new List<Menu.MenuScene.SceneID>();
             } catch (Exception e) { throw e; }
         }
 
@@ -38,8 +38,8 @@ namespace CustomRegions.CustomMenu
             string path = AssetManager.ResolveFilePath("World" + Path.DirectorySeparatorChar.ToString() + "regions.txt");
             if (File.Exists(path)) {
                 foreach (string text in File.ReadAllLines(path)) {
-                    CustomRegionsMod.CustomLog("text " + text);
-                    global::Menu.MenuScene.SceneID local = RegisterMenuScenes(text);
+                   // CustomRegionsMod.CustomLog("text " + text);
+                    Menu.MenuScene.SceneID local = RegisterMenuScenes(text);
                     if (local != null) {
                         CustomRegionsMod.CustomLog("Adding");
                         customLandscapes.Add(local);
@@ -48,22 +48,22 @@ namespace CustomRegions.CustomMenu
             }
         }
 
-        public static global::Menu.MenuScene.SceneID RegisterMenuScenes(string name)
+        public static Menu.MenuScene.SceneID RegisterMenuScenes(string name)
         {
             string sceneName = "Landscape - " + name;
             name = "Landscape_" + name;
-            CustomRegionsMod.CustomLog("new enum for " + name);
-            if (ExtEnumBase.TryParse(typeof(global::Menu.MenuScene.SceneID), name, false, out _)) {
-                CustomRegionsMod.CustomLog("already exists");
+            CustomRegionsMod.CustomLog("[MENU SCENE] new enum for " + name, CustomRegionsMod.DebugLevel.FULL);
+            if (ExtEnumBase.TryParse(typeof(Menu.MenuScene.SceneID), name, false, out _)) {
+                CustomRegionsMod.CustomLog($"[MENU SCENE] enum {name} already exists, skipping", CustomRegionsMod.DebugLevel.FULL);
                 return null;
             } else if (Directory.Exists(AssetManager.ResolveDirectory("Scenes" + Path.DirectorySeparatorChar.ToString() + sceneName))) {
-                CustomRegionsMod.CustomLog("success");
-                return new global::Menu.MenuScene.SceneID(name, true);
+                CustomRegionsMod.CustomLog($"[MENU SCENE] success! Registered new enum {name}");
+                return new Menu.MenuScene.SceneID(name, true);
             } else { return null; }
         }
 
 
-        private static void MenuScene_BuildScene(On.Menu.MenuScene.orig_BuildScene orig, global::Menu.MenuScene self)
+        private static void MenuScene_BuildScene(On.Menu.MenuScene.orig_BuildScene orig, Menu.MenuScene self)
         {
             orig(self);
 
@@ -72,11 +72,11 @@ namespace CustomRegions.CustomMenu
             if ((self.sceneFolder == "" || self.sceneFolder == null) && customLandscapes.Contains(self.sceneID)) { BuildCustomScene2(self); }
         }
 
-        public static void LoadPositions(global::Menu.MenuScene scene)
+        public static void LoadPositions(Menu.MenuScene scene)
         {
 
             string path2 = AssetManager.ResolveFilePath(scene.sceneFolder + Path.DirectorySeparatorChar.ToString() + "positions_ims.txt");
-            if (!File.Exists(path2) || !(scene is global::Menu.InteractiveMenuScene)) {
+            if (!File.Exists(path2) || !(scene is Menu.InteractiveMenuScene)) {
                 path2 = AssetManager.ResolveFilePath(scene.sceneFolder + Path.DirectorySeparatorChar.ToString() + "positions.txt");
             }
             if (File.Exists(path2)) {
@@ -104,7 +104,7 @@ namespace CustomRegions.CustomMenu
 
         }
 
-        public static void BuildCustomScene2(global::Menu.MenuScene scene)
+        public static void BuildCustomScene2(Menu.MenuScene scene)
         {
             string[] array = scene.sceneID.ToString().Split('_');
 
@@ -122,7 +122,7 @@ namespace CustomRegions.CustomMenu
 
 
             if (scene.flatMode) {
-                scene.AddIllustration(new global::Menu.MenuIllustration(scene.menu, scene, scene.sceneFolder, fileName + " - Flat", new Vector2(683f, 384f), false, true));
+                scene.AddIllustration(new Menu.MenuIllustration(scene.menu, scene, scene.sceneFolder, fileName + " - Flat", new Vector2(683f, 384f), false, true));
                 goto LandscapeTitle;
             }
 
@@ -135,12 +135,12 @@ namespace CustomRegions.CustomMenu
 
                 if (array2.Length == 0 || array2[0].Length == 0) { continue; }
 
-                if (array2[0] == "blurMin" && array2.Length >= 2) { scene.blurMin = float.Parse(array2[1]); } else if (array2[0] == "blurMax" && array2.Length >= 2) { scene.blurMax = float.Parse(array2[1]); } else if (array2[0] == "idleDepths" && array2.Length >= 2 && float.TryParse(array2[1], out float idleResult)) { (scene as global::Menu.InteractiveMenuScene)?.idleDepths.Add(idleResult); } else {
+                if (array2[0] == "blurMin" && array2.Length >= 2) { scene.blurMin = float.Parse(array2[1]); } else if (array2[0] == "blurMax" && array2.Length >= 2) { scene.blurMax = float.Parse(array2[1]); } else if (array2[0] == "idleDepths" && array2.Length >= 2 && float.TryParse(array2[1], out float idleResult)) { (scene as Menu.InteractiveMenuScene)?.idleDepths.Add(idleResult); } else {
                     if (File.Exists(AssetManager.ResolveFilePath(scene.sceneFolder + Path.DirectorySeparatorChar.ToString() + array2[0] + ".png"))) {
-                        scene.AddIllustration(new global::Menu.MenuDepthIllustration(
+                        scene.AddIllustration(new Menu.MenuDepthIllustration(
                             scene.menu, scene, scene.sceneFolder, array2[0], new Vector2(0f, 0f),
                             (array2.Length >= 2 && int.TryParse(array2[1], out int r) ? r : 1),
-                            (array2.Length >= 3 && ExtEnumBase.TryParse(typeof(global::Menu.MenuDepthIllustration.MenuShader), array2[2], false, out ExtEnumBase result) ? (global::Menu.MenuDepthIllustration.MenuShader) result : global::Menu.MenuDepthIllustration.MenuShader.Normal)
+                            (array2.Length >= 3 && ExtEnumBase.TryParse(typeof(Menu.MenuDepthIllustration.MenuShader), array2[2], false, out ExtEnumBase result) ? (Menu.MenuDepthIllustration.MenuShader) result : Menu.MenuDepthIllustration.MenuShader.Normal)
                             ));
                     }
                 }
@@ -151,20 +151,20 @@ namespace CustomRegions.CustomMenu
 
         LandscapeTitle:;
             if (scene.menu.ID == ProcessManager.ProcessID.FastTravelScreen || scene.menu.ID == ProcessManager.ProcessID.RegionsOverviewScreen) {
-                scene.AddIllustration(new global::Menu.MenuIllustration(scene.menu, scene, string.Empty, $"Title_{regionAcronym}_Shadow", new Vector2(0.01f, 0.01f), true, false));
-                scene.AddIllustration(new global::Menu.MenuIllustration(scene.menu, scene, string.Empty, $"Title_{regionAcronym}", new Vector2(0.01f, 0.01f), true, false));
+                scene.AddIllustration(new Menu.MenuIllustration(scene.menu, scene, string.Empty, $"Title_{regionAcronym}_Shadow", new Vector2(0.01f, 0.01f), true, false));
+                scene.AddIllustration(new Menu.MenuIllustration(scene.menu, scene, string.Empty, $"Title_{regionAcronym}", new Vector2(0.01f, 0.01f), true, false));
                 scene.flatIllustrations[scene.flatIllustrations.Count - 1].sprite.shader = scene.menu.manager.rainWorld.Shaders["MenuText"];
             }
 
         }
 
-        private static global::Menu.MenuScene.SceneID Region_GetRegionLandscapeScene(On.Region.orig_GetRegionLandscapeScene orig, string regionAcro)
+        private static Menu.MenuScene.SceneID Region_GetRegionLandscapeScene(On.Region.orig_GetRegionLandscapeScene orig, string regionAcro)
         {
             CustomStaticCache.CheckForRefresh();
 
             CustomRegionsMod.CustomLog("trying to load Landscape_" + regionAcro);
-            if (ExtEnumBase.TryParse(typeof(global::Menu.MenuScene.SceneID), "Landscape_" + regionAcro, false, out ExtEnumBase result)) {
-                return (global::Menu.MenuScene.SceneID) result;
+            if (ExtEnumBase.TryParse(typeof(Menu.MenuScene.SceneID), "Landscape_" + regionAcro, false, out ExtEnumBase result)) {
+                return (Menu.MenuScene.SceneID) result;
             }
             return orig(regionAcro);
         }

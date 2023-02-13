@@ -22,7 +22,7 @@ namespace CustomRegions.Mod
 
         public static void CheckForRefresh(bool forceRefresh = false)
         {
-            CustomRegionsMod.CustomLog("Checking if story regions need refresh", false, CustomRegionsMod.DebugLevel.FULL);
+            //CustomRegionsMod.CustomLog("Checking if story regions need refresh", false, CustomRegionsMod.DebugLevel.FULL);
 
             //why does SequenceEquals throw an exception the first time, the list should be initialized
             if (!forceRefresh)
@@ -31,9 +31,9 @@ namespace CustomRegions.Mod
                 {
                     forceRefresh = !currentRegionOrder.SequenceEqual(Region.GetFullRegionOrder());
                 }
-                catch { forceRefresh = true; }
+                catch (Exception e) { forceRefresh = true; CustomRegionsMod.CustomLog($"Exception while refreshing! {e}"); }
             }
-
+             
             if (forceRefresh)
             {
                 Refresh();
@@ -42,7 +42,7 @@ namespace CustomRegions.Mod
 
         public static void Refresh()
         {
-            CustomRegionsMod.CustomLog("refreshing", false, CustomRegionsMod.DebugLevel.MEDIUM);
+            CustomRegionsMod.CustomLog("--- Refreshing CRS ---", false, CustomRegionsMod.DebugLevel.MEDIUM);
 
             currentRegionOrder = Region.GetFullRegionOrder();
             try { RegenerateLists(); } catch { CustomRegionsMod.CustomLog("Failed to regenerate story lists", true); }
@@ -63,6 +63,8 @@ namespace CustomRegions.Mod
                 foreach (string slugString in SlugcatStats.Name.values.entries)
                 {
                     SlugcatStats.Name slug = (SlugcatStats.Name)ExtEnumBase.Parse(typeof(SlugcatStats.Name), slugString, false);
+                    //if (SlugcatStats.HiddenOrUnplayableSlugcat(slug)) continue;
+
                     CustomStoryRegions.Add(slug, new List<string>());
                     CustomOptionalRegions.Add(slug, new List<string>());
                 }

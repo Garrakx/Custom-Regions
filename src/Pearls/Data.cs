@@ -28,7 +28,7 @@ namespace CustomRegions.CustomPearls
         {
             try
             {
-                CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl2>();
+                CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl>();
                 foreach (string str in AssetManager.ListDirectory("CustomPearls"))
                 {
                     string fileName = Path.GetFileName(str);
@@ -42,11 +42,11 @@ namespace CustomRegions.CustomPearls
 
 
                     string[] array = Regex.Split(File.ReadAllText(AssetManager.ResolveFilePath("CustomPearls" + Path.DirectorySeparatorChar + fileName)), " : ");
-                    UnityEngine.Color color = RWCustom.Custom.hexToColor(array[0]);
-                    UnityEngine.Color colorHighlight = RWCustom.Custom.hexToColor(array[1]);
+                    Color color = RWCustom.Custom.hexToColor(array[0]);
+                    Color colorHighlight = RWCustom.Custom.hexToColor(array[1]);
                     string filePath = array[2];
 
-                    CustomPearl2 pearl = new CustomPearl2(type, color, colorHighlight, filePath, RegisterConversations(pearlName));
+                    CustomPearl pearl = new CustomPearl(type, color, colorHighlight, filePath, RegisterConversations(pearlName));
                     CustomDataPearlsList.Add(type, pearl);
                 }
             }
@@ -57,7 +57,7 @@ namespace CustomRegions.CustomPearls
         {
             try
             {
-                foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl2> pearl in CustomDataPearlsList)
+                foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> pearl in CustomDataPearlsList)
                 {
                     if (pearl.Value.type != null)
                     {
@@ -70,7 +70,7 @@ namespace CustomRegions.CustomPearls
                     }
                 }
 
-                CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl2>();
+                CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl>();
             }
             catch (Exception e) { throw e; }
         }
@@ -86,7 +86,7 @@ namespace CustomRegions.CustomPearls
         }
 
 
-        public static Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl2> CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl2>();
+        public static Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl>();
 
 
     }

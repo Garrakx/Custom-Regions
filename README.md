@@ -2,25 +2,37 @@
 # Custom Regions Support
 ***
 ## Adds various meta features to custom regions
+![Custom Regions!](./Images/CRS_thumb.png)
+
+## <a name="index"></a>Index
+
+### <a name="HOW TO COMPILE"></a>How to compile
+1. Place references in "lib" folder
+
+Creating the System Variable:
+2. type env in the windows search bar, 
+3. choose the first one
+4. Press n
+5. add a new system variable called `RainWorldDir`
 
 ### <a name="FEATURES"></a>Feature List
 
-* **-Custom Procedural Music**  
+* **Custom Procedural Music**  
 (Add just like vanilla does)
 
 
-* **-Region Landscape Art**  
+* **Region Landscape Art**  
 Uses a new config file with the same name as landscape folder 
 to assign depths and optionally shaders - old depths file will still work.
 
 
-* **-Custom Level Unlocks**  
+* **Custom Level Unlocks**  
 Same as before but customUnlocks.txt goes in the root mods folder instead of the Levels folder  
 (don't want the game trying to load it as an arena)  
 
-* **-Add Region to Story Regions (used for Wanderer requirements)**  
-* **-Add Region to Optional Regions (visitable and has Safari menu)**  
-* **-Remove Region from Safari Menu (active by default)**  
+* **Add Region to Story Regions (used for Wanderer requirements)**  
+* **Add Region to Optional Regions (visitable and has Safari menu)**  
+* **Remove Region from Safari Menu (active by default)**  
 
 The above are assigned with the new MetaProperties.txt  
 Which goes in World\XX  

@@ -3,7 +3,7 @@ using BepInEx;
 using UnityEngine;
 using System.IO;
 using RWCustom;
-
+using System.Collections.Generic;
 
 using System.Security;
 using System.Security.Permissions;
@@ -13,6 +13,7 @@ using System.Security.Permissions;
 
 namespace CustomRegions.Mod
 {
+
     [BepInPlugin(PLUGIN_ID, PLUGIN_NAME, PLUGIN_VERSION)]
     public class CustomRegionsMod : BaseUnityPlugin
     {
@@ -27,14 +28,18 @@ namespace CustomRegions.Mod
         public static BepInEx.Logging.ManualLogSource bepLog => instance.Logger;
         public static Configurable<bool> cfgEven;
 
+        public const string logFileName = "crsLog.txt";
+
         public void Awake()
         {
             instance = this;
-            CreateCustomWorldLog();
+
+            // remove this
+            //CreateCustomWorldLog(); this can't be called until Custom.RootFolderDirectory() is filled, wait for onmodsinit
 
             On.RainWorld.OnModsInit += RainWorld_OnModsInit;
             On.RainWorld.PostModsInit += RainWorld_PostModsInit;
-            BepLog($"Test {PLUGIN_NAME} (v{PLUGIN_VERSION}) initialized, applying hooks...");
+            BepLog($"{PLUGIN_NAME} (v{PLUGIN_VERSION}) initialized, applying hooks...");
 
             try {
                 CustomMenu.RegionLandscapes.ApplyHooks();
@@ -44,6 +49,7 @@ namespace CustomRegions.Mod
                 CustomPearls.DataPearlColors.ApplyHooks();
                 CustomPearls.CustomConvo.ApplyHooks();
                 RainWorldHooks.ApplyHooks();
+                CustomWorld.WorldLoaderHook.ApplyHooks();
             } catch (Exception ex) {
                 BepLogError("Error while applying Hooks: " + ex.ToString());
             }
@@ -57,6 +63,7 @@ namespace CustomRegions.Mod
             init = true;
             //OptionInterface oi = MachineConnector.GetRegisteredOI("bubbleweedsaver");
             //cfgEven = oi.config.Bind<bool>("EvenUse", true, new ConfigurableInfo("Whether to use multiple BubbleGrasses evenly or not. Either use all BubbleGrasses in divided speed(true) or use one BubbleGrass at a time(false)."));
+            CreateCustomWorldLog();
             CustomLog("Mod is Initialized.");
         }
 
@@ -90,14 +97,14 @@ namespace CustomRegions.Mod
 
         public static void CustomLog(string logText)
         {
-            if (!File.Exists(Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + "crsLog.txt")) {
+            if (!File.Exists(Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + logFileName)) {
                 CreateCustomWorldLog();
             }
 
-            Debug.Log(logText);
+            //Debug.Log(logText);
 
             try {
-                using (StreamWriter file = new StreamWriter(Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + "crsLog.txt", true)) {
+                using (StreamWriter file = new StreamWriter(Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + logFileName, true)) {
                     file.WriteLine(logText);
                 }
             } catch (Exception e) {
@@ -123,10 +130,18 @@ namespace CustomRegions.Mod
                 CustomLog(logText, throwException);
             }
         }
+
+        public static void CustomLog(string logText, DebugLevel minDebugLevel)
+        {
+            if (minDebugLevel <= debugLevel) {
+                CustomLog(logText, false);
+            }
+        }
+
         public static void CreateCustomWorldLog()
         {
             //TODO: Add Date!
-            using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + Path.DirectorySeparatorChar.ToString() + "crsLog.txt")) {
+            using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + Path.DirectorySeparatorChar.ToString() + logFileName)) {
                 sw.WriteLine($"############################################\n Custom World Log {versionCR} [DEBUG LEVEL: {debugLevel}]\n");
             }
         }
@@ -134,6 +149,7 @@ namespace CustomRegions.Mod
         public enum DebugLevel { RELEASE, MEDIUM, FULL }
 
         public static DebugLevel debugLevel = DebugLevel.FULL;
-
+        internal static string analyzingLog;
+        internal static IEnumerable<object> regionPreprocessors;
     }
 }
