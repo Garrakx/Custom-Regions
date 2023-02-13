@@ -17,7 +17,6 @@ to assign depths and optionally shaders - old depths file will still work.
 * **-Custom Level Unlocks**  
 Same as before but customUnlocks.txt goes in the root mods folder instead of the Levels folder  
 (don't want the game trying to load it as an arena)  
-(this implementation *will* change...)  
 
 * **-Add Region to Story Regions (used for Wanderer requirements)**  
 * **-Add Region to Optional Regions (visitable and has Safari menu)**  
@@ -48,36 +47,3 @@ make a region accessible to every slug is to
 
 Because this is only not available to a slug that doesn't exist  
 (I need to change the implementation of this lol)  
-
-* **-Custom Pearls**  
-
-Add a folder in your regionpack called 'CustomPearls'  
-inside it, put a file with your pearl's name  
-and with the contents of the file being  
-
-    Color : HighlightColor : ConvoFileName  
-
-and then inside Text\text-eng\ (or another language)  
-put the file with the pearl conversation in with the old formatting  
-
-Here's what this might look like  
-
-    oldnewhorizons\CustomPearls
-        CF_Intake.txt
-            eae275 : fbff00 : ONH1
-            
-        OS_Refinery.txt
-            F28130 : f4ea7a : ONH2
-            
-    oldnewhorizons\text\text_eng
-        ONH1.txt
-            0-46
-            First line of the first text box.<LINE>Second line of the first text box.
-            This line will be shown in a second text box!
-            
-        ONH2.txt
-            0-118
-            The 2nd number in the 1st line literally doesn't matter rn
-            I removed that check because it's annoying
-    
-
