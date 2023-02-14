@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using static CustomRegions.Mod.Structs;
 using static CustomRegions.CustomPearls.Data;
+using CustomRegions.Mod;
 
 namespace CustomRegions.CustomPearls
 {
@@ -47,8 +48,9 @@ namespace CustomRegions.CustomPearls
         {
             try
             {
-                DataPearl.AbstractDataPearl.DataPearlType pearlType = (self.abstractPhysicalObject as DataPearl.AbstractDataPearl).dataPearlType;
                 orig(self, sLeaser, rCam, palette);
+
+                DataPearl.AbstractDataPearl.DataPearlType pearlType = (self.abstractPhysicalObject as DataPearl.AbstractDataPearl).dataPearlType;
 
                 if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl customPearl))
                 {

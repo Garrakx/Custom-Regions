@@ -5,6 +5,12 @@ using System.IO;
 using RWCustom;
 using System.Collections.Generic;
 
+using System.Security;
+using System.Security.Permissions;
+[module: UnverifiableCode]
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
+
+
 namespace CustomRegions.Mod
 {
 
@@ -41,6 +47,7 @@ namespace CustomRegions.Mod
                 ArenaUnlocks.UnlockEnum.ApplyHooks();
                 Progression.StoryRegionsMod.ApplyHooks();
                 CustomPearls.DataPearlColors.ApplyHooks();
+                CustomPearls.CustomConvo.ApplyHooks();
                 RainWorldHooks.ApplyHooks();
                 CustomWorld.WorldLoaderHook.ApplyHooks();
             } catch (Exception ex) {
