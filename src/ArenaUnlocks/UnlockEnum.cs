@@ -51,6 +51,39 @@ namespace CustomRegions.ArenaUnlocks
             } catch (Exception e) { throw e; }
         }
 
+        public static void RegisterArenaUnlocks2()
+        {
+            //I'm in the middle of rewriting this
+            foreach (string str in AssetManager.ListDirectory("CustomPearls"))
+            {
+                string fileName = Path.GetFileName(str);
+                string pearlName = Path.GetFileNameWithoutExtension(str);
+
+                if (!File.Exists(fileName)) continue;
+
+                string[] levelNames;
+                try
+                {
+                    levelNames = Regex.Split(File.ReadAllText(fileName).Replace(" ", ""), ",");
+                }
+                catch (Exception e)
+                {
+                    CustomRegionsMod.CustomLog("Error loading levelUnlock name" + e, true);
+                    continue;
+                }
+
+                    MultiplayerUnlocks.LevelUnlockID type;
+
+                if (ExtEnumBase.TryParse(typeof(MultiplayerUnlocks.LevelUnlockID), Path.GetFileNameWithoutExtension(str), false, out ExtEnumBase result))
+                { type = (MultiplayerUnlocks.LevelUnlockID)result; }
+
+                else { type = new MultiplayerUnlocks.LevelUnlockID(str, true); }
+                
+
+
+            }
+        }
+
         public static void RegisterArenaUnlocks()
         {
             foreach (string path2 in AssetManager.ListDirectory("", false, true)) {

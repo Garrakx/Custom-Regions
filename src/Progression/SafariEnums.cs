@@ -21,12 +21,16 @@ namespace CustomRegions.Progression
                 if (Region.GetFullRegionOrder() == null) { return; }
 
                 CustomStaticCache.CheckForRefresh();
-                foreach (string regionName in Region.GetFullRegionOrder()) {
-                    CustomRegionsMod.CustomLog($"[SAFARI UNLOCKS] Checking if region [{regionName}] has safari unlock...", CustomRegionsMod.DebugLevel.FULL);
-                    if (!CustomStaticCache.NoSafariRegions.Contains(regionName) && !MultiplayerUnlocks.SafariUnlockID.values.entries.Contains(regionName)) {
-                        CustomRegionsMod.CustomLog($"[SAFARI UNLOCKS] unlock is found for [{regionName}]");
-                        CustomSafariUnlocks.Add(new MultiplayerUnlocks.SafariUnlockID(regionName, true));
-                    } else { CustomRegionsMod.CustomLog("[SAFARI UNLOCKS] No safari unlock found or already exists", CustomRegionsMod.DebugLevel.FULL); }
+                foreach (string regionName in CustomStaticCache.SafariRegions)
+                {
+                    if (MultiplayerUnlocks.SafariUnlockID.values.entries.Contains(regionName))
+                    { 
+                        CustomRegionsMod.CustomLog($"[SAFARI UNLOCKS] region [{regionName}] already has safari unlock"); 
+                        continue; 
+                    }
+
+                    CustomRegionsMod.CustomLog($"[SAFARI UNLOCKS] unlock is found for [{regionName}]");
+                    CustomSafariUnlocks.Add(new MultiplayerUnlocks.SafariUnlockID(regionName, true));
                 }
             } catch (Exception e) { throw e; }
         }
