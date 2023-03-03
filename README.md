@@ -1,4 +1,5 @@
-
+## Warning! You are seeing the *legacy* version of CRS (Rain World v1.5), for the Downpour/RW v1.9, please visit [here](https://github.com/Garrakx/Custom-Regions/tree/dp-release)!
+***
 # Custom Regions Support
 ***
 ## Lets you install and browse region packs without modifying the base game's files and more. It works by automerging the world files at runtime and rerouting accesses to rooms
