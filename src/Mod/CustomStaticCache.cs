@@ -16,7 +16,7 @@ namespace CustomRegions.Mod
 
         public static Dictionary<SlugcatStats.Name, List<string>> CustomOptionalRegions = new Dictionary<SlugcatStats.Name, List<string>>();
 
-        public static List<string> NoSafariRegions = new List<string>();
+        public static List<string> SafariRegions = new List<string>();
 
         static List<string> currentRegionOrder = new List<string>();
 
@@ -58,7 +58,7 @@ namespace CustomRegions.Mod
 
                 CustomStoryRegions = new Dictionary<SlugcatStats.Name, List<string>>();
                 CustomOptionalRegions = new Dictionary<SlugcatStats.Name, List<string>>();
-                NoSafariRegions = new List<string>();
+                SafariRegions = new List<string>();
 
                 foreach (string slugString in SlugcatStats.Name.values.entries)
                 {
@@ -68,8 +68,6 @@ namespace CustomRegions.Mod
                     CustomStoryRegions.Add(slug, new List<string>());
                     CustomOptionalRegions.Add(slug, new List<string>());
                 }
-
-                NoSafariRegions.Add("HR");
 
                 foreach (string regionName in Region.GetFullRegionOrder())
                 {
@@ -87,11 +85,37 @@ namespace CustomRegions.Mod
 
                     foreach (string line in File.ReadAllLines(path))
                     {
-                        if (line == "NoSafari")
+                        if (line == "Safari")
                         {
-                            CustomRegionsMod.CustomLog("No safari unlock for this region", false, CustomRegionsMod.DebugLevel.FULL);
-                            NoSafariRegions.Add(regionName);
+                            CustomRegionsMod.CustomLog("safari unlock for this region", false, CustomRegionsMod.DebugLevel.FULL);
+                            SafariRegions.Add(regionName);
                             continue;
+                        }
+
+                        else if (line == "Story")
+                        {
+                            CustomRegionsMod.CustomLog($"Story region for [ALL]", false, CustomRegionsMod.DebugLevel.FULL);
+                            foreach (string slugString in SlugcatStats.Name.values.entries)
+                            {
+                                SlugcatStats.Name slugName = (SlugcatStats.Name)ExtEnumBase.Parse(typeof(SlugcatStats.Name), slugString, false);
+                                if (CustomStoryRegions[slugName].Contains(regionName) || CustomOptionalRegions[slugName].Contains(regionName))
+                                { continue; }
+
+                                CustomStoryRegions[slugName].Add(regionName);
+                            }
+                        }
+
+                        else if (line == "Optional")
+                        {
+                            CustomRegionsMod.CustomLog($"Optional region for [ALL]", false, CustomRegionsMod.DebugLevel.FULL);
+                            foreach (string slugString in SlugcatStats.Name.values.entries)
+                            {
+                                SlugcatStats.Name slugName = (SlugcatStats.Name)ExtEnumBase.Parse(typeof(SlugcatStats.Name), slugString, false);
+                                if (CustomStoryRegions[slugName].Contains(regionName) || CustomOptionalRegions[slugName].Contains(regionName))
+                                { continue; }
+
+                                CustomOptionalRegions[slugName].Add(regionName);
+                            }
                         }
 
                         bool inverted = false;
@@ -111,19 +135,22 @@ namespace CustomRegions.Mod
                         {
                             foreach (string slugString in SlugcatStats.Name.values.entries)
                             {
+                                SlugcatStats.Name slugName = (SlugcatStats.Name)ExtEnumBase.Parse(typeof(SlugcatStats.Name), slugString, false);
+                                if (CustomStoryRegions[slugName].Contains(regionName) || CustomOptionalRegions[slugName].Contains(regionName))
+                                { continue; }
+
                                 if ((str == slugString) == !inverted)
                                 {
                                     if (array[1] == "Story")
                                     {
                                         CustomRegionsMod.CustomLog($"Story region for [{slugString}]", false, CustomRegionsMod.DebugLevel.FULL);
-                                        CustomStoryRegions[(SlugcatStats.Name)ExtEnumBase.Parse(typeof(SlugcatStats.Name), slugString, false)].Add(regionName);
+                                        CustomStoryRegions[slugName].Add(regionName);
 
                                     }
                                     else if (array[1] == "Optional")
                                     {
                                         CustomRegionsMod.CustomLog($"Optional region for [{slugString}]", false, CustomRegionsMod.DebugLevel.FULL);
-                                        CustomStoryRegions[(SlugcatStats.Name)ExtEnumBase.Parse(typeof(SlugcatStats.Name), slugString, false)].Add(regionName);
-
+                                        CustomStoryRegions[slugName].Add(regionName);
                                     }
 
                                 }

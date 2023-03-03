@@ -27,41 +27,53 @@ namespace CustomRegions.CustomPearls
 
         public static void EncryptCustomDialogue(string fileName)
         {
-            for (int j = 0; j < ExtEnum<InGameTranslator.LanguageID>.values.Count; j++)
+            for (int i = 0; i < ExtEnum<InGameTranslator.LanguageID>.values.Count; i++)
             {
-                InGameTranslator.LanguageID languageID = InGameTranslator.LanguageID.Parse(j);
-                string pathToConvo = AssetManager.ResolveFilePath("Text"+ Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort(languageID) +
-                    Path.DirectorySeparatorChar + fileName + ".txt");
-                int hash = fileName.GetHashCode();
+                InGameTranslator.LanguageID languageID = InGameTranslator.LanguageID.Parse(i);
 
-                string convoLines = File.ReadAllText(pathToConvo, Encoding.Default);
-                //Log($"Conversation file: [{convoLines}]");
-                if (convoLines[0] == '0')
+                for (int j = -1; j < ExtEnum<SlugcatStats.Name>.values.Count; j++)
                 {
-                    convoLines = Regex.Replace(convoLines, @"\r\n|\r|\n", "\r\n");
-                    string[] lines = Regex.Split(convoLines, Environment.NewLine);
-                    CustomRegionsMod.CustomLog($"Encrypting file [{Path.GetFileNameWithoutExtension(pathToConvo)}.txt]. " +
-                        $"Number of lines [{lines.Length}]");
+                    string pathToConvo = AssetManager.ResolveFilePath("Text" + Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort(languageID) +
+                        Path.DirectorySeparatorChar + fileName + ".txt");
 
-                    if (lines.Length > 1)
+                    if (j >= 0)
                     {
-                        string text4 = Custom.xorEncrypt(convoLines, 54 + hash + InGameTranslator.LanguageID.EncryptIndex(languageID) * 7);
-                        text4 = '1' + text4.Remove(0, 1);
-                        File.WriteAllText(pathToConvo, text4);
+                        pathToConvo = AssetManager.ResolveFilePath("Text" + Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort(languageID) +
+                        Path.DirectorySeparatorChar + fileName + "-" + SlugcatStats.Name.values.entries[j] + ".txt");
                     }
+
+                    int hash = fileName.GetHashCode();
+
+                    if (!File.Exists(pathToConvo)) continue;
+
+                    string convoLines = File.ReadAllText(pathToConvo, Encoding.Default);
+                    //Log($"Conversation file: [{convoLines}]");
+                    if (convoLines[0] == '0')
+                    {
+                        convoLines = Regex.Replace(convoLines, @"\r\n|\r|\n", "\r\n");
+                        string[] lines = Regex.Split(convoLines, Environment.NewLine);
+                        CustomLog($"Encrypting file [{Path.GetFileNameWithoutExtension(pathToConvo)}.txt]. " +
+                            $"Number of lines [{lines.Length}]");
+
+                        if (lines.Length > 1)
+                        {
+                            string text4 = Custom.xorEncrypt(convoLines, 54 + hash + InGameTranslator.LanguageID.EncryptIndex(languageID) * 7);
+                            text4 = '1' + text4.Remove(0, 1);
+                            File.WriteAllText(pathToConvo, text4);
+                        }
+                        else
+                        {
+                            CustomLog($"Failed encrypting. No newLine character found while encrypting. " +
+                                $"Try removing all new lines and pressing enter to separate them.", true);
+                        }
+                    }
+
                     else
                     {
-                        CustomRegionsMod.CustomLog($"Failed encrypting. No newLine character found while encrypting. " +
-                            $"Try removing all new lines and pressing enter to separate them.", true);
+                        CustomLog($"Convo already encrypted: [{LocalizationTranslator.LangShort(languageID)}] ({fileName})", false, DebugLevel.FULL);
                     }
+
                 }
-
-                else
-                {
-                    CustomRegionsMod.CustomLog($"Convo already encrypted: [{LocalizationTranslator.LangShort(languageID)}] ({fileName})", false, DebugLevel.FULL);
-                }
-
-
             }
         }
 
@@ -69,7 +81,7 @@ namespace CustomRegions.CustomPearls
         {
             if (saveFile == null) { saveFile = self.currentSaveFile; }
 
-            CustomRegionsMod.CustomLog("~~~LOAD CONVO " + fileName);
+            CustomLog("~~~LOAD CONVO " + fileName);
             InGameTranslator.LanguageID languageID = self.interfaceOwner.rainWorld.inGameTranslator.currentLanguage;
             string text;
             for (; ; )
@@ -96,12 +108,12 @@ namespace CustomRegions.CustomPearls
                 {
                     goto IL_117;
                 }
-                CustomRegionsMod.CustomLog("NOT FOUND " + text);
-                if (!(languageID != InGameTranslator.LanguageID.English))
+                CustomLog("NOT FOUND " + text);
+                if (languageID == InGameTranslator.LanguageID.English)
                 {
                     break;
                 }
-                CustomRegionsMod.CustomLog("RETRY WITH ENGLISH");
+                CustomLog("RETRY WITH ENGLISH");
                 languageID = InGameTranslator.LanguageID.English;
             }
             return;
@@ -179,7 +191,7 @@ namespace CustomRegions.CustomPearls
             }
             catch
             {
-                CustomRegionsMod.CustomLog("TEXT ERROR");
+                CustomLog("TEXT ERROR");
                 self.events.Add(new Conversation.TextEvent(self, 0, "TEXT ERROR", 100));
             }
         }
