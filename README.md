@@ -1,8 +1,8 @@
 
-# Custom Regions Support
+# Custom Regions Support (CRS)
 ***
-## Adds various meta features to custom regions
-![Custom Regions!](./Images/CRS_thumb.png)
+## Adds various meta features to Custom Regions
+![Custom Regions!](./assets/thumbnail.png)
 
 ## <a name="index"></a>Index
 
