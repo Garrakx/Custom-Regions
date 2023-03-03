@@ -1,5 +1,5 @@
 
-## Warning! You are seeing the *alpha* version of CRS (Rain World v1.9 / Downpour), for the legacy version (v1-5), please visit [here](https://github.com/Garrakx/Custom-Regions)!
+## Warning! You are seeing the *alpha* version of CRS (Rain World v1.9 / Downpour), for the legacy version (v1.5), please visit [here](https://github.com/Garrakx/Custom-Regions)!
 ***
 # Custom Regions Support (CRS)
 ***
