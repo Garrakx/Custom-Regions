@@ -29,28 +29,28 @@ namespace CustomRegions.CustomPearls
             try
             {
                 CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl>();
-                foreach (string str in AssetManager.ListDirectory("CustomPearls"))
+                CustomRegionsMod.CustomLog("pearl path is " + AssetManager.ResolveFilePath("CustomPearls.txt"));
+                foreach (string str in File.ReadAllLines(AssetManager.ResolveFilePath("CustomPearls.txt")))
                 {
-                    string fileName = Path.GetFileName(str);
-                    string pearlName = Path.GetFileNameWithoutExtension(str);
-                    CustomRegionsMod.CustomLog("Pearl text name is " + fileName);
+                    string[] array = Regex.Split(str, " : ");
+                    string pearlName = array[0];
+                    CustomRegionsMod.CustomLog("Pearl text name is " + pearlName);
 
-                    if (ExtEnumBase.TryParse(typeof(DataPearl.AbstractDataPearl.DataPearlType), Path.GetFileNameWithoutExtension(str), false, out _))
+                    if (ExtEnumBase.TryParse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearlName, false, out _))
                     { continue; }
 
                     DataPearl.AbstractDataPearl.DataPearlType type = RegisterPearlType(pearlName);
 
 
-                    string[] array = Regex.Split(File.ReadAllText(AssetManager.ResolveFilePath("CustomPearls" + Path.DirectorySeparatorChar + fileName)), " : ");
-                    Color color = RWCustom.Custom.hexToColor(array[0]);
-                    Color colorHighlight = RWCustom.Custom.hexToColor(array[1]);
-                    string filePath = array[2];
+                    Color color = RWCustom.Custom.hexToColor(array[1]);
+                    Color colorHighlight = RWCustom.Custom.hexToColor(array[2]);
+                    string filePath = array[3];
 
                     CustomPearl pearl = new CustomPearl(type, color, colorHighlight, filePath, RegisterConversations(pearlName));
                     CustomDataPearlsList.Add(type, pearl);
                 }
             }
-            catch (Exception e) { throw e; }
+            catch (Exception e) { CustomRegionsMod.CustomLog("Error loading custom pearls" + e, true); }
         }
 
         public static void Unregister()
