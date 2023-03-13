@@ -7,6 +7,8 @@ using System.Collections.Generic;
 
 using System.Security;
 using System.Security.Permissions;
+using CustomRegions.CustomWorld;
+
 [module: UnverifiableCode]
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 
@@ -64,6 +66,7 @@ namespace CustomRegions.Mod
             //OptionInterface oi = MachineConnector.GetRegisteredOI("bubbleweedsaver");
             //cfgEven = oi.config.Bind<bool>("EvenUse", true, new ConfigurableInfo("Whether to use multiple BubbleGrasses evenly or not. Either use all BubbleGrasses in divided speed(true) or use one BubbleGrass at a time(false)."));
             CreateCustomWorldLog();
+            RegionPreprocessors.InitializeBuiltinPreprocessors();
             CustomLog("Mod is Initialized.");
         }
 
