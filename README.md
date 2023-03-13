@@ -1,4 +1,3 @@
-
 ***
 # Custom Regions Support
 ***
@@ -127,3 +126,39 @@ Same goes for optional regions.
 
 Safari can't have slugcat conditional syntax,  
 as it uses Story\Optional regions for slug-accessibility.  
+
+* **Region Conditional Lines**  
+A line can be excluded if it doesn't match defined conditions.  
+The current available conditions are:  
+-Is MSC enabled?  
+-Is a specific region acronym present?  
+-Is a specific modID active?  
+
+The formatting looks like this  
+
+    {MSC}SU_C04 : SU_CAVE01, SU_PC01, SU_A41
+    {!MSC}SU_C04 : DISCONNECTED, SU_PC01, SU_A41
+
+Put an ! anywhere in the condition to invert it  
+which in this case makes the 1st line happen if MSC is active  
+and the 2nd line happen if MSC is not active  
+
+Conditions can be stacked, like so  
+
+    //this line happens if AR is a region but TR isn't
+    {AR,!TR} 
+    
+    //this line happens if MSC isn't active and PC is a region
+    {!MSC,PC} 
+    
+    //# is used as the first character to mark it as an id
+    {#!lb-fgf-m4r-ik.coral-reef} 
+    
+    //all of these can be applied to creatures as well
+    //useful for soft creature dependencies
+    {#lb-fgf-m4r-ik.coral-reef}OS_D09 : 3-Polliwog-2
+    {#!lb-fgf-m4r-ik.coral-reef}OS_D09 : 3-Salamander
+    
+    //when combined with slug conditions, the slugcat should come first
+    (White,Yellow){MSC}VI_A19 : 2-Yeek-3
+    (White,Yellow){!MSC}VI_A19 : 2-CicadaB-3

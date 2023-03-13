@@ -87,6 +87,33 @@ namespace CustomRegions.CustomWorld
             return Region.GetFullRegionOrder().Contains(condition) == notInverted;
         }
 
+
+        public static bool ModIDCondition(string condition)
+        {
+            bool notInverted = true;
+            if (condition.Contains('!'))
+            {
+                notInverted = false;
+                condition.Remove('!');
+            }
+
+            if (condition[0] != '#') return true;
+            condition = condition.Substring(1);
+
+            bool modIDExists = false;
+
+            foreach (ModManager.Mod mod in ModManager.ActiveMods)
+            {
+                if (mod.id == condition)
+                {
+                    modIDExists = true;
+                    break;
+                }
+            }
+
+            return modIDExists == notInverted;
+        }
+
         public static void InitializeBuiltinPreprocessors()
         {
             regionPreprocessors = new List<RegionPreprocessor>();
@@ -96,6 +123,7 @@ namespace CustomRegions.CustomWorld
 
             customConditions.Add(MSCCondition);
             customConditions.Add(RegionExistsCondition);
+            customConditions.Add(ModIDCondition);
         }
     }
 }
