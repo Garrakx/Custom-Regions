@@ -50,7 +50,6 @@ namespace CustomRegions.ArenaUnlocks
 
         public static void RegisterArenaUnlocks2()
         {
-            //I'm in the middle of rewriting this
             foreach (string line in File.ReadAllLines(AssetManager.ResolveFilePath("CustomUnlocks.txt")))
             {
                 if (line.Equals(string.Empty))
