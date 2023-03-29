@@ -35,7 +35,7 @@ namespace CustomRegions.ArenaUnlocks
         public static void RefreshArenaUnlocks()
         {
             UnregisterArenaUnlocks();
-            RegisterArenaUnlocks2();
+            RegisterArenaUnlocks();
         }
 
         public static void UnregisterArenaUnlocks()
@@ -48,7 +48,7 @@ namespace CustomRegions.ArenaUnlocks
             } catch (Exception e) { throw e; }
         }
 
-        public static void RegisterArenaUnlocks2()
+        public static void RegisterArenaUnlocks()
         {
             foreach (string line in File.ReadAllLines(AssetManager.ResolveFilePath("CustomUnlocks.txt")))
             {
