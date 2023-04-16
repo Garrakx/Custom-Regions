@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static CustomRegions.CustomWorld.RegionPreprocessors;
 using static CustomRegions.Mod.Structs;
 
 namespace CustomRegions.CustomWorld
@@ -95,6 +96,15 @@ namespace CustomRegions.CustomWorld
         private static void WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues(On.WorldLoader.orig_ctor_RainWorldGame_Name_bool_string_Region_SetupValues orig, WorldLoader self, RainWorldGame game, SlugcatStats.Name playerCharacter, bool singleRoomWorld, string worldName, Region region, RainWorldGame.SetupValues setupValues)
         {
             orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues);
+
+            RegionInfo regionInfo = new RegionInfo();
+            regionInfo.RegionID = region.name;
+            regionInfo.Lines = self.lines;
+
+            foreach (RegionPreprocessor filter in regionPreprocessors)
+            { filter(regionInfo); }
+
+            self.lines = regionInfo.Lines;
 
             var analyzedLines = GetWorldLines(self);
 

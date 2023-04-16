@@ -41,30 +41,46 @@ namespace CustomRegions.ArenaUnlocks
         public static void UnregisterArenaUnlocks()
         {
             try {
-                foreach (KeyValuePair<string, MultiplayerUnlocks.LevelUnlockID> unlock in customLevelUnlocks) {
-                    if (unlock.Value != null) {
-                        unlock.Value.Unregister();
-                    }
-                }
+                foreach (KeyValuePair<string, MultiplayerUnlocks.LevelUnlockID> unlock in customLevelUnlocks) 
+                { unlock.Value?.Unregister(); }
 
                 customLevelUnlocks = new Dictionary<string, MultiplayerUnlocks.LevelUnlockID>();
             } catch (Exception e) { throw e; }
         }
 
-        public static void RegisterArenaUnlocks2()
+        public static void RegisterArenaUnlocks()
         {
-            //I'm in the middle of rewriting this
-            foreach (string str in AssetManager.ListDirectory("CustomPearls"))
+            foreach (string line in File.ReadAllLines(AssetManager.ResolveFilePath("CustomUnlocks.txt")))
             {
-                string fileName = Path.GetFileName(str);
-                string pearlName = Path.GetFileNameWithoutExtension(str);
-
-                if (!File.Exists(fileName)) continue;
-
+                if (line.Equals(string.Empty))
+                {
+                    // Line empty, skip
+                    continue;
+                }
+                string[] lineDivided = Regex.Split(line, " : ");
+                MultiplayerUnlocks.LevelUnlockID unlockID;
                 string[] levelNames;
+
                 try
                 {
-                    levelNames = Regex.Split(File.ReadAllText(fileName).Replace(" ", ""), ",");
+                    if (ExtEnumBase.TryParse(typeof(MultiplayerUnlocks.LevelUnlockID), lineDivided[0], false, out ExtEnumBase result))
+                    {
+                        unlockID = (MultiplayerUnlocks.LevelUnlockID)result;
+                    }
+                    else
+                    {
+                        unlockID = new MultiplayerUnlocks.LevelUnlockID(lineDivided[0], true);
+                    }
+                }
+                catch (Exception e)
+                {
+                    CustomRegionsMod.CustomLog("Error loading levelUnlock ID" + e, true);
+                    continue;
+                }
+
+                try
+                {
+                    levelNames = Regex.Split(lineDivided[1].Replace(" ", ""), ",");
                 }
                 catch (Exception e)
                 {
@@ -72,67 +88,29 @@ namespace CustomRegions.ArenaUnlocks
                     continue;
                 }
 
-                    MultiplayerUnlocks.LevelUnlockID type;
-
-                if (ExtEnumBase.TryParse(typeof(MultiplayerUnlocks.LevelUnlockID), Path.GetFileNameWithoutExtension(str), false, out ExtEnumBase result))
-                { type = (MultiplayerUnlocks.LevelUnlockID)result; }
-
-                else { type = new MultiplayerUnlocks.LevelUnlockID(str, true); }
-                
-
-
-            }
-        }
-
-        public static void RegisterArenaUnlocks()
-        {
-            foreach (string path2 in AssetManager.ListDirectory("", false, true)) {
-
-                if (!File.Exists(path2) || Path.GetFileName(path2) != "customunlocks.txt") { continue; }
-
-                foreach (string line in File.ReadAllLines(path2)) {
-                    if (line.Equals(string.Empty)) {
-                        // Line empty, skip
-                        continue;
-                    }
-                    string[] lineDivided = Regex.Split(line, " : ");
-                    MultiplayerUnlocks.LevelUnlockID unlockID;
-                    string[] levelNames;
-
-                    try {
-                        if (ExtEnumBase.TryParse(typeof(MultiplayerUnlocks.LevelUnlockID), lineDivided[0], false, out ExtEnumBase result)) {
-                            unlockID = (MultiplayerUnlocks.LevelUnlockID) result;
-                        } else {
-                            unlockID = new MultiplayerUnlocks.LevelUnlockID(lineDivided[0], true);
-                        }
-                    } catch (Exception e) {
-                        CustomRegionsMod.CustomLog("Error loading levelUnlock ID" + e, true);
+                for (int j = 0; j < levelNames.Length; j++)
+                {
+                    if (levelNames[j].Equals(string.Empty))
+                    {
                         continue;
                     }
 
-                    try {
-                        levelNames = Regex.Split(lineDivided[1].Replace(" ", ""), ",");
-                    } catch (Exception e) {
-                        CustomRegionsMod.CustomLog("Error loading levelUnlock name" + e, true);
-                        continue;
+                    try
+                    {
+
+                        if (!customLevelUnlocks.ContainsKey(levelNames[j]))
+                        {
+                            customLevelUnlocks.Add(levelNames[j].ToLower(), unlockID);
+                            CustomRegionsMod.CustomLog($"Added new level unlock: [{levelNames[j]}-{unlockID}]");
+                        }
+                        else
+                        {
+                            CustomRegionsMod.CustomLog($"Duplicated arena name from two packs! [{levelNames[j]}]", true);
+                        }
                     }
-
-                    for (int j = 0; j < levelNames.Length; j++) {
-                        if (levelNames[j].Equals(string.Empty)) {
-                            continue;
-                        }
-
-                        try {
-
-                            if (!customLevelUnlocks.ContainsKey(levelNames[j])) {
-                                customLevelUnlocks.Add(levelNames[j].ToLower(), unlockID);
-                                CustomRegionsMod.CustomLog($"Added new level unlock: [{levelNames[j]}-{unlockID}]");
-                            } else {
-                                CustomRegionsMod.CustomLog($"Duplicated arena name from two packs! [{levelNames[j]}]", true);
-                            }
-                        } catch (Exception e) {
-                            CustomRegionsMod.CustomLog($"Error adding level unlock ID [{levelNames[j]}] [{e}]", true);
-                        }
+                    catch (Exception e)
+                    {
+                        CustomRegionsMod.CustomLog($"Error adding level unlock ID [{levelNames[j]}] [{e}]", true);
                     }
                 }
             }
