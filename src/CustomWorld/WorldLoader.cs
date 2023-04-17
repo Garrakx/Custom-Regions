@@ -1,4 +1,5 @@
 ﻿using CustomRegions.Mod;
+using MonoMod.RuntimeDetour;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -91,15 +92,67 @@ namespace CustomRegions.CustomWorld
         public static void ApplyHooks()
         {
             On.WorldLoader.ctor_RainWorldGame_Name_bool_string_Region_SetupValues += WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues;
+            On.WorldLoader.LoadAbstractRoom += WorldLoader_LoadAbstractRoom;
+
+            new Hook(typeof(WorldLoader).GetMethod("FindingCreaturesThread"), WorldLoader_ThreadTryCatch);
+            new Hook(typeof(WorldLoader).GetMethod("CreatingAbstractRoomsThread"), WorldLoader_ThreadTryCatch);
+            new Hook(typeof(WorldLoader).GetMethod("UpdateThread"), WorldLoader_ThreadTryCatch);
+
+            On.Player.GraphicsModuleUpdated += Player_GraphicsModuleUpdated;
+        }
+
+        private static void Player_GraphicsModuleUpdated(On.Player.orig_GraphicsModuleUpdated somethingElse, Player self, bool actuallyViewed, bool eu)
+        {
+            somethingElse(self, actuallyViewed, eu);
+        }
+
+        private static void WorldLoader_ThreadTryCatch(Action<WorldLoader> orig, WorldLoader self)
+        {
+            try { orig(self); }
+            catch (Exception e) { CustomRegionsMod.CustomLog(e.ToString(), true); }
+        }
+
+        private static void WorldLoader_LoadAbstractRoom(On.WorldLoader.orig_LoadAbstractRoom orig, World world, string roomName, AbstractRoom room, RainWorldGame.SetupValues setupValues)
+        {
+            try { orig(world, roomName, room, setupValues); }
+            catch (Exception e)
+            {
+                string roomPath = WorldLoader.FindRoomFile(roomName, false, ".txt");
+                string exceptionMessage = $"Invalid room format for room {roomName}";
+                if (!File.Exists(roomPath))
+                {
+                    exceptionMessage = $"cannot find room file {roomPath}";
+
+                    if (File.Exists(WorldLoader.FindRoomFile(roomName.Trim(), false, ".txt")))
+                    {
+                        exceptionMessage += "\nroom name has extra whitespace in the world file";
+                    }
+                }
+
+                else
+                {
+                    string[] lines = File.ReadAllLines(roomPath);
+
+                    if (lines[0].StartsWith("[[[["))
+                    {
+                        exceptionMessage = $"room file is LevelEditorProject file instead of Level file {roomPath}" +
+                            $"\nthe correct output files for a render will appear in Level Editor\\levels" +
+                            $"\nit appears this room file is from Level Editor\\LevelEditorProject";
+                    }
+                }
+                CustomRegionsMod.CustomLog(exceptionMessage + "\n" + e, true);
+            }
         }
 
         private static void WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues(On.WorldLoader.orig_ctor_RainWorldGame_Name_bool_string_Region_SetupValues orig, WorldLoader self, RainWorldGame game, SlugcatStats.Name playerCharacter, bool singleRoomWorld, string worldName, Region region, RainWorldGame.SetupValues setupValues)
         {
-            orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues);
+            try { orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues); }
+            catch(Exception e) { CustomRegionsMod.CustomLog(e.ToString(), true); }
 
             RegionInfo regionInfo = new RegionInfo();
             regionInfo.RegionID = region.name;
             regionInfo.Lines = self.lines;
+            regionInfo.playerCharacter = playerCharacter;
 
             foreach (RegionPreprocessor filter in regionPreprocessors)
             { filter(regionInfo); }
@@ -133,8 +186,7 @@ namespace CustomRegions.CustomWorld
                 CustomRegionsMod.CustomLog($"Analyzing line [{currentLine.line}]", false, CustomRegionsMod.DebugLevel.FULL);
 
                 // All lines that contain current room in their connections
-                otherConnectedLines = lines.FindAll(x => !x.roomName.Equals(currentLine.roomName)
-                && FromConnectionsToList(x.connections).Contains(currentLine.roomName));
+                otherConnectedLines = lines.FindAll(x => FromConnectionsToList(x.connections).Contains(currentLine.roomName));
 
                 // Check if current room is connected to any other room
                 if (otherConnectedLines.Count == 0) {

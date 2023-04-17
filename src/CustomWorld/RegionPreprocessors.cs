@@ -13,6 +13,8 @@ namespace CustomRegions.CustomWorld
         public class RegionInfo
         {
             public string RegionID { get; internal set; }
+
+            public SlugcatStats.Name playerCharacter { get; internal set; }
             /// <summary>
             /// World lines from world_XX.txt file.
             /// </summary>

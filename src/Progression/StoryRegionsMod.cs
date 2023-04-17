@@ -19,13 +19,18 @@ namespace CustomRegions.Progression
         private static string[] SlugcatStats_getSlugcatOptionalRegions(On.SlugcatStats.orig_getSlugcatOptionalRegions orig, SlugcatStats.Name i)
         {
             CustomStaticCache.CheckForRefresh();
-            return orig(i).Union(CustomStaticCache.CustomOptionalRegions[i].ToArray()).ToArray();
+            if (CustomStaticCache.CustomOptionalRegions.ContainsKey(i))
+                return orig(i).Union(CustomStaticCache.CustomOptionalRegions[i].ToArray()).ToArray();
+
+            else return orig(i);
         }
 
         private static string[] SlugcatStats_getSlugcatStoryRegions(On.SlugcatStats.orig_getSlugcatStoryRegions orig, SlugcatStats.Name i)
         {
             CustomStaticCache.CheckForRefresh();
-            return orig(i).Union(CustomStaticCache.CustomStoryRegions[i].ToArray()).ToArray();
+            if (CustomStaticCache.CustomStoryRegions.ContainsKey(i))
+                return orig(i).Union(CustomStaticCache.CustomStoryRegions[i].ToArray()).ToArray();
+            else return orig(i);
         }
 
     }
