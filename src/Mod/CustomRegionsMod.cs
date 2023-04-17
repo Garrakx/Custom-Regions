@@ -22,6 +22,7 @@ namespace CustomRegions.Mod
         public const string PLUGIN_ID = "com.rainworldgame.garrakx.crs.mod";
         public const string PLUGIN_NAME = "Custom Regions Support";
         public const string PLUGIN_VERSION = "0.10.0.1";
+        public const string JSON_ID = "crs";
 
          
         private static bool init = false;
@@ -44,6 +45,7 @@ namespace CustomRegions.Mod
             BepLog($"{PLUGIN_NAME} (v{PLUGIN_VERSION}) initialized, applying hooks...");
 
             try {
+                IndexedEntranceClass.Apply();
                 CustomMenu.RegionLandscapes.ApplyHooks();
                 CustomMusic.ProceduralMusicHooks.ApplyHooks();
                 ArenaUnlocks.UnlockEnum.ApplyHooks();
