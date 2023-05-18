@@ -68,6 +68,7 @@ namespace CustomRegions.Mod
             //OptionInterface oi = MachineConnector.GetRegisteredOI("bubbleweedsaver");
             //cfgEven = oi.config.Bind<bool>("EvenUse", true, new ConfigurableInfo("Whether to use multiple BubbleGrasses evenly or not. Either use all BubbleGrasses in divided speed(true) or use one BubbleGrass at a time(false)."));
             CreateCustomWorldLog();
+            LoadDebugLevel();
             RegionPreprocessors.InitializeBuiltinPreprocessors();
             CustomLog("Mod is Initialized.");
         }
@@ -156,9 +157,26 @@ namespace CustomRegions.Mod
             }
         }
 
+        public static void LoadDebugLevel()
+        {
+            string filePath = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar.ToString() + "CRSDebugLevel.txt";
+            if (File.Exists(filePath))
+            {
+                string debugString = File.ReadAllText(filePath);
+                if (Enum.IsDefined(typeof(DebugLevel), debugString))
+                {
+                    debugLevel = (DebugLevel)Enum.Parse(typeof(DebugLevel), debugString);
+                }
+                else
+                {
+                    debugLevel = DebugLevel.FULL;
+                }
+            }
+        }
+
         public enum DebugLevel { RELEASE, MEDIUM, FULL }
 
-        public static DebugLevel debugLevel = DebugLevel.FULL;
+        public static DebugLevel debugLevel = DebugLevel.RELEASE;
         internal static string analyzingLog;
         internal static IEnumerable<object> regionPreprocessors;
     }

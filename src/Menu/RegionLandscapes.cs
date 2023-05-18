@@ -41,7 +41,6 @@ namespace CustomRegions.CustomMenu
                    // CustomRegionsMod.CustomLog("text " + text);
                     Menu.MenuScene.SceneID local = RegisterMenuScenes(text);
                     if (local != null) {
-                        CustomRegionsMod.CustomLog("Adding");
                         customLandscapes.Add(local);
                     }
                 }
@@ -52,7 +51,7 @@ namespace CustomRegions.CustomMenu
         {
             string sceneName = "Landscape - " + name;
             name = "Landscape_" + name;
-            CustomRegionsMod.CustomLog("[MENU SCENE] new enum for " + name, CustomRegionsMod.DebugLevel.FULL);
+            CustomRegionsMod.CustomLog($"[MENU SCENE] checking if [{name}] needs new enum...", CustomRegionsMod.DebugLevel.FULL);
             if (ExtEnumBase.TryParse(typeof(Menu.MenuScene.SceneID), name, false, out _)) {
                 CustomRegionsMod.CustomLog($"[MENU SCENE] enum {name} already exists, skipping", CustomRegionsMod.DebugLevel.FULL);
                 return null;

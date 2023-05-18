@@ -113,14 +113,15 @@ namespace CustomRegions.CustomWorld
 
         private static void WorldLoader_LoadAbstractRoom(On.WorldLoader.orig_LoadAbstractRoom orig, World world, string roomName, AbstractRoom room, RainWorldGame.SetupValues setupValues)
         {
+            CustomRegionsMod.CustomLog(roomName);
             try { orig(world, roomName, room, setupValues); }
             catch (Exception e)
             {
                 string roomPath = WorldLoader.FindRoomFile(roomName, false, ".txt");
-                string exceptionMessage = $"Invalid room format for room {roomName}";
+                string exceptionMessage = $"An error occured while trying to load {roomName}";
                 if (!File.Exists(roomPath))
                 {
-                    exceptionMessage = $"cannot find room file {roomPath}";
+                    exceptionMessage = $"cannot find room file {roomName}";
 
                     if (File.Exists(WorldLoader.FindRoomFile(roomName.Trim(), false, ".txt")))
                     {
@@ -134,9 +135,9 @@ namespace CustomRegions.CustomWorld
 
                     if (lines[0].StartsWith("[[[["))
                     {
-                        exceptionMessage = $"room file is LevelEditorProject file instead of Level file {roomPath}" +
+                        exceptionMessage = $"room file is LevelEditorProject file instead of Level file {roomName}" +
                             $"\nthe correct output files for a render will appear in Level Editor\\levels" +
-                            $"\nit appears this room file is from Level Editor\\LevelEditorProject";
+                            $"\nit appears this room file is from Level Editor\\LevelEditorProjects";
                     }
                 }
                 CustomRegionsMod.CustomLog(exceptionMessage + "\n" + e, true);

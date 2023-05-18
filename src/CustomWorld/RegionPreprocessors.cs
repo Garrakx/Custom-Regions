@@ -99,7 +99,6 @@ namespace CustomRegions.CustomWorld
             string CR = "CREATURES";
             string BM = "BAT MIGRATION BLOCKAGES";
 
-            CustomRegionsMod.CustomLog("conditional links");
             for (int i = 0; i < info.LinesSection(CL)?.Count; i++)
             {
                 if (!string.IsNullOrEmpty(info.LinesSection(CL)[i]))
@@ -115,18 +114,13 @@ namespace CustomRegions.CustomWorld
                 }
             }
 
-
-
-            CustomRegionsMod.CustomLog("rooms");
             for (int i = 0; i < info.LinesSection(RM)?.Count; i++)
             {
                 if (RoomLine2.TryParse(info.LinesSection(RM)[i], out RoomLine2 roomLine))
                 {
-                    CustomRegionsMod.CustomLog($"roomname: [{roomLine.room}]");
                     bool modify = false;
                     if (replace.ContainsKey(roomLine.room))
                     {
-                        CustomRegionsMod.CustomLog("found key");
                         roomLine.room = replace[roomLine.room];
                         modify = true;
                     }
@@ -146,7 +140,6 @@ namespace CustomRegions.CustomWorld
                 }
             }
 
-            CustomRegionsMod.CustomLog("creatures");
             for (int i = 0; i < info.LinesSection(CR)?.Count; i++)
             {
                 if (CreatureLine2.TryParse(info.LinesSection(CR)[i], out CreatureLine2 creatureLine))
@@ -163,7 +156,6 @@ namespace CustomRegions.CustomWorld
                 }
             }
 
-            CustomRegionsMod.CustomLog("bat migrations");
             for (int i = 0; i < info.LinesSection(BM)?.Count; i++)
             {
                 if (replace.ContainsKey(info.LinesSection(BM)[i]))
@@ -213,7 +205,7 @@ namespace CustomRegions.CustomWorld
             if (condition.Contains('!'))
             {
                 notInverted = false;
-                condition.Remove('!');
+                condition = condition.Replace("!", "");
             }
 
             if (condition != "MSC") return true;
@@ -226,7 +218,7 @@ namespace CustomRegions.CustomWorld
             if (condition.Contains('!'))
             {
                 notInverted = false;
-                condition.Remove('!');
+                condition = condition.Replace("!", "");
             }
 
             if (condition.Count() != 2) return true;
@@ -240,7 +232,7 @@ namespace CustomRegions.CustomWorld
             if (condition.Contains('!'))
             {
                 notInverted = false;
-                condition.Remove('!');
+                condition = condition.Replace("!", "");
             }
 
             if (condition[0] != '#') return true;
