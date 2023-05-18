@@ -80,9 +80,14 @@ namespace CustomRegions.Mod
 
         public static void CRSRefresh(bool forceRefresh = false)
         {
-            CustomStaticCache.CheckForRefresh(forceRefresh);
-            ArenaUnlocks.UnlockEnum.RefreshArenaUnlocks();
-            CustomPearls.Data.Refresh();
+            try
+            {
+                CustomStaticCache.CheckForRefresh(forceRefresh);
+                CustomMerge.MergePearlsAndArenas();
+                ArenaUnlocks.UnlockEnum.RefreshArenaUnlocks();
+                CustomPearls.Data.Refresh();
+            }
+            catch (Exception e) { CustomLog(e.ToString(), true); }
         }
 
         public static void BepLog(string message)

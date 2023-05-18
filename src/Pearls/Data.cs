@@ -29,8 +29,9 @@ namespace CustomRegions.CustomPearls
             try
             {
                 CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl>();
-                CustomRegionsMod.CustomLog("pearl path is " + AssetManager.ResolveFilePath("CustomPearls.txt"));
-                foreach (string str in File.ReadAllLines(AssetManager.ResolveFilePath("CustomPearls.txt")))
+                string filePath = AssetManager.ResolveFilePath("CustomPearls.txt");
+                if (!File.Exists(filePath)) return;
+                foreach (string str in File.ReadAllLines(filePath))
                 {
                     string[] array = Regex.Split(str, " : ");
                     string pearlName = array[0];

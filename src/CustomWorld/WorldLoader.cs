@@ -1,14 +1,17 @@
-﻿using CustomRegions.Mod;
+﻿using BepInEx.Logging;
+using CustomRegions.Mod;
 using MonoMod.RuntimeDetour;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static CustomRegions.CustomWorld.RegionPreprocessors;
 using static CustomRegions.Mod.Structs;
+
 
 namespace CustomRegions.CustomWorld
 {
@@ -93,17 +96,13 @@ namespace CustomRegions.CustomWorld
         {
             On.WorldLoader.ctor_RainWorldGame_Name_bool_string_Region_SetupValues += WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues;
             On.WorldLoader.LoadAbstractRoom += WorldLoader_LoadAbstractRoom;
-
-            new Hook(typeof(WorldLoader).GetMethod("FindingCreaturesThread"), WorldLoader_ThreadTryCatch);
-            new Hook(typeof(WorldLoader).GetMethod("CreatingAbstractRoomsThread"), WorldLoader_ThreadTryCatch);
-            new Hook(typeof(WorldLoader).GetMethod("UpdateThread"), WorldLoader_ThreadTryCatch);
-
-            On.Player.GraphicsModuleUpdated += Player_GraphicsModuleUpdated;
-        }
-
-        private static void Player_GraphicsModuleUpdated(On.Player.orig_GraphicsModuleUpdated somethingElse, Player self, bool actuallyViewed, bool eu)
-        {
-            somethingElse(self, actuallyViewed, eu);
+            try
+            {
+                new Hook(typeof(WorldLoader).GetMethod("FindingCreaturesThread", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance), WorldLoader_ThreadTryCatch);
+                new Hook(typeof(WorldLoader).GetMethod("CreatingAbstractRoomsThread", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance), WorldLoader_ThreadTryCatch);
+                new Hook(typeof(WorldLoader).GetMethod("UpdateThread", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance), WorldLoader_ThreadTryCatch);
+            }
+            catch (Exception e) { CustomRegionsMod.BepLogError("failed to hook threads\n"+e); }
         }
 
         private static void WorldLoader_ThreadTryCatch(Action<WorldLoader> orig, WorldLoader self)
@@ -149,22 +148,31 @@ namespace CustomRegions.CustomWorld
             try { orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues); }
             catch(Exception e) { CustomRegionsMod.CustomLog(e.ToString(), true); }
 
-            RegionInfo regionInfo = new RegionInfo();
-            regionInfo.RegionID = region.name;
-            regionInfo.Lines = self.lines;
-            regionInfo.playerCharacter = playerCharacter;
+            try
+            {
+                RegionInfo regionInfo = new RegionInfo();
+                regionInfo.RegionID = region.name;
+                regionInfo.Lines = self.lines;
+                regionInfo.playerCharacter = playerCharacter;
 
-            foreach (RegionPreprocessor filter in regionPreprocessors)
-            { filter(regionInfo); }
+                foreach (RegionPreprocessor filter in regionPreprocessors)
+                { filter(regionInfo); }
 
-            self.lines = regionInfo.Lines;
-
-            var analyzedLines = GetWorldLines(self);
-
-            CustomRegionsMod.CustomLog("## ANALYZED LINES ##");
-            foreach(var line in analyzedLines) {
-                CustomRegionsMod.CustomLog(line.line);
+                self.lines = regionInfo.Lines;
             }
+            catch (Exception e) { CustomRegionsMod.CustomLog("Error when executing RegionPreProcessors\n"+e.ToString(), true); }
+
+            try
+            {
+                var analyzedLines = GetWorldLines(self);
+
+                CustomRegionsMod.CustomLog("## ANALYZED LINES ##");
+                foreach (var line in analyzedLines)
+                {
+                    CustomRegionsMod.CustomLog(line.line);
+                }
+            }
+            catch (Exception e) { CustomRegionsMod.CustomLog("Error when analyzing lines\n" + e.ToString(), true); }
         }
 
         // IT MIGHT DO REDUNDANT OPERATIONS, NEEDS OPTIMIZATION

@@ -50,7 +50,9 @@ namespace CustomRegions.ArenaUnlocks
 
         public static void RegisterArenaUnlocks()
         {
-            foreach (string line in File.ReadAllLines(AssetManager.ResolveFilePath("CustomUnlocks.txt")))
+            string filePath = AssetManager.ResolveFilePath("CustomUnlocks.txt");
+            if (!File.Exists(filePath)) return;
+            foreach (string line in File.ReadAllLines(filePath))
             {
                 if (line.Equals(string.Empty))
                 {
