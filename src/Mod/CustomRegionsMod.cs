@@ -22,6 +22,7 @@ namespace CustomRegions.Mod
         public const string PLUGIN_ID = "com.rainworldgame.garrakx.crs.mod";
         public const string PLUGIN_NAME = "Custom Regions Support";
         public const string PLUGIN_VERSION = "0.10.0.1";
+        public const string JSON_ID = "crs";
 
          
         private static bool init = false;
@@ -44,6 +45,7 @@ namespace CustomRegions.Mod
             BepLog($"{PLUGIN_NAME} (v{PLUGIN_VERSION}) initialized, applying hooks...");
 
             try {
+                IndexedEntranceClass.Apply();
                 CustomMenu.RegionLandscapes.ApplyHooks();
                 CustomMusic.ProceduralMusicHooks.ApplyHooks();
                 ArenaUnlocks.UnlockEnum.ApplyHooks();
@@ -66,6 +68,7 @@ namespace CustomRegions.Mod
             //OptionInterface oi = MachineConnector.GetRegisteredOI("bubbleweedsaver");
             //cfgEven = oi.config.Bind<bool>("EvenUse", true, new ConfigurableInfo("Whether to use multiple BubbleGrasses evenly or not. Either use all BubbleGrasses in divided speed(true) or use one BubbleGrass at a time(false)."));
             CreateCustomWorldLog();
+            LoadDebugLevel();
             RegionPreprocessors.InitializeBuiltinPreprocessors();
             CustomLog("Mod is Initialized.");
         }
@@ -78,9 +81,14 @@ namespace CustomRegions.Mod
 
         public static void CRSRefresh(bool forceRefresh = false)
         {
-            CustomStaticCache.CheckForRefresh(forceRefresh);
-            ArenaUnlocks.UnlockEnum.RefreshArenaUnlocks();
-            CustomPearls.Data.Refresh();
+            try
+            {
+                CustomStaticCache.CheckForRefresh(forceRefresh);
+                CustomMerge.MergePearlsAndArenas();
+                ArenaUnlocks.UnlockEnum.RefreshArenaUnlocks();
+                CustomPearls.Data.Refresh();
+            }
+            catch (Exception e) { CustomLog(e.ToString(), true); }
         }
 
         public static void BepLog(string message)
@@ -149,9 +157,26 @@ namespace CustomRegions.Mod
             }
         }
 
+        public static void LoadDebugLevel()
+        {
+            string filePath = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar.ToString() + "CRSDebugLevel.txt";
+            if (File.Exists(filePath))
+            {
+                string debugString = File.ReadAllText(filePath);
+                if (Enum.IsDefined(typeof(DebugLevel), debugString))
+                {
+                    debugLevel = (DebugLevel)Enum.Parse(typeof(DebugLevel), debugString);
+                }
+                else
+                {
+                    debugLevel = DebugLevel.FULL;
+                }
+            }
+        }
+
         public enum DebugLevel { RELEASE, MEDIUM, FULL }
 
-        public static DebugLevel debugLevel = DebugLevel.FULL;
+        public static DebugLevel debugLevel = DebugLevel.RELEASE;
         internal static string analyzingLog;
         internal static IEnumerable<object> regionPreprocessors;
     }

@@ -12,13 +12,15 @@ namespace CustomRegions.Mod
     internal static class CustomStaticCache
 {
 
-        public static Dictionary<SlugcatStats.Name, List<string>> CustomStoryRegions = new Dictionary<SlugcatStats.Name, List<string>>();
+        public static Dictionary<SlugcatStats.Name, List<string>> CustomStoryRegions = new();
 
-        public static Dictionary<SlugcatStats.Name, List<string>> CustomOptionalRegions = new Dictionary<SlugcatStats.Name, List<string>>();
+        public static Dictionary<SlugcatStats.Name, List<string>> CustomOptionalRegions = new();
 
-        public static List<string> SafariRegions = new List<string>();
+        public static List<string> SafariRegions = new();
 
-        static List<string> currentRegionOrder = new List<string>();
+        static List<string> currentRegionOrder = new();
+
+        static List<string> currentSlugcats = new();
 
         public static void CheckForRefresh(bool forceRefresh = false)
         {
@@ -29,7 +31,7 @@ namespace CustomRegions.Mod
             {
                 try
                 {
-                    forceRefresh = !currentRegionOrder.SequenceEqual(Region.GetFullRegionOrder());
+                    forceRefresh = !currentRegionOrder.SequenceEqual(Region.GetFullRegionOrder()) || !currentSlugcats.SequenceEqual(ExtEnumBase.GetNames(typeof(SlugcatStats.Name)).ToList());
                 }
                 catch (Exception e) { forceRefresh = true; CustomRegionsMod.CustomLog($"Exception while refreshing! {e}"); }
             }
@@ -45,6 +47,7 @@ namespace CustomRegions.Mod
             CustomRegionsMod.CustomLog("--- Refreshing CRS ---", false, CustomRegionsMod.DebugLevel.MEDIUM);
 
             currentRegionOrder = Region.GetFullRegionOrder();
+            currentSlugcats = ExtEnumBase.GetNames(typeof(SlugcatStats.Name)).ToList();
             try { RegenerateLists(); } catch { CustomRegionsMod.CustomLog("Failed to regenerate story lists", true); }
             SafariEnums.Refresh();
             CustomMenu.RegionLandscapes.RefreshLandscapes();
@@ -125,11 +128,13 @@ namespace CustomRegions.Mod
 
                         if (array[0].StartsWith("X-"))
                         {
-                            array[0] = line.Substring(2);
+                            array[0] = array[0].Substring(2);
                             inverted = true;
                         }
 
                         string[] array2 = Regex.Split(array[0], ",");
+
+                        string debug = "";
 
                         foreach (string str in array2)
                         {
@@ -139,24 +144,24 @@ namespace CustomRegions.Mod
                                 if (CustomStoryRegions[slugName].Contains(regionName) || CustomOptionalRegions[slugName].Contains(regionName))
                                 { continue; }
 
-                                if ((str == slugString) == !inverted)
+                                if ((str.ToLower() == slugString.ToLower()) == !inverted)
                                 {
                                     if (array[1] == "Story")
                                     {
-                                        CustomRegionsMod.CustomLog($"Story region for [{slugString}]", false, CustomRegionsMod.DebugLevel.FULL);
+                                        debug += slugName + ",";
                                         CustomStoryRegions[slugName].Add(regionName);
-
                                     }
                                     else if (array[1] == "Optional")
                                     {
-                                        CustomRegionsMod.CustomLog($"Optional region for [{slugString}]", false, CustomRegionsMod.DebugLevel.FULL);
-                                        CustomStoryRegions[slugName].Add(regionName);
+                                        debug += slugName + ",";
+                                        CustomOptionalRegions[slugName].Add(regionName);
                                     }
 
                                 }
                             }
                         }
-
+                        if (debug != "" && (array[1] == "Story" || array[1] == "Optional"))
+                        { CustomRegionsMod.CustomLog($"{array[1]} region for [{debug}]", false, CustomRegionsMod.DebugLevel.FULL); }
                     }
                 }
                 LogCache();

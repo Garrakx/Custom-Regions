@@ -1,6 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CustomRegions.Mod
 {
@@ -279,6 +284,267 @@ namespace CustomRegions.Mod
                 this.denNumber = denNumber;
 
                 this.connectedDens = null;
+            }
+        }
+
+        public struct RoomLine2
+        {
+            public string room;
+            public List<string> connections;
+            public List<string> tags;
+
+            public RoomLine2(string room, List<string> connections, List<string> tags)
+            {
+                this.room = room;
+                this.connections = connections;
+                this.tags = tags;
+            }
+
+            public static bool TryParse(string line, out RoomLine2 result)
+            {
+                result = new RoomLine2();
+                result.connections = new();
+                result.tags = new();
+
+                if (!line.Contains(" : "))
+                 return false;
+                string[] array = Regex.Split(line, " : ");
+                if (array.Length < 2)
+                 return false;
+
+                result.room = array[0];
+                result.connections = Regex.Split(RWCustom.Custom.ValidateSpacedDelimiter(array[1], ","), ", ").ToList();
+
+                if (array.Length > 2)
+                {
+                    for (int i = 2; i < array.Length; i++)
+                    {
+                        result.tags.Add(array[i]);
+                    }
+                }
+
+                return true;
+            }
+
+            public override string ToString()
+            {
+                string tag = tags.Count > 0 ? " : " + string.Join(" : ", tags) : "";
+                return string.Concat(new string[] 
+                { 
+                room,
+                " : ",
+                string.Join(", ", connections),
+                tag
+                });
+            }
+        }
+
+        public interface ICreatureType
+        {
+            public string creature { get; set; }
+            public string tags { get; set; }
+
+        }
+
+        public struct LoneCreature : ICreatureType
+        {
+            public string creature { get; set; }
+            public string tags { get; set; }
+
+            int den;
+            int quantity;
+
+
+            public override string ToString()
+            {
+                return string.Join("-", new string[]
+                {
+                den.ToString(),
+                creature,
+                tags,
+                quantity.ToString()
+                });
+            }
+
+            public static bool TryParse(string line, out LoneCreature result)
+            {
+                result = new();
+
+                if (!line.Contains("-"))
+                    return false;
+
+                string[] array = Regex.Split(line, "-");
+                if (array.Length < 2 || int.TryParse(array[0], out result.den))
+                    return false;
+
+                result.creature = array[1];
+                result.quantity = 1;
+
+                bool firstTag = false;
+
+                for (int j = 2; j < array.Length; j++)
+                {
+                    if (array[j].Length > 0 && array[j][0] == '{')
+                    {
+                        result.tags = array[j];
+                        firstTag = true;
+                    }
+                    else if (firstTag)
+                    {
+                        result.tags = result.tags + "-" + array[j];
+                    }
+                    else
+                    {
+                        try
+                        {
+                            result.quantity = Convert.ToInt32(array[j], CultureInfo.InvariantCulture);
+                        }
+                        catch
+                        {
+                            result.quantity = 1;
+                        }
+                    }
+                    if (array[j].Contains("}"))
+                    {
+                        firstTag = false;
+                    }
+
+                }
+
+                return true;
+            }
+        }
+
+        public struct Lineage : ICreatureType
+        {
+            public string creature { get; set; }
+            public string tags { get; set; }
+
+            float moveOn;
+
+            public override string ToString()
+            {
+                return string.Join("-", new string[]
+                {
+                creature,
+                tags,
+                moveOn.ToString()
+                });
+            }
+
+            public static bool TryParse(string line, out Lineage result)
+            {
+                result = new();
+
+                if (!line.Contains("-"))
+                    return false;
+
+                string[] array = Regex.Split(line, "-");
+                if (array.Length < 2)
+                    return false;
+
+                result.creature = array[1];
+                result.moveOn = 0f;
+
+                bool firstTag = false;
+
+                for (int j = 1; j < array.Length; j++)
+                {
+                    if (array[j].Length > 0 && array[j][0] == '{')
+                    {
+                        result.tags = array[j];
+                        firstTag = true;
+                    }
+                    else if (firstTag)
+                    {
+                        result.tags = result.tags + "-" + array[j];
+                    }
+                    else
+                    {
+                        try
+                        {
+                            result.moveOn = float.Parse(array[j], NumberStyles.Any, CultureInfo.InvariantCulture);
+                        }
+                        catch
+                        {
+                            result.moveOn = 0f;
+                        }
+                    }
+                    if (array[j].Contains("}"))
+                    {
+                        firstTag = false;
+                    }
+
+                }
+
+                return true;
+            }
+        }
+
+        public struct CreatureLine2
+        {
+            public bool lineage;
+            public string room;
+            public List<ICreatureType> creatures;
+            public int lineageDen;
+
+            public static bool TryParse(string line, out CreatureLine2 result)
+            {
+                result = new();
+                result.creatures = new List<ICreatureType>();
+                result.room = "";
+
+                if (!line.Contains(" : "))
+                    return false;
+
+                string[] array = Regex.Split(line, " : ");
+                if (array.Length < 2)
+                    return false;
+
+                if (array[0] == "LINEAGE")
+                {
+                    if (array.Length < 4 || int.TryParse(array[2], out result.lineageDen))
+                        return false;
+
+                    result.room = array[1];
+
+
+                    result.lineage = true;
+
+                    string[] array3 = Regex.Split(RWCustom.Custom.ValidateSpacedDelimiter(array[3], ","), ", ");
+                    foreach (string str in array3)
+                    {
+                        if (Lineage.TryParse(str, out Lineage lineage))
+                        { result.creatures.Add(lineage); }
+                    }
+                    return true;
+                }
+
+                result.room = array[0];
+
+                string[] array2 = Regex.Split(RWCustom.Custom.ValidateSpacedDelimiter(array[1], ","), ", ");
+                foreach (string str in array2)
+                {
+                    if (LoneCreature.TryParse(str, out LoneCreature loneCreature))
+                    { result.creatures.Add(loneCreature); }
+                }
+                return true;
+            }
+
+            public override string ToString()
+            {
+                if (lineage)
+                    return string.Join(" : ", new string[] {
+                    "LINEAGE",
+                    room,
+                    lineageDen.ToString(),
+                    string.Join(", ", creatures)
+                });
+                else
+                    return string.Join(" : ", new string[] {
+                    room,
+                    string.Join(", ", creatures)
+                });
             }
         }
 

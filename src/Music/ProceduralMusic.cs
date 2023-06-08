@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using CustomRegions.Mod;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using System;
+using Newtonsoft.Json.Linq;
+using BepInEx.Logging;
 
 namespace CustomRegions.CustomMusic
 {
@@ -9,84 +14,47 @@ namespace CustomRegions.CustomMusic
     {
         public static void ApplyHooks()
         {
-            On.Music.ProceduralMusic.ProceduralMusicInstruction.ctor += ProceduralMusicInstruction_ctor;
+            On.Music.ProceduralMusic.ctor += ProceduralMusic_ctor;
+            IL.Music.ProceduralMusic.ProceduralMusicInstruction.ctor += ProceduralMusicInstruction_ctor;
         }
 
-        private static void ProceduralMusicInstruction_ctor(On.Music.ProceduralMusic.ProceduralMusicInstruction.orig_ctor orig, Music.ProceduralMusic.ProceduralMusicInstruction self, string name)
+        private static void ProceduralMusic_ctor(On.Music.ProceduralMusic.orig_ctor orig, Music.ProceduralMusic self, Music.MusicPlayer musicPlayer, string name)
         {
-            orig(self, name);
-
-            if (self.tracks.Count >= 1) { return; }
-
-            self.layers = new List<Music.ProceduralMusic.ProceduralMusicInstruction.Layer>();
-            self.tracks = new List<Music.ProceduralMusic.ProceduralMusicInstruction.Track>();
-
-            string proceduralFolder = "Music" + Path.DirectorySeparatorChar + "Procedural" + Path.DirectorySeparatorChar;
-            string path = AssetManager.ResolveFilePath("Music" + Path.DirectorySeparatorChar.ToString() + "Procedural" + Path.DirectorySeparatorChar.ToString() + name + ".txt");
-
-            if (!File.Exists(path)) { return; }
-
-
-            foreach (string line in File.ReadAllLines(path)) {
-                string[] array2 = Regex.Split(line, " : ");
-                if (array2.Length != 0 && array2[0].Length > 4 && array2[0] == "Layer") {
-                    self.layers.Add(new Music.ProceduralMusic.ProceduralMusicInstruction.Layer(self.layers.Count));
-
-                    foreach (string str in Regex.Split(RWCustom.Custom.ValidateSpacedDelimiter(array2[1], ","), ", ")) {
-                        if (str.Length == 0) { continue; }
-
-                        foreach (Music.ProceduralMusic.ProceduralMusicInstruction.Track track in self.tracks) {
-                            string text2 = "";
-                            string a;
-                            if (str.Length > 3 && str.Substring(0, 1) == "{" && str.Contains("}")) {
-                                text2 = str.Substring(1, str.IndexOf("}") - 1);
-                                a = str.Substring(str.IndexOf("}") + 1);
-                            } else { a = str; }
-
-                            if (a == track.name) {
-                                string[] subRegions = null;
-                                int dayNight = 0;
-                                bool mushroom = false;
-
-                                switch (text2) {
-                                    case "":
-                                        break;
-                                    case "D":
-                                        dayNight = 1;
-                                        break;
-                                    case "N":
-                                        dayNight = 2;
-                                        break;
-                                    case "M":
-                                        mushroom = true;
-                                        break;
-                                    default:
-                                        subRegions = text2.Split(new char[] { '|' });
-                                        break;
-                                }
-                                track.subRegions = subRegions;
-                                track.dayNight = dayNight;
-                                track.mushroom = mushroom;
-                                self.layers[self.layers.Count - 1].tracks.Add(track);
-                                break;
-                            }
-                        }
-                    }
-
-
-                } else if (array2.Length != 0 && array2[0].Length > 0 && File.Exists(AssetManager.ResolveFilePath(proceduralFolder + array2[0] + ".ogg"))) {
-                    self.tracks.Add(new Music.ProceduralMusic.ProceduralMusicInstruction.Track(array2[0]));
-                    string[] array4 = Regex.Split(array2[1], ", ");
-
-                    foreach (string str in array4) {
-                        if (str.Length == 0) { continue; }
-
-                        if (str == "<PA>") { self.tracks[self.tracks.Count - 1].remainInPanicMode = true; } else { self.tracks[self.tracks.Count - 1].tags.Add(str); }
-                    }
+            if (musicPlayer.manager.currentMainLoop is RainWorldGame game && game.StoryCharacter != null)
+            {
+                string slugName = game.StoryCharacter.ToString();
+                if (File.Exists(AssetManager.ResolveFilePath(Path.Combine(new string[] { "Music", "Procedural", $"{name}-{slugName}.txt"}))))
+                { 
+                    name = $"{name}-{slugName}";
+                    CustomRegionsMod.CustomLog($"custom slug threat [{name}]");
                 }
             }
+            orig(self, musicPlayer, name);
         }
-
-
+        public static readonly string proceduralFolder = "Music" + Path.DirectorySeparatorChar + "Procedural" + Path.DirectorySeparatorChar;
+        private static void ProceduralMusicInstruction_ctor(ILContext il)
+        {
+            int arrayIndex = 6;
+            var c = new ILCursor(il);
+            if (c.TryGotoNext(MoveType.After,
+                x => x.MatchLdloc(out _),
+                x => x.MatchLdfld(typeof(AssetBundles.LoadedAssetBundle), "m_AssetBundle"),
+                x => x.MatchLdloc(out arrayIndex),
+                x => x.MatchLdcI4(0),
+                x => x.MatchLdelemRef(),
+                x => x.MatchCallvirt(typeof(UnityEngine.AssetBundle), "Contains")))
+            {
+                c.Emit(OpCodes.Ldloc, arrayIndex);
+                c.EmitDelegate((bool flag, string[] array2) =>
+                {
+                    if (!flag && File.Exists(AssetManager.ResolveFilePath(proceduralFolder + array2[0] + ".ogg"))) { CustomRegionsMod.CustomLog($"adding track from ogg [{array2[0]}]", false, CustomRegionsMod.DebugLevel.FULL); }
+                    return flag || File.Exists(AssetManager.ResolveFilePath(proceduralFolder + array2[0] + ".ogg"));
+                });
+            }
+            else
+            {
+                CustomRegionsMod.BepLogError("Failed to IL hook ProceduralMusicInstruction.ctor!");
+            }
+        }
     }
 }
