@@ -151,13 +151,21 @@ namespace CustomRegions.CustomWorld
 
             try
             {
-                RegionInfo regionInfo = new RegionInfo();
-                regionInfo.RegionID = region.name;
-                regionInfo.Lines = self.lines;
-                regionInfo.playerCharacter = playerCharacter;
+                RegionInfo regionInfo = new()
+                {
+                    RegionID = region.name,
+                    Lines = self.lines,
+                    playerCharacter = playerCharacter
+                };
 
                 foreach (RegionPreprocessor filter in regionPreprocessors)
-                { filter(regionInfo); }
+                {
+                    try
+                    {
+                        filter(regionInfo);
+                    }
+                    catch (Exception e) { CustomRegionsMod.CustomLog($"Error when executing PreProcessor [{filter.Method.Name}]\n" + e.ToString(), true); }
+                }
 
                 self.lines = regionInfo.Lines;
             }

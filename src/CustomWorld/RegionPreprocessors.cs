@@ -90,81 +90,6 @@ namespace CustomRegions.CustomWorld
 
         public delegate bool CustomCondition(string condition);
 
-        public static void ReplaceRoom(RegionInfo info)
-        {
-            Dictionary<string, string> replace = new();
-
-            string CL = "CONDITIONAL LINKS";
-            string RM = "ROOMS";
-            string CR = "CREATURES";
-            string BM = "BAT MIGRATION BLOCKAGES";
-
-            for (int i = 0; i < info.LinesSection(CL)?.Count; i++)
-            {
-                if (!string.IsNullOrEmpty(info.LinesSection(CL)[i]))
-                {
-                    string[] array = Regex.Split(info.LinesSection(CL)[i], " : ");
-                    if (array.Length >= 4 && array[1] == "REPLACEROOM" && array[0] == info.playerCharacter.ToString())
-                    {
-                        CustomRegionsMod.CustomLog($"adding line [{String.Join(" : ", array)}]");
-                        replace.Add(array[2], array[3]);
-                        //info.LinesSection(CL)[i] = "//";
-                        info.Lines[i+info.sectionBounds[CL][0]] = "//";
-                    }
-                }
-            }
-
-            for (int i = 0; i < info.LinesSection(RM)?.Count; i++)
-            {
-                if (RoomLine2.TryParse(info.LinesSection(RM)[i], out RoomLine2 roomLine))
-                {
-                    bool modify = false;
-                    if (replace.ContainsKey(roomLine.room))
-                    {
-                        roomLine.room = replace[roomLine.room];
-                        modify = true;
-                    }
-
-                    for (int j = 0; j < roomLine.connections.Count; j++)
-                    {
-                        if (replace.ContainsKey(roomLine.connections[j]))
-                        {
-                            roomLine.connections[j] = replace[roomLine.connections[j]];
-                            modify = true;
-                        }
-
-                    }
-
-                    if(modify)
-                    { info.Lines[i + info.sectionBounds[RM][0]] = roomLine.ToString(); }
-                }
-            }
-
-            for (int i = 0; i < info.LinesSection(CR)?.Count; i++)
-            {
-                if (CreatureLine2.TryParse(info.LinesSection(CR)[i], out CreatureLine2 creatureLine))
-                {
-                    bool modify = false;
-                    if (replace.ContainsKey(creatureLine.room))
-                    {
-                        creatureLine.room = replace[creatureLine.room];
-                        modify = true;
-                    }
-
-                    if (modify)
-                    { info.Lines[i + info.sectionBounds[CR][0]] = creatureLine.ToString(); }
-                }
-            }
-
-            for (int i = 0; i < info.LinesSection(BM)?.Count; i++)
-            {
-                if (replace.ContainsKey(info.LinesSection(BM)[i]))
-                { info.Lines[i + info.sectionBounds[BM][0]] = replace[info.LinesSection(BM)[i]]; }
-            }
-
-            info.Lines.RemoveAll(str => str == "//");
-        }
-
         public static void CustomConditionsProcessing(RegionInfo info)
         {
             for (int i = 0; i < info.Lines.Count; i++)
@@ -259,7 +184,7 @@ namespace CustomRegions.CustomWorld
 
             regionPreprocessors.Add(CustomConditionsProcessing);
 
-            regionPreprocessors.Add(ReplaceRoom);
+            regionPreprocessors.Add(ReplaceRoomPreprocessor.ReplaceRoom);
             regionPreprocessors.Add(IndexedEntranceClass.IndexedEntrance);
 
             customConditions.Add(MSCCondition);
