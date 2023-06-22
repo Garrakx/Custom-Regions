@@ -46,6 +46,8 @@ namespace CustomRegions.Mod
 
             try {
                 IndexedEntranceClass.Apply();
+                ReplaceRoomPreprocessor.Apply();
+                Debugging.ApplyHooks();
                 CustomMenu.RegionLandscapes.ApplyHooks();
                 CustomMusic.ProceduralMusicHooks.ApplyHooks();
                 ArenaUnlocks.UnlockEnum.ApplyHooks();
@@ -53,7 +55,7 @@ namespace CustomRegions.Mod
                 CustomPearls.DataPearlColors.ApplyHooks();
                 CustomPearls.CustomConvo.ApplyHooks();
                 RainWorldHooks.ApplyHooks();
-                CustomWorld.WorldLoaderHook.ApplyHooks();
+                WorldLoaderHook.ApplyHooks();
             } catch (Exception ex) {
                 BepLogError("Error while applying Hooks: " + ex.ToString());
             }

@@ -95,53 +95,6 @@ namespace CustomRegions.CustomWorld
         public static void ApplyHooks()
         {
             On.WorldLoader.ctor_RainWorldGame_Name_bool_string_Region_SetupValues += WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues;
-            On.WorldLoader.LoadAbstractRoom += WorldLoader_LoadAbstractRoom;
-            try
-            {
-                new Hook(typeof(WorldLoader).GetMethod("FindingCreaturesThread", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance), WorldLoader_ThreadTryCatch);
-                new Hook(typeof(WorldLoader).GetMethod("CreatingAbstractRoomsThread", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance), WorldLoader_ThreadTryCatch);
-                new Hook(typeof(WorldLoader).GetMethod("UpdateThread", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance), WorldLoader_ThreadTryCatch);
-            }
-            catch (Exception e) { CustomRegionsMod.BepLogError("failed to hook threads\n"+e); }
-        }
-
-        private static void WorldLoader_ThreadTryCatch(Action<WorldLoader> orig, WorldLoader self)
-        {
-            try { orig(self); }
-            catch (Exception e) { CustomRegionsMod.CustomLog(e.ToString(), true); }
-        }
-
-        private static void WorldLoader_LoadAbstractRoom(On.WorldLoader.orig_LoadAbstractRoom orig, World world, string roomName, AbstractRoom room, RainWorldGame.SetupValues setupValues)
-        {
-            CustomRegionsMod.CustomLog(roomName);
-            try { orig(world, roomName, room, setupValues); }
-            catch (Exception e)
-            {
-                string roomPath = WorldLoader.FindRoomFile(roomName, false, ".txt");
-                string exceptionMessage = $"An error occured while trying to load {roomName}";
-                if (!File.Exists(roomPath))
-                {
-                    exceptionMessage = $"cannot find room file {roomName}";
-
-                    if (File.Exists(WorldLoader.FindRoomFile(roomName.Trim(), false, ".txt")))
-                    {
-                        exceptionMessage += "\nroom name has extra whitespace in the world file";
-                    }
-                }
-
-                else
-                {
-                    string[] lines = File.ReadAllLines(roomPath);
-
-                    if (lines[0].StartsWith("[[[["))
-                    {
-                        exceptionMessage = $"room file is LevelEditorProject file instead of Level file {roomName}" +
-                            $"\nthe correct output files for a render will appear in Level Editor\\levels" +
-                            $"\nit appears this room file is from Level Editor\\LevelEditorProjects";
-                    }
-                }
-                CustomRegionsMod.CustomLog(exceptionMessage + "\n" + e, true);
-            }
         }
 
         private static void WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues(On.WorldLoader.orig_ctor_RainWorldGame_Name_bool_string_Region_SetupValues orig, WorldLoader self, RainWorldGame game, SlugcatStats.Name playerCharacter, bool singleRoomWorld, string worldName, Region region, RainWorldGame.SetupValues setupValues)

@@ -27,9 +27,11 @@ namespace CustomRegions.Progression
 
         private static string[] SlugcatStats_getSlugcatStoryRegions(On.SlugcatStats.orig_getSlugcatStoryRegions orig, SlugcatStats.Name i)
         {
+            string[] regions = orig(i);
             CustomStaticCache.CheckForRefresh();
             if (CustomStaticCache.CustomStoryRegions.ContainsKey(i))
-                return orig(i).Union(CustomStaticCache.CustomStoryRegions[i].ToArray()).ToArray();
+                return regions.Union(CustomStaticCache.CustomStoryRegions[i].Where(x => !regions.Contains(x)).ToArray()).ToArray();
+
             else return orig(i);
         }
 
