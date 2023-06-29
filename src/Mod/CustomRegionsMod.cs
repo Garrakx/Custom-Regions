@@ -45,6 +45,7 @@ namespace CustomRegions.Mod
             BepLog($"{PLUGIN_NAME} (v{PLUGIN_VERSION}) initialized, applying hooks...");
 
             try {
+                ModPriorities.ApplyHooks();
                 IndexedEntranceClass.Apply();
                 ReplaceRoomPreprocessor.Apply();
                 Debugging.ApplyHooks();
