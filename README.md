@@ -7,14 +7,14 @@
 ![Custom Regions!](./assets/thumbnail.png)
 
 ## <a name="index"></a>Index
-1) [Debugging](#DEBUG)
-2) [Procedural Music](#MUSIC)
-3) [Region Landscape Art](#LANDSCAPE)
-4) [Level Unlocks](#UNLOCKS)
-5) [Pearls](#PEARLS)
-6) [MetaProperties](#META)
-7) [Region Conditional Lines](#CONDITIONALS)
-8) [ReplaceRoom](#REPLACE)
+1) [Debugging](#debugging)
+2) [Procedural Music](#procedural-music)
+3) [Region Landscape Art](#region-landscape-art)
+4) [Level Unlocks](#level-unlocks)
+5) [Pearls](#pearls)
+6) [MetaProperties](#metaproperties)
+7) [Region Conditional Lines](#region-conditional-lines)
+8) [ReplaceRoom](#replaceroom)
 
 ### <a name="HOW TO COMPILE"></a>How to compile
 (for coders only)
