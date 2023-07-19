@@ -33,7 +33,7 @@ namespace CustomRegions.Mod
                 {
                     forceRefresh = !currentRegionOrder.SequenceEqual(Region.GetFullRegionOrder()) || !currentSlugcats.SequenceEqual(ExtEnumBase.GetNames(typeof(SlugcatStats.Name)).ToList());
                 }
-                catch (Exception e) { forceRefresh = true; CustomRegionsMod.CustomLog($"Exception while refreshing! {e}"); }
+                catch (Exception e) { forceRefresh = true; CustomRegionsMod.CustomLog($"Exception while refreshing!\n{e}"); }
             }
              
             if (forceRefresh)
@@ -48,125 +48,120 @@ namespace CustomRegions.Mod
 
             currentRegionOrder = Region.GetFullRegionOrder();
             currentSlugcats = ExtEnumBase.GetNames(typeof(SlugcatStats.Name)).ToList();
-            try { RegenerateLists(); } catch { CustomRegionsMod.CustomLog("Failed to regenerate story lists", true); }
+            try { RegenerateLists(); } catch(Exception e) { CustomRegionsMod.CustomLog("Failed to regenerate story lists\n" + e, true); }
             SafariEnums.Refresh();
             CustomMenu.RegionLandscapes.RefreshLandscapes();
         }
 
         public static void RegenerateLists()
         {
-            try
+            if (Region.GetFullRegionOrder() == null) { return; }
+
+            CustomStoryRegions = new Dictionary<SlugcatStats.Name, List<string>>();
+            CustomOptionalRegions = new Dictionary<SlugcatStats.Name, List<string>>();
+            SafariRegions = new List<string>();
+
+            foreach (string slugString in SlugcatStats.Name.values.entries)
             {
-                if (Region.GetFullRegionOrder() == null) { return; }
+                SlugcatStats.Name slug = new(slugString, false);
+                if (SlugcatStats.HiddenOrUnplayableSlugcat(slug)) continue;
 
-                CustomStoryRegions = new Dictionary<SlugcatStats.Name, List<string>>();
-                CustomOptionalRegions = new Dictionary<SlugcatStats.Name, List<string>>();
-                SafariRegions = new List<string>();
+                CustomStoryRegions.Add(slug, new List<string>());
+                CustomOptionalRegions.Add(slug, new List<string>());
+            }
 
-                foreach (string slugString in SlugcatStats.Name.values.entries)
+            foreach (string regionName in Region.GetFullRegionOrder())
+            {
+                string path = AssetManager.ResolveFilePath(string.Concat(new string[]
                 {
-                    SlugcatStats.Name slug = (SlugcatStats.Name)ExtEnumBase.Parse(typeof(SlugcatStats.Name), slugString, false);
-                    //if (SlugcatStats.HiddenOrUnplayableSlugcat(slug)) continue;
-
-                    CustomStoryRegions.Add(slug, new List<string>());
-                    CustomOptionalRegions.Add(slug, new List<string>());
-                }
-
-                foreach (string regionName in Region.GetFullRegionOrder())
-                {
-                    string path = AssetManager.ResolveFilePath(string.Concat(new string[]
-                    {
                         "World",
                         Path.DirectorySeparatorChar.ToString(),
                         regionName,
                         Path.DirectorySeparatorChar.ToString(),
                         "metaproperties.txt"
-                    }));
-                    if (!File.Exists(path)) { continue; }
+                }));
+                if (!File.Exists(path)) { continue; }
 
-                    CustomRegionsMod.CustomLog("Found MetaProperties.txt for region " + regionName, false, CustomRegionsMod.DebugLevel.MEDIUM);
+                CustomRegionsMod.CustomLog("Found MetaProperties.txt for region " + regionName, false, CustomRegionsMod.DebugLevel.MEDIUM);
 
-                    foreach (string line in File.ReadAllLines(path))
+                foreach (string line in File.ReadAllLines(path))
+                {
+                    if (line.ToLower().Trim() == "safari")
                     {
-                        if (line == "Safari")
-                        {
-                            CustomRegionsMod.CustomLog("safari unlock for this region", false, CustomRegionsMod.DebugLevel.FULL);
-                            SafariRegions.Add(regionName);
-                            continue;
-                        }
+                        CustomRegionsMod.CustomLog("safari unlock for this region", false, CustomRegionsMod.DebugLevel.FULL);
+                        SafariRegions.Add(regionName);
+                        continue;
+                    }
 
-                        else if (line == "Story")
+                    else if (line.ToLower().Trim() == "story")
+                    {
+                        CustomRegionsMod.CustomLog($"Story region for [ALL]", false, CustomRegionsMod.DebugLevel.FULL);
+                        foreach (SlugcatStats.Name slugName in CustomStoryRegions.Keys)
                         {
-                            CustomRegionsMod.CustomLog($"Story region for [ALL]", false, CustomRegionsMod.DebugLevel.FULL);
-                            foreach (string slugString in SlugcatStats.Name.values.entries)
+                            if (CustomStoryRegions[slugName].Contains(regionName) || CustomOptionalRegions[slugName].Contains(regionName))
+                            { continue; }
+
+                            CustomStoryRegions[slugName].Add(regionName);
+                        }
+                    }
+
+                    else if (line.ToLower().Trim() == "optional")
+                    {
+                        CustomRegionsMod.CustomLog($"Optional region for [ALL]", false, CustomRegionsMod.DebugLevel.FULL);
+                        foreach (SlugcatStats.Name slugName in CustomOptionalRegions.Keys)
+                        {
+                            if (CustomStoryRegions[slugName].Contains(regionName) || CustomOptionalRegions[slugName].Contains(regionName))
+                            { continue; }
+
+                            CustomOptionalRegions[slugName].Add(regionName);
+                        }
+                    }
+
+                    bool inverted = false;
+                    string[] array = Regex.Split(line, " : ");
+
+                    if (array.Length < 2) { continue; }
+
+                    array[1] = array[1].Trim().ToLower();
+
+                    if (array[0].StartsWith("X-"))
+                    {
+                        array[0] = array[0].Substring(2);
+                        inverted = true;
+                    }
+
+                    string[] array2 = Regex.Split(array[0], ",");
+
+                    string debug = "";
+
+                    foreach (string str in array2)
+                    {
+                        foreach (string slugString in SlugcatStats.Name.values.entries)
+                        {
+                            SlugcatStats.Name slugName = new(slugString, false);
+                            if (!CustomStoryRegions.ContainsKey(slugName) || CustomStoryRegions[slugName].Contains(regionName) || CustomOptionalRegions[slugName].Contains(regionName))
+                            { continue; }
+
+                            if ((str == slugString) == !inverted)
                             {
-                                SlugcatStats.Name slugName = (SlugcatStats.Name)ExtEnumBase.Parse(typeof(SlugcatStats.Name), slugString, false);
-                                if (CustomStoryRegions[slugName].Contains(regionName) || CustomOptionalRegions[slugName].Contains(regionName))
-                                { continue; }
-
-                                CustomStoryRegions[slugName].Add(regionName);
-                            }
-                        }
-
-                        else if (line == "Optional")
-                        {
-                            CustomRegionsMod.CustomLog($"Optional region for [ALL]", false, CustomRegionsMod.DebugLevel.FULL);
-                            foreach (string slugString in SlugcatStats.Name.values.entries)
-                            {
-                                SlugcatStats.Name slugName = (SlugcatStats.Name)ExtEnumBase.Parse(typeof(SlugcatStats.Name), slugString, false);
-                                if (CustomStoryRegions[slugName].Contains(regionName) || CustomOptionalRegions[slugName].Contains(regionName))
-                                { continue; }
-
-                                CustomOptionalRegions[slugName].Add(regionName);
-                            }
-                        }
-
-                        bool inverted = false;
-                        string[] array = Regex.Split(line, " : ");
-
-                        if (array.Length < 2) { continue; }
-
-                        if (array[0].StartsWith("X-"))
-                        {
-                            array[0] = array[0].Substring(2);
-                            inverted = true;
-                        }
-
-                        string[] array2 = Regex.Split(array[0], ",");
-
-                        string debug = "";
-
-                        foreach (string str in array2)
-                        {
-                            foreach (string slugString in SlugcatStats.Name.values.entries)
-                            {
-                                SlugcatStats.Name slugName = (SlugcatStats.Name)ExtEnumBase.Parse(typeof(SlugcatStats.Name), slugString, false);
-                                if (CustomStoryRegions[slugName].Contains(regionName) || CustomOptionalRegions[slugName].Contains(regionName))
-                                { continue; }
-
-                                if ((str.ToLower() == slugString.ToLower()) == !inverted)
+                                if (array[1] == "story")
                                 {
-                                    if (array[1] == "Story")
-                                    {
-                                        debug += slugName + ",";
-                                        CustomStoryRegions[slugName].Add(regionName);
-                                    }
-                                    else if (array[1] == "Optional")
-                                    {
-                                        debug += slugName + ",";
-                                        CustomOptionalRegions[slugName].Add(regionName);
-                                    }
-
+                                    debug += slugName + ",";
+                                    CustomStoryRegions[slugName].Add(regionName);
+                                }
+                                else if (array[1] == "optional")
+                                {
+                                    debug += slugName + ",";
+                                    CustomOptionalRegions[slugName].Add(regionName);
                                 }
                             }
                         }
-                        if (debug != "" && (array[1] == "Story" || array[1] == "Optional"))
-                        { CustomRegionsMod.CustomLog($"{array[1]} region for [{debug}]", false, CustomRegionsMod.DebugLevel.FULL); }
                     }
+                    if (debug != "" && (array[1] == "story" || array[1] == "optional"))
+                    { CustomRegionsMod.CustomLog($"{array[1]} region for [{debug}]", false, CustomRegionsMod.DebugLevel.FULL); }
                 }
-                LogCache();
             }
-            catch (Exception e) { throw e; }
+            LogCache();
         }
 
         public static void LogCache()
@@ -174,13 +169,13 @@ namespace CustomRegions.Mod
             CustomRegionsMod.CustomLog($"\nCUSTOM STORY REGIONS FOR EACH SLUGCAT");
             foreach (KeyValuePair<SlugcatStats.Name, List<string>> slug in CustomStoryRegions)
             {
-                CustomRegionsMod.CustomLog($"{slug.Key}: [{String.Join(", ", slug.Value.ToArray())}]");
+                CustomRegionsMod.CustomLog($"{slug.Key}: [{string.Join(", ", slug.Value.ToArray())}]");
             }
 
             CustomRegionsMod.CustomLog($"\nCUSTOM OPTIONAL REGIONS FOR EACH SLUGCAT");
             foreach (KeyValuePair<SlugcatStats.Name, List<string>> slug in CustomOptionalRegions)
             {
-                CustomRegionsMod.CustomLog($"{slug.Key}: [{String.Join(", ", slug.Value.ToArray())}]");
+                CustomRegionsMod.CustomLog($"{slug.Key}: [{string.Join(", ", slug.Value.ToArray())}]");
             }
             CustomRegionsMod.CustomLog("");
         }

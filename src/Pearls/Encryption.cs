@@ -121,7 +121,7 @@ namespace CustomRegions.CustomPearls
             string text3 = File.ReadAllText(text, Encoding.UTF8);
             if (text3[0] != '0')
             {
-                text3 = Custom.xorEncrypt(text3, 54 + fileName.GetHashCode() + (int)self.interfaceOwner.rainWorld.inGameTranslator.currentLanguage * 7);
+                text3 = Custom.xorEncrypt(text3, 54 + fileName.GetHashCode() + (int)languageID * 7);
             }
 
             string[] array = Regex.Split(text3, "\r\n");
@@ -159,9 +159,7 @@ namespace CustomRegions.CustomPearls
                         string[] array3 = LocalizationTranslator.ConsolidateLineInstructions(array[j]);
                         if (array3.Length == 3)
                         {
-                            int num;
-                            int num2;
-                            if (ModManager.MSC && !int.TryParse(array3[1], NumberStyles.Any, CultureInfo.InvariantCulture, out num) && int.TryParse(array3[2], NumberStyles.Any, CultureInfo.InvariantCulture, out num2))
+                            if (ModManager.MSC && !int.TryParse(array3[1], NumberStyles.Any, CultureInfo.InvariantCulture, out int num) && int.TryParse(array3[2], NumberStyles.Any, CultureInfo.InvariantCulture, out int num2))
                             {
                                 self.events.Add(new Conversation.TextEvent(self, int.Parse(array3[0], NumberStyles.Any, CultureInfo.InvariantCulture), array3[1], int.Parse(array3[2], NumberStyles.Any, CultureInfo.InvariantCulture)));
                             }

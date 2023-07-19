@@ -13,8 +13,6 @@ using System.CodeDom;
 namespace CustomRegions.CustomPearls
 {
     internal static class Data
-
-        
     {
         public static void Refresh()
         {
@@ -22,7 +20,6 @@ namespace CustomRegions.CustomPearls
             FindCustomPearlData();
             Encryption.EncryptAllCustomPearls();
         }
-
 
         public static void FindCustomPearlData()
         {
@@ -56,24 +53,12 @@ namespace CustomRegions.CustomPearls
 
         public static void Unregister()
         {
-            try
+            foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> pearl in CustomDataPearlsList)
             {
-                foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> pearl in CustomDataPearlsList)
-                {
-                    if (pearl.Value.type != null)
-                    {
-                        pearl.Value.type.Unregister();
-                    }
-
-                    if (pearl.Value.conversationID != null)
-                    {
-                        pearl.Value.conversationID.Unregister();
-                    }
-                }
-
-                CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl>();
+                pearl.Value.type?.Unregister();
+                pearl.Value.conversationID?.Unregister();
             }
-            catch (Exception e) { throw e; }
+            CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl>();
         }
 
         public static DataPearl.AbstractDataPearl.DataPearlType RegisterPearlType(string name)
@@ -87,7 +72,7 @@ namespace CustomRegions.CustomPearls
         }
 
 
-        public static Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl>();
+        public static Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> CustomDataPearlsList = new();
 
 
     }

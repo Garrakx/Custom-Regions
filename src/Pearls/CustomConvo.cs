@@ -18,34 +18,26 @@ namespace CustomRegions.CustomPearls
 
         private static void MoonConversation_AddEvents(On.SLOracleBehaviorHasMark.MoonConversation.orig_AddEvents orig, SLOracleBehaviorHasMark.MoonConversation self)
         {
-            try
-            {
-                orig(self);
+            orig(self);
 
-                foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> customPearl in Data.CustomDataPearlsList)
+            foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> customPearl in Data.CustomDataPearlsList)
+            {
+                if (self.id == customPearl.Value.conversationID)
                 {
-                    if (self.id == customPearl.Value.conversationID)
-                    {
-                        self.PearlIntro();
-                        Encryption.LoadEventsFromFile(self, customPearl.Value.filePath);
-                        return;
-                    }
+                    self.PearlIntro();
+                    Encryption.LoadEventsFromFile(self, customPearl.Value.filePath);
+                    return;
                 }
             }
-            catch (Exception e) { throw e; }
         }
 
         private static Conversation.ID Conversation_DataPearlToConversation(On.Conversation.orig_DataPearlToConversation orig, DataPearl.AbstractDataPearl.DataPearlType type)
         {
-            try
+            if (Data.CustomDataPearlsList.TryGetValue(type, out CustomPearl customPearl))
             {
-                if (Data.CustomDataPearlsList.TryGetValue(type, out CustomPearl customPearl))
-                {
-                    CustomRegionsMod.CustomLog($"Found custom pearl conversation {customPearl.conversationID}");
-                    return customPearl.conversationID; 
-                }
+                CustomRegionsMod.CustomLog($"Found custom pearl conversation {customPearl.conversationID}");
+                return customPearl.conversationID;
             }
-            catch (Exception e) { throw e; }
 
             { return orig(type); }
         }

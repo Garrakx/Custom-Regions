@@ -16,32 +16,27 @@ namespace CustomRegions.Progression
 
         public static void Register()
         {
-            try {
-                CustomRegionsMod.CustomLog("[SAFARI UNLOCKS] CRS Registering safari unlocks...");
-                if (Region.GetFullRegionOrder() == null) { return; }
+            CustomRegionsMod.CustomLog("[SAFARI UNLOCKS] CRS Registering safari unlocks...");
+            if (Region.GetFullRegionOrder() == null) { return; }
 
-                CustomStaticCache.CheckForRefresh();
-                foreach (string regionName in CustomStaticCache.SafariRegions)
+            CustomStaticCache.CheckForRefresh();
+            foreach (string regionName in CustomStaticCache.SafariRegions)
+            {
+                if (MultiplayerUnlocks.SafariUnlockID.values.entries.Contains(regionName))
                 {
-                    if (MultiplayerUnlocks.SafariUnlockID.values.entries.Contains(regionName))
-                    { 
-                        CustomRegionsMod.CustomLog($"[SAFARI UNLOCKS] region [{regionName}] already has safari unlock"); 
-                        continue; 
-                    }
-
-                    CustomRegionsMod.CustomLog($"[SAFARI UNLOCKS] unlock is found for [{regionName}]");
-                    CustomSafariUnlocks.Add(new MultiplayerUnlocks.SafariUnlockID(regionName, true));
+                    CustomRegionsMod.CustomLog($"[SAFARI UNLOCKS] region [{regionName}] already has safari unlock");
+                    continue;
                 }
-            } catch (Exception e) { throw e; }
+
+                CustomRegionsMod.CustomLog($"[SAFARI UNLOCKS] unlock is found for [{regionName}]");
+                CustomSafariUnlocks.Add(new MultiplayerUnlocks.SafariUnlockID(regionName, true));
+            }
         }
 
         public static void Unregister()
         {
-            try {
-                foreach (MultiplayerUnlocks.SafariUnlockID unlock in CustomSafariUnlocks) { if (unlock != null) { unlock.Unregister(); } }
-
-                CustomSafariUnlocks = new List<MultiplayerUnlocks.SafariUnlockID>();
-            } catch (Exception e) { throw e; }
+            foreach (MultiplayerUnlocks.SafariUnlockID unlock in CustomSafariUnlocks) { unlock?.Unregister(); }
+            CustomSafariUnlocks = new List<MultiplayerUnlocks.SafariUnlockID>();
         }
     }
 }

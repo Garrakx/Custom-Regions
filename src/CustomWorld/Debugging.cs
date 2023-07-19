@@ -16,6 +16,7 @@ namespace CustomRegions.CustomWorld
             On.WorldLoader.LoadAbstractRoom += WorldLoader_LoadAbstractRoom;
             On.WorldLoader.SpawnerStabilityCheck += WorldLoader_SpawnerStabilityCheck;
             On.WorldLoader.AddSpawnersFromString += WorldLoader_AddSpawnersFromString;
+            On.WorldLoader.AddLineageFromString += WorldLoader_AddLineageFromString;
             try
             {
                 new Hook(typeof(WorldLoader).GetMethod("FindingCreaturesThread", flags), ThreadTryCatch<WorldLoader>);
@@ -42,6 +43,12 @@ namespace CustomRegions.CustomWorld
                 CustomRegionsMod.CustomLog($"Exception when getting world node for room [{self.GetAbstractRoom(c.room)?.name}] at index [{c.abstractNode}\n{e}");
                 throw; 
             }
+        }
+
+        private static void WorldLoader_AddLineageFromString(On.WorldLoader.orig_AddLineageFromString orig, WorldLoader self, string[] s)
+        {
+            try { orig(self, s); }
+            catch (Exception e) { CustomRegionsMod.CustomLog($"Skipping broken lineage line!: [{string.Join(" : ", s)}]\n" + e.ToString(), true); }
         }
 
         private static void WorldLoader_AddSpawnersFromString(On.WorldLoader.orig_AddSpawnersFromString orig, WorldLoader self, string[] line)
