@@ -117,7 +117,7 @@ namespace CustomRegions.CustomWorld
                 if (!string.IsNullOrEmpty(info.LinesSection(CL)[i]))
                 {
                     string[] array = Regex.Split(info.LinesSection(CL)[i], " : ");
-                    if (array.Length >= 4 && array[1] == "REPLACEROOM" && array[0] == info.playerCharacter.ToString())
+                    if (array.Length >= 4 && array[1] == "REPLACEROOM" && StringMatchesSlugcat(array[0], info.playerCharacter))
                     {
                         CustomRegionsMod.CustomLog($"adding line [{string.Join(" : ", array)}]");
                         WorldLoaderReplaceRooms(info.RegionID).Add(array[2], array[3]);
@@ -178,6 +178,32 @@ namespace CustomRegions.CustomWorld
 
             info.Lines.RemoveAll(str => str == "//");
         }
+        public static bool StringMatchesSlugcat(string text, SlugcatStats.Name slug)
+        {
+            bool include = false;
+            bool inverted = false;
 
+            if (text.StartsWith("X-"))
+            {
+                text = text.Substring(2);
+                inverted = true;
+            }
+
+            if (slug == null)
+            {
+                return inverted;
+            }
+
+            foreach (string text2 in text.Split(','))
+            {
+                if (text2.Trim() == slug.ToString())
+                {
+                    include = true;
+                    break;
+                }
+            }
+
+            return inverted != include;
+        }
     }
 }
