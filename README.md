@@ -15,6 +15,7 @@
 6) [MetaProperties](#metaproperties)
 7) [Region Conditional Lines](#region-conditional-lines)
 8) [ReplaceRoom](#replaceroom)
+9) [Mod Priorities](#Mod-Priorities)
 
 ### <a name="HOW TO COMPILE"></a>How to compile
 (for coders only)
@@ -245,6 +246,8 @@ Conditions can be stacked, like so
     (White,Yellow){MSC}VI_A19 : 2-Yeek-3
     (White,Yellow){!MSC}VI_A19 : 2-CicadaB-3
 
+Due to a bug, any time conditionals are used in the rooms section they should be at the bottom, otherwise items and creatures may start to disappear from shelters.
+
 ## <a name="REPLACE"></a>ReplaceRoom
 
 A new conditional link can be used to replace the room files for a particular room for a specific slugcat.
@@ -254,3 +257,10 @@ A new conditional link can be used to replace the room files for a particular ro
     END CONDITIONAL LINKS
 
 The room will still be known internally as its original name, but the files will be loaded by the new room name instead. So all connections and spawns should not use the new room name and still use the old one.
+
+## <a name="PRIORITIES"></a>Mod Priorities
+
+Mods can now be automatically prioritized over others by including a 'priorities' line in the ModInfo.json. This has the same behavior as a dependency when the mods are there, but the mod can still be enabled without the priorities.  
+Formatting is the same as for [requirements](https://rainworldmodding.miraheze.org/wiki/Downpour_Reference/Mod_Directories#ModInfo_JSON) in that it's an array of strings of the mod ids.
+
+    "priorities": ["moreslugcats", "expanded_outskirts"]
