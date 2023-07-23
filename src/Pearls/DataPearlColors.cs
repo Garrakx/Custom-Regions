@@ -22,44 +22,32 @@ namespace CustomRegions.CustomPearls
 
         private static Color DataPearl_UniquePearlMainColor(On.DataPearl.orig_UniquePearlMainColor orig, DataPearl.AbstractDataPearl.DataPearlType pearlType)
         {
-            try
-            {
-                if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl customPearl))
-                { return customPearl.color; }
-                else
-                { return orig(pearlType); }
-            }
-            catch (Exception e) { throw e; }
+            if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl customPearl))
+            { return customPearl.color; }
+            else
+            { return orig(pearlType); }
         }
 
         private static Color? DataPearl_UniquePearlHighLightColor(On.DataPearl.orig_UniquePearlHighLightColor orig, DataPearl.AbstractDataPearl.DataPearlType pearlType)
         {
-            try
-            {
-                if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl customPearl))
-                { return customPearl.highlightColor; }
-                else
-                { return orig(pearlType); }
-            }
-            catch (Exception e) { throw e; }
+            if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl customPearl))
+            { return customPearl.highlightColor; }
+            else
+            { return orig(pearlType); }
         }
 
         private static void DataPearl_ApplyPalette(On.DataPearl.orig_ApplyPalette orig, DataPearl self, RoomCamera.SpriteLeaser sLeaser, RoomCamera rCam, RoomPalette palette)
         {
-            try
+            orig(self, sLeaser, rCam, palette);
+
+            DataPearl.AbstractDataPearl.DataPearlType pearlType = (self.abstractPhysicalObject as DataPearl.AbstractDataPearl).dataPearlType;
+
+            if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl customPearl))
             {
-                orig(self, sLeaser, rCam, palette);
-
-                DataPearl.AbstractDataPearl.DataPearlType pearlType = (self.abstractPhysicalObject as DataPearl.AbstractDataPearl).dataPearlType;
-
-                if (CustomDataPearlsList.TryGetValue(pearlType, out CustomPearl customPearl))
-                {
-                    self.color = customPearl.color;
-                    self.highlightColor = customPearl.highlightColor;
-                    return;
-                }
+                self.color = customPearl.color;
+                self.highlightColor = customPearl.highlightColor;
+                return;
             }
-            catch (Exception e) { throw e; }
         }
     }
 }

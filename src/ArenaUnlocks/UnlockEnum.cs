@@ -40,12 +40,10 @@ namespace CustomRegions.ArenaUnlocks
 
         public static void UnregisterArenaUnlocks()
         {
-            try {
-                foreach (KeyValuePair<string, MultiplayerUnlocks.LevelUnlockID> unlock in customLevelUnlocks) 
-                { unlock.Value?.Unregister(); }
+            foreach (KeyValuePair<string, MultiplayerUnlocks.LevelUnlockID> unlock in customLevelUnlocks)
+            { unlock.Value?.Unregister(); }
 
-                customLevelUnlocks = new Dictionary<string, MultiplayerUnlocks.LevelUnlockID>();
-            } catch (Exception e) { throw e; }
+            customLevelUnlocks = new Dictionary<string, MultiplayerUnlocks.LevelUnlockID>();
         }
 
         public static void RegisterArenaUnlocks()

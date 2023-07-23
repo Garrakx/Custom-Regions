@@ -20,7 +20,7 @@ namespace CustomRegions.CustomWorld
 
         private static int AbstractRoom_ExitIndex(On.AbstractRoom.orig_ExitIndex orig, AbstractRoom self, int targetRoom)
         {
-            foreach (LoadingIndex index in self.world.GetAbstractRoom(targetRoom).AbstractIndexes())
+            foreach (LoadingIndex index in self.world.GetAbstractRoom(targetRoom).AbstractIndexes().Value)
             {
                 if (!index.IsDefault && index.toRoom == self.name)
                 {
@@ -50,7 +50,9 @@ namespace CustomRegions.CustomWorld
                         }
                         if (!foundOtherRoom) continue;
 
-                        absRoom.AbstractIndexes()[index.fromRoomIndex] = index;
+                        if (absRoom.AbstractIndexes().Value.Length == 0)
+                        { absRoom.AbstractIndexes().Value = new LoadingIndex[absRoom.connections.Length]; }
+                        absRoom.AbstractIndexes().Value[index.fromRoomIndex] = index;
                     }
                 }
             }
@@ -80,12 +82,13 @@ namespace CustomRegions.CustomWorld
 
                     if (int.TryParse(roomLine.connections[j].Substring(split + 2, roomLine.connections[j].IndexOf("}") - (split + 2)), out int index))
                     {
-                        LoadingIndex li = new LoadingIndex()
+                        LoadingIndex li = new()
                         {
                             toRoom = roomLine.connections[j].Substring(0, split),
                             toRoomIndex = index,
                             fromRoomIndex = j,
                         };
+                        CustomRegionsMod.CustomLog(li.ToString());
 
                         roomLine.connections[j] = "DISCONNECTED";
 
@@ -106,7 +109,7 @@ namespace CustomRegions.CustomWorld
 
         private static ConditionalWeakTable<AbstractRoom, StrongBox<LoadingIndex[]>> _AbstractIndexes = new();
 
-        public static LoadingIndex[] AbstractIndexes(this AbstractRoom p) => _AbstractIndexes.GetValue(p, _ => new(){Value = new LoadingIndex[p.connections.Length]}).Value;
+        public static StrongBox<LoadingIndex[]> AbstractIndexes(this AbstractRoom p) => _AbstractIndexes.GetValue(p, _ => new(){Value = new LoadingIndex[0]});
         
     public static Dictionary<string, List<LoadingIndex>> WorldLoadingIndexes = new();
 
@@ -116,6 +119,11 @@ namespace CustomRegions.CustomWorld
             public string toRoom;
             public int toRoomIndex;
             public int fromRoomIndex;
+
+            public override string ToString()
+            {
+                return $"IsDefault: [{IsDefault}], toRoom: [{toRoom}], toRoomIndex: [{toRoomIndex}], fromRoomIndex: [{fromRoomIndex}]";
+            }
         }
     }
 }

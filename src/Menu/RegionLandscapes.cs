@@ -26,11 +26,9 @@ namespace CustomRegions.CustomMenu
 
         public static void UnregisterLandscapes()
         {
-            try {
-                foreach (Menu.MenuScene.SceneID landscape in customLandscapes) { if (landscape != null) { landscape.Unregister(); } }
+            foreach (Menu.MenuScene.SceneID landscape in customLandscapes) { landscape?.Unregister(); }
 
-                customLandscapes = new List<Menu.MenuScene.SceneID>();
-            } catch (Exception e) { throw e; }
+            customLandscapes = new List<Menu.MenuScene.SceneID>();
         }
 
         public static void RegisterNewLandscapes()
@@ -75,7 +73,7 @@ namespace CustomRegions.CustomMenu
         {
 
             string path2 = AssetManager.ResolveFilePath(scene.sceneFolder + Path.DirectorySeparatorChar.ToString() + "positions_ims.txt");
-            if (!File.Exists(path2) || !(scene is Menu.InteractiveMenuScene)) {
+            if (!File.Exists(path2) || scene is not Menu.InteractiveMenuScene) {
                 path2 = AssetManager.ResolveFilePath(scene.sceneFolder + Path.DirectorySeparatorChar.ToString() + "positions.txt");
             }
             if (File.Exists(path2)) {
@@ -134,21 +132,39 @@ namespace CustomRegions.CustomMenu
 
                 if (array2.Length == 0 || array2[0].Length == 0) { continue; }
 
-                if (array2[0] == "blurMin" && array2.Length >= 2) { scene.blurMin = float.Parse(array2[1]); } else if (array2[0] == "blurMax" && array2.Length >= 2) { scene.blurMax = float.Parse(array2[1]); } else if (array2[0] == "idleDepths" && array2.Length >= 2 && float.TryParse(array2[1], out float idleResult)) { (scene as Menu.InteractiveMenuScene)?.idleDepths.Add(idleResult); } else {
-                    if (File.Exists(AssetManager.ResolveFilePath(scene.sceneFolder + Path.DirectorySeparatorChar.ToString() + array2[0] + ".png"))) {
-                        scene.AddIllustration(new Menu.MenuDepthIllustration(
-                            scene.menu, scene, scene.sceneFolder, array2[0], new Vector2(0f, 0f),
-                            (array2.Length >= 2 && int.TryParse(array2[1], out int r) ? r : 1),
-                            (array2.Length >= 3 && ExtEnumBase.TryParse(typeof(Menu.MenuDepthIllustration.MenuShader), array2[2], false, out ExtEnumBase result) ? (Menu.MenuDepthIllustration.MenuShader) result : Menu.MenuDepthIllustration.MenuShader.Normal)
-                            ));
+                bool layer = false;
+                if (array2.Length >= 2 && float.TryParse(array2[1], out float result2))
+                {
+                    switch (array2[0])
+                    {
+                        case "blurMin":
+                            scene.blurMin = result2;
+                            break;
+                        case "blurMax":
+                            scene.blurMax = result2;
+                            break;
+                        case "idleDepths":
+                            (scene as Menu.InteractiveMenuScene)?.idleDepths.Add(result2);
+                            break;
+                        default:
+                            layer = true;
+                            break;
                     }
+                }
+                else { layer = true; }
+                if (layer && File.Exists(AssetManager.ResolveFilePath(scene.sceneFolder + Path.DirectorySeparatorChar.ToString() + array2[0] + ".png")))
+                {
+                    scene.AddIllustration(new Menu.MenuDepthIllustration(
+                        scene.menu, scene, scene.sceneFolder, array2[0], new Vector2(0f, 0f),
+                        (array2.Length >= 2 && int.TryParse(array2[1], out int r) ? r : 1),
+                        (array2.Length >= 3 && ExtEnumBase.TryParse(typeof(Menu.MenuDepthIllustration.MenuShader), array2[2], false, out ExtEnumBase result) ? (Menu.MenuDepthIllustration.MenuShader)result : Menu.MenuDepthIllustration.MenuShader.Normal)
+                        ));
                 }
             }
 
             LoadPositions(scene);
 
-
-        LandscapeTitle:;
+        LandscapeTitle:
             if (scene.menu.ID == ProcessManager.ProcessID.FastTravelScreen || scene.menu.ID == ProcessManager.ProcessID.RegionsOverviewScreen) {
                 scene.AddIllustration(new Menu.MenuIllustration(scene.menu, scene, string.Empty, $"Title_{regionAcronym}_Shadow", new Vector2(0.01f, 0.01f), true, false));
                 scene.AddIllustration(new Menu.MenuIllustration(scene.menu, scene, string.Empty, $"Title_{regionAcronym}", new Vector2(0.01f, 0.01f), true, false));

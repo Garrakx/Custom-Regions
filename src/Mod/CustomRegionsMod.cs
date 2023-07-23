@@ -21,7 +21,7 @@ namespace CustomRegions.Mod
     {
         public const string PLUGIN_ID = "com.rainworldgame.garrakx.crs.mod";
         public const string PLUGIN_NAME = "Custom Regions Support";
-        public const string PLUGIN_VERSION = "0.10.0.1";
+        public const string PLUGIN_VERSION = "0.10.2.0";
         public const string JSON_ID = "crs";
 
          
@@ -45,7 +45,10 @@ namespace CustomRegions.Mod
             BepLog($"{PLUGIN_NAME} (v{PLUGIN_VERSION}) initialized, applying hooks...");
 
             try {
+                ModPriorities.ApplyHooks();
                 IndexedEntranceClass.Apply();
+                ReplaceRoomPreprocessor.Apply();
+                Debugging.ApplyHooks();
                 CustomMenu.RegionLandscapes.ApplyHooks();
                 CustomMusic.ProceduralMusicHooks.ApplyHooks();
                 ArenaUnlocks.UnlockEnum.ApplyHooks();
@@ -53,7 +56,7 @@ namespace CustomRegions.Mod
                 CustomPearls.DataPearlColors.ApplyHooks();
                 CustomPearls.CustomConvo.ApplyHooks();
                 RainWorldHooks.ApplyHooks();
-                CustomWorld.WorldLoaderHook.ApplyHooks();
+                WorldLoaderHook.ApplyHooks();
             } catch (Exception ex) {
                 BepLogError("Error while applying Hooks: " + ex.ToString());
             }
