@@ -7,6 +7,8 @@ using MonoMod.Cil;
 using System;
 using Newtonsoft.Json.Linq;
 using BepInEx.Logging;
+using UnityEngine.Networking;
+using UnityEngine;
 
 namespace CustomRegions.CustomMusic
 {
@@ -16,6 +18,25 @@ namespace CustomRegions.CustomMusic
         {
             On.Music.ProceduralMusic.ctor += ProceduralMusic_ctor;
             IL.Music.ProceduralMusic.ProceduralMusicInstruction.ctor += ProceduralMusicInstruction_ctor;
+            IL.Music.MusicPiece.SubTrack.Update += SubTrack_Update;
+        }
+
+        private static void SubTrack_Update(ILContext il)
+        {
+            var c = new ILCursor(il);
+            while (c.TryGotoNext(MoveType.AfterLabel,
+                x => x.MatchCall<AssetManager>(nameof(AssetManager.SafeWWWAudioClip))
+                ))
+            {
+                c.Remove();
+                c.EmitDelegate(AsyncLoad);
+            }
+        }
+
+        public static AudioClip AsyncLoad(string path, bool threeD, bool stream, AudioType audioType)
+        {
+            WWW www = new WWW(path);
+            return www.GetAudioClip(false, true, AudioType.OGGVORBIS);
         }
 
         private static void ProceduralMusic_ctor(On.Music.ProceduralMusic.orig_ctor orig, Music.ProceduralMusic self, Music.MusicPlayer musicPlayer, string name)
