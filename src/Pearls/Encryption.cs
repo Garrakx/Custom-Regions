@@ -33,22 +33,20 @@ namespace CustomRegions.CustomPearls
 
                 for (int j = -1; j < ExtEnum<SlugcatStats.Name>.values.Count; j++)
                 {
-                    string pathToConvo = AssetManager.ResolveFilePath("Text" + Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort(languageID) +
-                        Path.DirectorySeparatorChar + fileName + ".txt");
-
+                    string slugName = "";
                     if (j >= 0)
                     {
-                        pathToConvo = AssetManager.ResolveFilePath("Text" + Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort(languageID) +
-                        Path.DirectorySeparatorChar + fileName + "-" + SlugcatStats.Name.values.entries[j] + ".txt");
+                        slugName = "-" + SlugcatStats.Name.values.entries[j];
                     }
 
-                    int hash = fileName.GetHashCode();
+                    string pathToConvo = AssetManager.ResolveFilePath("Text" + Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort(languageID) +
+                        Path.DirectorySeparatorChar + fileName + slugName + ".txt");
 
                     if (!File.Exists(pathToConvo)) continue;
 
                     string convoLines = File.ReadAllText(pathToConvo, Encoding.Default);
                     //Log($"Conversation file: [{convoLines}]");
-                    if (convoLines[0] == '0')
+                    if (convoLines[0] != '0')
                     {
                         convoLines = Regex.Replace(convoLines, @"\r\n|\r|\n", "\r\n");
                         string[] lines = Regex.Split(convoLines, Environment.NewLine);
@@ -57,7 +55,7 @@ namespace CustomRegions.CustomPearls
 
                         if (lines.Length > 1)
                         {
-                            string text4 = Custom.xorEncrypt(convoLines, 54 + hash + InGameTranslator.LanguageID.EncryptIndex(languageID) * 7);
+                            string text4 = Custom.xorEncrypt(convoLines, 54 + OldDecryptKey(fileName) + InGameTranslator.LanguageID.EncryptIndex(languageID) * 7);
                             text4 = '1' + text4.Remove(0, 1);
                             File.WriteAllText(pathToConvo, text4);
                         }
@@ -77,38 +75,26 @@ namespace CustomRegions.CustomPearls
             }
         }
 
+        //DecryptKey(fileName + slugName)
+        public static int DecryptKey(string fileName) => fileName.Select(x => x - '0').Sum();
+        //OldDecryptKey(fileName);
+        public static int OldDecryptKey(string fileName) => fileName.GetHashCode();
+
         public static void LoadEventsFromFile(Conversation self, string fileName, SlugcatStats.Name saveFile = null, bool oneRandomLine = false, int randomSeed = 0)
         {
             if (saveFile == null) { saveFile = self.currentSaveFile; }
 
             CustomLog("~~~LOAD CONVO " + fileName);
             InGameTranslator.LanguageID languageID = self.interfaceOwner.rainWorld.inGameTranslator.currentLanguage;
-            string text;
+            string realName;
             for (; ; )
             {
-                text = AssetManager.ResolveFilePath(self.interfaceOwner.rainWorld.inGameTranslator.SpecificTextFolderDirectory(languageID) + Path.DirectorySeparatorChar.ToString() + fileName + ".txt");
-                if (saveFile != null)
-                {
-                    string text2 = text;
-                    text = AssetManager.ResolveFilePath(string.Concat(new string[]
-                    {
-                    self.interfaceOwner.rainWorld.inGameTranslator.SpecificTextFolderDirectory(languageID),
-                    Path.DirectorySeparatorChar.ToString(),
-                    fileName,
-                    "-",
-                    saveFile.value,
-                    ".txt"
-                    }));
-                    if (!File.Exists(text))
-                    {
-                        text = text2;
-                    }
-                }
-                if (File.Exists(text))
+                realName = CustomConvo.SearchConvoFile(self, fileName, saveFile, languageID);
+                if (File.Exists(realName))
                 {
                     goto IL_117;
                 }
-                CustomLog("NOT FOUND " + text);
+                CustomLog("NOT FOUND " + realName);
                 if (languageID == InGameTranslator.LanguageID.English)
                 {
                     break;
@@ -118,13 +104,14 @@ namespace CustomRegions.CustomPearls
             }
             return;
         IL_117:
-            string text3 = File.ReadAllText(text, Encoding.UTF8);
-            if (text3[0] != '0')
+            string fileText = File.ReadAllText(realName, Encoding.UTF8);
+            if (fileText[0] != '0')
             {
-                text3 = Custom.xorEncrypt(text3, 54 + fileName.GetHashCode() + (int)languageID * 7);
+                fileText = Custom.xorEncrypt(fileText, 54 + OldDecryptKey(fileName) + (int)languageID * 7);
             }
 
-            string[] array = Regex.Split(text3, "\r\n");
+
+            string[] array = Regex.Split(fileText, "\r\n");
             try
             {
 
