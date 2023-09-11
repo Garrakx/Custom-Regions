@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace CustomRegions.ArenaUnlocks
+namespace CustomRegions.Collectables
 {
-    internal static class UnlockEnum
+    internal static class ArenaUnlocks
     {
         public static void ApplyHooks()
         {
@@ -15,13 +15,17 @@ namespace CustomRegions.ArenaUnlocks
 
         private static MultiplayerUnlocks.LevelUnlockID MultiplayerUnlocks_LevelLockID(On.MultiplayerUnlocks.orig_LevelLockID orig, string levelName)
         {
-            if (customLevelUnlocks.ContainsKey(levelName.ToLower())) {
-                try {
+            if (customLevelUnlocks.ContainsKey(levelName.ToLower()))
+            {
+                try
+                {
                     MultiplayerUnlocks.LevelUnlockID unlockID = customLevelUnlocks[levelName];
                     CustomRegionsMod.CustomLog($"found custom arena unlock [{levelName}] [{unlockID}]");
                     return unlockID;
 
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     CustomRegionsMod.CustomLog($"Error parsing levelUnlockID enum [{levelName}] - [{e}]", true);
                 }
             }

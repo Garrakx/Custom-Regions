@@ -1,90 +1,114 @@
-﻿using System;
+﻿using CustomRegions.Mod;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using UnityEngine;
-using RWCustom;
-using Random = UnityEngine.Random;
-using static CustomRegions.Mod.CustomRegionsMod;
-using CustomRegions.Mod;
 using static CustomRegions.Mod.Structs;
+using Random = UnityEngine.Random;
 
-namespace CustomRegions.CustomPearls
+namespace CustomRegions.Collectables
 {
-    internal static class Encryption
+    internal static class CustomConvo
     {
-        public static void EncryptAllCustomPearls()
+        public static void ApplyHooks()
         {
-            foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> pearl in Data.CustomDataPearlsList)
+            On.Conversation.DataPearlToConversation += Conversation_DataPearlToConversation;
+            On.SLOracleBehaviorHasMark.MoonConversation.AddEvents += MoonConversation_AddEvents;
+            IL.Conversation.LoadEventsFromFile_int_Name_bool_int += Conversation_LoadEventsFromFileIL;
+        }
+
+        private static void Conversation_LoadEventsFromFileIL(MonoMod.Cil.ILContext il)
+        {
+            var c = new ILCursor(il);
+            if (c.TryGotoNext(MoveType.AfterLabel,
+                x => x.MatchLdloc(1),
+                x => x.MatchCall(typeof(File), nameof(File.Exists)),
+                x => x.MatchBrtrue(out _),
+                x => x.MatchLdstr("NOT FOUND ") //lol
+                ))
             {
-                EncryptCustomDialogue(pearl.Value.filePath);
+                c.Emit(OpCodes.Ldarg_0);
+                c.Emit(OpCodes.Ldarg, 1);
+                c.Emit(OpCodes.Ldarg_2);
+                c.Emit(OpCodes.Ldloc_0);
+                c.Emit(OpCodes.Ldloc_1);
+                c.EmitDelegate((Conversation self, int fileName, SlugcatStats.Name saveFile, InGameTranslator.LanguageID languageID, string original) => SearchConvoFile(self, fileName.ToString(), saveFile, languageID) ?? original);
+                c.Emit(OpCodes.Stloc_1);
+            }
+            else 
+            {
+                CustomRegionsMod.BepLogError("failed to il hook Conversation.LoadEventsFromFile!");
             }
         }
 
-        public static void EncryptCustomDialogue(string fileName)
+        public static string SearchConvoFile(Conversation self, string fileName, SlugcatStats.Name saveFile, InGameTranslator.LanguageID languageID)
         {
-            for (int i = 0; i < ExtEnum<InGameTranslator.LanguageID>.values.Count; i++)
+            string langDirectory = self.interfaceOwner.rainWorld.inGameTranslator.SpecificTextFolderDirectory(languageID) + Path.DirectorySeparatorChar;
+
+            string oracleName = "";
+
+            if (self.interfaceOwner is OracleBehavior behavior)
             {
-                InGameTranslator.LanguageID languageID = InGameTranslator.LanguageID.Parse(i);
+                oracleName = behavior.oracle.ID.value + Path.DirectorySeparatorChar;
+            }
 
-                for (int j = -1; j < ExtEnum<SlugcatStats.Name>.values.Count; j++)
+            string slugName = "";
+            if (saveFile != null)
+            {
+                slugName = "-" + saveFile.value;
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                string text = i switch
                 {
-                    string slugName = "";
-                    if (j >= 0)
-                    {
-                        slugName = "-" + SlugcatStats.Name.values.entries[j];
-                    }
+                    0 => langDirectory + oracleName + fileName + slugName + ".txt",
+                    1 => langDirectory + oracleName + fileName + ".txt",
+                    2 => langDirectory + fileName + slugName + ".txt",
+                    _ => langDirectory + fileName + ".txt"
+                };
+                CustomRegionsMod.CustomLog($"Searching for pearl convo at path [{text}]: {(File.Exists(AssetManager.ResolveFilePath(text)) ? "Found!" : "Not Found")}", false, CustomRegionsMod.DebugLevel.FULL);
+                
+                if (File.Exists(AssetManager.ResolveFilePath(text))) return AssetManager.ResolveFilePath(text);
+            }
+            return null;
+        }
 
-                    string pathToConvo = AssetManager.ResolveFilePath("Text" + Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort(languageID) +
-                        Path.DirectorySeparatorChar + fileName + slugName + ".txt");
+        static string Check(string path) => File.Exists(AssetManager.ResolveFilePath(path)) ? AssetManager.ResolveFilePath(path) : null;
 
-                    if (!File.Exists(pathToConvo)) continue;
+        private static void MoonConversation_AddEvents(On.SLOracleBehaviorHasMark.MoonConversation.orig_AddEvents orig, SLOracleBehaviorHasMark.MoonConversation self)
+        {
+            orig(self);
 
-                    string convoLines = File.ReadAllText(pathToConvo, Encoding.Default);
-                    //Log($"Conversation file: [{convoLines}]");
-                    if (convoLines[0] != '0')
-                    {
-                        convoLines = Regex.Replace(convoLines, @"\r\n|\r|\n", "\r\n");
-                        string[] lines = Regex.Split(convoLines, Environment.NewLine);
-                        CustomLog($"Encrypting file [{Path.GetFileNameWithoutExtension(pathToConvo)}.txt]. " +
-                            $"Number of lines [{lines.Length}]");
-
-                        if (lines.Length > 1)
-                        {
-                            string text4 = Custom.xorEncrypt(convoLines, 54 + OldDecryptKey(fileName) + InGameTranslator.LanguageID.EncryptIndex(languageID) * 7);
-                            text4 = '1' + text4.Remove(0, 1);
-                            File.WriteAllText(pathToConvo, text4);
-                        }
-                        else
-                        {
-                            CustomLog($"Failed encrypting. No newLine character found while encrypting. " +
-                                $"Try removing all new lines and pressing enter to separate them.", true);
-                        }
-                    }
-
-                    else
-                    {
-                        CustomLog($"Convo already encrypted: [{LocalizationTranslator.LangShort(languageID)}] ({fileName})", false, DebugLevel.FULL);
-                    }
-
+            foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> customPearl in PearlData.CustomDataPearlsList)
+            {
+                if (self.id == customPearl.Value.conversationID)
+                {
+                    self.PearlIntro();
+                    LoadEventsFromFile(self, customPearl.Value.filePath);
+                    return;
                 }
             }
         }
 
-        //DecryptKey(fileName + slugName)
-        public static int DecryptKey(string fileName) => fileName.Select(x => x - '0').Sum();
-        //OldDecryptKey(fileName);
-        public static int OldDecryptKey(string fileName) => fileName.GetHashCode();
+        private static Conversation.ID Conversation_DataPearlToConversation(On.Conversation.orig_DataPearlToConversation orig, DataPearl.AbstractDataPearl.DataPearlType type)
+        {
+            if (PearlData.CustomDataPearlsList.TryGetValue(type, out CustomPearl customPearl))
+            {
+                CustomRegionsMod.CustomLog($"Found custom pearl conversation {customPearl.conversationID}");
+                return customPearl.conversationID;
+            }
+
+            { return orig(type); }
+        }
 
         public static void LoadEventsFromFile(Conversation self, string fileName, SlugcatStats.Name saveFile = null, bool oneRandomLine = false, int randomSeed = 0)
         {
             if (saveFile == null) { saveFile = self.currentSaveFile; }
 
-            CustomLog("~~~LOAD CONVO " + fileName);
+            CustomRegionsMod.CustomLog("~~~LOAD CONVO " + fileName);
             InGameTranslator.LanguageID languageID = self.interfaceOwner.rainWorld.inGameTranslator.currentLanguage;
             string realName;
             for (; ; )
@@ -94,22 +118,17 @@ namespace CustomRegions.CustomPearls
                 {
                     goto IL_117;
                 }
-                CustomLog("NOT FOUND " + realName);
+                CustomRegionsMod.CustomLog("NOT FOUND " + realName);
                 if (languageID == InGameTranslator.LanguageID.English)
                 {
                     break;
                 }
-                CustomLog("RETRY WITH ENGLISH");
+                CustomRegionsMod.CustomLog("RETRY WITH ENGLISH");
                 languageID = InGameTranslator.LanguageID.English;
             }
             return;
         IL_117:
-            string fileText = File.ReadAllText(realName, Encoding.UTF8);
-            if (fileText[0] != '0')
-            {
-                fileText = Custom.xorEncrypt(fileText, 54 + OldDecryptKey(fileName) + (int)languageID * 7);
-            }
-
+            string fileText = Encryption.DecryptCustomText(realName, languageID);
 
             string[] array = Regex.Split(fileText, "\r\n");
             try
@@ -176,7 +195,7 @@ namespace CustomRegions.CustomPearls
             }
             catch
             {
-                CustomLog("TEXT ERROR");
+                CustomRegionsMod.CustomLog("TEXT ERROR");
                 self.events.Add(new Conversation.TextEvent(self, 0, "TEXT ERROR", 100));
             }
         }

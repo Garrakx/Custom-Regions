@@ -51,10 +51,10 @@ namespace CustomRegions.Mod
                 Debugging.ApplyHooks();
                 CustomMenu.RegionLandscapes.ApplyHooks();
                 CustomMusic.ProceduralMusicHooks.ApplyHooks();
-                ArenaUnlocks.UnlockEnum.ApplyHooks();
+                Collectables.ArenaUnlocks.ApplyHooks();
                 Progression.StoryRegionsMod.ApplyHooks();
-                CustomPearls.DataPearlColors.ApplyHooks();
-                CustomPearls.CustomConvo.ApplyHooks();
+                Collectables.PearlData.ApplyHooks();
+                Collectables.CustomConvo.ApplyHooks();
                 RainWorldHooks.ApplyHooks();
                 WorldLoaderHook.ApplyHooks();
             } catch (Exception ex) {
@@ -89,8 +89,8 @@ namespace CustomRegions.Mod
             {
                 CustomStaticCache.CheckForRefresh(forceRefresh);
                 CustomMerge.MergePearlsAndArenas();
-                ArenaUnlocks.UnlockEnum.RefreshArenaUnlocks();
-                CustomPearls.Data.Refresh();
+                CustomRegions.Collectables.ArenaUnlocks.RefreshArenaUnlocks();
+                Collectables.PearlData.Refresh();
             }
             catch (Exception e) { CustomLog(e.ToString(), true); }
         }
