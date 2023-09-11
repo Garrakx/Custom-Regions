@@ -72,6 +72,7 @@ namespace CustomRegions.Mod
             //cfgEven = oi.config.Bind<bool>("EvenUse", true, new ConfigurableInfo("Whether to use multiple BubbleGrasses evenly or not. Either use all BubbleGrasses in divided speed(true) or use one BubbleGrass at a time(false)."));
             CreateCustomWorldLog();
             LoadDebugLevel();
+            FixThreadedLogging();
             RegionPreprocessors.InitializeBuiltinPreprocessors();
             CustomLog("Mod is Initialized.");
         }
@@ -108,6 +109,16 @@ namespace CustomRegions.Mod
             get => PLUGIN_VERSION;
         }
 
+        public static void FixThreadedLogging()
+        {
+            if (Custom.rainWorld != null)
+            {
+                RainWorld rw = Custom.rainWorld;
+                Application.logMessageReceived -= rw.HandleLog;
+                Application.logMessageReceivedThreaded -= rw.HandleLog; //just in case is already subscribed
+                Application.logMessageReceivedThreaded += rw.HandleLog;
+            }
+        }
 
         public static void CustomLog(string logText)
         {

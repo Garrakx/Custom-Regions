@@ -168,11 +168,21 @@ namespace CustomRegions.CustomWorld
                 {
                     string[] lines = File.ReadAllLines(roomPath);
 
-                    if (lines[0].StartsWith("[[[["))
+                    if (lines.Length < 0)
+                    {
+                        exceptionMessage = $"file for room [{roomName}] is empty!";
+                    }
+
+                    else if (lines[0].StartsWith("[[[["))
                     {
                         exceptionMessage = $"room file is LevelEditorProject file instead of Level file {roomName}" +
                             $"\nthe correct output files for a render will appear in Level Editor\\levels" +
                             $"\nit appears this room file is from Level Editor\\LevelEditorProjects";
+                    }
+
+                    else
+                    {
+                    
                     }
                 }
                 CustomRegionsMod.CustomLog(exceptionMessage + "\n" + e, true);
