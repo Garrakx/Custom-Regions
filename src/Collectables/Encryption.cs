@@ -8,9 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using RWCustom;
-using Random = UnityEngine.Random;
 using static CustomRegions.Mod.CustomRegionsMod;
-using CustomRegions.Mod;
 using static CustomRegions.Mod.Structs;
 
 namespace CustomRegions.Collectables
@@ -19,76 +17,85 @@ namespace CustomRegions.Collectables
     {
         public static void EncryptAllCustomPearls()
         {
-            foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> pearl in PearlData.CustomDataPearlsList)
+            CustomLog($"Encrypting pearls", false, DebugLevel.FULL);
+            foreach (ModManager.Mod mod in ModManager.ActiveMods)
             {
-                EncryptCustomDialogue(pearl.Value.filePath);
-            }
-        }
-
-        public static void EncryptCustomDialogue(string fileName)
-        {
-            for (int i = 0; i < ExtEnum<InGameTranslator.LanguageID>.values.Count; i++)
-            {
-                InGameTranslator.LanguageID languageID = InGameTranslator.LanguageID.Parse(i);
-
-                for (int j = -1; j < ExtEnum<SlugcatStats.Name>.values.Count; j++)
+                for (int i = 0; i < ExtEnum<InGameTranslator.LanguageID>.values.Count; i++)
                 {
-                    string slugName = "";
-                    if (j >= 0)
+                    InGameTranslator.LanguageID languageID = InGameTranslator.LanguageID.Parse(i);
+                    string directory = Path.Combine(mod.path, $"Text{Path.DirectorySeparatorChar}Text_{LocalizationTranslator.LangShort(languageID)}");
+
+                    if (!Directory.Exists(directory)) continue;
+
+                    string[] files = Directory.GetFiles(directory, "*.txt", SearchOption.AllDirectories);
+                    foreach (string file in files)
                     {
-                        slugName = "-" + SlugcatStats.Name.values.entries[j];
-                    }
-
-                    string pathToConvo = AssetManager.ResolveFilePath("Text" + Path.DirectorySeparatorChar + "Text_" + LocalizationTranslator.LangShort(languageID) +
-                        Path.DirectorySeparatorChar + fileName + slugName + ".txt");
-
-                    if (!File.Exists(pathToConvo)) continue;
-
-                    string convoLines = File.ReadAllText(pathToConvo, Encoding.Default);
-                    //Log($"Conversation file: [{convoLines}]");
-                    if (convoLines[0] != '0')
-                    {
-                        convoLines = Regex.Replace(convoLines, @"\r\n|\r|\n", "\r\n");
-                        string[] lines = Regex.Split(convoLines, Environment.NewLine);
-                        CustomLog($"Encrypting file [{Path.GetFileNameWithoutExtension(pathToConvo)}.txt]. " +
-                            $"Number of lines [{lines.Length}]");
-
-                        if (lines.Length > 1)
+                        foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> pearl in PearlData.CustomDataPearlsList)
                         {
-                            string text4 = Custom.xorEncrypt(convoLines, 54 + OldDecryptKey(fileName) + InGameTranslator.LanguageID.EncryptIndex(languageID) * 7);
-                            text4 = '1' + text4.Remove(0, 1);
-                            File.WriteAllText(pathToConvo, text4);
+                            for (int j = -1; j <ExtEnum<SlugcatStats.Name>.values.Count; j++)
+                            {
+                                string name = pearl.Value.filePath;
+                                if (j > -1)  name += "-" + SlugcatStats.Name.values.entries[j];
+                                
+                                if (Path.GetFileNameWithoutExtension(file).ToLower() == name.ToLower())
+                                {
+                                    EncryptCustomDialogue(file);
+                                }
+                            }
                         }
-                        else
-                        {
-                            CustomLog($"Failed encrypting. No newLine character found while encrypting. " +
-                                $"Try removing all new lines and pressing enter to separate them.", true);
-                        }
-                    }
-
-                    else
-                    {
-                        CustomLog($"Convo already encrypted: [{LocalizationTranslator.LangShort(languageID)}] ({fileName})", false, DebugLevel.FULL);
                     }
 
                 }
             }
         }
 
+        public static void EncryptCustomDialogue(string path)
+        {
+            string filename = Path.GetFileNameWithoutExtension(path);
+            string[] lines = File.ReadAllLines(path, Encoding.UTF8);
+            if (lines.Length > 0 && lines[0] == $"0-{filename}")
+            {
+                CustomLog($"Encrypting convo [{filename}]");
+                InGameTranslator.EncryptDecryptFile(path, true);
+            }
+            else if (lines[0].Length > 0 && lines[0][0] == '1')
+            {
+                CustomLog($"Skipping encryption for {filename} as it is already encrypted", false, DebugLevel.FULL);
+            }
+            else
+            {
+                CustomLog($"Skipping encryption for {filename} as the first line doesn't match encryption requirements.");
+                CustomLog($"Make the first line [0-{filename}] in order to encrypt");
+            }
+        }
+
+
         //DecryptKey(fileName + slugName)
         public static int DecryptKey(string fileName) => fileName.Select(x => x - '0').Sum();
         //OldDecryptKey(fileName);
         public static int OldDecryptKey(string fileName) => fileName.GetHashCode();
 
-        public static string DecryptCustomText(string path, InGameTranslator.LanguageID languageID)
+        public static string DecryptCustomText(string path, InGameTranslator.LanguageID languageID, string pearlName)
         {
-            string fileText = File.ReadAllText(path, Encoding.UTF8);
-            if (fileText[0] != '0')
+            string fileText = InGameTranslator.EncryptDecryptFile(path, false, true);
+            if (fileText == null)
             {
-                string fileName = Path.GetFileNameWithoutExtension(fileText).Split('-')[0];
-                fileText = Custom.xorEncrypt(fileText, 54 + OldDecryptKey(fileName) + (int)languageID * 7);
+                CustomLog("Text was not encrypted! Using unencrypted text");
+                return File.ReadAllText(path);
             }
-            return fileText;
+            else 
+            {
+                string[] array = Regex.Split(fileText, "\r\n");
+                if (array.Length > 0 && array[0].Length > 0 && array[0].Substring(1) == $"-{Path.GetFileNameWithoutExtension(path)}")
+                {
+                    return fileText;
+                }
+                else
+                {
+                    CustomLog("Decryption failed, assuming legacy encryption");
+                    return Custom.xorEncrypt(File.ReadAllText(path, Encoding.UTF8), 54 + pearlName.GetHashCode() + (int)languageID * 7);
+                }
+            }
         }
     }
 }

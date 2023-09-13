@@ -128,7 +128,9 @@ namespace CustomRegions.Collectables
             }
             return;
         IL_117:
-            string fileText = Encryption.DecryptCustomText(realName, languageID);
+            string fileText = Encryption.DecryptCustomText(realName, languageID, fileName);
+
+            CustomRegionsMod.CustomLog(fileText, false, CustomRegionsMod.DebugLevel.FULL);
 
             string[] array = Regex.Split(fileText, "\r\n");
             try
