@@ -579,5 +579,29 @@ namespace CustomRegions.Mod
                 }) ;
             }
         }
+
+        public struct CustomBroadcast
+        {
+            public CustomBroadcast(MoreSlugcats.ChatlogData.ChatlogID id, List<KeyValuePair<Type, List<string>>> files)
+            {
+                this.id = id;
+                this.files = files;
+            }
+
+            public enum Type { Single, Sequence, Random }
+
+            public MoreSlugcats.ChatlogData.ChatlogID id;
+            public bool IsSingle => TotalLength == 1 && files.ElementAt(0).Key == Type.Single;
+
+            public int TotalLength => files.Select(x => x.Value).Sum(x => x.Count);
+
+            public List<KeyValuePair<Type, List<string>>> files;
+
+            public override string ToString()
+            {
+                return $"{id} : " + string.Join(", ", files);
+            }
+        }
+
     }
 }

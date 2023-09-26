@@ -55,6 +55,7 @@ namespace CustomRegions.Mod
                 Progression.StoryRegionsMod.ApplyHooks();
                 Collectables.PearlData.ApplyHooks();
                 Collectables.CustomConvo.ApplyHooks();
+                Collectables.Broadcasts.ApplyHooks();
                 RainWorldHooks.ApplyHooks();
                 WorldLoaderHook.ApplyHooks();
             } catch (Exception ex) {
@@ -89,8 +90,9 @@ namespace CustomRegions.Mod
             {
                 CustomStaticCache.CheckForRefresh(forceRefresh);
                 CustomMerge.MergePearlsAndArenas();
-                CustomRegions.Collectables.ArenaUnlocks.RefreshArenaUnlocks();
+                Collectables.ArenaUnlocks.RefreshArenaUnlocks();
                 Collectables.PearlData.Refresh();
+                Collectables.Broadcasts.Refresh();
             }
             catch (Exception e) { CustomLog(e.ToString(), true); }
         }
