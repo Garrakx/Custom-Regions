@@ -102,6 +102,10 @@ namespace CustomRegions.CustomWorld
             try { orig(self, game, playerCharacter, singleRoomWorld, worldName, region, setupValues); }
             catch(Exception e) { CustomRegionsMod.CustomLog(e.ToString(), true); }
 
+            if (singleRoomWorld) return;
+
+            if (region == null) CustomRegionsMod.CustomLog($"Region is null! Check World\\Regions.txt and make sure it contains [{worldName}] (case sensitive)");
+
             try
             {
                 RegionInfo regionInfo = new()

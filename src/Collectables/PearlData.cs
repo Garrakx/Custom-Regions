@@ -28,11 +28,14 @@ namespace CustomRegions.Collectables
                 CustomDataPearlsList = new Dictionary<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl>();
                 string customFilePath = AssetManager.ResolveFilePath("CustomPearls.txt");
                 if (!File.Exists(customFilePath)) return;
+
+                CustomRegionsMod.CustomLog("\nRegistering Custom Pearls");
+
                 foreach (string str in File.ReadAllLines(customFilePath))
                 {
                     string[] array = Regex.Split(str, " : ");
                     string pearlName = array[0];
-                    CustomRegionsMod.CustomLog("Pearl text name is " + pearlName);
+                    CustomRegionsMod.CustomLog("Pearl name is " + pearlName);
 
                     if (ExtEnumBase.TryParse(typeof(DataPearl.AbstractDataPearl.DataPearlType), pearlName, false, out _))
                     { continue; }

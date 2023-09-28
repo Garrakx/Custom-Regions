@@ -17,7 +17,7 @@ namespace CustomRegions.Collectables
     {
         public static void EncryptAllCustomPearls()
         {
-            CustomLog($"Encrypting pearls", false, DebugLevel.FULL);
+            CustomLog($"\nEncrypting pearls", false, DebugLevel.FULL);
             foreach (ModManager.Mod mod in ModManager.ActiveMods)
             {
                 for (int i = 0; i < ExtEnum<InGameTranslator.LanguageID>.values.Count; i++)

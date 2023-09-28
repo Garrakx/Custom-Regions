@@ -16,7 +16,7 @@ namespace CustomRegions.Progression
 
         public static void Register()
         {
-            CustomRegionsMod.CustomLog("[SAFARI UNLOCKS] CRS Registering safari unlocks...");
+            CustomRegionsMod.CustomLog("\n[SAFARI UNLOCKS] CRS Registering safari unlocks...");
             if (Region.GetFullRegionOrder() == null) { return; }
 
             CustomStaticCache.CheckForRefresh();

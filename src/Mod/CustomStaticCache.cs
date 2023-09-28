@@ -44,7 +44,7 @@ namespace CustomRegions.Mod
 
         public static void Refresh()
         {
-            CustomRegionsMod.CustomLog("--- Refreshing CRS ---", false, CustomRegionsMod.DebugLevel.MEDIUM);
+            CustomRegionsMod.CustomLog("\n--- Refreshing CRS ---", false, CustomRegionsMod.DebugLevel.MEDIUM);
 
             currentRegionOrder = Region.GetFullRegionOrder();
             currentSlugcats = ExtEnumBase.GetNames(typeof(SlugcatStats.Name)).ToList();

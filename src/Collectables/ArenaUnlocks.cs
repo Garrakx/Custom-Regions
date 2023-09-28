@@ -54,6 +54,9 @@ namespace CustomRegions.Collectables
         {
             string filePath = AssetManager.ResolveFilePath("CustomUnlocks.txt");
             if (!File.Exists(filePath)) return;
+
+            CustomRegionsMod.CustomLog("\nRegistering Custom Arena Unlocks");
+
             foreach (string line in File.ReadAllLines(filePath))
             {
                 if (line.Equals(string.Empty))

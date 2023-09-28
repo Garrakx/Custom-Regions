@@ -111,7 +111,7 @@ namespace CustomRegions.Mod
             get => PLUGIN_VERSION;
         }
 
-        public static void FixThreadedLogging()
+        private static void FixThreadedLogging()
         {
             if (Custom.rainWorld != null)
             {
@@ -120,6 +120,7 @@ namespace CustomRegions.Mod
                 Application.logMessageReceivedThreaded -= rw.HandleLog; //just in case is already subscribed
                 Application.logMessageReceivedThreaded += rw.HandleLog;
             }
+            else { CustomLog("failed to fix threaded logging as Custom.rainWorld is still null", false, DebugLevel.FULL); }
         }
 
         public static void CustomLog(string logText)
@@ -165,15 +166,15 @@ namespace CustomRegions.Mod
             }
         }
 
-        public static void CreateCustomWorldLog()
+        private static void CreateCustomWorldLog()
         {
             //TODO: Add Date!
             using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + Path.DirectorySeparatorChar.ToString() + logFileName)) {
-                sw.WriteLine($"############################################\n Custom World Log {versionCR} [DEBUG LEVEL: {debugLevel}]\n");
+                sw.WriteLine($"############################################\n Custom World Log {versionCR} [DEBUG LEVEL: {debugLevel}]\n {DateTime.UtcNow:MM/dd/yyyy HH:mm:ss}\n");
             }
         }
 
-        public static void LoadDebugLevel()
+        private static void LoadDebugLevel()
         {
             string filePath = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar.ToString() + "CRSDebugLevel.txt";
             if (File.Exists(filePath))

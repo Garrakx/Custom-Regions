@@ -47,9 +47,10 @@ namespace CustomRegions.CustomMenu
 
         public static Menu.MenuScene.SceneID RegisterMenuScenes(string name)
         {
+            CustomRegionsMod.CustomLog("\n[MENU SCENE] Registering menu scenes...");
             string sceneName = "Landscape - " + name;
             name = "Landscape_" + name;
-            CustomRegionsMod.CustomLog($"[MENU SCENE] checking if [{name}] needs new enum...", CustomRegionsMod.DebugLevel.FULL);
+            CustomRegionsMod.CustomLog($"[MENU SCENE] checking if [{name}] needs new enum", CustomRegionsMod.DebugLevel.FULL);
             if (ExtEnumBase.TryParse(typeof(Menu.MenuScene.SceneID), name, false, out _)) {
                 CustomRegionsMod.CustomLog($"[MENU SCENE] enum {name} already exists, skipping", CustomRegionsMod.DebugLevel.FULL);
                 return null;

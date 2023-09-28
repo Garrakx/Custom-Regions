@@ -158,6 +158,8 @@ namespace CustomRegions.Collectables
         #region processing
         private static void Player_ProcessChatLog(On.Player.orig_ProcessChatLog orig, Player self)
         {
+            if (!self.chatlog || self.room == null) { orig(self); return; }
+
             if (self.chatlogCounter == 59 && self.room.game.cameras[0].hud.chatLog == null && IsCustomChatlog(self.chatlogID, out _) && !HasUnique(self.chatlogID))
             {
                 CustomRegionsMod.CustomLog($"\n~~~Init Custom Chatlog [{self.chatlogID}]~~~");
