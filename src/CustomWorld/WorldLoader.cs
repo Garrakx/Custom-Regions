@@ -1,5 +1,7 @@
 ﻿using BepInEx.Logging;
 using CustomRegions.Mod;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System;
 using System.Collections.Generic;
@@ -95,6 +97,24 @@ namespace CustomRegions.CustomWorld
         public static void ApplyHooks()
         {
             On.WorldLoader.ctor_RainWorldGame_Name_bool_string_Region_SetupValues += WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues;
+            IL.WorldLoader.AddLineageFromString += WorldLoader_AddLineageFromString;
+        }
+
+        private static void WorldLoader_AddLineageFromString(MonoMod.Cil.ILContext il)
+        {
+            var c = new ILCursor(il);
+
+            if (c.TryGotoNext(MoveType.Before,
+                x => x.MatchLdarg(0),
+                x => x.MatchLdfld<WorldLoader>(nameof(WorldLoader.world)),
+                x => x.MatchCallvirt<World>(typeof(World).GetProperty(nameof(World.firstRoomIndex)).GetGetMethod().Name),
+                x => x.MatchLdarg(0),
+                x => x.MatchLdfld<WorldLoader>(nameof(WorldLoader.roomAdder))
+                ))
+            {
+                c.RemoveRange(3);
+                c.Emit(OpCodes.Ldc_I4_0);
+            }
         }
 
         private static void WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues(On.WorldLoader.orig_ctor_RainWorldGame_Name_bool_string_Region_SetupValues orig, WorldLoader self, RainWorldGame game, SlugcatStats.Name playerCharacter, bool singleRoomWorld, string worldName, Region region, RainWorldGame.SetupValues setupValues)

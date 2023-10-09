@@ -32,12 +32,23 @@ namespace CustomRegions.Collectables
             {
                 c.Emit(OpCodes.Ldarg_0);
                 c.Emit(OpCodes.Ldarg_1);
-                c.EmitDelegate((bool flag, SLOracleBehaviorHasMark self, PhysicalObject item) => {
-                    string pearl = (item as DataPearl).abstractPhysicalObject.type.value;
+                c.EmitDelegate((bool flag, SLOracleBehaviorHasMark self, PhysicalObject item) =>
+                {
                     SlugcatStats.Name name = self.oracle.room.game.StoryCharacter;
+                    string pearl = "";
+                    if (PearlData.CustomDataPearlsList.TryGetValue((item as DataPearl).AbstractPearl.dataPearlType, out CustomPearl customPearl))
+                    {
+                        pearl = customPearl.filePath;
+                    }
 
-                    return flag || SearchConvoFile(self, pearl, name, out _, slugExclusive: true) != null; 
+                    CustomRegionsMod.CustomLog("saint grabbing pearl");
+                    CustomRegionsMod.CustomLog($"SearchConvoFile is [{SearchConvoFile(self, pearl, name, out _, slugExclusive: true)}]");
+                    return flag && SearchConvoFile(self, pearl, name, out _, slugExclusive: true) == null;
                 });
+            }
+            else
+            {
+                CustomRegionsMod.BepLogError("failed to hook SLOracle.GrabObject");
             }
         }
 
@@ -138,8 +149,8 @@ namespace CustomRegions.Collectables
                     };
                     CustomRegionsMod.CustomLog($"Searching for pearl convo at path [{text}]: {(File.Exists(AssetManager.ResolveFilePath(text)) ? "Found!" : "Not Found")}", false, CustomRegionsMod.DebugLevel.FULL);
 
-                    if (iteratorExclusive && (i != 0 || i != 1)) continue;
-                    if (slugExclusive && (i != 0 || i != 2)) continue;
+                    if (iteratorExclusive && i is not 0 or 1) continue;
+                    if (slugExclusive && i is not 0 or 2) continue;
 
                     if (File.Exists(AssetManager.ResolveFilePath(text))) return AssetManager.ResolveFilePath(text);
                 }

@@ -89,7 +89,7 @@ namespace CustomRegions.Mod
             try
             {
                 CustomStaticCache.CheckForRefresh(forceRefresh);
-                CustomMerge.MergePearlsAndArenas();
+                CustomMerge.MergeCustomFiles();
                 Collectables.ArenaUnlocks.RefreshArenaUnlocks();
                 Collectables.PearlData.Refresh();
                 Collectables.Broadcasts.Refresh();
