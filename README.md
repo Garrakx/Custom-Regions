@@ -12,10 +12,12 @@
 3) [Region Landscape Art](#region-landscape-art)
 4) [Level Unlocks](#level-unlocks)
 5) [Pearls](#pearls)
-6) [MetaProperties](#metaproperties)
-7) [Region Conditional Lines](#region-conditional-lines)
-8) [ReplaceRoom](#replaceroom)
-9) [Mod Priorities](#Mod-Priorities)
+6) [Broadcasts](#broadcasts)
+7) [Oracle Specific Text](#oracle-specific-text)
+8) [MetaProperties](#metaproperties)
+9) [Region Conditional Lines](#region-conditional-lines)
+10) [ReplaceRoom](#replaceroom)
+11) [Mod Priorities](#Mod-Priorities)
 
 ### <a name="HOW TO COMPILE"></a>How to compile
 (for coders only)
@@ -140,16 +142,14 @@ Format is as follows:
 
     PearlID : MainColor : HighlightColor : ConversationFileName  
     
-The PearlID must be unique,  
-so it's good to pick a name that won't be likely to be picked  
-by another region mod.  
+The PearlID must be unique, so it's good to pick a name that won't be likely to be picked by another region mod.  
 
-Conversation files go inside Text\text_eng\  
-and can have any filename,  
-as long as it matches what's in CustomPearls.txt  
+Conversation files go inside `Text\text_lang\`  
+and can have any filename, as long as it matches what's in CustomPearls.txt  
+The first line of every conversation file should be `0-filename` with the following lines being the conversation itself
 
-Since this a single file,  
-region mods should extend this file with modification files.  
+
+Since this a single file, region mods should extend this file with modification files.  
 
 As an example: 
 
@@ -160,20 +160,82 @@ As an example:
         
     aetherridge\Text\text_eng\
         AR_Tram.txt
-            0-46
+            0-AR_Tram
             First line of the first text box.<LINE>Second line of the first text box.
             This line will be shown in a second text box!
             
         AR_Picture.txt
-            0-118
+            0-AR_Picture
             The 2nd number in the 1st line can be any number
             Although both numbers still need to be there
             
         AR_Shipping-Artificer.txt
-            0-0
+            0-AR_Shipping-Artificer
             You can also append a slugcat name
             For slug-specific conversations
 
+## <a name="BROADCASTS"></a>Broadcasts
+Custom Broadcast data is read from CustomBroadcasts.txt
+Basic format is as follows:
+    
+    BroadcastID : TextFileName
+
+The text files use the same format as the pearl text files above.
+
+A **sequence** of broadcast texts can be assigned to a single BroadcastID by using the `>` symbol. This allows you to specify a sequence of text files to be used in order.
+
+    SequenceID : Sequence1 > Sequence2 > Sequence3
+    
+
+A **random pool** of broadcast texts can also be assigned to a single BroadcastID by using the `,` symbol. A random text file that has not yet been read will be chosen.
+
+    RandomPoolID : Random1, Random2, Random3
+
+Sequences and random pools can be mixed together. The sequence will not move on until all of the random pool is depleted.
+
+    MixedID : SequenceStart > Random1, Random2, Random3 > SequenceEnd
+
+As a more concrete example:
+
+    oldnewhorizons\modify\CustomBroadcasts.txt
+        [ADD]ONHFarlands : ONH_Special
+        [ADD]ONHMainSequence : ONH_Seq_1 > ONH_Seq_2 > ONH_Ran_1, ONH_Ran_2, ONH_Ran_3 > ONH_Final
+       [ADD]ONHMisc : ONH_Misc_1, ONH_Misc_2, ONH_Misc_3, ONH_Misc_4
+       
+    oldnewhorizons\Text\text_eng\
+        ONH_Special.txt
+            0-ONH_Special
+            Same format as pearl text<LINE>Including line breaks.
+            Line breaks will be in the same black box,
+            While different lines will be in separated boxes.
+            
+        ONH_Seq_1.txt
+            0-ONH_Seq_1
+            This is a different text file with a different broadcast text
+            
+        ect...
+
+## <a name="ORACLETEXT"></a>Oracle Specific Text
+
+For coders or custom slugcat makers who can visit multiple iterator oracles, unique text files can be defined. This can be applied to any text file, including pearl texts, item dialogue, ect.
+
+Oracle-specific text files are included in subfolders using the OracleID.  
+For base game oracles, these would be
+
+    Text\Text_Lang\SS\  (vanilla Five Pebbles)
+    Text\Text_Lang\SL\  (Shoreline Looks to the Moon)
+    
+    Text\Text_Lang\DM\  (Spearmaster Looks to the Moon)
+    Text\Text_Lang\CL\  (Saint Five Pebbles)
+    Text\Text_Lang\ST\  (Challenge 70 oracle))
+
+The text files are *not* the id of the region they're in, that's just how base game defines them.  
+Oracle and slugcat specifics can be combined. The priority between them is as follows
+
+    Text\Text_Eng\SL\PearlText-White.txt
+    Text\Text_Eng\SL\PearlText.txt
+    Text\Text_Eng\PearlText-White.txt
+    Text\Text_Eng\PearlText.txt
 
 ## <a name="META"></a>MetaProperties
 A new file called MetaProperties.txt can be placed in World\XX to define the following meta properties for the region:

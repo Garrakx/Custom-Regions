@@ -22,7 +22,7 @@ namespace CustomRegions.Progression
             CustomStaticCache.CheckForRefresh();
             foreach (string regionName in CustomStaticCache.SafariRegions)
             {
-                if (MultiplayerUnlocks.SafariUnlockID.values.entries.Contains(regionName))
+                if (MultiplayerUnlocks.SafariUnlockID.values?.entries.Contains(regionName) ?? false)
                 {
                     CustomRegionsMod.CustomLog($"[SAFARI UNLOCKS] region [{regionName}] already has safari unlock");
                     continue;

@@ -87,7 +87,11 @@ namespace CustomRegions.Collectables
 
                 try
                 {
-                    levelNames = Regex.Split(lineDivided[1].Replace(" ", ""), ",");
+                    levelNames = Regex.Split(lineDivided[1], ",");
+                    for (int j = 0; j < levelNames.Length; j++)
+                    {
+                        levelNames[j] = levelNames[j].Trim();
+                    }
                 }
                 catch (Exception e)
                 {
