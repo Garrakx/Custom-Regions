@@ -33,7 +33,7 @@ namespace CustomRegions.Collectables
             return orig(levelName);
         }
 
-        static Dictionary<string, MultiplayerUnlocks.LevelUnlockID> customLevelUnlocks = new Dictionary<string, MultiplayerUnlocks.LevelUnlockID>();
+        public static Dictionary<string, MultiplayerUnlocks.LevelUnlockID> customLevelUnlocks = new Dictionary<string, MultiplayerUnlocks.LevelUnlockID>();
 
 
         public static void RefreshArenaUnlocks()

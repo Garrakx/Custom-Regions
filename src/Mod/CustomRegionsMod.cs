@@ -55,7 +55,10 @@ namespace CustomRegions.Mod
                 Progression.StoryRegionsMod.ApplyHooks();
                 Collectables.PearlData.ApplyHooks();
                 Collectables.CustomConvo.ApplyHooks();
+                Collectables.Encryption.ApplyHooks();
                 Collectables.Broadcasts.ApplyHooks();
+                Arena.Properties.ApplyHooks();
+                Arena.PreprocessorPatch.ApplyHooks();
                 RainWorldHooks.ApplyHooks();
                 WorldLoaderHook.ApplyHooks();
             } catch (Exception ex) {
