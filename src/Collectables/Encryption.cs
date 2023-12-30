@@ -15,6 +15,17 @@ namespace CustomRegions.Collectables
 {
     internal static class Encryption
     {
+        public static void ApplyHooks()
+        {
+            On.MoreSlugcats.ChatlogData.DecryptResult += ChatlogData_DecryptResult;
+        }
+
+        private static string ChatlogData_DecryptResult(On.MoreSlugcats.ChatlogData.orig_DecryptResult orig, string result, string path)
+        {
+            if (result[0] == '0') return result;
+            return orig(result, path);
+        }
+
         public static void EncryptAllCustomPearls()
         {
             CustomLog($"\nEncrypting pearls", false, DebugLevel.FULL);

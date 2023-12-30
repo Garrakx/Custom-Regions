@@ -27,6 +27,33 @@ namespace CustomRegions.CustomWorld
             }
             catch (Exception e) { CustomRegionsMod.BepLogError("failed to hook threads\n" + e); }
             On.World.GetNode += World_GetNode;
+            On.RoomPreprocessor.DecompressStringToAImaps += RoomPreprocessor_DecompressStringToAImaps;
+        }
+
+        private static CreatureSpecificAImap[] RoomPreprocessor_DecompressStringToAImaps(On.RoomPreprocessor.orig_DecompressStringToAImaps orig, string s, AImap aimap)
+        {
+            try
+            {
+                return orig(s, aimap);
+            }
+            catch (Exception e) 
+            {
+                CustomRegionsMod.CustomLog($"Error when decompressing aimaps for {aimap.room.abstractRoom.name}");
+
+                int i = 0;
+                try
+                {
+                    for (i = 0; i < StaticWorld.preBakedPathingCreatures.Length; i++)
+                    {
+                        string[] array2 = Regex.Split(s, "<<DIV - A>>");
+                        int[] intArray = RoomPreprocessor.StringToIntArray(Regex.Split(array2[i + 1], "<<DIV - B>>")[0]);
+                        float[] floatArray = RoomPreprocessor.StringToFloatArray(Regex.Split(array2[i + 1], "<<DIV - B>>")[1]);
+                    }
+                }
+                catch { CustomRegionsMod.CustomLog($"Error parsing map for creature [{StaticWorld.preBakedPathingCreatures[i].name}]"); }
+                CustomRegionsMod.CustomLog(e.ToString());
+                throw e;
+            }
         }
 
         private static void ThreadTryCatch<T>(Action<T> orig, T self)

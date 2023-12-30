@@ -149,8 +149,8 @@ namespace CustomRegions.Collectables
                     };
                     CustomRegionsMod.CustomLog($"Searching for pearl convo at path [{text}]: {(File.Exists(AssetManager.ResolveFilePath(text)) ? "Found!" : "Not Found")}", false, CustomRegionsMod.DebugLevel.FULL);
 
-                    if (iteratorExclusive && i is not 0 or 1) continue;
-                    if (slugExclusive && i is not 0 or 2) continue;
+                    if (iteratorExclusive && !(i is 0 or 1)) continue;
+                    if (slugExclusive && !(i is 0 or 2)) continue;
 
                     if (File.Exists(AssetManager.ResolveFilePath(text))) return AssetManager.ResolveFilePath(text);
                 }

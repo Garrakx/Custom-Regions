@@ -13,8 +13,13 @@ namespace CustomRegions.Progression
         {
             On.SlugcatStats.getSlugcatStoryRegions += SlugcatStats_getSlugcatStoryRegions;
             On.SlugcatStats.getSlugcatOptionalRegions += SlugcatStats_getSlugcatOptionalRegions;
+            On.Region.RegionColor += Region_RegionColor;
         }
 
+        private static UnityEngine.Color Region_RegionColor(On.Region.orig_RegionColor orig, string regionName)
+        {
+            return orig(regionName.ToUpper());
+        }
 
         private static string[] SlugcatStats_getSlugcatOptionalRegions(On.SlugcatStats.orig_getSlugcatOptionalRegions orig, SlugcatStats.Name i)
         {
