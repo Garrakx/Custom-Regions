@@ -50,6 +50,12 @@ namespace CustomRegions.Mod
                 ReplaceRoomPreprocessor.Apply();
                 Debugging.ApplyHooks();
                 CustomMenu.RegionLandscapes.ApplyHooks();
+                Arena.ChallengeMenu.ApplyHooks();
+                Arena.ChallengeSupport.ApplyHooks();
+                Arena.ChallengeToken.ApplyHooks();
+                Arena.ChallengeTokenCache.ApplyHooks();
+                Arena.ChallengeData.ApplyHooks();
+                Arena.CreatureBehaviors.ApplyHooks();
                 CustomMusic.ProceduralMusicHooks.ApplyHooks();
                 Collectables.ArenaUnlocks.ApplyHooks();
                 Progression.StoryRegionsMod.ApplyHooks();
@@ -96,6 +102,7 @@ namespace CustomRegions.Mod
                 Collectables.ArenaUnlocks.RefreshArenaUnlocks();
                 Collectables.PearlData.Refresh();
                 Collectables.Broadcasts.Refresh();
+                Arena.ChallengeData.Refresh();
             }
             catch (Exception e) { CustomLog(e.ToString(), true); }
         }

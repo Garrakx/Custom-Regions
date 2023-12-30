@@ -26,6 +26,12 @@ namespace CustomRegions.Mod
                 MergeSpecific("CustomUnlocks.txt"); 
             }
 
+            filePath = Path.Combine(Path.Combine(Custom.RootFolderDirectory(), "mergedmods"), "CustomChallenges.txt");
+            if (!File.Exists(filePath))
+            {
+                CustomRegionsMod.CustomLog("merging CustomChallenges");
+                MergeSpecific("CustomChallenges.txt");
+            }
 
             filePath = Path.Combine(Path.Combine(Custom.RootFolderDirectory(), "mergedmods"), "CustomBroadcasts.txt");
             if (!File.Exists(filePath))
