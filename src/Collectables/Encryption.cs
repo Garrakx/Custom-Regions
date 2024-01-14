@@ -10,6 +10,8 @@ using UnityEngine;
 using RWCustom;
 using static CustomRegions.Mod.CustomRegionsMod;
 using static CustomRegions.Mod.Structs;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace CustomRegions.Collectables
 {
@@ -31,6 +33,9 @@ namespace CustomRegions.Collectables
             CustomLog($"\nEncrypting pearls", false, DebugLevel.FULL);
             foreach (ModManager.Mod mod in ModManager.ActiveMods)
             {
+                if (mod.id == "moreslugcats" || mod.id == "expedition" || mod.id == "rwremix" || mod.id == "jollycoop") continue;
+                if (File.Exists(Path.Combine(mod.path, $"Text{Path.DirectorySeparatorChar}NoEncryption.txt"))) continue;
+
                 for (int i = 0; i < ExtEnum<InGameTranslator.LanguageID>.values.Count; i++)
                 {
                     InGameTranslator.LanguageID languageID = InGameTranslator.LanguageID.Parse(i);
@@ -64,7 +69,7 @@ namespace CustomRegions.Collectables
         {
             string filename = Path.GetFileNameWithoutExtension(path);
             string[] lines = File.ReadAllLines(path, Encoding.UTF8);
-            if (lines.Length > 0 && lines[0] == $"0-{filename}")
+            if (lines.Length > 0 && lines[0].ToLower() == $"0-{filename}".ToLower())
             {
                 CustomLog($"Encrypting convo [{filename}]");
                 InGameTranslator.EncryptDecryptFile(path, true);
@@ -75,8 +80,8 @@ namespace CustomRegions.Collectables
             }
             else
             {
-                CustomLog($"Skipping encryption for {filename} as the first line doesn't match encryption requirements.");
-                CustomLog($"Make the first line [0-{filename}] in order to encrypt");
+                CustomLog($"Skipping encryption for {filename} as the first line doesn't match encryption requirements.", false, DebugLevel.MEDIUM);
+                CustomLog($"Make the first line [0-{filename}] in order to encrypt", false, DebugLevel.MEDIUM);
             }
         }
 
@@ -97,7 +102,7 @@ namespace CustomRegions.Collectables
             else 
             {
                 string[] array = Regex.Split(fileText, "\r\n");
-                if (array.Length > 0 && array[0].Length > 0 && array[0].Substring(1) == $"-{Path.GetFileNameWithoutExtension(path)}")
+                if (array.Length > 0 && array[0].Length > 0 && array[0].Substring(1).ToLower() == $"-{Path.GetFileNameWithoutExtension(path).ToLower()}")
                 {
                     return fileText;
                 }
