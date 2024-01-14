@@ -1,14 +1,11 @@
 ﻿using CustomRegions.Mod;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using System;
-using Newtonsoft.Json.Linq;
-using BepInEx.Logging;
-using UnityEngine.Networking;
 using UnityEngine;
+using System.Linq;
 
 namespace CustomRegions.CustomMusic
 {
@@ -17,8 +14,43 @@ namespace CustomRegions.CustomMusic
         public static void ApplyHooks()
         {
             On.Music.ProceduralMusic.ctor += ProceduralMusic_ctor;
+            On.Music.ProceduralMusic.ProceduralMusicInstruction.ctor += ProceduralMusicInstruction_ctor1;
             IL.Music.ProceduralMusic.ProceduralMusicInstruction.ctor += ProceduralMusicInstruction_ctor;
             IL.Music.MusicPiece.SubTrack.Update += SubTrack_Update;
+        }
+
+        private static void ProceduralMusicInstruction_ctor1(On.Music.ProceduralMusic.ProceduralMusicInstruction.orig_ctor orig, Music.ProceduralMusic.ProceduralMusicInstruction self, string name)
+        {
+            orig(self, name);
+            foreach (var track in self.tracks)
+            {
+                List<string> subRegions = track.subRegions.ToList();
+                for (int i = subRegions.Count - 1; i >= 0; i--)
+                {
+                    if (subRegions[i] == "D")
+                    {
+                        track.dayNight = 1;
+                        subRegions.RemoveAt(i);
+                    }
+
+                    else if (subRegions[i] == "N")
+                    {
+                        track.dayNight = 2;
+                        subRegions.RemoveAt(i);
+                    }
+
+                    else if (subRegions[i] == "M")
+                    {
+                        track.mushroom = true;
+                        subRegions.RemoveAt(i);
+                    }
+
+                    else if (subRegions[i].Contains("%2"))
+                    {  subRegions[i] = subRegions[i].Replace("%2", ","); }
+                }
+
+                track.subRegions = subRegions.ToArray();
+            }
         }
 
         private static void SubTrack_Update(ILContext il)
