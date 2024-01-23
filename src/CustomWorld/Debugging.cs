@@ -1,6 +1,7 @@
 ﻿using CustomRegions.Mod;
 using MonoMod.RuntimeDetour;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -28,6 +29,41 @@ namespace CustomRegions.CustomWorld
             catch (Exception e) { CustomRegionsMod.BepLogError("failed to hook threads\n" + e); }
             On.World.GetNode += World_GetNode;
             On.RoomPreprocessor.DecompressStringToAImaps += RoomPreprocessor_DecompressStringToAImaps;
+            On.RoomPreprocessor.PreprocessRoom += RoomPreprocessor_PreprocessRoom;
+            On.RoomSettings.Load += RoomSettings_Load;
+            On.AIdataPreprocessor.CreatureDone += AIdataPreprocessor_CreatureDone;
+        }
+
+        private static void AIdataPreprocessor_CreatureDone(On.AIdataPreprocessor.orig_CreatureDone orig, AIdataPreprocessor self)
+        {
+            orig(self);
+            if (self.aiMap.room.cameraPositions.Length < 10) return;
+            if (self.currentCreatureIndex >= 0 && self.currentCreatureIndex < StaticWorld.preBakedPathingCreatures.Length)
+            {
+                CustomRegionsMod.CustomLog($"finished baking creature [{StaticWorld.preBakedPathingCreatures[self.currentCreatureIndex].name}], {self.currentCreatureIndex}/{StaticWorld.preBakedPathingCreatures.Length} complete");
+            }
+        }
+
+        private static bool RoomSettings_Load(On.RoomSettings.orig_Load orig, RoomSettings self, SlugcatStats.Name playerChar)
+        {
+            try { 
+                return orig(self, playerChar); 
+            }
+            catch (Exception e) { CustomRegionsMod.CustomLog($"Error while loading settings from room [{self.name}]\n" + e.ToString()); throw; }
+        }
+
+        private static string[] RoomPreprocessor_PreprocessRoom(On.RoomPreprocessor.orig_PreprocessRoom orig, AbstractRoom abstractRoom, string[] levelText, World world, RainWorldGame.SetupValues setupValues, int preprocessingGeneration)
+        {
+            if(!setupValues.bake) return orig(abstractRoom, levelText, world, setupValues, preprocessingGeneration);
+
+            CustomRegionsMod.CustomLog($"Baking room: [{abstractRoom.name}]");
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            var result = orig(abstractRoom, levelText, world, setupValues, preprocessingGeneration);
+
+            stopwatch.Stop();
+            CustomRegionsMod.CustomLog($"Finished baking room: [{abstractRoom.name}], elapsed time: [{stopwatch.Elapsed:h\\:mm\\:ss\\.ff}]");
+            return result;
         }
 
         private static CreatureSpecificAImap[] RoomPreprocessor_DecompressStringToAImaps(On.RoomPreprocessor.orig_DecompressStringToAImaps orig, string s, AImap aimap)

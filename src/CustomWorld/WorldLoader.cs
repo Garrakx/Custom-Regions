@@ -98,6 +98,19 @@ namespace CustomRegions.CustomWorld
         {
             On.WorldLoader.ctor_RainWorldGame_Name_bool_string_Region_SetupValues += WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues;
             IL.WorldLoader.AddLineageFromString += WorldLoader_AddLineageFromString;
+            On.WorldLoader.CreatingWorld += WorldLoader_CreatingWorld;
+        }
+
+        //this fixes a bunch of bugs introduced by 'dynamic' region room lists
+        private static void WorldLoader_CreatingWorld(On.WorldLoader.orig_CreatingWorld orig, WorldLoader self)
+        {
+            foreach (AbstractRoom room in self.abstractRooms)
+            {
+                if (room == null) continue;
+                RainWorld.roomIndexToName[room.index] = room.name;
+                RainWorld.roomNameToIndex[room.name] = room.index;
+            }
+            orig(self);
         }
 
         private static void WorldLoader_AddLineageFromString(MonoMod.Cil.ILContext il)

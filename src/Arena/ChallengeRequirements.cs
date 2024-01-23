@@ -29,7 +29,7 @@ namespace CustomRegions.Arena
             string result = "";
 
             var saveData = self.manager.rainWorld.progression.miscProgressionData.CustomSaveData();
-            if (saveData.ChallengeTokenUnlocked(challenge.id)) result += self.Translate("Collect a challenge token to unlock.");
+            if (!saveData.ChallengeTokenUnlocked(challenge.id)) result += self.Translate("Collect a challenge token to unlock.");
 
             foreach (string req in challenge.UnlockRequirement[challenge.levels[id - 1]])
             {

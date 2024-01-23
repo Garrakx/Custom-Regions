@@ -139,6 +139,13 @@ namespace CustomRegions.Mod
                         foreach (string slugString in SlugcatStats.Name.values.entries)
                         {
                             SlugcatStats.Name slugName = new(slugString, false);
+
+                            if (!CustomStoryRegions.ContainsKey(slugName))
+                            { 
+                                CustomStoryRegions[slugName] = new();
+                                CustomOptionalRegions[slugName] = new();
+                            }
+
                             if (!CustomStoryRegions.ContainsKey(slugName) || CustomStoryRegions[slugName].Contains(regionName) || CustomOptionalRegions[slugName].Contains(regionName))
                             { continue; }
 
