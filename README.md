@@ -17,6 +17,7 @@
 5) [Pearls](#pearls)
 6) [Broadcasts](#broadcasts)
 7) [Oracle Specific Text](#oracle-specific-text)
+6) [Challenges](#challenges)
 8) [MetaProperties](#metaproperties)
 9) [Region Conditional Lines](#region-conditional-lines)
 10) [ReplaceRoom](#replaceroom)
@@ -198,7 +199,9 @@ Sequences and random pools can be mixed together. The sequence will not move on 
 
     MixedID : SequenceStart > Random1, Random2, Random3 > SequenceEnd
 
-As a more concrete example:
+Since this a single file, mods should extend this file with modification files.  
+
+As an example: 
 
     oldnewhorizons\modify\CustomBroadcasts.txt
         [ADD]ONHFarlands : ONH_Special
@@ -239,6 +242,83 @@ Oracle and slugcat specifics can be combined. The priority between them is as fo
     Text\Text_Eng\SL\PearlText.txt
     Text\Text_Eng\PearlText-White.txt
     Text\Text_Eng\PearlText.txt
+
+## <a name="CHALLENGES"></a>Challenges
+
+New CRS challenges can be found by pressing the 'CRS' button in the Challenge menu.  
+They can be unlocked by collecting a new purple token in-game, or they can be unlocked by default.
+
+Data for these challenges is read from CustomChallenges.txt  
+Basic format is as follows
+
+    UnlockName : Color : Challenge1Name, Challenge2Name, Challenge3Name
+
+UnlockName will be the text displayed in the menus as well as the id for the token.  
+Color is the display color of the text in the menu  
+
+Each unlock can have a total of 10 challenges. They can have any name, but should be the name of the files placed in Levels\Challenges. This name is not displayed on the menus.  
+
+Challenge files follow the same format as MSC challenges. You can learn more about how to format the files [here.](https://rainworldmodding.miraheze.org/wiki/Challenges)
+
+By default each group of challenges will be locked until a purple challenge token is collected. Appending ` : UNLOCKED` to the line will leave them unlocked by default.  
+
+### Special Unlock Requirements
+
+Each individual challenge can be given special unlock requirements by appending them to the challenge name in `-{}` ie
+
+    Challenge-{Beaten:Gourmand|Sandbox:PuffBall|Challenge:22-28}
+    
+The list of special requirements is as follows
+
+- Beaten  
+Unlocks when the specified slugcat campaign is complete.  
+`{Beaten:Survivor|Beaten:Artificer}`  
+Either the display name or the code id will work. Currently does not work for custom slugcats.
+
+- Slugcat  
+Unlocks when the arena token for the specified slugcat is collected.  
+ie, `{Slugcat:White|Slugcat:Artificer}`  
+Here the code id must be used.  
+
+- Safari  
+Unlocks when the Safari token for the specified region has been collected.  
+`{Safari:LM|Safari:AR}`
+
+- Level  
+Unlocks when the token for the specified arena has been collected.  
+`{LevelUnlocked:SU_Stoneheads|LevelUnlocked:Man Eater}`  
+The level name must be the name of the file rather than the display name
+
+- Sandbox  
+Unlocks when the specified sandbox token for a creature or item has been collected.  
+`{Sandbox:Mushroom|Sandbox:YellowLizard}`  
+The name of the creature or item must exactly match their internal SandboxUnlockID
+
+- Challenge  
+Unlocks when the specified challenge or range of challenges has been beaten.  
+`{Challenge:62|Challenge:29-35}`  
+CRS challenges can also be required by including the challenge unlock ID  
+`{Challenge:Cut Challenges 1:1-10|Challenge:Cut Challenges 2:5}`  
+
+Since every mod's challenge info is contained in a single file, mods should extend this file with modification files.  
+
+As an example:  
+
+    CutChallenges\modify\CustomChallenges.txt
+        [ADD]Cut Challenges 1 : DB8036 : Cut1, Cut2, Cut3-{Challenge:51}, Cut4, Cut5
+        [ADD]Cut Challenges 2 : DB8036 : Cut6, Cut7-{Sandbox:TerrorLongLegs}, Cut8, Cut9, Cut10
+        [ADD]Cut Challenges 3 : DB8036 : Cut11, Cut12, Cut13, Cut14, Cut15
+        [ADD]Cut Challenges 4 : DB8036 : Cut16-{Sandbox:ElectricSpear|Level:Submerged}, Cut17-{Beaten:Saint}, Cut18,-{Safari:SL} Cut19-{Challenge:64|Challenge:Cut Challenges 4:1-3}
+        
+    Levels\Challenges\
+        Cut1.txt
+        Cut1_Meta.txt
+        Cut2.txt
+        Cut2_Meta.txt
+        Cut2_Settings.txt
+        Cut3.txt
+        Cut3_Meta.txt
+            ect...
 
 ## <a name="META"></a>MetaProperties
 A new file called MetaProperties.txt can be placed in World\XX to define the following meta properties for the region:
