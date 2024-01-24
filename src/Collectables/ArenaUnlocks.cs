@@ -20,7 +20,7 @@ namespace CustomRegions.Collectables
                 try
                 {
                     MultiplayerUnlocks.LevelUnlockID unlockID = customLevelUnlocks[levelName];
-                    CustomRegionsMod.CustomLog($"found custom arena unlock [{levelName}] [{unlockID}]");
+                    //CustomRegionsMod.CustomLog($"found custom arena unlock [{levelName}] [{unlockID}]");
                     return unlockID;
 
                 }

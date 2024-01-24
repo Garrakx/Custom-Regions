@@ -137,10 +137,11 @@ namespace CustomRegions.CustomWorld
 
             if (singleRoomWorld) return;
 
-            if (region == null) CustomRegionsMod.CustomLog($"Region is null! Check World\\Regions.txt and make sure it contains [{worldName}] (case sensitive)");
+            if (region == null) { CustomRegionsMod.CustomLog($"Region is null! Check World\\Regions.txt and make sure it contains [{worldName}] (case sensitive)"); return; }
 
             try
             {
+                CustomRegionsMod.CustomLog(string.Join(Environment.NewLine, self.lines));
                 RegionInfo regionInfo = new()
                 {
                     RegionID = region.name,

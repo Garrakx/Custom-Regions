@@ -45,7 +45,6 @@ namespace CustomRegions.Arena
 
         private static string ChallengeRequirementDescription(string input, Menu.Menu self)
         {
-            CustomRegionsMod.CustomLog("challenge requirement check" + input);
             string[] array = input.Split(new[] { ':' }, 2);
             if (array.Length < 2 || !Descs.ContainsKey(array[0])) return "Challenge locked";
 

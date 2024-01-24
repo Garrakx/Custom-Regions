@@ -32,7 +32,7 @@ namespace CustomRegions.Arena
                         RegionInfo regionInfo = new()
                         {
                             RegionID = game.world.GetAbstractRoom(0).name,
-                            Lines = lines.ToList()
+                            Lines = lines.ToList().Where(x => !(string.IsNullOrEmpty(x) || x.StartsWith("\\\\"))).ToList()
                         };
 
                         foreach (RegionPreprocessor filter in regionPreprocessors)
@@ -44,6 +44,7 @@ namespace CustomRegions.Arena
                             catch (Exception e) { CustomRegionsMod.CustomLog($"Error when executing PreProcessor [{filter.Method.Name}]\n" + e.ToString(), true); }
                         }
 
+                        CustomRegionsMod.CustomLog(string.Join(Environment.NewLine, regionInfo.Lines), false, CustomRegionsMod.DebugLevel.MEDIUM);
                         return regionInfo.Lines.ToArray();
                     }
                     catch (Exception e) 
