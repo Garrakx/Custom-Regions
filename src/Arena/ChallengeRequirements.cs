@@ -67,12 +67,12 @@ namespace CustomRegions.Arena
 
         public static void RegisterBuiltinRequirements()
         {
-            RegisterRequirement("CharacterBeaten", CharacterBeaten, CharacterDescription);
-            RegisterRequirement("CharacterUnlocked", ClassUnlocked, ClassDescription);
-            RegisterRequirement("SafariUnlocked", SafariUnlocked, SafariDescription);
-            RegisterRequirement("LevelUnlocked", LevelUnlocked, LevelDescription);
-            RegisterRequirement("SandboxUnlocked", SandboxItemUnlocked, SandboxIitemDescription);
-            RegisterRequirement("ChallengeBeaten", ChallengeBeaten, ChallengeBeatenDescription);
+            RegisterRequirement("Beaten", CharacterBeaten, CharacterDescription);
+            RegisterRequirement("Slugcat", ClassUnlocked, ClassDescription);
+            RegisterRequirement("Safari", SafariUnlocked, SafariDescription);
+            RegisterRequirement("Level", LevelUnlocked, LevelDescription);
+            RegisterRequirement("Sandbox", SandboxItemUnlocked, SandboxIitemDescription);
+            RegisterRequirement("Challenge", ChallengeBeaten, ChallengeBeatenDescription);
         }
 
         private static string SlugcatNameFix(string input)
@@ -124,7 +124,7 @@ namespace CustomRegions.Arena
 
         private static string SafariDescription(string input, Menu.Menu self) => self.Translate("Collect the safari token for ## to unlock.").Replace("##", self.Translate(Region.GetRegionFullName(input, null)));
 
-        private static bool LevelUnlocked(string input, MultiplayerUnlocks self) => self.IsLevelUnlocked(input);
+        private static bool LevelUnlocked(string input, MultiplayerUnlocks self) => self.IsLevelUnlocked(input.ToLower());
 
         private static string LevelDescription(string input, Menu.Menu self) => self.Translate("Collect the arena token for ## to unlock.").Replace("##", self.Translate(MultiplayerUnlocks.LevelDisplayName(input)));
 
