@@ -1,0 +1,11 @@
+Collect the character token for ## to unlock.|Récupérer le token de personnage pour ## pour débloquer.
+Collect the safari token for ## to unlock.|Récupérer le token du mode safari pour ## pour débloquer.
+Collect the arena token for ## to unlock.|Récupérer le token du mode arène pour ## pour débloquer.
+Collect the sandbox token for ## to unlock.|Récupérer le token du mode bac à sable pour ## pour débloquer.
+Collect a challenge token to unlock.|Récupérez un token de défi pour débloquer.
+Clear challenges ## to unlock.|Réussir le défi ## pour débloquer.
+
+Clear the game as ## to unlock.|Terminer le jeu en tant que ## pour débloquer.
+Clear a total of ## challenges to unlock.|Réussir un total de ## défis pour débloquer.
+Safari region unlocked|Région débloquée pour le mode Safari
+Arena character unlocked:|Personnage d'arène débloqué :
