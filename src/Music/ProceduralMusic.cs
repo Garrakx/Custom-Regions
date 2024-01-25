@@ -24,6 +24,7 @@ namespace CustomRegions.CustomMusic
             orig(self, name);
             foreach (var track in self.tracks)
             {
+                if (track.subRegions == null) continue;
                 List<string> subRegions = track.subRegions.ToList();
                 for (int i = subRegions.Count - 1; i >= 0; i--)
                 {
