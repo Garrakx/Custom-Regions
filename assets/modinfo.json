@@ -1,7 +1,7 @@
 ﻿{
   "id": "crs",
   "name": "Custom Regions Support",
-  "version": "0.10.4.0",
+  "version": "0.10.4.2",
   "target_game_version": "v1.9.07b",
   "authors": "Garrakx & Bro",
   "description": "Support for modded regions! Thumbnail by @Nautillo1",

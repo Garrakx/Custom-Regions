@@ -99,10 +99,101 @@ namespace CustomRegions.CustomWorld
             On.WorldLoader.ctor_RainWorldGame_Name_bool_string_Region_SetupValues += WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues;
             IL.WorldLoader.AddLineageFromString += WorldLoader_AddLineageFromString;
             On.WorldLoader.CreatingWorld += WorldLoader_CreatingWorld;
+            On.WorldLoader.GeneratePopulation += WorldLoader_GeneratePopulation;
+            //On.RegionState.AdaptWorldToRegionState += RegionState_AdaptWorldToRegionState;
+            //On.World.SimpleSpawner.ToString += SimpleSpawner_ToString;
         }
 
-        //this fixes a bunch of bugs introduced by 'dynamic' region room lists
-        private static void WorldLoader_CreatingWorld(On.WorldLoader.orig_CreatingWorld orig, WorldLoader self)
+        private static string SimpleSpawner_ToString(On.World.SimpleSpawner.orig_ToString orig, World.SimpleSpawner self)
+        {
+            return orig(self) + " " + self.creatureType.ToString();
+        }
+
+        /// <summary>
+        /// attempt at spawning missing creatures
+        /// unfortunately has a high chance of duplication
+        /// </summary>
+        private static void RegionState_AdaptWorldToRegionState(On.RegionState.orig_AdaptWorldToRegionState orig, RegionState self)
+        {
+            orig(self);
+
+            try
+            {
+                foreach (World.CreatureSpawner spawner in self.world.spawners)
+                {
+                    AbstractRoom abstractRoom = self.world.GetAbstractRoom(spawner.den);
+                    if (!(abstractRoom != null && spawner.den.abstractNode < abstractRoom.nodes.Length &&
+                        (abstractRoom.nodes[spawner.den.abstractNode].type == AbstractRoomNode.Type.Den ||
+                        abstractRoom.nodes[spawner.den.abstractNode].type == AbstractRoomNode.Type.GarbageHoles)))
+                    { continue; }
+
+                    if (spawner is World.SimpleSpawner ss && StaticWorld.GetCreatureTemplate(ss.creatureType).quantified) continue;
+
+                    bool found = false;
+                    foreach (AbstractCreature creature in self.loadedCreatures)
+                    {
+                        if (creature.ID.spawner == spawner.SpawnerID)
+                        { found = true; break; }
+                    }
+
+                    if (found) continue;
+
+                    CustomRegionsMod.CustomLog($"Found unspawned creature in the world! spawning [{spawner}]");
+
+                    if (spawner is World.SimpleSpawner simpleSpawner)
+                    {
+                        AbstractCreature abstractCreature = new(self.world, StaticWorld.GetCreatureTemplate(simpleSpawner.creatureType), null, spawner.den, self.world.game.GetNewID(simpleSpawner.SpawnerID))
+                        {
+                            spawnData = simpleSpawner.spawnDataString,
+                            nightCreature = simpleSpawner.nightCreature
+                        };
+                        abstractCreature.setCustomFlags();
+                        abstractRoom.MoveEntityToDen(abstractCreature);
+                    }
+
+                    else if (spawner is World.Lineage lineage)
+                    {
+                        CreatureTemplate.Type type = lineage.CurrentType((self.world.game.session as StoryGameSession).saveState);
+                        abstractRoom.MoveEntityToDen(new AbstractCreature(self.world, StaticWorld.GetCreatureTemplate(type), null, lineage.den, self.world.game.GetNewID(lineage.SpawnerID))
+                        {
+                            spawnData = lineage.CurrentSpawnData((self.world.game.session as StoryGameSession).saveState),
+                            nightCreature = lineage.nightCreature
+                        });
+                    }
+                }
+            }
+            catch (Exception e) { CustomRegionsMod.CustomLog("Error while spawning new creatures!\n" + e.ToString()); }
+        }
+
+        private static void WorldLoader_GeneratePopulation1(ILContext il)
+        {
+            var c = new ILCursor(il);
+            if (c.TryGotoNext(MoveType.Before,
+                x => x.MatchLdarg(0),
+                x => x.MatchBrfalse(out _),
+                x => x.MatchLdarg(0),
+                x => x.MatchLdarg(0),
+                x => x.MatchLdfld<WorldLoader>(nameof(WorldLoader.spawners)),
+                x => x.MatchLdloc(5),
+                x => x.MatchCallvirt<WorldLoader>(nameof(WorldLoader.SpawnerStabilityCheck))
+                ))
+            {
+                c.Emit(OpCodes.Ldarg_0);
+                c.Emit(OpCodes.Ldloc_S, 5);
+                c.EmitDelegate((WorldLoader self, int i) =>
+                {
+                    var spawner = self.spawners[i];
+
+                    
+                    if (spawner is World.SimpleSpawner)
+                    {
+                    
+                    }
+                });
+            }
+        }
+
+        private static void WorldLoader_GeneratePopulation(On.WorldLoader.orig_GeneratePopulation orig, WorldLoader self, bool fresh)
         {
             foreach (AbstractRoom room in self.abstractRooms)
             {
@@ -110,6 +201,12 @@ namespace CustomRegions.CustomWorld
                 RainWorld.roomIndexToName[room.index] = room.name;
                 RainWorld.roomNameToIndex[room.name] = room.index;
             }
+            orig(self, fresh);
+        }
+
+        //this fixes a bunch of bugs introduced by 'dynamic' region room lists
+        private static void WorldLoader_CreatingWorld(On.WorldLoader.orig_CreatingWorld orig, WorldLoader self)
+        {
             orig(self);
         }
 
