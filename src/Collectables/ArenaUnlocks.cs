@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace CustomRegions.ArenaUnlocks
+namespace CustomRegions.Collectables
 {
-    internal static class UnlockEnum
+    internal static class ArenaUnlocks
     {
         public static void ApplyHooks()
         {
@@ -15,13 +15,17 @@ namespace CustomRegions.ArenaUnlocks
 
         private static MultiplayerUnlocks.LevelUnlockID MultiplayerUnlocks_LevelLockID(On.MultiplayerUnlocks.orig_LevelLockID orig, string levelName)
         {
-            if (customLevelUnlocks.ContainsKey(levelName.ToLower())) {
-                try {
+            if (customLevelUnlocks.ContainsKey(levelName.ToLower()))
+            {
+                try
+                {
                     MultiplayerUnlocks.LevelUnlockID unlockID = customLevelUnlocks[levelName];
-                    CustomRegionsMod.CustomLog($"found custom arena unlock [{levelName}] [{unlockID}]");
+                    //CustomRegionsMod.CustomLog($"found custom arena unlock [{levelName}] [{unlockID}]");
                     return unlockID;
 
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     CustomRegionsMod.CustomLog($"Error parsing levelUnlockID enum [{levelName}] - [{e}]", true);
                 }
             }
@@ -29,7 +33,7 @@ namespace CustomRegions.ArenaUnlocks
             return orig(levelName);
         }
 
-        static Dictionary<string, MultiplayerUnlocks.LevelUnlockID> customLevelUnlocks = new Dictionary<string, MultiplayerUnlocks.LevelUnlockID>();
+        public static Dictionary<string, MultiplayerUnlocks.LevelUnlockID> customLevelUnlocks = new Dictionary<string, MultiplayerUnlocks.LevelUnlockID>();
 
 
         public static void RefreshArenaUnlocks()
@@ -50,6 +54,9 @@ namespace CustomRegions.ArenaUnlocks
         {
             string filePath = AssetManager.ResolveFilePath("CustomUnlocks.txt");
             if (!File.Exists(filePath)) return;
+
+            CustomRegionsMod.CustomLog("\nRegistering Custom Arena Unlocks");
+
             foreach (string line in File.ReadAllLines(filePath))
             {
                 if (line.Equals(string.Empty))
@@ -80,7 +87,11 @@ namespace CustomRegions.ArenaUnlocks
 
                 try
                 {
-                    levelNames = Regex.Split(lineDivided[1].Replace(" ", ""), ",");
+                    levelNames = Regex.Split(lineDivided[1], ",");
+                    for (int j = 0; j < levelNames.Length; j++)
+                    {
+                        levelNames[j] = levelNames[j].Trim();
+                    }
                 }
                 catch (Exception e)
                 {

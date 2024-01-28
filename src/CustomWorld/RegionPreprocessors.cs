@@ -49,7 +49,6 @@ namespace CustomRegions.CustomWorld
 
                 for (int i = 0; i < Lines.Count; i++)
                 {
-                    CustomRegionsMod.CustomLog(Lines[i]);
                     string line = Lines[i];
                     bool end = false;
                     if (line.Substring(0, 4) == "END ")

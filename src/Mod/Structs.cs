@@ -579,5 +579,85 @@ namespace CustomRegions.Mod
                 }) ;
             }
         }
+
+        public struct CustomBroadcast
+        {
+            public CustomBroadcast(MoreSlugcats.ChatlogData.ChatlogID id, List<KeyValuePair<Type, List<string>>> files)
+            {
+                this.id = id;
+                this.files = files;
+            }
+
+            public enum Type { Single, Sequence, Random }
+
+            public MoreSlugcats.ChatlogData.ChatlogID id;
+            public bool IsSingle => TotalLength == 1 && files.ElementAt(0).Key == Type.Single;
+
+            public int TotalLength => files.Select(x => x.Value).Sum(x => x.Count);
+
+            public List<KeyValuePair<Type, List<string>>> files;
+
+            public override string ToString()
+            {
+                return $"{id} : " + string.Join(", ", files);
+            }
+        }
+
+        public struct CustomChallenge
+        {
+            public Arena.ChallengeData.ChallengeUnlockID id;
+            public string[] levels;
+            public Dictionary<string, string[]> UnlockRequirement;
+            public Color color;
+            public bool unlocked;
+
+            public CustomChallenge(Arena.ChallengeData.ChallengeUnlockID id, string[] levels, Color color)
+            {
+                this.id = id;
+                this.levels = levels;
+                this.color = color;
+                unlocked = true;
+            }
+
+            public string LocalizedID(Menu.Menu self)
+            {
+                if (self.manager.rainWorld.inGameTranslator.HasShortstringTranslation("#CRSChallengeName-" + id.value))
+                { return self.Translate("#CRSChallengeName-" + id.value); }
+                return id.value;
+            }
+            
+            public static bool TryParse(string str, out CustomChallenge result)
+            {
+                string[] array = Regex.Split(str, " : ");
+                try
+                {
+                    result = new CustomChallenge()
+                    {
+                        id = new(array[0], false),
+                        color = RWCustom.Custom.hexToColor(array[1]),
+                        levels = Regex.Split(array[2], ", "),
+                        unlocked = array.Length >= 4 && array[3] == "UNLOCKED",
+                        UnlockRequirement = new()
+                    };
+
+                    string[] levels = Regex.Split(array[2], ", ");
+                    for (int i = 0; i < levels.Length; i++)
+                    {
+                        string[] arr = Regex.Split(levels[i], "-{");
+                        levels[i] = arr[0];
+
+                        if (arr.Length >= 2 && arr[1].EndsWith("}"))
+                        { result.UnlockRequirement[arr[0]] = arr[1].Substring(0, arr[1].Length - 1).Split('|'); }
+
+                        else
+                        { result.UnlockRequirement[arr[0]] = new string[0]; }
+                    }
+                    result.levels = levels;
+
+                    return true;
+                }
+                catch (Exception e) { CustomRegionsMod.CustomLog($"failed to parse unlock [{str}]\n{e}"); result = new(); return false; }
+            }
+        }
     }
 }

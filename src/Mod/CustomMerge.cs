@@ -10,7 +10,7 @@ namespace CustomRegions.Mod
 {
     internal static class CustomMerge
     {
-        public static void MergePearlsAndArenas()
+        public static void MergeCustomFiles()
         {
             string filePath = Path.Combine(Path.Combine(Custom.RootFolderDirectory(), "mergedmods"), "custompearls.txt");
             if (!File.Exists(filePath))
@@ -24,6 +24,20 @@ namespace CustomRegions.Mod
             {
                 CustomRegionsMod.CustomLog("merging CustomUnlocks");
                 MergeSpecific("CustomUnlocks.txt"); 
+            }
+
+            filePath = Path.Combine(Path.Combine(Custom.RootFolderDirectory(), "mergedmods"), "CustomChallenges.txt");
+            if (!File.Exists(filePath))
+            {
+                CustomRegionsMod.CustomLog("merging CustomChallenges");
+                MergeSpecific("CustomChallenges.txt");
+            }
+
+            filePath = Path.Combine(Path.Combine(Custom.RootFolderDirectory(), "mergedmods"), "CustomBroadcasts.txt");
+            if (!File.Exists(filePath))
+            {
+                CustomRegionsMod.CustomLog("merging CustomBroadcasts");
+                MergeSpecific("CustomBroadcasts.txt");
             }
         }
 

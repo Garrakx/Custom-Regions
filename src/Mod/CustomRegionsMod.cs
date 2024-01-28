@@ -21,7 +21,7 @@ namespace CustomRegions.Mod
     {
         public const string PLUGIN_ID = "com.rainworldgame.garrakx.crs.mod";
         public const string PLUGIN_NAME = "Custom Regions Support";
-        public const string PLUGIN_VERSION = "0.10.2.0";
+        public const string PLUGIN_VERSION = "0.10.4.2";
         public const string JSON_ID = "crs";
 
          
@@ -50,11 +50,21 @@ namespace CustomRegions.Mod
                 ReplaceRoomPreprocessor.Apply();
                 Debugging.ApplyHooks();
                 CustomMenu.RegionLandscapes.ApplyHooks();
+                Arena.ChallengeMenu.ApplyHooks();
+                Arena.ChallengeSupport.ApplyHooks();
+                Arena.ChallengeToken.ApplyHooks();
+                Arena.ChallengeTokenCache.ApplyHooks();
+                Arena.ChallengeData.ApplyHooks();
+                Arena.CreatureBehaviors.ApplyHooks();
                 CustomMusic.ProceduralMusicHooks.ApplyHooks();
-                ArenaUnlocks.UnlockEnum.ApplyHooks();
+                Collectables.ArenaUnlocks.ApplyHooks();
                 Progression.StoryRegionsMod.ApplyHooks();
-                CustomPearls.DataPearlColors.ApplyHooks();
-                CustomPearls.CustomConvo.ApplyHooks();
+                Collectables.PearlData.ApplyHooks();
+                Collectables.CustomConvo.ApplyHooks();
+                Collectables.Encryption.ApplyHooks();
+                Collectables.Broadcasts.ApplyHooks();
+                Arena.Properties.ApplyHooks();
+                Arena.PreprocessorPatch.ApplyHooks();
                 RainWorldHooks.ApplyHooks();
                 WorldLoaderHook.ApplyHooks();
             } catch (Exception ex) {
@@ -72,6 +82,7 @@ namespace CustomRegions.Mod
             //cfgEven = oi.config.Bind<bool>("EvenUse", true, new ConfigurableInfo("Whether to use multiple BubbleGrasses evenly or not. Either use all BubbleGrasses in divided speed(true) or use one BubbleGrass at a time(false)."));
             CreateCustomWorldLog();
             LoadDebugLevel();
+            FixThreadedLogging();
             RegionPreprocessors.InitializeBuiltinPreprocessors();
             CustomLog("Mod is Initialized.");
         }
@@ -87,9 +98,11 @@ namespace CustomRegions.Mod
             try
             {
                 CustomStaticCache.CheckForRefresh(forceRefresh);
-                CustomMerge.MergePearlsAndArenas();
-                ArenaUnlocks.UnlockEnum.RefreshArenaUnlocks();
-                CustomPearls.Data.Refresh();
+                CustomMerge.MergeCustomFiles();
+                Collectables.ArenaUnlocks.RefreshArenaUnlocks();
+                Collectables.PearlData.Refresh();
+                Collectables.Broadcasts.Refresh();
+                Arena.ChallengeData.Refresh();
             }
             catch (Exception e) { CustomLog(e.ToString(), true); }
         }
@@ -108,6 +121,17 @@ namespace CustomRegions.Mod
             get => PLUGIN_VERSION;
         }
 
+        private static void FixThreadedLogging()
+        {
+            if (Custom.rainWorld != null)
+            {
+                RainWorld rw = Custom.rainWorld;
+                Application.logMessageReceived -= rw.HandleLog;
+                Application.logMessageReceivedThreaded -= rw.HandleLog; //just in case is already subscribed
+                Application.logMessageReceivedThreaded += rw.HandleLog;
+            }
+            else { CustomLog("failed to fix threaded logging as Custom.rainWorld is still null", false, DebugLevel.FULL); }
+        }
 
         public static void CustomLog(string logText)
         {
@@ -152,15 +176,15 @@ namespace CustomRegions.Mod
             }
         }
 
-        public static void CreateCustomWorldLog()
+        private static void CreateCustomWorldLog()
         {
             //TODO: Add Date!
             using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + Path.DirectorySeparatorChar.ToString() + logFileName)) {
-                sw.WriteLine($"############################################\n Custom World Log {versionCR} [DEBUG LEVEL: {debugLevel}]\n");
+                sw.WriteLine($"############################################\n Custom World Log {versionCR} [DEBUG LEVEL: {debugLevel}]\n {DateTime.UtcNow:MM/dd/yyyy HH:mm:ss}\n");
             }
         }
 
-        public static void LoadDebugLevel()
+        private static void LoadDebugLevel()
         {
             string filePath = Custom.RootFolderDirectory() + Path.DirectorySeparatorChar.ToString() + "CRSDebugLevel.txt";
             if (File.Exists(filePath))

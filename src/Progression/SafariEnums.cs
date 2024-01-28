@@ -16,13 +16,13 @@ namespace CustomRegions.Progression
 
         public static void Register()
         {
-            CustomRegionsMod.CustomLog("[SAFARI UNLOCKS] CRS Registering safari unlocks...");
+            CustomRegionsMod.CustomLog("\n[SAFARI UNLOCKS] CRS Registering safari unlocks...");
             if (Region.GetFullRegionOrder() == null) { return; }
 
             CustomStaticCache.CheckForRefresh();
             foreach (string regionName in CustomStaticCache.SafariRegions)
             {
-                if (MultiplayerUnlocks.SafariUnlockID.values.entries.Contains(regionName))
+                if (MultiplayerUnlocks.SafariUnlockID.values?.entries.Contains(regionName) ?? false)
                 {
                     CustomRegionsMod.CustomLog($"[SAFARI UNLOCKS] region [{regionName}] already has safari unlock");
                     continue;

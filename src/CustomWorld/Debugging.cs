@@ -1,6 +1,7 @@
 ﻿using CustomRegions.Mod;
 using MonoMod.RuntimeDetour;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,6 +28,68 @@ namespace CustomRegions.CustomWorld
             }
             catch (Exception e) { CustomRegionsMod.BepLogError("failed to hook threads\n" + e); }
             On.World.GetNode += World_GetNode;
+            On.RoomPreprocessor.DecompressStringToAImaps += RoomPreprocessor_DecompressStringToAImaps;
+            On.RoomPreprocessor.PreprocessRoom += RoomPreprocessor_PreprocessRoom;
+            On.RoomSettings.Load += RoomSettings_Load;
+            On.AIdataPreprocessor.CreatureDone += AIdataPreprocessor_CreatureDone;
+        }
+
+        private static void AIdataPreprocessor_CreatureDone(On.AIdataPreprocessor.orig_CreatureDone orig, AIdataPreprocessor self)
+        {
+            orig(self);
+            if (self.aiMap.room.cameraPositions.Length < 10) return;
+            if (self.currentCreatureIndex >= 0 && self.currentCreatureIndex < StaticWorld.preBakedPathingCreatures.Length)
+            {
+                CustomRegionsMod.CustomLog($"finished baking creature [{StaticWorld.preBakedPathingCreatures[self.currentCreatureIndex].name}], {self.currentCreatureIndex}/{StaticWorld.preBakedPathingCreatures.Length} complete");
+            }
+        }
+
+        private static bool RoomSettings_Load(On.RoomSettings.orig_Load orig, RoomSettings self, SlugcatStats.Name playerChar)
+        {
+            try { 
+                return orig(self, playerChar); 
+            }
+            catch (Exception e) { CustomRegionsMod.CustomLog($"Error while loading settings from room [{self.name}]\n" + e.ToString()); throw; }
+        }
+
+        private static string[] RoomPreprocessor_PreprocessRoom(On.RoomPreprocessor.orig_PreprocessRoom orig, AbstractRoom abstractRoom, string[] levelText, World world, RainWorldGame.SetupValues setupValues, int preprocessingGeneration)
+        {
+            if(!setupValues.bake) return orig(abstractRoom, levelText, world, setupValues, preprocessingGeneration);
+
+            CustomRegionsMod.CustomLog($"Baking room: [{abstractRoom.name}]");
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
+            var result = orig(abstractRoom, levelText, world, setupValues, preprocessingGeneration);
+
+            stopwatch.Stop();
+            CustomRegionsMod.CustomLog($"Finished baking room: [{abstractRoom.name}], elapsed time: [{stopwatch.Elapsed:h\\:mm\\:ss\\.ff}]");
+            return result;
+        }
+
+        private static CreatureSpecificAImap[] RoomPreprocessor_DecompressStringToAImaps(On.RoomPreprocessor.orig_DecompressStringToAImaps orig, string s, AImap aimap)
+        {
+            try
+            {
+                return orig(s, aimap);
+            }
+            catch (Exception e) 
+            {
+                CustomRegionsMod.CustomLog($"Error when decompressing aimaps for {aimap.room.abstractRoom.name}");
+
+                int i = 0;
+                try
+                {
+                    for (i = 0; i < StaticWorld.preBakedPathingCreatures.Length; i++)
+                    {
+                        string[] array2 = Regex.Split(s, "<<DIV - A>>");
+                        int[] intArray = RoomPreprocessor.StringToIntArray(Regex.Split(array2[i + 1], "<<DIV - B>>")[0]);
+                        float[] floatArray = RoomPreprocessor.StringToFloatArray(Regex.Split(array2[i + 1], "<<DIV - B>>")[1]);
+                    }
+                }
+                catch { CustomRegionsMod.CustomLog($"Error parsing map for creature [{StaticWorld.preBakedPathingCreatures[i].name}]"); }
+                CustomRegionsMod.CustomLog(e.ToString());
+                throw e;
+            }
         }
 
         private static void ThreadTryCatch<T>(Action<T> orig, T self)
@@ -168,11 +231,21 @@ namespace CustomRegions.CustomWorld
                 {
                     string[] lines = File.ReadAllLines(roomPath);
 
-                    if (lines[0].StartsWith("[[[["))
+                    if (lines.Length < 0)
+                    {
+                        exceptionMessage = $"file for room [{roomName}] is empty!";
+                    }
+
+                    else if (lines[0].StartsWith("[[[["))
                     {
                         exceptionMessage = $"room file is LevelEditorProject file instead of Level file {roomName}" +
                             $"\nthe correct output files for a render will appear in Level Editor\\levels" +
                             $"\nit appears this room file is from Level Editor\\LevelEditorProjects";
+                    }
+
+                    else
+                    {
+                    
                     }
                 }
                 CustomRegionsMod.CustomLog(exceptionMessage + "\n" + e, true);

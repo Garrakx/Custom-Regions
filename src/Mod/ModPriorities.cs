@@ -21,13 +21,6 @@ namespace CustomRegions.Mod
         {
             On.ModManager.LoadModFromJson += ModManager_LoadModFromJson;
             IL.Menu.Remix.MenuModList._CheckRequirementsOrder += MenuModList__CheckRequirementsOrder1;
-            On.RainWorldGame.Update += RainWorldGame_Update;
-        }
-
-        private static void RainWorldGame_Update(On.RainWorldGame.orig_Update orig, RainWorldGame self)
-        {
-            orig(self);
-            Cursor.visible = true;
         }
 
         private static void MenuModList__CheckRequirementsOrder1(ILContext il)
