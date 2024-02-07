@@ -31,6 +31,14 @@ namespace CustomRegions.Collectables
         public static void EncryptAllCustomPearls()
         {
             CustomLog($"\nEncrypting pearls", false, DebugLevel.FULL);
+
+            var normalizedSlugcatNames = SlugcatStats.Name.values.entries
+                .Select(name => name.ToLower())
+                .ToList();
+            var normalizedPearlNames = PearlData.CustomDataPearlsList
+                .Select(entry => entry.Value.filePath.ToLower())
+                .ToList();
+            
             foreach (ModManager.Mod mod in ModManager.ActiveMods)
             {
                 if (mod.id == "moreslugcats" || mod.id == "expedition" || mod.id == "rwremix" || mod.id == "jollycoop") continue;
@@ -45,22 +53,27 @@ namespace CustomRegions.Collectables
 
                     string[] files = Directory.GetFiles(directory, "*.txt", SearchOption.AllDirectories);
                     foreach (string file in files)
-                    {
-                        foreach (KeyValuePair<DataPearl.AbstractDataPearl.DataPearlType, CustomPearl> pearl in PearlData.CustomDataPearlsList)
-                        {
-                            for (int j = -1; j <ExtEnum<SlugcatStats.Name>.values.Count; j++)
-                            {
-                                string name = pearl.Value.filePath;
-                                if (j > -1)  name += "-" + SlugcatStats.Name.values.entries[j];
-                                
-                                if (Path.GetFileNameWithoutExtension(file).ToLower() == name.ToLower())
-                                {
-                                    EncryptCustomDialogue(file);
-                                }
-                            }
-                        }
-                    }
+                        EncryptIfDialogFile(file, ref normalizedSlugcatNames, ref normalizedPearlNames);
+                }
+            }
+        }
 
+        private static void EncryptIfDialogFile(string file, ref List<string> normalizedSlugcatNames, ref List<string> normalizedPearlNames)
+        {
+            string normalizedFileName = Path.GetFileNameWithoutExtension(file).ToLower();
+            foreach (string pearlName in normalizedPearlNames)
+            {   
+                if (!normalizedFileName.StartsWith(pearlName)) continue;
+                if (normalizedFileName == pearlName)
+                {
+                    EncryptCustomDialogue(file);
+                    return;
+                }
+                foreach (string slugcat in normalizedSlugcatNames)
+                {
+                    if (normalizedFileName != pearlName + "-" + slugcat) continue;
+                    EncryptCustomDialogue(file);
+                    return;
                 }
             }
         }
