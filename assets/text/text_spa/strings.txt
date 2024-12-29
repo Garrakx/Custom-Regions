@@ -1,0 +1,12 @@
+0Collect a challenge token to unlock.|Recoge un token de desafío para desbloquear.
+Clear the game as ## to unlock.|Completa el juego como ## para desbloquear.
+Collect the character token for ## to unlock.|Recoge el token de personaje de ## para desbloquear.
+Collect the safari token for ## to unlock.|Recoge el token del modo safari de ## para desbloquear.
+Collect the arena token for ## to unlock.|Recoge el token del modo arena de ## para desbloquear.
+Collect the sandbox token for ## to unlock.|Recoge el token del modo sándbox de ## para desbloquear.
+Clear challenges ## to unlock.|Completa los desafíos ## para desbloquear.
+Challenge unlocked:|Desafío desbloqueado:
+#CRSChallengeName-|#NombreDelDesafíoDeCRS-
+Clear a total of ## challenges to unlock.|Completa un total de ## desafíos para desbloquear.
+Safari region unlocked|Región del modo safari desbloqueada
+Arena character unlocked:|Personaje del modo arena desbloqueado:
