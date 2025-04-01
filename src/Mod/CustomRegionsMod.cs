@@ -146,7 +146,7 @@ namespace CustomRegions.Mod
                     file.WriteLine(logText);
                 }
             } catch (Exception e) {
-                Debug.LogError(e);
+                Debug.LogError(e.ToString());
             }
         }
 

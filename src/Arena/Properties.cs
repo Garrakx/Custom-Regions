@@ -15,8 +15,8 @@ namespace CustomRegions.Arena
     {
         public static void ApplyHooks()
         {
-            On.OverWorld.LoadWorld += OverWorld_LoadWorld;
-            On.Region.ctor += Region_ctor;
+            On.OverWorld.LoadWorld_string_Name_bool += OverWorld_LoadWorld;
+            On.Region.ctor_string_int_int_Name += Region_ctor;
             IL.Menu.MultiplayerMenu.ctor += MultiplayerMenu_ctor;
         }
 
@@ -39,7 +39,7 @@ namespace CustomRegions.Arena
             }
         }
 
-        private static void Region_ctor(On.Region.orig_ctor orig, Region self, string name, int firstRoomIndex, int regionNumber, SlugcatStats.Name storyIndex)
+        private static void Region_ctor(On.Region.orig_ctor_string_int_int_Name orig, Region self, string name, int firstRoomIndex, int regionNumber, SlugcatStats.Name storyIndex)
         {
             orig(self, name, firstRoomIndex, regionNumber, storyIndex);
 
@@ -195,7 +195,7 @@ namespace CustomRegions.Arena
             }
         }
 
-        private static void OverWorld_LoadWorld(On.OverWorld.orig_LoadWorld orig, OverWorld self, string worldName, SlugcatStats.Name playerCharacterNumber, bool singleRoomWorld)
+        private static void OverWorld_LoadWorld(On.OverWorld.orig_LoadWorld_string_Name_bool orig, OverWorld self, string worldName, SlugcatStats.Name playerCharacterNumber, bool singleRoomWorld)
         {
             orig(self, worldName, playerCharacterNumber, singleRoomWorld);
 
@@ -206,7 +206,7 @@ namespace CustomRegions.Arena
                 if (File.Exists(text))
                 {
                     CustomRegionsMod.CustomLog($"found arena properties [{text}]");
-                    self.activeWorld.region = new Region(self.activeWorld.GetAbstractRoom(0).name, 0, -1, null);
+                    self.activeWorld.region = new Region(self.activeWorld.GetAbstractRoom(0).name, 0, -1, timelineIndex: null);
                 }
             }
         }

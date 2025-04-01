@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using UnityEngine;
 using static CustomRegions.Mod.Structs;
 using Random = UnityEngine.Random;
 
@@ -126,7 +127,7 @@ namespace CustomRegions.Collectables
 
         public static string SearchConvoFile(Conversation.IOwnAConversation interfaceOwner, string fileName, SlugcatStats.Name saveFile, out InGameTranslator.LanguageID languageID, Oracle.OracleID oracleID = null, bool iteratorExclusive = false, bool slugExclusive = false)
         {
-            languageID = interfaceOwner.rainWorld.inGameTranslator.currentLanguage;
+            languageID = (interfaceOwner as OracleBehavior).oracle.room.game.rainWorld.inGameTranslator.currentLanguage;
 
             string oracleName = "";
             if (oracleID != null) oracleName = oracleID.value + Path.DirectorySeparatorChar;
@@ -136,7 +137,7 @@ namespace CustomRegions.Collectables
 
             for (; ; )
             {
-                string langDirectory = interfaceOwner.rainWorld.inGameTranslator.SpecificTextFolderDirectory(languageID) + Path.DirectorySeparatorChar;
+                string langDirectory = (interfaceOwner as OracleBehavior).oracle.room.game.rainWorld.inGameTranslator.SpecificTextFolderDirectory(languageID) + Path.DirectorySeparatorChar;
 
                 for (int i = 0; i < 4; i++)
                 {
