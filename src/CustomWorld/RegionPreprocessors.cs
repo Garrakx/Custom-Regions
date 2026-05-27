@@ -1,4 +1,5 @@
-﻿using CustomRegions.Mod;
+﻿using BepInEx;
+using CustomRegions.Mod;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -50,6 +51,7 @@ namespace CustomRegions.CustomWorld
                 for (int i = 0; i < Lines.Count; i++)
                 {
                     string line = Lines[i];
+                    if (line.IsNullOrWhiteSpace() || line.Length < 4) continue;
                     bool end = false;
                     if (line.Substring(0, 4) == "END ")
                     { end = true; line = line.Substring(4); }
@@ -93,6 +95,7 @@ namespace CustomRegions.CustomWorld
         {
             for (int i = 0; i < info.Lines.Count; i++)
             {
+                if (info.Lines[i].IsNullOrWhiteSpace()) continue;
                 if (info.Lines[i][0] == '{')
                 {
                     bool remove = false;

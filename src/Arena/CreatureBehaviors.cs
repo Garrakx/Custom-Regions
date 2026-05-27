@@ -83,7 +83,7 @@ namespace CustomRegions.Arena
             }
             else
             {
-                CustomRegionsMod.BepLogError("failed to il hook MirosBirdAbstractAI.Raid");
+                CustomRegionsMod.BepLogError("CustomRegions.Arena.CreatureBehaviors.MirosBirdAbstractAI_Raid: IL Hook part 1 failed.");
             }
 
             if (c.TryGotoNext(MoveType.After,
@@ -95,6 +95,10 @@ namespace CustomRegions.Arena
                 c.Emit(OpCodes.Ldloc, 5);
                 c.Emit(OpCodes.Ldloc, 6);
                 c.EmitDelegate((bool orig, MirosBirdAbstractAI self, int i, int j) => { return orig && self.parent.world.GetAbstractRoom(self.parent.world.firstRoomIndex + i).creatures[j].state.alive; });
+            }
+            else
+            {
+                CustomRegionsMod.BepLogError("CustomRegions.Arena.CreatureBehaviors.MirosBirdAbstractAI_Raid: IL Hook part 2 failed.");
             }
         }
     }

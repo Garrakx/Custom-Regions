@@ -17,11 +17,11 @@
 5) [Pearls](#pearls)
 6) [Broadcasts](#broadcasts)
 7) [Oracle Specific Text](#oracle-specific-text)
-6) [Challenges](#challenges)
-8) [MetaProperties](#metaproperties)
-9) [Region Conditional Lines](#region-conditional-lines)
-10) [ReplaceRoom](#replaceroom)
-11) [Mod Priorities](#Mod-Priorities)
+8) [Challenges](#challenges)
+9) [MetaProperties](#metaproperties)
+10) [Region Conditional Lines](#region-conditional-lines)
+11) [ReplaceRoom](#replaceroom)
+12) [Region Properties](#Region-Properties)
 
 ### <a name="HOW TO COMPILE"></a>How to compile
 (for coders only)
@@ -403,9 +403,107 @@ A new conditional link can be used to replace the room files for a particular ro
 
 The room will still be known internally as its original name, but the files will be loaded by the new room name instead. So all connections and spawns should not use the new room name and still use the old one.
 
-## <a name="PRIORITIES"></a>Mod Priorities
+## <a name="PROPERTIES"></a>Region Properties
 
-Mods can now be automatically prioritized over others by including a 'priorities' line in the ModInfo.json. This has the same behavior as a dependency when the mods are there, but the mod can still be enabled without the priorities.  
-Formatting is the same as for [requirements](https://rainworldmodding.miraheze.org/wiki/Downpour_Reference/Mod_Directories#ModInfo_JSON) in that it's an array of strings of the mod ids.
+The World\XX\Properties.txt file can be used to define many region-wide properties.  
+See the list of vanilla properties [here](https://rainworldmodding.miraheze.org/wiki/Properties_File)  
 
-    "priorities": ["moreslugcats", "expanded_outskirts"]
+CRS adds several properties, unhardcoding almost every region-specific change in the game. 
+
+| Name | Type | Default Value | Description |
+| ------------ | ------------- | ----------- | ------------- |
+| `cycleLength` | decimal | 1 | Multiplies the cycle length |
+| `rivStormyCycleLength` | decimal | 0.3 | Multiplies the cycle length for Rivulet prior to story events |
+| `rivStormyPreCycleChance` | decimal | 1 | Multiplies the chance for a precycle for Rivulet prior to story events |
+| `forcePrecycleChance` | decimal | none | Overrides the precycle chance multipliers for any campaign |
+| `throwObjectsThreshold` | decimal | 0 | The minimum rain intensity at which to throw objects around at the end of the cycle |
+| `hideTimer` | boolean | False | Hides the rain timer in the region |
+| `musicAfterCycle` | boolean | False | Allows music to play after the cycle has ended |
+| `sundownMusic` | song name | none | Song to play after the sun goes down |
+| `wormGrassLight` | boolean | False | Makes wormgrass glow during night |
+| `hideVoidSpawn` | boolean | False | Disables void spawn |
+| `voidSpawnTarget` | room name | none | Name of room voidspawn will travel towards |
+| `mapDefaultMatLayers` | integers | none | Which layers of the map (0,1,2) should default to sky (eg `mapDefaultMatLayers: 1,2`) |
+| `superStructureFusesBroken` | decimal | 0 | How broken superstructure fuses should be |
+| `lightRodColor` | color | 66FFD0 | The color of SSLightRods |
+| `batGlowColor` | color | none | Makes batflies glow |
+| `dragonflyColor` | color | 197F42 | The color of TinyDragonflies insect |
+| `fireflyColor` | color | FFB200 | The color of TinyDragonflies insect |
+| `minScavSquad` | integer | 3 | The lowest amount of scavengers in a squad |
+| `maxScavSquad` | integer | 7 | The largest amount of scavengers in a squad |
+| `scavMainTradeItem` | item | `ExplosiveSpear` | The item the scav trader should always have |
+
+| | |
+| ------------ | ------------- |
+| `scavTradeItems` | Additional items a scav trader might have. The number is the chance the trader will choose that item. |
+| **type:** item-decimal dictionary | **default:** FlareBomb-0.05, ScavengerBomb-0.2, Mushroom-0.1, KarmaFlower-0.02, Spear-1 | Additional items a scav trader might have. The number is the chance the trader will choose that item. |
+
+| | |
+| ------------ | ------------- |
+| `scavScoreItems` | How much the scavs value each item. It is required an item has a value for scavengers to hold them. This dictionary won't override the values of any item not defined within it. |
+| **type:** item-decimal dictionary | **default:** [too long to list](https://rainworld.miraheze.org/wiki/Scavenger#Trading) |
+
+| | |
+| ------------ | ------------- |
+| `scavTreasuryItems` | The items that will spawn in a scav treasury |
+| **type:** item-decimal dictionary | **default:** DataPearl-0.1, ScavengerBomb-0.142, Lantern-0.05, ExplosiveSpear-0.25, Spear-1 |
+
+| | |
+| ------------ | ------------- |
+| `scavGearItems` | The items a regular scav might spawn with |
+| **type:** item-decimal dictionary | **default:** ScavengerBomb-0.25, FirecrackerPlant-0.08, SporePlant-0.125, Rock-0.5, Rock-0.5 |
+
+| | |
+| ------------ | ------------- |
+| `eliteScavGearItems` | The items an elite scav might spawn with |
+| **type:** item-decimal dictionary | **default:** SingularityBomb-0.25, FirecrackerPlant-0.08, SporePlant-0.125, Rock-0.5, Rock-0.5 |
+
+| | |
+| ------------ | ------------- |
+| `dropwigBaitItems` | The items a dropwig might spawn with |
+| **type:** item-decimal dictionary | **default:** DangleFruit-0.5, ExplosiveSpear-0.3, Spear-0.3, ScavengerBomb-0.5, DataPearl-0.5, KarmaFlower-0.5 |
+
+| | |
+| ------------ | ------------- |
+| `rotEyeColor` | The color of DLL-based creature eyes only overrides for creatures specified |
+| **type:** creature-color dictionary | **default:** BrotherLongLegs-7F4C00, DaddyLongLegs-0000FF, TerrorLongLegs-F400FF, HunterDaddy-921D39 |
+
+| | |
+| ------------ | ------------- |
+| `rotEffectColor` | The color of DLL-based creature bodies only overrides for creatures specified |
+| **type:** creature-color dictionary | **default:** BrotherLongLegs-00B266, DaddyLongLegs-0000FF, TerrorLongLegs-F400FF, HunterDaddy-921D39 |
+
+Inv Properties:
+| Name | Type | Default Value | Description |
+| ------------ | ------------- | ----------- | ------------- |
+| `invPainJumps` | boolean | False | inv's CC gimmick |
+| `invExplosiveSnails` | boolean | False | inv's DS gimmick |
+| `invWormgrassSpam` | decimal | 0 | inv's LF gimmick, number is the chance to spawn wormgrass on each tile |
+| `invBlackFade` | decimal | 0 | inv's SB gimmick, number is how much to darken the screen each frame |
+| `invGrimeSpam` | decimal | 0 | inv's VS gimmick, number is grime amount to equalize to |
+
+### Property Preprocessors
+
+All [Region Conditional Lines](#region-conditional-lines) can be used in properties files.
+
+    World\SB\Properties.txt
+        {MSC}SSLightRodColor: D2D242
+        (Inv)invBlackFade: 0.0025
+        scavTradeItem: Lantern
+        {MSC}scavGearItems: GlowWeed-0.27, ScavengerBomb-0.25, FirecrackerPlant-0.08, SporePlant-0.125, Rock-0.5, Rock-0.5
+        {!MSC}scavGearItems: ScavengerBomb-0.25, FirecrackerPlant-0.08, SporePlant-0.125, Rock-0.5, Rock-0.5
+
+### Property Inheritance
+
+A properties file can inherit from another properties file. `PARENT: <propertyname>`  
+This can be from another region, eg `PARENT: SB`  
+Or it can be a slug-specific properties, eg `PARENT: SI-Saint`  
+Or it can even be an arena properties, eg `PARENT: Accelerator`  
+<sub>(we'll get to arena properties soon)</sub>  
+
+This will treat the property as if it is the one it's being inherited from. If the child property defines any properties, they will override that of the parent's. It is recommended to always define room settings and subregions in the child.
+
+### Arena Properties
+
+Arenas can have their own properties files by appending `-Properties` to their filename, eg `Accelerator-Properties.txt`  
+It is formatted exactly like a region properties file, although not every property will function in Arena mode, ie the batfly spawn rate properties.

@@ -68,8 +68,15 @@ namespace CustomRegions.CustomMusic
 
         public static AudioClip AsyncLoad(string path, bool threeD, bool stream, AudioType audioType)
         {
-            WWW www = new WWW(path);
-            return www.GetAudioClip(false, true, AudioType.OGGVORBIS);
+            if (RemixMenu.ThreatStream.Value)
+            {
+                WWW www = new WWW(path);
+                return www.GetAudioClip(false, true, AudioType.OGGVORBIS);
+            }
+            else
+            {
+                return AssetManager.SafeWWWAudioClip(path, threeD, stream, audioType);
+            }
         }
 
         private static void ProceduralMusic_ctor(On.Music.ProceduralMusic.orig_ctor orig, Music.ProceduralMusic self, Music.MusicPlayer musicPlayer, string name)
@@ -107,7 +114,7 @@ namespace CustomRegions.CustomMusic
             }
             else
             {
-                CustomRegionsMod.BepLogError("Failed to IL hook ProceduralMusicInstruction.ctor!");
+                CustomRegionsMod.BepLogError("CustomRegions.CustomMusic.ProceduralMusicHooks.ProceduralMusicInstruction_ctor: IL Hook failed.");
             }
         }
     }

@@ -11,8 +11,8 @@ namespace CustomRegions.Progression
     {
         public static void ApplyHooks()
         {
-            On.SlugcatStats.getSlugcatStoryRegions += SlugcatStats_getSlugcatStoryRegions;
-            On.SlugcatStats.getSlugcatOptionalRegions += SlugcatStats_getSlugcatOptionalRegions;
+            On.SlugcatStats.SlugcatStoryRegions += SlugcatStats_getSlugcatStoryRegions;
+            On.SlugcatStats.SlugcatOptionalRegions += SlugcatStats_getSlugcatOptionalRegions;
             On.Region.RegionColor += Region_RegionColor;
         }
 
@@ -21,22 +21,22 @@ namespace CustomRegions.Progression
             return orig(regionName.ToUpper());
         }
 
-        private static string[] SlugcatStats_getSlugcatOptionalRegions(On.SlugcatStats.orig_getSlugcatOptionalRegions orig, SlugcatStats.Name i)
+        private static List<string> SlugcatStats_getSlugcatOptionalRegions(On.SlugcatStats.orig_SlugcatOptionalRegions orig, SlugcatStats.Name i)
         {
-            string[] regions = orig(i);
+            List<string> regions = orig(i);
             CustomStaticCache.CheckForRefresh();
             if (CustomStaticCache.CustomOptionalRegions.ContainsKey(i))
-                return regions.Union(CustomStaticCache.CustomOptionalRegions[i].Where(x => !regions.Contains(x))).ToArray();
+                return regions.Union(CustomStaticCache.CustomOptionalRegions[i].Where(x => !regions.Contains(x))).ToList();
 
             else return regions;
         }
 
-        private static string[] SlugcatStats_getSlugcatStoryRegions(On.SlugcatStats.orig_getSlugcatStoryRegions orig, SlugcatStats.Name i)
+        private static List<string> SlugcatStats_getSlugcatStoryRegions(On.SlugcatStats.orig_SlugcatStoryRegions orig, SlugcatStats.Name i)
         {
-            string[] regions = orig(i);
+            List<string> regions = orig(i);
             CustomStaticCache.CheckForRefresh();
             if (CustomStaticCache.CustomStoryRegions.ContainsKey(i))
-                return regions.Union(CustomStaticCache.CustomStoryRegions[i].Where(x => !regions.Contains(x))).ToArray();
+                return regions.Union(CustomStaticCache.CustomStoryRegions[i].Where(x => !regions.Contains(x))).ToList();
 
             else return regions;
         }

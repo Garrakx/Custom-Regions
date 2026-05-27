@@ -84,21 +84,28 @@ namespace CustomRegions.Arena
             var c = new ILCursor(il);
 
             if (c.TryGotoNext(MoveType.After,
-                x => x.MatchLdloc(1),
+                x => x.MatchLdfld(out var field) && field.Name == "fileName",
                 x => x.MatchNewobj<List<List<SlugcatStats.Name>>>(),
                 x => x.MatchCallvirt(typeof(Dictionary<string, List<List<SlugcatStats.Name>>>).GetMethod("set_Item"))
-                ))
+            ))
             {
                 c.Emit(OpCodes.Ldarg_0);
-                c.Emit(OpCodes.Ldloc, 1);
+                c.Emit(OpCodes.Ldarg_0);
+                c.Emit(OpCodes.Ldarg_2);
                 c.EmitDelegate((RainWorld self, string region) =>
                 {
-                    self.regionPurpleTokens()[region] = new();
-                    self.regionPurpleTokensAccessibility()[region] = new();
+                    try
+                    {
+                        var fileName = region.ToLowerInvariant();
+                        self.regionPurpleTokens()[fileName] = new();
+                        self.regionPurpleTokensAccessibility()[fileName] = new();
+                    } catch (Exception e) { CustomRegionsMod.CustomLog($"adding region {region} to purple tokencache broke!\n" + e, true); }
                 });
             }
             else
-            { CustomRegionsMod.BepLogError("failed to il hook BuildTokenCache for resetting regions"); }
+            {
+                CustomRegionsMod.BepLogError("CustomRegions.Arena.ChallengeTokenCache.RainWorld_BuildTokenCache: IL Hook failed.");
+            }
 
             int num = 27;
             if (c.TryGotoNext(MoveType.After,
@@ -110,34 +117,44 @@ namespace CustomRegions.Arena
                 ))
             {
                 c.Emit(OpCodes.Ldarg_0);
-                c.Emit(OpCodes.Ldloc, 1);
-                c.Emit(OpCodes.Ldloc, 10);
+                c.Emit(OpCodes.Ldarg_2);
+                c.Emit(OpCodes.Ldloc, 12);
                 c.Emit(OpCodes.Ldloc, num);
                 c.EmitDelegate((RainWorld self, string region, List<SlugcatStats.Name> slugcats, PlacedObject placedObject) => 
                 {
-                    if (placedObject.type != ChallengeToken.PurpleToken || !ExtEnum<ChallengeData.ChallengeUnlockID>.values.entries.Contains((placedObject.data as CollectToken.CollectTokenData).tokenString))
-                        return;
+                    try
+                    {
+                        var fileName = region.ToLowerInvariant();
+                        if (!self.regionPurpleTokens().ContainsKey(fileName) || placedObject.type != ChallengeToken.PurpleToken || !ExtEnum<ChallengeData.ChallengeUnlockID>.values.entries.Contains((placedObject.data as CollectToken.CollectTokenData).tokenString))
+                            return;
 
-                    var collectTokenData = (placedObject.data as CollectToken.CollectTokenData);
-                    var item = new ChallengeData.ChallengeUnlockID(collectTokenData.tokenString, false);
-                    if (!self.regionPurpleTokens()[region].Contains(item))
-                    {
-                        self.regionPurpleTokens()[region].Add(item);
-                        self.regionPurpleTokensAccessibility()[region].Add(self.FilterTokenClearance(collectTokenData.availableToPlayers, /*oldData*/ new(), slugcats));
+                        var collectTokenData = (placedObject.data as CollectToken.CollectTokenData);
+                        var item = new ChallengeData.ChallengeUnlockID(collectTokenData.tokenString, false);
+                        if (!self.regionPurpleTokens()[fileName].Contains(item))
+                        {
+                            self.regionPurpleTokens()[fileName].Add(item);
+                            self.regionPurpleTokensAccessibility()[fileName].Add(self.FilterTokenClearance(collectTokenData.availableToPlayers, /*oldData*/ new(), slugcats));
+                        }
+                        else
+                        {
+                            int index = self.regionPurpleTokens()[fileName].IndexOf(item);
+                            self.regionPurpleTokensAccessibility()[fileName][index] = self.FilterTokenClearance(collectTokenData.availableToPlayers, self.regionPurpleTokensAccessibility()[fileName][index], slugcats);
+                        }
                     }
-                    else
-                    {
-                        int index = self.regionPurpleTokens()[region].IndexOf(item);
-                        self.regionPurpleTokensAccessibility()[region][index] = self.FilterTokenClearance(collectTokenData.availableToPlayers, self.regionPurpleTokensAccessibility()[region][index], slugcats);
-                    }
+                    catch (Exception e) { CustomRegionsMod.CustomLog($"failed to register PurpleToken for region {region}!\n" + e, true); }
                 });
+            }
+            else
+            {
+                CustomRegionsMod.BepLogError("failed to il hook BuildTokenCache for adding purple token to region");
             }
 
 
             if (c.TryGotoNext(MoveType.AfterLabel,
-                x => x.MatchLdloc(0),
-                x => x.MatchLdstr("tokencache"),
                 x => x.MatchLdloc(1),
+                x => x.MatchLdstr("tokencache"),
+                x => x.MatchLdloc(0),
+                x => x.MatchLdfld(out var field) && field.Name == "fileName",
                 x => x.MatchLdstr(".txt"),
                 x => x.MatchCall<string>(nameof(string.Concat)),
                 x => x.MatchLdloc(5),
@@ -145,24 +162,33 @@ namespace CustomRegions.Arena
                 ))
             {
                 c.Emit(OpCodes.Ldarg_0);
-                c.Emit(OpCodes.Ldloc, 1);
+                c.Emit(OpCodes.Ldarg_2);
                 c.Emit(OpCodes.Ldloc, 5);
-                c.EmitDelegate((RainWorld self, string region, string text) => 
+                c.EmitDelegate((RainWorld self, string region, string text) =>
                 {
-                    if (self.regionPurpleTokens()[region].Count == 0) return text;
-                    text += "&" + tokenind;
-                    for (int num4 = 0; num4 < self.regionPurpleTokens()[region].Count; num4++)
+                    try
                     {
-                        string str8 = string.Join("|", Array.ConvertAll(self.regionPurpleTokensAccessibility()[region][num4].ToArray(), (SlugcatStats.Name x) => x.ToString()));
-                        text = text + self.regionPurpleTokens()[region][num4].ToString() + "~" + str8;
-                        if (num4 != self.regionPurpleTokens()[region].Count - 1)
+                        var fileName = region.ToLowerInvariant();
+                        if (!self.regionPurpleTokens().ContainsKey(fileName) || self.regionPurpleTokens()[fileName].Count == 0) return text;
+                        text += "&" + tokenind;
+                        for (int num4 = 0; num4 < self.regionPurpleTokens()[fileName].Count; num4++)
                         {
-                            text += ",";
+                            string str8 = string.Join("|", Array.ConvertAll(self.regionPurpleTokensAccessibility()[fileName][num4].ToArray(), (SlugcatStats.Name x) => x.ToString()));
+                            text = text + self.regionPurpleTokens()[fileName][num4].ToString() + "~" + str8;
+                            if (num4 != self.regionPurpleTokens()[fileName].Count - 1)
+                            {
+                                text += ",";
+                            }
                         }
                     }
+                    catch (Exception e) { CustomRegionsMod.CustomLog($"building purple token string broke for region {region}!\n" + e, true); }
                     return text;
                 });
                 c.Emit(OpCodes.Stloc, 5);
+            }
+            else
+            {
+                CustomRegionsMod.BepLogError("failed to il hook BuildTokenCache for writing to text file");
             }
         }
 
@@ -192,10 +218,10 @@ namespace CustomRegions.Arena
                 {
                     string[] array2 = File.ReadAllText(path).Split('&');
 
-                    if (array2.Length >= 6 && array2[5].StartsWith(tokenind) && array2[5].Length > tokenind.Length)
+                    if (array2.Length >= 7 && array2[6].StartsWith(tokenind) && array2[6].Length > tokenind.Length)
                     {
-                        UnityEngine.Debug.Log(array2[5]);
-                        string[] array3 = Regex.Split(array2[5].Substring(tokenind.Length), ",");
+                        UnityEngine.Debug.Log(array2[6]);
+                        string[] array3 = Regex.Split(array2[6].Substring(tokenind.Length), ",");
                         for (int k = 0; k < array3.Length; k++)
                         {
                             string[] array4 = Regex.Split(array3[k], "~");

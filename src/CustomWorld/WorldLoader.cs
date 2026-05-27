@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using static CustomRegions.CustomWorld.RegionPreprocessors;
 using static CustomRegions.Mod.Structs;
+using static IL.World;
 
 
 namespace CustomRegions.CustomWorld
@@ -97,7 +98,6 @@ namespace CustomRegions.CustomWorld
         public static void ApplyHooks()
         {
             On.WorldLoader.ctor_RainWorldGame_Name_bool_string_Region_SetupValues += WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues;
-            IL.WorldLoader.AddLineageFromString += WorldLoader_AddLineageFromString;
             On.WorldLoader.CreatingWorld += WorldLoader_CreatingWorld;
             On.WorldLoader.GeneratePopulation += WorldLoader_GeneratePopulation;
             //On.RegionState.AdaptWorldToRegionState += RegionState_AdaptWorldToRegionState;
@@ -191,15 +191,23 @@ namespace CustomRegions.CustomWorld
                     }
                 });
             }
+            else
+            {
+                CustomRegionsMod.BepLogError("CustomRegions.CustomWorld.WorldLoaderHook.WorldLoader_GeneratePopulation1: IL Hook failed.");
+            }
         }
 
         private static void WorldLoader_GeneratePopulation(On.WorldLoader.orig_GeneratePopulation orig, WorldLoader self, bool fresh)
         {
-            foreach (AbstractRoom room in self.abstractRooms)
+
+            if (RemixMenu.CacheAlignmentFix.Value)
             {
-                if (room == null) continue;
-                RainWorld.roomIndexToName[room.index] = room.name;
-                RainWorld.roomNameToIndex[room.name] = room.index;
+                foreach (AbstractRoom room in self.abstractRooms)
+                {
+                    if (room == null || room == self.world.offScreenDen) continue;
+                    RainWorld.roomIndexToName[room.index] = room.name;
+                    RainWorld.roomNameToIndex[room.name] = room.index;
+                }
             }
             orig(self, fresh);
         }
@@ -208,23 +216,6 @@ namespace CustomRegions.CustomWorld
         private static void WorldLoader_CreatingWorld(On.WorldLoader.orig_CreatingWorld orig, WorldLoader self)
         {
             orig(self);
-        }
-
-        private static void WorldLoader_AddLineageFromString(MonoMod.Cil.ILContext il)
-        {
-            var c = new ILCursor(il);
-
-            if (c.TryGotoNext(MoveType.Before,
-                x => x.MatchLdarg(0),
-                x => x.MatchLdfld<WorldLoader>(nameof(WorldLoader.world)),
-                x => x.MatchCallvirt<World>(typeof(World).GetProperty(nameof(World.firstRoomIndex)).GetGetMethod().Name),
-                x => x.MatchLdarg(0),
-                x => x.MatchLdfld<WorldLoader>(nameof(WorldLoader.roomAdder))
-                ))
-            {
-                c.RemoveRange(3);
-                c.Emit(OpCodes.Ldc_I4_0);
-            }
         }
 
         private static void WorldLoader_ctor_RainWorldGame_Name_bool_string_Region_SetupValues(On.WorldLoader.orig_ctor_RainWorldGame_Name_bool_string_Region_SetupValues orig, WorldLoader self, RainWorldGame game, SlugcatStats.Name playerCharacter, bool singleRoomWorld, string worldName, Region region, RainWorldGame.SetupValues setupValues)

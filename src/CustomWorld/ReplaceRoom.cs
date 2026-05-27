@@ -42,7 +42,7 @@ namespace CustomRegions.CustomWorld
             }
             if(count == 0)
             {
-                CustomRegionsMod.BepLogError($"failed to IL hook roomname for ReplaceRoom for [{il.Method.Name}]");
+                CustomRegionsMod.BepLogError($"CustomRegions.CustomWorld.ReplaceRoomPreprocessor.RoomNameILHook: IL Hook failed for [{il.Method.Name}].");
             }
         }
 

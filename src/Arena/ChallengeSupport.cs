@@ -179,6 +179,10 @@ namespace CustomRegions.Arena
                     else return orig;
                 });
             }
+            else
+            {
+                CustomRegionsMod.BepLogError("CustomRegions.Arena.ChallengeSupport.Room_ctor: IL Hook part 1 failed.");
+            }
 
             if (c.TryGotoNext(MoveType.After,
                 x => x.MatchCallvirt<ArenaSetup.GameTypeSetup>("get_challengeID"),
@@ -195,6 +199,10 @@ namespace CustomRegions.Arena
 
                     else return orig;
                 });
+            }
+            else
+            {
+                CustomRegionsMod.BepLogError("CustomRegions.Arena.ChallengeSupport.Room_ctor: IL Hook part 2 failed.");
             }
         }
 
@@ -238,7 +246,7 @@ namespace CustomRegions.Arena
             }
             else
             {
-                CustomRegionsMod.BepLogError("failed to il hook ChallengeMeta.ctor");
+                CustomRegionsMod.BepLogError("CustomRegions.Arena.ChallengeSupport.ChallengeMeta_ctor: IL Hook failed.");
             }
         }
     }

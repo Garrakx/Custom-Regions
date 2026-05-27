@@ -20,7 +20,7 @@ namespace CustomRegions.CustomWorld
 
         private static int AbstractRoom_ExitIndex(On.AbstractRoom.orig_ExitIndex orig, AbstractRoom self, int targetRoom)
         {
-            foreach (LoadingIndex index in self.world.GetAbstractRoom(targetRoom).AbstractIndexes().Value)
+            foreach (LoadingIndex index in self.world.GetAbstractRoom(targetRoom)?.AbstractIndexes().Value)
             {
                 if (!index.IsDefault && index.toRoom == self.name)
                 {

@@ -53,7 +53,7 @@ namespace CustomRegions.Collectables
             }
             else
             {
-                CustomRegionsMod.BepLogError("failed to il hook Room.Loaded!");
+                CustomRegionsMod.BepLogError("CustomRegions.Collectables.Broadcasts.Room_Loaded: IL Hook failed.");
             }
         }
 
@@ -84,7 +84,7 @@ namespace CustomRegions.Collectables
             }
             else
             {
-                CustomRegionsMod.BepLogError("failed to il hook DeathPersistentSaveData.FromString!");
+                CustomRegionsMod.BepLogError("CustomRegions.Collectables.Broadcasts.DeathPersistentSaveData_FromString: IL Hook part 1 failed.");
             }
 
             if (c.TryGotoNext(MoveType.After,
@@ -112,7 +112,7 @@ namespace CustomRegions.Collectables
             }
             else
             {
-                CustomRegionsMod.BepLogError("failed to il hook DeathPersistentSaveData.FromString!");
+                CustomRegionsMod.BepLogError("CustomRegions.Collectables.Broadcasts.DeathPersistentSaveData_FromString: IL Hook part 2 failed.");
             }
         }
 

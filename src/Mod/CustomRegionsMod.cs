@@ -21,7 +21,7 @@ namespace CustomRegions.Mod
     {
         public const string PLUGIN_ID = "com.rainworldgame.garrakx.crs.mod";
         public const string PLUGIN_NAME = "Custom Regions Support";
-        public const string PLUGIN_VERSION = "0.10.4.2";
+        public const string PLUGIN_VERSION = "0.10.5.1";
         public const string JSON_ID = "crs";
 
          
@@ -45,7 +45,6 @@ namespace CustomRegions.Mod
             BepLog($"{PLUGIN_NAME} (v{PLUGIN_VERSION}) initialized, applying hooks...");
 
             try {
-                ModPriorities.ApplyHooks();
                 IndexedEntranceClass.Apply();
                 ReplaceRoomPreprocessor.Apply();
                 Debugging.ApplyHooks();
@@ -67,6 +66,11 @@ namespace CustomRegions.Mod
                 Arena.PreprocessorPatch.ApplyHooks();
                 RainWorldHooks.ApplyHooks();
                 WorldLoaderHook.ApplyHooks();
+                RegionProperties.RegionProperties.ApplyHooks();
+                RegionProperties.CycleRelatedHooks.ApplyHooks();
+                RegionProperties.ScavengerHooks.ApplyHooks();
+                RegionProperties.MiscHooks.ApplyHooks();
+                RegionProperties.InvHooks.ApplyHooks();
             } catch (Exception ex) {
                 BepLogError("Error while applying Hooks: " + ex.ToString());
             }
@@ -76,15 +80,20 @@ namespace CustomRegions.Mod
         private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
         {
             orig(self);
-            if (init) return;
-            init = true;
-            //OptionInterface oi = MachineConnector.GetRegisteredOI("bubbleweedsaver");
-            //cfgEven = oi.config.Bind<bool>("EvenUse", true, new ConfigurableInfo("Whether to use multiple BubbleGrasses evenly or not. Either use all BubbleGrasses in divided speed(true) or use one BubbleGrass at a time(false)."));
-            CreateCustomWorldLog();
-            LoadDebugLevel();
-            FixThreadedLogging();
-            RegionPreprocessors.InitializeBuiltinPreprocessors();
-            CustomLog("Mod is Initialized.");
+            try
+            {
+                RemixMenu.RegisterOptionInterface();
+                if (init) return;
+                init = true;
+                CreateCustomWorldLog();
+                LoadDebugLevel();
+                RegionPreprocessors.InitializeBuiltinPreprocessors();
+                CustomLog("Mod is Initialized.");
+            }
+            catch (Exception e)
+            {
+                BepLogError("error in OnModsInit!\n" + e);
+            }
         }
 
         private static void RainWorld_PostModsInit(On.RainWorld.orig_PostModsInit orig, RainWorld self)
@@ -121,32 +130,20 @@ namespace CustomRegions.Mod
             get => PLUGIN_VERSION;
         }
 
-        private static void FixThreadedLogging()
-        {
-            if (Custom.rainWorld != null)
-            {
-                RainWorld rw = Custom.rainWorld;
-                Application.logMessageReceived -= rw.HandleLog;
-                Application.logMessageReceivedThreaded -= rw.HandleLog; //just in case is already subscribed
-                Application.logMessageReceivedThreaded += rw.HandleLog;
-            }
-            else { CustomLog("failed to fix threaded logging as Custom.rainWorld is still null", false, DebugLevel.FULL); }
-        }
-
         public static void CustomLog(string logText)
         {
             if (!File.Exists(Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + logFileName)) {
                 CreateCustomWorldLog();
             }
 
-            //Debug.Log(logText);
+            if (debugLevel == DebugLevel.NONE) return;
 
             try {
                 using (StreamWriter file = new StreamWriter(Custom.RootFolderDirectory() + Path.DirectorySeparatorChar + logFileName, true)) {
                     file.WriteLine(logText);
                 }
             } catch (Exception e) {
-                Debug.LogError(e);
+                Debug.LogError(e.ToString());
             }
         }
 
@@ -156,7 +153,7 @@ namespace CustomRegions.Mod
         public static void CustomLog(string logText, bool throwException)
         {
             if (throwException) {
-                Debug.LogError("[CRS] " + logText);
+                UnityEngine.Debug.LogError("[CRS] " + logText);
                 logText = "[ERROR] " + logText + "\n";
             }
             CustomLog(logText);
@@ -178,9 +175,9 @@ namespace CustomRegions.Mod
 
         private static void CreateCustomWorldLog()
         {
-            //TODO: Add Date!
             using (StreamWriter sw = File.CreateText(Custom.RootFolderDirectory() + Path.DirectorySeparatorChar.ToString() + logFileName)) {
                 sw.WriteLine($"############################################\n Custom World Log {versionCR} [DEBUG LEVEL: {debugLevel}]\n {DateTime.UtcNow:MM/dd/yyyy HH:mm:ss}\n");
+                if (debugLevel == DebugLevel.NONE) sw.WriteLine($"CRSLog is disabled! It can be re-enabled in the Remix menu");
             }
         }
 
@@ -198,12 +195,19 @@ namespace CustomRegions.Mod
                 {
                     debugLevel = DebugLevel.FULL;
                 }
+                return;
             }
+            SetDebugFromRemix();
         }
 
-        public enum DebugLevel { RELEASE, MEDIUM, FULL }
+        public static void SetDebugFromRemix()
+        {
+            debugLevel = RemixMenu.DebugLevel.Value;
+        }
 
-        public static DebugLevel debugLevel = DebugLevel.RELEASE;
+        public enum DebugLevel { NONE, DEFAULT, MEDIUM, FULL }
+
+        public static DebugLevel debugLevel = DebugLevel.DEFAULT;
         internal static string analyzingLog;
         internal static IEnumerable<object> regionPreprocessors;
     }

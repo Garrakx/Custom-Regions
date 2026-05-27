@@ -32,6 +32,20 @@ namespace CustomRegions.CustomWorld
             On.RoomPreprocessor.PreprocessRoom += RoomPreprocessor_PreprocessRoom;
             On.RoomSettings.Load += RoomSettings_Load;
             On.AIdataPreprocessor.CreatureDone += AIdataPreprocessor_CreatureDone;
+            On.ModManager.ModMerger.WorldRoomSpawn.ctor += WorldRoomSpawn_ctor;
+            On.ModManager.ModMerger.WorldDen.ctor += WorldDen_ctor;
+        }
+
+        private static void WorldDen_ctor(On.ModManager.ModMerger.WorldDen.orig_ctor orig, ModManager.ModMerger.WorldDen self, string denString)
+        {
+            try { orig(self, denString); }
+            catch (Exception e) { CustomRegionsMod.CustomLog($"broken WorldDen: [{denString}]"); throw e; }
+        }
+
+        private static void WorldRoomSpawn_ctor(On.ModManager.ModMerger.WorldRoomSpawn.orig_ctor orig, ModManager.ModMerger.WorldRoomSpawn self, string character, string line, bool excludeMode)
+        {
+            try { orig(self, character, line, excludeMode); }
+            catch(Exception e) { CustomRegionsMod.CustomLog($"broken room line: [{line}]"); throw e; }
         }
 
         private static void AIdataPreprocessor_CreatureDone(On.AIdataPreprocessor.orig_CreatureDone orig, AIdataPreprocessor self)

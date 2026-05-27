@@ -54,6 +54,10 @@ namespace CustomRegions.Arena
                     }
                 });
             }
+            else
+            {
+                CustomRegionsMod.BepLogError("CustomRegions.Arena.PreprocessorPatch.ArenaCreatureSpawner_SpawnArenaCreatures: IL Hook failed.");
+            }
         }
     }
 }

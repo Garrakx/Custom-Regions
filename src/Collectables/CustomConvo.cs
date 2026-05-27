@@ -48,7 +48,7 @@ namespace CustomRegions.Collectables
             }
             else
             {
-                CustomRegionsMod.BepLogError("failed to hook SLOracle.GrabObject");
+                CustomRegionsMod.BepLogError("CustomRegions.Collectables.CustomConvo.SLOracleBehaviorHasMark_GrabObject: IL Hook failed.");
             }
         }
 
@@ -59,7 +59,8 @@ namespace CustomRegions.Collectables
                 x => x.MatchLdloc(1),
                 x => x.MatchCall(typeof(File), nameof(File.Exists)),
                 x => x.MatchBrtrue(out _),
-                x => x.MatchLdstr("NOT FOUND ") //lol
+                x => x.MatchLdcI4(1),
+                x => x.MatchNewarr(typeof(string))
                 ))
             {
                 c.Emit(OpCodes.Ldarg_0);
@@ -72,7 +73,7 @@ namespace CustomRegions.Collectables
             }
             else
             {
-                CustomRegionsMod.BepLogError("failed to il hook Conversation.LoadEventsFromFile!");
+                CustomRegionsMod.BepLogError("CustomRegions.Collectables.CustomConvo.Conversation_LoadEventsFromFileIL: IL Hook failed.");
             }
         }
 
@@ -134,12 +135,15 @@ namespace CustomRegions.Collectables
 
             string slugName = saveFile != null ? "-" + saveFile.value : "";
 
-            for (; ; )
+            for (int i = 0; i < 4; i++)
             {
-                string langDirectory = interfaceOwner.rainWorld.inGameTranslator.SpecificTextFolderDirectory(languageID) + Path.DirectorySeparatorChar;
+                if (iteratorExclusive && !(i is 0 or 1)) continue;
+                if (slugExclusive && !(i is 0 or 2)) continue;
 
-                for (int i = 0; i < 4; i++)
+                for (int j = 0; j < 2; j++)
                 {
+                    languageID = j == 0 ? interfaceOwner.rainWorld.inGameTranslator.currentLanguage : InGameTranslator.LanguageID.English;
+                    string langDirectory = interfaceOwner.rainWorld.inGameTranslator.SpecificTextFolderDirectory(languageID) + Path.DirectorySeparatorChar;
                     string text = i switch
                     {
                         0 => langDirectory + oracleName + fileName + slugName + ".txt",
@@ -148,19 +152,11 @@ namespace CustomRegions.Collectables
                         _ => langDirectory + fileName + ".txt"
                     };
                     CustomRegionsMod.CustomLog($"Searching for pearl convo at path [{text}]: {(File.Exists(AssetManager.ResolveFilePath(text)) ? "Found!" : "Not Found")}", false, CustomRegionsMod.DebugLevel.FULL);
-
-                    if (iteratorExclusive && !(i is 0 or 1)) continue;
-                    if (slugExclusive && !(i is 0 or 2)) continue;
-
                     if (File.Exists(AssetManager.ResolveFilePath(text))) return AssetManager.ResolveFilePath(text);
                 }
-
-                CustomRegionsMod.CustomLog("NOT FOUND " + fileName);
-                if (languageID == InGameTranslator.LanguageID.English) break;
-
-                CustomRegionsMod.CustomLog("RETRY WITH ENGLISH");
-                languageID = InGameTranslator.LanguageID.English;
             }
+
+            CustomRegionsMod.CustomLog("NOT FOUND " + fileName);
             return null;
         }
 

@@ -53,7 +53,7 @@ namespace CustomRegions.Mod
                 { continue; }
                 string text2 = Path.DirectorySeparatorChar + filePath;
 
-                modMerger.AddPendingApply(mod, text2, text, false, true); //only modification files are added to this list now
+                modMerger.AddPendingApply(mod, text2, text, true); //only modification files are added to this list now
             }
             modMerger.ExecuteCustomMerge();
         }
